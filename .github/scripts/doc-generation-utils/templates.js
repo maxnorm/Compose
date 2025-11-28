@@ -97,33 +97,39 @@ ${fn.signature}
     doc += `${safeDescription}\n\n`;
   }
 
-  // Build parameters array
+  // Build parameters array - sanitize descriptions to prevent MDX parsing issues
   const paramsArray = fn.params.map(p => ({
     name: p.name,
     type: p.type,
     required: true,
-    description: p.description || '',
+    description: sanitizeForMdx(p.description || ''),
   }));
 
   // Use function name as endpoint instead of full signature to avoid JSX parsing issues
   // The full signature is shown above as a code block
   const endpoint = fn.name;
 
+  // Stringify parameters as a single line to avoid MDX parsing issues with multiline JSON
+  const paramsJson = JSON.stringify(paramsArray);
+  
   doc += `<APIReference
   method="${method}"
   endpoint="${escapeJsx(endpoint)}"
   description="${escapeJsx(fn.notice || fn.description || '')}"
-  parameters={${JSON.stringify(paramsArray, null, 4).replace(/\n/g, '\n  ')}}
+  parameters={${paramsJson}}
 `;
 
-  // Add response if there are returns
+  // Add response if there are returns - sanitize descriptions
   if (fn.returns && fn.returns.length > 0) {
     const responseObj = {};
     fn.returns.forEach((r, idx) => {
       const key = r.name || `result${idx > 0 ? idx + 1 : ''}`;
-      responseObj[key] = r.description || r.type;
+      const value = r.description || r.type;
+      responseObj[key] = sanitizeForMdx(value);
     });
-    doc += `  response={${JSON.stringify(responseObj, null, 4).replace(/\n/g, '\n  ')}}
+    // Stringify response as a single line to avoid MDX parsing issues
+    const responseJson = JSON.stringify(responseObj);
+    doc += `  response={${responseJson}}
 `;
   }
 
