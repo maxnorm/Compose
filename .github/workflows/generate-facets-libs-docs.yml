@@ -13,7 +13,7 @@ on:
         default: false
         type: boolean
       skip_enhancement:
-        description: 'Skip Copilot Documentation Enhancement'
+        description: 'Skip Copilot Enhancement'
         required: false
         default: false
         type: boolean
@@ -159,7 +159,7 @@ jobs:
             echo '- [ ] Ensure consistency with existing docs'
             echo ''
             echo '---'
-            echo '*This PR was automatically generated. Please review before merging.*'
+            echo '* This PR was automatically generated. Please review before merging.*'
             echo 'EOF'
           } >> $GITHUB_OUTPUT
 
@@ -168,7 +168,7 @@ jobs:
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          title: '📚 [docs] Auto-generated API documentation'
+          title: '[DOCS] Auto-generated API documentation'
           commit-message: 'docs: auto-generate API docs from NatSpec'
           branch: docs/auto-generated-${{ github.run_number }}
           body: ${{ steps.pr-body.outputs.body }}

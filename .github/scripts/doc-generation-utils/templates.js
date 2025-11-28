@@ -14,8 +14,8 @@ function generateHeader(data, position = 99) {
   
   return `---
 sidebar_position: ${position}
-title: ${data.title}
-description: ${escapeYaml(description)}
+title: "${escapeYaml(data.title)}"
+description: "${escapeYaml(description)}"
 ---
 
 import DocHero from '@site/src/components/docs/DocHero';
@@ -440,11 +440,16 @@ This library provides internal functions for use in your custom facets. Import i
 /**
  * Escape special characters for YAML
  * @param {string} str - String to escape
- * @returns {string} Escaped string
+ * @returns {string} Escaped string (ready to be wrapped in quotes)
  */
 function escapeYaml(str) {
   if (!str) return '';
-  return str.replace(/"/g, '\\"').replace(/\n/g, ' ');
+  // Escape quotes and newlines, and remove any trailing/leading whitespace
+  return str
+    .replace(/\\/g, '\\\\')  // Escape backslashes first
+    .replace(/"/g, '\\"')     // Escape double quotes
+    .replace(/\n/g, ' ')      // Replace newlines with spaces
+    .trim();                  // Remove leading/trailing whitespace
 }
 
 /**
