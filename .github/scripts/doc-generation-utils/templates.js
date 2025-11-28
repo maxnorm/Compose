@@ -84,8 +84,17 @@ function generateFunctionDoc(fn) {
   
   let doc = `### ${fn.name}\n\n`;
   
+  // Show signature as code block if available
+  if (fn.signature) {
+    doc += `\`\`\`solidity
+${fn.signature}
+\`\`\`\n\n`;
+  }
+  
+  // Sanitize description for markdown context (escape JSX-like syntax)
   if (fn.description) {
-    doc += `${fn.description}\n\n`;
+    const safeDescription = sanitizeForMdx(fn.description);
+    doc += `${safeDescription}\n\n`;
   }
 
   // Build parameters array
@@ -96,9 +105,13 @@ function generateFunctionDoc(fn) {
     description: p.description || '',
   }));
 
+  // Use function name as endpoint instead of full signature to avoid JSX parsing issues
+  // The full signature is shown above as a code block
+  const endpoint = fn.name;
+
   doc += `<APIReference
   method="${method}"
-  endpoint="${escapeJsx(fn.signature || fn.name)}"
+  endpoint="${escapeJsx(endpoint)}"
   description="${escapeJsx(fn.notice || fn.description || '')}"
   parameters={${JSON.stringify(paramsArray, null, 4).replace(/\n/g, '\n  ')}}
 `;
@@ -459,19 +472,40 @@ function escapeYaml(str) {
 }
 
 /**
+ * Sanitize text to prevent MDX from interpreting it as JSX
+ * Escapes angle brackets and other characters that could break MDX parsing
+ * @param {string} str - String to sanitize
+ * @returns {string} Sanitized string
+ */
+function sanitizeForMdx(str) {
+  if (!str) return '';
+  
+  // Escape all angle brackets to prevent MDX from trying to parse JSX
+  // This is safe for markdown content where we want literal angle brackets
+  return str
+    .replace(/</g, '&lt;')  // Escape less-than
+    .replace(/>/g, '&gt;');  // Escape greater-than
+}
+
+/**
  * Escape special characters for JSX attributes
  * @param {string} str - String to escape
  * @returns {string} Escaped string
  */
 function escapeJsx(str) {
   if (!str) return '';
-  return str
+  
+  // First sanitize to prevent MDX parsing issues
+  let escaped = sanitizeForMdx(str);
+  
+  // Then escape for JSX attributes
+  return escaped
     .replace(/\\/g, '\\\\')  // Escape backslashes first
     .replace(/"/g, '\\"')     // Escape double quotes
     .replace(/'/g, "\\'")     // Escape single quotes
     .replace(/\n/g, ' ')      // Replace newlines with spaces
-    .replace(/</g, '&lt;')    // Escape less-than
-    .replace(/>/g, '&gt;')    // Escape greater-than
+    .replace(/</g, '&lt;')    // Escape less-than (in case sanitizeForMdx missed any)
+    .replace(/>/g, '&gt;')    // Escape greater-than (in case sanitizeForMdx missed any)
     .replace(/\{/g, '&#123;') // Escape opening braces
     .replace(/\}/g, '&#125;') // Escape closing braces
     .trim();                 // Remove leading/trailing whitespace
