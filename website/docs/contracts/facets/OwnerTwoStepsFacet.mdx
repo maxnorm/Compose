@@ -1,0 +1,138 @@
+---
+sidebar_position: 99
+title: "OwnerTwoStepsFacet"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+import APIReference from '@site/src/components/api/APIReference';
+
+<DocHero
+  title="OwnerTwoStepsFacet"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+**Title:**
+
+ERC-173 Two-Step Contract Ownership
+
+[View Source](https://github.com/maxnorm/Compose/blob/ff0903436c4e0119526128efec4dad880d20e793/src/access/OwnerTwoSteps/OwnerTwoSteps.sol)
+
+## Functions
+
+### getStorage
+
+Returns a pointer to the ERC-173 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+
+<APIReference
+  method="GET"
+  endpoint="function getStorage() internal pure returns (OwnerTwoStepsStorage storage s);"
+  description="Returns a pointer to the ERC-173 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION."
+  parameters={[]}
+  response={{
+      "s": "The EOwnerTwoStepsStorage struct in storage."
+  }}
+/>
+
+### owner
+
+Get the address of the owner
+
+<APIReference
+  method="GET"
+  endpoint="function owner() external view returns (address);"
+  description="Get the address of the owner"
+  parameters={[]}
+  response={{
+      "result": "The address of the owner."
+  }}
+/>
+
+### pendingOwner
+
+Get the address of the pending owner
+
+<APIReference
+  method="GET"
+  endpoint="function pendingOwner() external view returns (address);"
+  description="Get the address of the pending owner"
+  parameters={[]}
+  response={{
+      "result": "The address of the pending owner."
+  }}
+/>
+
+### transferOwnership
+
+Set the address of the new owner of the contract
+
+<APIReference
+  method="POST"
+  endpoint="function transferOwnership(address _newOwner) external;"
+  description="Set the address of the new owner of the contract"
+  parameters={[
+      {
+          "name": "_newOwner",
+          "type": "address",
+          "required": true,
+          "description": "The address of the new owner of the contract"
+      }
+  ]}
+/>
+
+### acceptOwnership
+
+<APIReference
+  method="POST"
+  endpoint="function acceptOwnership() external;"
+  description=""
+  parameters={[]}
+/>
+
+### renounceOwnership
+
+<APIReference
+  method="POST"
+  endpoint="function renounceOwnership() external;"
+  description=""
+  parameters={[]}
+/>
+
+## Events
+
+### OwnershipTransferStarted
+
+```solidity
+event OwnershipTransferStarted(address indexed _previousOwner, address indexed _newOwner);
+```
+
+### OwnershipTransferred
+
+```solidity
+event OwnershipTransferred(address indexed _previousOwner, address indexed _newOwner);
+```
+
+## Errors
+
+### OwnerUnauthorizedAccount
+
+```solidity
+error OwnerUnauthorizedAccount();
+```
+
+## Structs
+
+### OwnerTwoStepsStorage
+
+```solidity
+struct OwnerTwoStepsStorage {
+    address owner;
+    address pendingOwner;
+}
+```
+
