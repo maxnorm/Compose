@@ -1,0 +1,106 @@
+---
+sidebar_position: 99
+title: ERC721BurnFacet
+description: **Title:**
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+import APIReference from '@site/src/components/api/APIReference';
+
+<DocHero
+  title="ERC721BurnFacet"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+**Title:**
+
+ERC-721 Token
+
+[View Source](https://github.com/maxnorm/Compose/blob/6956906c9ed86d52ca90b8f2deea310beff37f02/src/token/ERC721/ERC721/ERC721BurnFacet.sol)
+
+## Functions
+
+### getStorage
+
+Returns a pointer to the ERC-721 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+
+<APIReference
+  method="GET"
+  endpoint="function getStorage() internal pure returns (ERC721Storage storage s);"
+  description="Returns a pointer to the ERC-721 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION."
+  parameters={[]}
+  response={{
+      "s": "The ERC721Storage struct in storage."
+  }}
+/>
+
+### burn
+
+Burns (destroys) a token, removing it from enumeration tracking.
+
+<APIReference
+  method="POST"
+  endpoint="function burn(uint256 _tokenId) external;"
+  description="Burns (destroys) a token, removing it from enumeration tracking."
+  parameters={[
+      {
+          "name": "_tokenId",
+          "type": "uint256",
+          "required": true,
+          "description": "The ID of the token to burn."
+      }
+  ]}
+/>
+
+## Events
+
+### Transfer
+
+```solidity
+event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId);
+```
+
+### Approval
+
+```solidity
+event Approval(address indexed _owner, address indexed _to, uint256 indexed _tokenId);
+```
+
+### ApprovalForAll
+
+```solidity
+event ApprovalForAll(address indexed _owner, address indexed _operator, bool _approved);
+```
+
+## Errors
+
+### ERC721NonexistentToken
+
+```solidity
+error ERC721NonexistentToken(uint256 _tokenId);
+```
+
+### ERC721InsufficientApproval
+
+```solidity
+error ERC721InsufficientApproval(address _operator, uint256 _tokenId);
+```
+
+## Structs
+
+### ERC721Storage
+
+```solidity
+struct ERC721Storage {
+    mapping(uint256 tokenId => address owner) ownerOf;
+    mapping(address owner => uint256 balance) balanceOf;
+    mapping(address owner => mapping(address operator => bool approved)) isApprovedForAll;
+    mapping(uint256 tokenId => address approved) approved;
+}
+```
+

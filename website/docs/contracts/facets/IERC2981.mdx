@@ -1,0 +1,81 @@
+---
+sidebar_position: 99
+title: IERC2981
+description: **Title:**
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+import APIReference from '@site/src/components/api/APIReference';
+
+<DocHero
+  title="IERC2981"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+**Title:**
+
+ERC-2981 NFT Royalty Standard Interface
+
+[View Source](https://github.com/maxnorm/Compose/blob/6956906c9ed86d52ca90b8f2deea310beff37f02/src/interfaces/IERC2981.sol)
+
+## Functions
+
+### royaltyInfo
+
+Returns royalty information for a given token and sale price. Called with the sale price to determine how much royalty is owed and to whom. Implementations MUST calculate royalty as a percentage of the sale price.
+
+<APIReference
+  method="POST"
+  endpoint="function royaltyInfo(uint256 _tokenId, uint256 _salePrice)     external     view     returns (address receiver, uint256 royaltyAmount);"
+  description="Returns royalty information for a given token and sale price. Called with the sale price to determine how much royalty is owed and to whom. Implementations MUST calculate royalty as a percentage of the sale price."
+  parameters={[
+      {
+          "name": "_tokenId",
+          "type": "uint256",
+          "required": true,
+          "description": "The NFT asset queried for royalty information."
+      },
+      {
+          "name": "_salePrice",
+          "type": "uint256",
+          "required": true,
+          "description": "The sale price of the NFT asset specified by _tokenId."
+      }
+  ]}
+  response={{
+      "receiver": "The address designated to receive the royalty payment.",
+      "royaltyAmount": "The royalty payment amount for _salePrice."
+  }}
+/>
+
+## Errors
+
+### ERC2981InvalidDefaultRoyalty
+
+```solidity
+error ERC2981InvalidDefaultRoyalty(uint256 _numerator, uint256 _denominator);
+```
+
+### ERC2981InvalidDefaultRoyaltyReceiver
+
+```solidity
+error ERC2981InvalidDefaultRoyaltyReceiver(address _receiver);
+```
+
+### ERC2981InvalidTokenRoyalty
+
+```solidity
+error ERC2981InvalidTokenRoyalty(uint256 _tokenId, uint256 _numerator, uint256 _denominator);
+```
+
+### ERC2981InvalidTokenRoyaltyReceiver
+
+```solidity
+error ERC2981InvalidTokenRoyaltyReceiver(uint256 _tokenId, address _receiver);
+```
+

@@ -1,0 +1,228 @@
+---
+sidebar_position: 99
+title: DiamondCutFacet
+description: Add=0, Replace=1, Remove=2
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+import APIReference from '@site/src/components/api/APIReference';
+
+<DocHero
+  title="DiamondCutFacet"
+  subtitle="Add=0, Replace=1, Remove=2"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+Add=0, Replace=1, Remove=2
+
+```solidity
+
+[View Source](https://github.com/maxnorm/Compose/blob/6956906c9ed86d52ca90b8f2deea310beff37f02/src/diamond/DiamondCutFacet.sol)
+
+## Functions
+
+### getOwnerStorage
+
+Returns a pointer to the owner storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+
+<APIReference
+  method="GET"
+  endpoint="function getOwnerStorage() internal pure returns (OwnerStorage storage s);"
+  description="Returns a pointer to the owner storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION."
+  parameters={[]}
+  response={{
+      "s": "The OwnerStorage struct in storage."
+  }}
+/>
+
+### getDiamondStorage
+
+<APIReference
+  method="GET"
+  endpoint="function getDiamondStorage() internal pure returns (DiamondStorage storage s);"
+  description=""
+  parameters={[]}
+/>
+
+### addFunctions
+
+<APIReference
+  method="POST"
+  endpoint="function addFunctions(address _facet, bytes4[] calldata _functionSelectors) internal;"
+  description=""
+  parameters={[]}
+/>
+
+### replaceFunctions
+
+<APIReference
+  method="POST"
+  endpoint="function replaceFunctions(address _facet, bytes4[] calldata _functionSelectors) internal;"
+  description=""
+  parameters={[]}
+/>
+
+### removeFunctions
+
+<APIReference
+  method="POST"
+  endpoint="function removeFunctions(address _facet, bytes4[] calldata _functionSelectors) internal;"
+  description=""
+  parameters={[]}
+/>
+
+### diamondCut
+
+Add/replace/remove any number of functions and optionally execute a function with delegatecall
+
+<APIReference
+  method="POST"
+  endpoint="function diamondCut(FacetCut[] calldata _diamondCut, address _init, bytes calldata _calldata) external;"
+  description="Add/replace/remove any number of functions and optionally execute a function with delegatecall"
+  parameters={[
+      {
+          "name": "_diamondCut",
+          "type": "FacetCut[]",
+          "required": true,
+          "description": "Contains the facet addresses and function selectors"
+      },
+      {
+          "name": "_init",
+          "type": "address",
+          "required": true,
+          "description": "The address of the contract or facet to execute _calldata"
+      },
+      {
+          "name": "_calldata",
+          "type": "bytes",
+          "required": true,
+          "description": "A function call, including function selector and arguments _calldata is executed with delegatecall on _init"
+      }
+  ]}
+/>
+
+## Events
+
+### DiamondCut
+
+```solidity
+event DiamondCut(FacetCut[] _diamondCut, address _init, bytes _calldata);
+```
+
+## Errors
+
+### OwnerUnauthorizedAccount
+
+```solidity
+error OwnerUnauthorizedAccount();
+```
+
+### NoSelectorsProvidedForFacet
+
+```solidity
+error NoSelectorsProvidedForFacet(address _facet);
+```
+
+### NoBytecodeAtAddress
+
+```solidity
+error NoBytecodeAtAddress(address _contractAddress, string _message);
+```
+
+### RemoveFacetAddressMustBeZeroAddress
+
+```solidity
+error RemoveFacetAddressMustBeZeroAddress(address _facet);
+```
+
+### IncorrectFacetCutAction
+
+```solidity
+error IncorrectFacetCutAction(uint8 _action);
+```
+
+### CannotAddFunctionToDiamondThatAlreadyExists
+
+```solidity
+error CannotAddFunctionToDiamondThatAlreadyExists(bytes4 _selector);
+```
+
+### CannotReplaceImmutableFunction
+
+```solidity
+error CannotReplaceImmutableFunction(bytes4 _selector);
+```
+
+### CannotReplaceFunctionWithTheSameFunctionFromTheSameFacet
+
+```solidity
+error CannotReplaceFunctionWithTheSameFunctionFromTheSameFacet(bytes4 _selector);
+```
+
+### CannotReplaceFunctionThatDoesNotExists
+
+```solidity
+error CannotReplaceFunctionThatDoesNotExists(bytes4 _selector);
+```
+
+### CannotRemoveFunctionThatDoesNotExist
+
+```solidity
+error CannotRemoveFunctionThatDoesNotExist(bytes4 _selector);
+```
+
+### CannotRemoveImmutableFunction
+
+```solidity
+error CannotRemoveImmutableFunction(bytes4 _selector);
+```
+
+### InitializationFunctionReverted
+
+```solidity
+error InitializationFunctionReverted(address _initializationContractAddress, bytes _calldata);
+```
+
+## Structs
+
+### OwnerStorage
+
+```solidity
+struct OwnerStorage {
+    address owner;
+}
+```
+
+### FacetAndPosition
+
+```solidity
+struct FacetAndPosition {
+    address facet;
+    uint16 position;
+}
+```
+
+### DiamondStorage
+
+```solidity
+struct DiamondStorage {
+    mapping(bytes4 functionSelector => FacetAndPosition) facetAndPosition;
+    // Array of all function selectors that can be called in the diamond
+    bytes4[] selectors;
+}
+```
+
+### FacetCut
+
+```solidity
+struct FacetCut {
+    address facetAddress;
+    FacetCutAction action;
+    bytes4[] functionSelectors;
+}
+```
+

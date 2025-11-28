@@ -1,0 +1,117 @@
+---
+sidebar_position: 99
+title: IERC1155Receiver
+description: **Title:**
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+import APIReference from '@site/src/components/api/APIReference';
+
+<DocHero
+  title="IERC1155Receiver"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+**Title:**
+
+ERC-1155 Token Receiver Interface
+
+[View Source](https://github.com/maxnorm/Compose/blob/6956906c9ed86d52ca90b8f2deea310beff37f02/src/token/ERC1155/ERC1155Facet.sol)
+
+## Functions
+
+### onERC1155Received
+
+Handles the receipt of a single ERC-1155 token type. This function is called at the end of a `safeTransferFrom` after the balance has been updated. IMPORTANT: To accept the transfer, this must return `bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"))` (i.e. 0xf23a6e61, or its own function selector).
+
+<APIReference
+  method="POST"
+  endpoint="function onERC1155Received(address _operator, address _from, uint256 _id, uint256 _value, bytes calldata _data)     external     returns (bytes4);"
+  description="Handles the receipt of a single ERC-1155 token type. This function is called at the end of a `safeTransferFrom` after the balance has been updated. IMPORTANT: To accept the transfer, this must return `bytes4(keccak256(\"onERC1155Received(address,address,uint256,uint256,bytes)\"))` (i.e. 0xf23a6e61, or its own function selector)."
+  parameters={[
+      {
+          "name": "_operator",
+          "type": "address",
+          "required": true,
+          "description": "The address which initiated the transfer (i.e. msg.sender)."
+      },
+      {
+          "name": "_from",
+          "type": "address",
+          "required": true,
+          "description": "The address which previously owned the token."
+      },
+      {
+          "name": "_id",
+          "type": "uint256",
+          "required": true,
+          "description": "The ID of the token being transferred."
+      },
+      {
+          "name": "_value",
+          "type": "uint256",
+          "required": true,
+          "description": "The amount of tokens being transferred."
+      },
+      {
+          "name": "_data",
+          "type": "bytes",
+          "required": true,
+          "description": "Additional data with no specified format."
+      }
+  ]}
+  response={{
+      "result": "`bytes4(keccak256(\"onERC1155Received(address,address,uint256,uint256,bytes)\"))` if transfer is allowed."
+  }}
+/>
+
+### onERC1155BatchReceived
+
+Handles the receipt of multiple ERC-1155 token types. This function is called at the end of a `safeBatchTransferFrom` after the balances have been updated. IMPORTANT: To accept the transfer(s), this must return `bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"))` (i.e. 0xbc197c81, or its own function selector).
+
+<APIReference
+  method="POST"
+  endpoint="function onERC1155BatchReceived(     address _operator,     address _from,     uint256[] calldata _ids,     uint256[] calldata _values,     bytes calldata _data ) external returns (bytes4);"
+  description="Handles the receipt of multiple ERC-1155 token types. This function is called at the end of a `safeBatchTransferFrom` after the balances have been updated. IMPORTANT: To accept the transfer(s), this must return `bytes4(keccak256(\"onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)\"))` (i.e. 0xbc197c81, or its own function selector)."
+  parameters={[
+      {
+          "name": "_operator",
+          "type": "address",
+          "required": true,
+          "description": "The address which initiated the batch transfer (i.e. msg.sender)."
+      },
+      {
+          "name": "_from",
+          "type": "address",
+          "required": true,
+          "description": "The address which previously owned the token."
+      },
+      {
+          "name": "_ids",
+          "type": "uint256[]",
+          "required": true,
+          "description": "An array containing ids of each token being transferred (order and length must match _values array)."
+      },
+      {
+          "name": "_values",
+          "type": "uint256[]",
+          "required": true,
+          "description": "An array containing amounts of each token being transferred (order and length must match _ids array)."
+      },
+      {
+          "name": "_data",
+          "type": "bytes",
+          "required": true,
+          "description": "Additional data with no specified format."
+      }
+  ]}
+  response={{
+      "result": "`bytes4(keccak256(\"onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)\"))` if transfer is allowed."
+  }}
+/>
+
