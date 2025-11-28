@@ -1,0 +1,431 @@
+---
+sidebar_position: 99
+title: "IERC20"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+import APIReference from '@site/src/components/api/APIReference';
+
+<DocHero
+  title="IERC20"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+**Title:**
+
+ERC-20 Token Standard Interface
+
+[View Source](https://github.com/maxnorm/Compose/blob/4c4748fcb0d24a68579be4c02891d5ceb2800314/src/interfaces/IERC20.sol)
+
+## Functions
+
+### name
+
+Returns the name of the token.
+
+<APIReference
+  method="GET"
+  endpoint="function name() external view returns (string memory);"
+  description="Returns the name of the token."
+  parameters={[]}
+  response={{
+      "result": "The token name."
+  }}
+/>
+
+### symbol
+
+Returns the symbol of the token.
+
+<APIReference
+  method="GET"
+  endpoint="function symbol() external view returns (string memory);"
+  description="Returns the symbol of the token."
+  parameters={[]}
+  response={{
+      "result": "The token symbol."
+  }}
+/>
+
+### decimals
+
+Returns the number of decimals used for token precision.
+
+<APIReference
+  method="GET"
+  endpoint="function decimals() external view returns (uint8);"
+  description="Returns the number of decimals used for token precision."
+  parameters={[]}
+  response={{
+      "result": "The number of decimals."
+  }}
+/>
+
+### totalSupply
+
+Returns the total supply of tokens.
+
+<APIReference
+  method="GET"
+  endpoint="function totalSupply() external view returns (uint256);"
+  description="Returns the total supply of tokens."
+  parameters={[]}
+  response={{
+      "result": "The total token supply."
+  }}
+/>
+
+### balanceOf
+
+Returns the balance of a specific account.
+
+<APIReference
+  method="GET"
+  endpoint="function balanceOf(address _account) external view returns (uint256);"
+  description="Returns the balance of a specific account."
+  parameters={[
+      {
+          "name": "_account",
+          "type": "address",
+          "required": true,
+          "description": "The address of the account."
+      }
+  ]}
+  response={{
+      "result": "The account balance."
+  }}
+/>
+
+### allowance
+
+Returns the remaining number of tokens that a spender is allowed to spend on behalf of an owner.
+
+<APIReference
+  method="GET"
+  endpoint="function allowance(address _owner, address _spender) external view returns (uint256);"
+  description="Returns the remaining number of tokens that a spender is allowed to spend on behalf of an owner."
+  parameters={[
+      {
+          "name": "_owner",
+          "type": "address",
+          "required": true,
+          "description": "The address of the token owner."
+      },
+      {
+          "name": "_spender",
+          "type": "address",
+          "required": true,
+          "description": "The address of the spender."
+      }
+  ]}
+  response={{
+      "result": "The remaining allowance."
+  }}
+/>
+
+### approve
+
+Approves a spender to transfer up to a certain amount of tokens on behalf of the caller. Emits an [Approval](/src/interfaces/IERC20.sol/interface.IERC20.md#approval) event.
+
+<APIReference
+  method="POST"
+  endpoint="function approve(address _spender, uint256 _value) external returns (bool);"
+  description="Approves a spender to transfer up to a certain amount of tokens on behalf of the caller. Emits an [Approval](/src/interfaces/IERC20.sol/interface.IERC20.md#approval) event."
+  parameters={[
+      {
+          "name": "_spender",
+          "type": "address",
+          "required": true,
+          "description": "The address approved to spend tokens."
+      },
+      {
+          "name": "_value",
+          "type": "uint256",
+          "required": true,
+          "description": "The number of tokens to approve."
+      }
+  ]}
+  response={{
+      "result": "True if the operation succeeded."
+  }}
+/>
+
+### transfer
+
+Transfers tokens to another address. Emits a [Transfer](/src/interfaces/IERC20.sol/interface.IERC20.md#transfer) event.
+
+<APIReference
+  method="POST"
+  endpoint="function transfer(address _to, uint256 _value) external returns (bool);"
+  description="Transfers tokens to another address. Emits a [Transfer](/src/interfaces/IERC20.sol/interface.IERC20.md#transfer) event."
+  parameters={[
+      {
+          "name": "_to",
+          "type": "address",
+          "required": true,
+          "description": "The address to receive the tokens."
+      },
+      {
+          "name": "_value",
+          "type": "uint256",
+          "required": true,
+          "description": "The amount of tokens to transfer."
+      }
+  ]}
+  response={{
+      "result": "True if the operation succeeded."
+  }}
+/>
+
+### transferFrom
+
+Transfers tokens on behalf of another account, provided sufficient allowance exists. Emits a [Transfer](/src/interfaces/IERC20.sol/interface.IERC20.md#transfer) event and decreases the spender's allowance.
+
+<APIReference
+  method="POST"
+  endpoint="function transferFrom(address _from, address _to, uint256 _value) external returns (bool);"
+  description="Transfers tokens on behalf of another account, provided sufficient allowance exists. Emits a [Transfer](/src/interfaces/IERC20.sol/interface.IERC20.md#transfer) event and decreases the spender's allowance."
+  parameters={[
+      {
+          "name": "_from",
+          "type": "address",
+          "required": true,
+          "description": "The address to transfer tokens from."
+      },
+      {
+          "name": "_to",
+          "type": "address",
+          "required": true,
+          "description": "The address to transfer tokens to."
+      },
+      {
+          "name": "_value",
+          "type": "uint256",
+          "required": true,
+          "description": "The amount of tokens to transfer."
+      }
+  ]}
+  response={{
+      "result": "True if the operation succeeded."
+  }}
+/>
+
+### burn
+
+Burns (destroys) a specific amount of tokens from the caller's balance. Emits a [Transfer](/src/interfaces/IERC20.sol/interface.IERC20.md#transfer) event to the zero address.
+
+<APIReference
+  method="POST"
+  endpoint="function burn(uint256 _value) external;"
+  description="Burns (destroys) a specific amount of tokens from the caller's balance. Emits a [Transfer](/src/interfaces/IERC20.sol/interface.IERC20.md#transfer) event to the zero address."
+  parameters={[
+      {
+          "name": "_value",
+          "type": "uint256",
+          "required": true,
+          "description": "The amount of tokens to burn."
+      }
+  ]}
+/>
+
+### burnFrom
+
+Burns tokens from another account, deducting from the caller's allowance. Emits a [Transfer](/src/interfaces/IERC20.sol/interface.IERC20.md#transfer) event to the zero address.
+
+<APIReference
+  method="POST"
+  endpoint="function burnFrom(address _account, uint256 _value) external;"
+  description="Burns tokens from another account, deducting from the caller's allowance. Emits a [Transfer](/src/interfaces/IERC20.sol/interface.IERC20.md#transfer) event to the zero address."
+  parameters={[
+      {
+          "name": "_account",
+          "type": "address",
+          "required": true,
+          "description": "The address whose tokens will be burned."
+      },
+      {
+          "name": "_value",
+          "type": "uint256",
+          "required": true,
+          "description": "The amount of tokens to burn."
+      }
+  ]}
+/>
+
+### nonces
+
+Returns the current nonce for an owner. This value changes each time a permit is used.
+
+<APIReference
+  method="GET"
+  endpoint="function nonces(address _owner) external view returns (uint256);"
+  description="Returns the current nonce for an owner. This value changes each time a permit is used."
+  parameters={[
+      {
+          "name": "_owner",
+          "type": "address",
+          "required": true,
+          "description": "The address of the owner."
+      }
+  ]}
+  response={{
+      "result": "The current nonce."
+  }}
+/>
+
+### DOMAIN_SEPARATOR
+
+Returns the domain separator used in the encoding of the signature for [permit](/src/interfaces/IERC20.sol/interface.IERC20.md#permit). This value is unique to a contract and chain ID combination to prevent replay attacks.
+
+<APIReference
+  method="GET"
+  endpoint="function DOMAIN_SEPARATOR() external view returns (bytes32);"
+  description="Returns the domain separator used in the encoding of the signature for [permit](/src/interfaces/IERC20.sol/interface.IERC20.md#permit). This value is unique to a contract and chain ID combination to prevent replay attacks."
+  parameters={[]}
+  response={{
+      "result": "The domain separator."
+  }}
+/>
+
+### permit
+
+Sets the allowance for a spender via a signature. This function implements EIP-2612 permit functionality.
+
+<APIReference
+  method="POST"
+  endpoint="function permit(     address _owner,     address _spender,     uint256 _value,     uint256 _deadline,     uint8 _v,     bytes32 _r,     bytes32 _s ) external;"
+  description="Sets the allowance for a spender via a signature. This function implements EIP-2612 permit functionality."
+  parameters={[
+      {
+          "name": "_owner",
+          "type": "address",
+          "required": true,
+          "description": "The address of the token owner."
+      },
+      {
+          "name": "_spender",
+          "type": "address",
+          "required": true,
+          "description": "The address of the spender."
+      },
+      {
+          "name": "_value",
+          "type": "uint256",
+          "required": true,
+          "description": "The amount of tokens to approve."
+      },
+      {
+          "name": "_deadline",
+          "type": "uint256",
+          "required": true,
+          "description": "The deadline for the permit (timestamp)."
+      },
+      {
+          "name": "_v",
+          "type": "uint8",
+          "required": true,
+          "description": "The recovery byte of the signature."
+      },
+      {
+          "name": "_r",
+          "type": "bytes32",
+          "required": true,
+          "description": "The r value of the signature."
+      },
+      {
+          "name": "_s",
+          "type": "bytes32",
+          "required": true,
+          "description": "The s value of the signature."
+      }
+  ]}
+/>
+
+## Events
+
+### Transfer
+
+Emitted when tokens are transferred between two addresses.
+
+```solidity
+event Transfer(address indexed _from, address indexed _to, uint256 _value);
+```
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `_from` | `address` | Address sending the tokens. |
+| `_to` | `address` | Address receiving the tokens. |
+| `_value` | `uint256` | Amount of tokens transferred. |
+
+### Approval
+
+Emitted when an approval is made for a spender by an owner.
+
+```solidity
+event Approval(address indexed _owner, address indexed _spender, uint256 _value);
+```
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `_owner` | `address` | The address granting the allowance. |
+| `_spender` | `address` | The address receiving the allowance. |
+| `_value` | `uint256` | The amount approved. |
+
+## Errors
+
+### ERC20InsufficientBalance
+
+Thrown when an account has insufficient balance for a transfer or burn.
+
+```solidity
+error ERC20InsufficientBalance(address _sender, uint256 _balance, uint256 _needed);
+```
+
+### ERC20InvalidSender
+
+Thrown when the sender address is invalid (e.g., zero address).
+
+```solidity
+error ERC20InvalidSender(address _sender);
+```
+
+### ERC20InvalidReceiver
+
+Thrown when the receiver address is invalid (e.g., zero address).
+
+```solidity
+error ERC20InvalidReceiver(address _receiver);
+```
+
+### ERC20InsufficientAllowance
+
+Thrown when a spender tries to use more than the approved allowance.
+
+```solidity
+error ERC20InsufficientAllowance(address _spender, uint256 _allowance, uint256 _needed);
+```
+
+### ERC20InvalidSpender
+
+Thrown when the spender address is invalid (e.g., zero address).
+
+```solidity
+error ERC20InvalidSpender(address _spender);
+```
+
+### ERC2612InvalidSignature
+
+Thrown when a permit signature is invalid or expired.
+
+```solidity
+error ERC2612InvalidSignature(
+    address _owner, address _spender, uint256 _value, uint256 _deadline, uint8 _v, bytes32 _r, bytes32 _s
+);
+```
+

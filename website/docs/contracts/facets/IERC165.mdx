@@ -1,0 +1,48 @@
+---
+sidebar_position: 99
+title: "IERC165"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+import APIReference from '@site/src/components/api/APIReference';
+
+<DocHero
+  title="IERC165"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+**Title:**
+
+ERC-165 Standard Interface Detection Interface
+
+[View Source](https://github.com/maxnorm/Compose/blob/4c4748fcb0d24a68579be4c02891d5ceb2800314/src/interfaceDetection/ERC165/ERC165Facet.sol)
+
+## Functions
+
+### supportsInterface
+
+Query if a contract implements an interface Interface identification is specified in ERC-165. This function uses less than 30,000 gas.
+
+<APIReference
+  method="GET"
+  endpoint="function supportsInterface(bytes4 _interfaceId) external view returns (bool);"
+  description="Query if a contract implements an interface Interface identification is specified in ERC-165. This function uses less than 30,000 gas."
+  parameters={[
+      {
+          "name": "_interfaceId",
+          "type": "bytes4",
+          "required": true,
+          "description": "The interface identifier, as specified in ERC-165"
+      }
+  ]}
+  response={{
+      "result": "`true` if the contract implements `_interfaceId` and `_interfaceId` is not 0xffffffff, `false` otherwise"
+  }}
+/>
+

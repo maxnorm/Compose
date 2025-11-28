@@ -1,0 +1,328 @@
+---
+sidebar_position: 99
+title: "AccessControlFacet"
+description: "API documentation for AccessControlFacet"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+import APIReference from '@site/src/components/api/APIReference';
+
+<DocHero
+  title="AccessControlFacet"
+  subtitle="API documentation for AccessControlFacet"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+Documentation for AccessControlFacet.
+
+[View Source](https://github.com/maxnorm/Compose/blob/4c4748fcb0d24a68579be4c02891d5ceb2800314/src/access/AccessControl/AccessControlFacet.sol)
+
+## Functions
+
+### getStorage
+
+Returns the storage for the AccessControl.
+
+<APIReference
+  method="GET"
+  endpoint="function getStorage() internal pure returns (AccessControlStorage storage s);"
+  description="Returns the storage for the AccessControl."
+  parameters={[]}
+  response={{
+      "s": "The storage for the AccessControl."
+  }}
+/>
+
+### hasRole
+
+Returns if an account has a role.
+
+<APIReference
+  method="GET"
+  endpoint="function hasRole(bytes32 _role, address _account) external view returns (bool);"
+  description="Returns if an account has a role."
+  parameters={[
+      {
+          "name": "_role",
+          "type": "bytes32",
+          "required": true,
+          "description": "The role to check."
+      },
+      {
+          "name": "_account",
+          "type": "address",
+          "required": true,
+          "description": "The account to check the role for."
+      }
+  ]}
+  response={{
+      "result": "True if the account has the role, false otherwise."
+  }}
+/>
+
+### requireRole
+
+Checks if an account has a required role. error: AccessControlUnauthorizedAccount If the account does not have the role.
+
+<APIReference
+  method="POST"
+  endpoint="function requireRole(bytes32 _role, address _account) external view;"
+  description="Checks if an account has a required role. error: AccessControlUnauthorizedAccount If the account does not have the role."
+  parameters={[
+      {
+          "name": "_role",
+          "type": "bytes32",
+          "required": true,
+          "description": "The role to check."
+      },
+      {
+          "name": "_account",
+          "type": "address",
+          "required": true,
+          "description": "The account to check the role for."
+      }
+  ]}
+/>
+
+### getRoleAdmin
+
+Returns the admin role for a role.
+
+<APIReference
+  method="GET"
+  endpoint="function getRoleAdmin(bytes32 _role) external view returns (bytes32);"
+  description="Returns the admin role for a role."
+  parameters={[
+      {
+          "name": "_role",
+          "type": "bytes32",
+          "required": true,
+          "description": "The role to get the admin for."
+      }
+  ]}
+  response={{
+      "result": "The admin role for the role."
+  }}
+/>
+
+### setRoleAdmin
+
+Sets the admin role for a role. Emits a [RoleAdminChanged](/src/access/AccessControl/AccessControlFacet.sol/contract.AccessControlFacet.md#roleadminchanged) event. error: AccessControlUnauthorizedAccount If the caller is not the current admin of the role.
+
+<APIReference
+  method="POST"
+  endpoint="function setRoleAdmin(bytes32 _role, bytes32 _adminRole) external;"
+  description="Sets the admin role for a role. Emits a [RoleAdminChanged](/src/access/AccessControl/AccessControlFacet.sol/contract.AccessControlFacet.md#roleadminchanged) event. error: AccessControlUnauthorizedAccount If the caller is not the current admin of the role."
+  parameters={[
+      {
+          "name": "_role",
+          "type": "bytes32",
+          "required": true,
+          "description": "The role to set the admin for."
+      },
+      {
+          "name": "_adminRole",
+          "type": "bytes32",
+          "required": true,
+          "description": "The new admin role to set."
+      }
+  ]}
+/>
+
+### grantRole
+
+Grants a role to an account. Emits a [RoleGranted](/src/access/AccessControl/AccessControlFacet.sol/contract.AccessControlFacet.md#rolegranted) event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
+
+<APIReference
+  method="POST"
+  endpoint="function grantRole(bytes32 _role, address _account) external;"
+  description="Grants a role to an account. Emits a [RoleGranted](/src/access/AccessControl/AccessControlFacet.sol/contract.AccessControlFacet.md#rolegranted) event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role."
+  parameters={[
+      {
+          "name": "_role",
+          "type": "bytes32",
+          "required": true,
+          "description": "The role to grant."
+      },
+      {
+          "name": "_account",
+          "type": "address",
+          "required": true,
+          "description": "The account to grant the role to."
+      }
+  ]}
+/>
+
+### revokeRole
+
+Revokes a role from an account. Emits a [RoleRevoked](/src/access/AccessControl/AccessControlFacet.sol/contract.AccessControlFacet.md#rolerevoked) event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
+
+<APIReference
+  method="POST"
+  endpoint="function revokeRole(bytes32 _role, address _account) external;"
+  description="Revokes a role from an account. Emits a [RoleRevoked](/src/access/AccessControl/AccessControlFacet.sol/contract.AccessControlFacet.md#rolerevoked) event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role."
+  parameters={[
+      {
+          "name": "_role",
+          "type": "bytes32",
+          "required": true,
+          "description": "The role to revoke."
+      },
+      {
+          "name": "_account",
+          "type": "address",
+          "required": true,
+          "description": "The account to revoke the role from."
+      }
+  ]}
+/>
+
+### grantRoleBatch
+
+Grants a role to multiple accounts in a single transaction. Emits a [RoleGranted](/src/access/AccessControl/AccessControlFacet.sol/contract.AccessControlFacet.md#rolegranted) event for each newly granted account. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
+
+<APIReference
+  method="POST"
+  endpoint="function grantRoleBatch(bytes32 _role, address[] calldata _accounts) external;"
+  description="Grants a role to multiple accounts in a single transaction. Emits a [RoleGranted](/src/access/AccessControl/AccessControlFacet.sol/contract.AccessControlFacet.md#rolegranted) event for each newly granted account. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role."
+  parameters={[
+      {
+          "name": "_role",
+          "type": "bytes32",
+          "required": true,
+          "description": "The role to grant."
+      },
+      {
+          "name": "_accounts",
+          "type": "address[]",
+          "required": true,
+          "description": "The accounts to grant the role to."
+      }
+  ]}
+/>
+
+### revokeRoleBatch
+
+Revokes a role from multiple accounts in a single transaction. Emits a [RoleRevoked](/src/access/AccessControl/AccessControlFacet.sol/contract.AccessControlFacet.md#rolerevoked) event for each account the role is revoked from. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
+
+<APIReference
+  method="POST"
+  endpoint="function revokeRoleBatch(bytes32 _role, address[] calldata _accounts) external;"
+  description="Revokes a role from multiple accounts in a single transaction. Emits a [RoleRevoked](/src/access/AccessControl/AccessControlFacet.sol/contract.AccessControlFacet.md#rolerevoked) event for each account the role is revoked from. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role."
+  parameters={[
+      {
+          "name": "_role",
+          "type": "bytes32",
+          "required": true,
+          "description": "The role to revoke."
+      },
+      {
+          "name": "_accounts",
+          "type": "address[]",
+          "required": true,
+          "description": "The accounts to revoke the role from."
+      }
+  ]}
+/>
+
+### renounceRole
+
+Renounces a role from the caller. Emits a [RoleRevoked](/src/access/AccessControl/AccessControlFacet.sol/contract.AccessControlFacet.md#rolerevoked) event. error: AccessControlUnauthorizedSender If the caller is not the account to renounce the role from.
+
+<APIReference
+  method="POST"
+  endpoint="function renounceRole(bytes32 _role, address _account) external;"
+  description="Renounces a role from the caller. Emits a [RoleRevoked](/src/access/AccessControl/AccessControlFacet.sol/contract.AccessControlFacet.md#rolerevoked) event. error: AccessControlUnauthorizedSender If the caller is not the account to renounce the role from."
+  parameters={[
+      {
+          "name": "_role",
+          "type": "bytes32",
+          "required": true,
+          "description": "The role to renounce."
+      },
+      {
+          "name": "_account",
+          "type": "address",
+          "required": true,
+          "description": "The account to renounce the role from."
+      }
+  ]}
+/>
+
+## Events
+
+### RoleAdminChanged
+
+Emitted when the admin role for a role is changed.
+
+```solidity
+event RoleAdminChanged(bytes32 indexed _role, bytes32 indexed _previousAdminRole, bytes32 indexed _newAdminRole);
+```
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `_role` | `bytes32` | The role that was changed. |
+| `_previousAdminRole` | `bytes32` | The previous admin role. |
+| `_newAdminRole` | `bytes32` | The new admin role. |
+
+### RoleGranted
+
+Emitted when a role is granted to an account.
+
+```solidity
+event RoleGranted(bytes32 indexed _role, address indexed _account, address indexed _sender);
+```
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `_role` | `bytes32` | The role that was granted. |
+| `_account` | `address` | The account that was granted the role. |
+| `_sender` | `address` | The sender that granted the role. |
+
+### RoleRevoked
+
+Emitted when a role is revoked from an account.
+
+```solidity
+event RoleRevoked(bytes32 indexed _role, address indexed _account, address indexed _sender);
+```
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `_role` | `bytes32` | The role that was revoked. |
+| `_account` | `address` | The account from which the role was revoked. |
+| `_sender` | `address` | The account that revoked the role. |
+
+## Errors
+
+### AccessControlUnauthorizedAccount
+
+Thrown when the account does not have a specific role.
+
+```solidity
+error AccessControlUnauthorizedAccount(address _account, bytes32 _role);
+```
+
+### AccessControlUnauthorizedSender
+
+Thrown when the sender is not the account to renounce the role from.
+
+```solidity
+error AccessControlUnauthorizedSender(address _sender, address _account);
+```
+
+## Structs
+
+### AccessControlStorage
+
+```solidity
+struct AccessControlStorage {
+    mapping(address account => mapping(bytes32 role => bool hasRole)) hasRole;
+    mapping(bytes32 role => bytes32 adminRole) adminRole;
+}
+```
+

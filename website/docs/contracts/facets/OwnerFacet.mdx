@@ -1,0 +1,108 @@
+---
+sidebar_position: 99
+title: "OwnerFacet"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+import APIReference from '@site/src/components/api/APIReference';
+
+<DocHero
+  title="OwnerFacet"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+**Title:**
+
+ERC-173 Contract Ownership
+
+[View Source](https://github.com/maxnorm/Compose/blob/4c4748fcb0d24a68579be4c02891d5ceb2800314/src/access/Owner/OwnerFacet.sol)
+
+## Functions
+
+### getStorage
+
+Returns a pointer to the owner storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+
+<APIReference
+  method="GET"
+  endpoint="function getStorage() internal pure returns (OwnerStorage storage s);"
+  description="Returns a pointer to the owner storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION."
+  parameters={[]}
+  response={{
+      "s": "The OwnerStorage struct in storage."
+  }}
+/>
+
+### owner
+
+Get the address of the owner
+
+<APIReference
+  method="GET"
+  endpoint="function owner() external view returns (address);"
+  description="Get the address of the owner"
+  parameters={[]}
+  response={{
+      "result": "The address of the owner."
+  }}
+/>
+
+### transferOwnership
+
+Set the address of the new owner of the contract Set _newOwner to address(0) to renounce any ownership.
+
+<APIReference
+  method="POST"
+  endpoint="function transferOwnership(address _newOwner) external;"
+  description="Set the address of the new owner of the contract Set _newOwner to address(0) to renounce any ownership."
+  parameters={[
+      {
+          "name": "_newOwner",
+          "type": "address",
+          "required": true,
+          "description": "The address of the new owner of the contract"
+      }
+  ]}
+/>
+
+### renounceOwnership
+
+<APIReference
+  method="POST"
+  endpoint="function renounceOwnership() external;"
+  description=""
+  parameters={[]}
+/>
+
+## Events
+
+### OwnershipTransferred
+
+```solidity
+event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+```
+
+## Errors
+
+### OwnerUnauthorizedAccount
+
+```solidity
+error OwnerUnauthorizedAccount();
+```
+
+## Structs
+
+### OwnerStorage
+
+```solidity
+struct OwnerStorage {
+    address owner;
+}
+```
+
