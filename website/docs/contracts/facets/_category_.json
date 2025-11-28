@@ -1,0 +1,12 @@
+{
+  "label": "Facets",
+  "position": 1,
+  "collapsed": true,
+  "link": {
+    "type": "generated-index",
+    "title": "Facets API",
+    "description": "Complete API documentation for all Compose facets. Facets are self-contained smart contract implementations that can be added to your diamond.",
+    "keywords": ["facets", "api", "diamond", "erc-2535"]
+  }
+}
+

@@ -63,18 +63,69 @@ function parsePRNumber(dataFileName) {
 }
 
 /**
- * Read report file
+ * Read file content safely
+ * @param {string} filePath - Path to file (absolute or relative to workspace)
+ * @returns {string|null} File content or null if error
+ */
+function readFileSafe(filePath) {
+  try {
+    // If relative path, join with workspace if available
+    const fullPath = process.env.GITHUB_WORKSPACE && !path.isAbsolute(filePath)
+      ? path.join(process.env.GITHUB_WORKSPACE, filePath)
+      : filePath;
+
+    if (!fs.existsSync(fullPath)) {
+      return null;
+    }
+
+    return fs.readFileSync(fullPath, 'utf8');
+  } catch (error) {
+    console.error(`Error reading file ${filePath}:`, error.message);
+    return null;
+  }
+}
+
+/**
+ * Read report file (legacy - use readFileSafe for new code)
  * @param {string} reportFileName - Name of the report file
  * @returns {string|null} Report content or null if not found
  */
 function readReport(reportFileName) {
   const reportPath = path.join(process.env.GITHUB_WORKSPACE, reportFileName);
+  return readFileSafe(reportPath);
+}
 
-  if (!fs.existsSync(reportPath)) {
-    return null;
+/**
+ * Ensure directory exists, create if not
+ * @param {string} dirPath - Directory path
+ */
+function ensureDir(dirPath) {
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true });
   }
+}
 
-  return fs.readFileSync(reportPath, 'utf8');
+/**
+ * Write file safely
+ * @param {string} filePath - Path to file (absolute or relative to workspace)
+ * @param {string} content - Content to write
+ * @returns {boolean} True if successful
+ */
+function writeFileSafe(filePath, content) {
+  try {
+    // If relative path, join with workspace if available
+    const fullPath = process.env.GITHUB_WORKSPACE && !path.isAbsolute(filePath)
+      ? path.join(process.env.GITHUB_WORKSPACE, filePath)
+      : filePath;
+
+    const dir = path.dirname(fullPath);
+    ensureDir(dir);
+    fs.writeFileSync(fullPath, content);
+    return true;
+  } catch (error) {
+    console.error(`Error writing file ${filePath}:`, error.message);
+    return false;
+  }
 }
 
 /**
@@ -133,5 +184,8 @@ module.exports = {
   downloadArtifact,
   parsePRNumber,
   readReport,
+  readFileSafe,
+  writeFileSafe,
+  ensureDir,
   postOrUpdateComment
 };
