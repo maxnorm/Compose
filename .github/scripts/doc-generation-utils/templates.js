@@ -159,7 +159,9 @@ ${fn.signature}
     doc += `| Name | Type | Description |\n`;
     doc += `|------|------|-------------|\n`;
     for (const p of fn.params) {
-      doc += `| \`${p.name}\` | \`${p.type}\` | ${p.description || ''} |\n`;
+      // Escape pipe characters and other markdown special chars in descriptions
+      const safeDesc = (p.description || '').replace(/\|/g, '\\|').replace(/\n/g, ' ');
+      doc += `| \`${p.name}\` | \`${p.type}\` | ${safeDesc} |\n`;
     }
     doc += `\n`;
   }
@@ -169,7 +171,9 @@ ${fn.signature}
     doc += `| Name | Type | Description |\n`;
     doc += `|------|------|-------------|\n`;
     for (const r of fn.returns) {
-      doc += `| \`${r.name || '-'}\` | \`${r.type}\` | ${r.description || ''} |\n`;
+      // Escape pipe characters and other markdown special chars in descriptions
+      const safeDesc = (r.description || '').replace(/\|/g, '\\|').replace(/\n/g, ' ');
+      doc += `| \`${r.name || '-'}\` | \`${r.type}\` | ${safeDesc} |\n`;
     }
     doc += `\n`;
   }
@@ -221,7 +225,9 @@ ${event.signature}
       section += `| Parameter | Type | Description |\n`;
       section += `|-----------|------|-------------|\n`;
       for (const p of event.params) {
-        section += `| \`${p.name}\` | \`${p.type}\` | ${p.description || ''} |\n`;
+        // Escape pipe characters and other markdown special chars in descriptions
+        const safeDesc = (p.description || '').replace(/\|/g, '\\|').replace(/\n/g, ' ');
+        section += `| \`${p.name}\` | \`${p.type}\` | ${safeDesc} |\n`;
       }
       section += `\n`;
     }
@@ -460,10 +466,15 @@ function escapeYaml(str) {
 function escapeJsx(str) {
   if (!str) return '';
   return str
-    .replace(/"/g, '\\"')
-    .replace(/\n/g, ' ')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
+    .replace(/\\/g, '\\\\')  // Escape backslashes first
+    .replace(/"/g, '\\"')     // Escape double quotes
+    .replace(/'/g, "\\'")     // Escape single quotes
+    .replace(/\n/g, ' ')      // Replace newlines with spaces
+    .replace(/</g, '&lt;')    // Escape less-than
+    .replace(/>/g, '&gt;')    // Escape greater-than
+    .replace(/\{/g, '&#123;') // Escape opening braces
+    .replace(/\}/g, '&#125;') // Escape closing braces
+    .trim();                 // Remove leading/trailing whitespace
 }
 
 module.exports = {

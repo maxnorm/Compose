@@ -51,12 +51,13 @@ function parseForgeDocMarkdown(content, filePath) {
 
     // Parse description (first non-empty lines after title, before sections)
     if (data.title && !currentSection && trimmedLine && !line.startsWith('#') && !line.startsWith('[')) {
+      const sanitizedLine = sanitizeBrokenLinks(trimmedLine);
       if (!data.description) {
-        data.description = trimmedLine;
-        data.subtitle = trimmedLine;
+        data.description = sanitizedLine;
+        data.subtitle = sanitizedLine;
       } else if (!data.overview) {
         // Capture additional lines as overview
-        data.overview = data.description + '\n\n' + trimmedLine;
+        data.overview = data.description + '\n\n' + sanitizedLine;
       }
       continue;
     }
@@ -141,8 +142,9 @@ function parseForgeDocMarkdown(content, filePath) {
       // End description collection on special markers
       if (trimmedLine.startsWith('**Parameters**') || trimmedLine.startsWith('**Returns**')) {
         if (descriptionBuffer.length > 0) {
-          currentItem.description = descriptionBuffer.join(' ').trim();
-          currentItem.notice = currentItem.description;
+          const description = sanitizeBrokenLinks(descriptionBuffer.join(' ').trim());
+          currentItem.description = description;
+          currentItem.notice = description;
           descriptionBuffer = [];
         }
         collectingDescription = false;
@@ -156,7 +158,7 @@ function parseForgeDocMarkdown(content, filePath) {
         if (cells.length >= 3 && cells[0] !== 'Name') {
           const paramName = cells[0].replace(/`/g, '');
           const paramType = cells[1].replace(/`/g, '');
-          const paramDesc = cells[2] || '';
+          const paramDesc = sanitizeBrokenLinks(cells[2] || '');
 
           // Determine if Parameters or Returns based on preceding lines
           const precedingLines = lines.slice(Math.max(0, i - 10), i).join('\n');
@@ -271,6 +273,20 @@ function saveCurrentItem(data, item, type) {
       data.stateVariables.push(item);
       break;
   }
+}
+
+/**
+ * Sanitize markdown links that point to non-existent files
+ * Removes or converts broken links to plain text
+ * @param {string} text - Text that may contain markdown links
+ * @returns {string} Sanitized text
+ */
+function sanitizeBrokenLinks(text) {
+  if (!text) return text;
+  
+  // Remove markdown links that point to /src/ paths (forge doc links)
+  // Pattern: [text](/src/...)
+  return text.replace(/\[([^\]]+)\]\(\/src\/[^\)]+\)/g, '$1');
 }
 
 /**
