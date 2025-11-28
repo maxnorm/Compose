@@ -1,0 +1,78 @@
+---
+sidebar_position: 99
+title: "LibERC165"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+import APIReference from '@site/src/components/api/APIReference';
+
+<DocHero
+  title="LibERC165"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+**Title:**
+
+LibERC165 — ERC-165 Standard Interface Detection Library
+
+[View Source](https://github.com/maxnorm/Compose/blob/65ccb583222569a74d6694fb4ab182f734624c4c/src/interfaceDetection/ERC165/LibERC165.sol)
+
+<Callout type="info" title="Library Usage">
+This library provides internal functions for use in your custom facets. Import it to access shared storage.
+</Callout>
+
+## Storage
+
+Storage position: `STORAGE_POSITION` - Used for diamond storage pattern.
+
+### State Variables
+
+#### STORAGE_POSITION
+
+## Functions
+
+### getStorage
+
+Returns a pointer to the ERC-165 storage struct. Uses inline assembly to bind the storage struct to the fixed storage position.
+
+```solidity
+function getStorage() internal pure returns (ERC165Storage storage s);
+```
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+| `s` | `ERC165Storage` | The ERC-165 storage struct. |
+
+### registerInterface
+
+Register that a contract supports an interface Call this function during initialization to register supported interfaces. For example, in an ERC721 facet initialization, you would call: `LibERC165.registerInterface(type(IERC721).interfaceId)`
+
+```solidity
+function registerInterface(bytes4 _interfaceId) internal;
+```
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+| `_interfaceId` | `bytes4` | The interface ID to register |
+
+## Structs
+
+### ERC165Storage
+
+```solidity
+struct ERC165Storage {
+    /// @notice Mapping of interface IDs to whether they are supported
+    mapping(bytes4 => bool) supportedInterfaces;
+}
+```
+

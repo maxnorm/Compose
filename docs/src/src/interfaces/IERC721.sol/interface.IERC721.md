@@ -1,0 +1,322 @@
+# IERC721
+[Git Source](https://github.com/maxnorm/Compose/blob/65ccb583222569a74d6694fb4ab182f734624c4c/src/interfaces/IERC721.sol)
+
+**Title:**
+ERC-721 Token Standard Interface
+
+Interface for ERC-721 token contracts with custom errors
+
+This interface includes all custom errors used by ERC-721 implementations
+
+
+## Functions
+### name
+
+Returns the token collection name.
+
+
+```solidity
+function name() external view returns (string memory);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`string`|The name of the token collection.|
+
+
+### symbol
+
+Returns the token collection symbol.
+
+
+```solidity
+function symbol() external view returns (string memory);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`string`|The symbol of the token collection.|
+
+
+### balanceOf
+
+Returns the number of tokens owned by a given address.
+
+
+```solidity
+function balanceOf(address _owner) external view returns (uint256);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_owner`|`address`|The address to query the balance of.|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint256`|The balance (number of tokens) owned by `_owner`.|
+
+
+### ownerOf
+
+Returns the owner of a given token ID.
+
+
+```solidity
+function ownerOf(uint256 _tokenId) external view returns (address);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_tokenId`|`uint256`|The token ID to query.|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`address`|The address of the token owner.|
+
+
+### getApproved
+
+Returns the approved address for a given token ID.
+
+
+```solidity
+function getApproved(uint256 _tokenId) external view returns (address);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_tokenId`|`uint256`|The token ID to query the approval of.|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`address`|The approved address for the token.|
+
+
+### isApprovedForAll
+
+Returns true if an operator is approved to manage all of an owner's assets.
+
+
+```solidity
+function isApprovedForAll(address _owner, address _operator) external view returns (bool);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_owner`|`address`|The token owner.|
+|`_operator`|`address`|The operator address.|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bool`|True if the operator is approved for all tokens of the owner.|
+
+
+### approve
+
+Approves another address to transfer the given token ID.
+
+
+```solidity
+function approve(address _approved, uint256 _tokenId) external;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_approved`|`address`|The address to be approved.|
+|`_tokenId`|`uint256`|The token ID to approve.|
+
+
+### setApprovalForAll
+
+Approves or revokes permission for an operator to manage all caller's assets.
+
+
+```solidity
+function setApprovalForAll(address _operator, bool _approved) external;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_operator`|`address`|The operator address to set approval for.|
+|`_approved`|`bool`|True to approve, false to revoke.|
+
+
+### transferFrom
+
+Transfers a token from one address to another.
+
+
+```solidity
+function transferFrom(address _from, address _to, uint256 _tokenId) external;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_from`|`address`|The current owner of the token.|
+|`_to`|`address`|The address to receive the token.|
+|`_tokenId`|`uint256`|The token ID to transfer.|
+
+
+### safeTransferFrom
+
+Safely transfers a token, checking if the receiver can handle ERC-721 tokens.
+
+
+```solidity
+function safeTransferFrom(address _from, address _to, uint256 _tokenId) external;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_from`|`address`|The current owner of the token.|
+|`_to`|`address`|The address to receive the token.|
+|`_tokenId`|`uint256`|The token ID to transfer.|
+
+
+### safeTransferFrom
+
+Safely transfers a token with additional data.
+
+
+```solidity
+function safeTransferFrom(address _from, address _to, uint256 _tokenId, bytes calldata _data) external;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_from`|`address`|The current owner of the token.|
+|`_to`|`address`|The address to receive the token.|
+|`_tokenId`|`uint256`|The token ID to transfer.|
+|`_data`|`bytes`|Additional data with no specified format.|
+
+
+### tokenURI
+
+Provide the metadata URI for a given token ID.
+
+
+```solidity
+function tokenURI(uint256 _tokenId) external view returns (string memory);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_tokenId`|`uint256`|tokenID of the NFT to query the metadata from|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`string`|the URI providing the detailed metadata of the specified tokenID|
+
+
+## Events
+### Transfer
+Emitted when ownership of an NFT changes by any mechanism.
+
+
+```solidity
+event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId);
+```
+
+### Approval
+Emitted when the approved address for an NFT is changed or reaffirmed.
+
+
+```solidity
+event Approval(address indexed _owner, address indexed _approved, uint256 indexed _tokenId);
+```
+
+### ApprovalForAll
+Emitted when an operator is enabled or disabled for an owner.
+
+
+```solidity
+event ApprovalForAll(address indexed _owner, address indexed _operator, bool _approved);
+```
+
+## Errors
+### ERC721InvalidOwner
+Error indicating the queried owner address is invalid (zero address).
+
+
+```solidity
+error ERC721InvalidOwner(address _owner);
+```
+
+### ERC721NonexistentToken
+Error indicating that the queried token does not exist.
+
+
+```solidity
+error ERC721NonexistentToken(uint256 _tokenId);
+```
+
+### ERC721IncorrectOwner
+Error indicating the sender does not match the token owner.
+
+
+```solidity
+error ERC721IncorrectOwner(address _sender, uint256 _tokenId, address _owner);
+```
+
+### ERC721InvalidSender
+Error indicating the sender address is invalid.
+
+
+```solidity
+error ERC721InvalidSender(address _sender);
+```
+
+### ERC721InvalidReceiver
+Error indicating the receiver address is invalid.
+
+
+```solidity
+error ERC721InvalidReceiver(address _receiver);
+```
+
+### ERC721InsufficientApproval
+Error indicating the operator lacks approval to transfer the given token.
+
+
+```solidity
+error ERC721InsufficientApproval(address _operator, uint256 _tokenId);
+```
+
+### ERC721InvalidApprover
+Error indicating the approver address is invalid.
+
+
+```solidity
+error ERC721InvalidApprover(address _approver);
+```
+
+### ERC721InvalidOperator
+Error indicating the operator address is invalid.
+
+
+```solidity
+error ERC721InvalidOperator(address _operator);
+```
+
