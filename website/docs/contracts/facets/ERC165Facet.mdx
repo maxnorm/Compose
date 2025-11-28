@@ -1,0 +1,81 @@
+---
+sidebar_position: 99
+title: "ERC165Facet"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+import APIReference from '@site/src/components/api/APIReference';
+
+<DocHero
+  title="ERC165Facet"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+**Title:**
+
+ERC165Facet — ERC-165 Standard Interface Detection Facet
+
+[View Source](https://github.com/maxnorm/Compose/blob/c5fa0f9e7d2d9c835414fc63aa46e9da0ac324f9/src/interfaceDetection/ERC165/ERC165Facet.sol)
+
+## Functions
+
+### getStorage
+
+```solidity
+function getStorage() internal pure returns (ERC165Storage storage s);
+```
+
+Returns a pointer to the ERC-165 storage struct Uses inline assembly to bind the storage struct to the fixed storage position
+
+<APIReference
+  method="GET"
+  endpoint="getStorage"
+  description="Returns a pointer to the ERC-165 storage struct Uses inline assembly to bind the storage struct to the fixed storage position"
+  parameters={[]}
+  response={{
+      "s": "The ERC-165 storage struct"
+  }}
+/>
+
+### supportsInterface
+
+```solidity
+function supportsInterface(bytes4 _interfaceId) external view returns (bool);
+```
+
+Query if a contract implements an interface This function checks if the diamond supports the given interface ID
+
+<APIReference
+  method="GET"
+  endpoint="supportsInterface"
+  description="Query if a contract implements an interface This function checks if the diamond supports the given interface ID"
+  parameters={[
+      {
+          "name": "_interfaceId",
+          "type": "bytes4",
+          "required": true,
+          "description": "The interface identifier, as specified in ERC-165"
+      }
+  ]}
+  response={{
+      "result": "`true` if the contract implements `_interfaceId` and `_interfaceId` is not 0xffffffff, `false` otherwise"
+  }}
+/>
+
+## Structs
+
+### ERC165Storage
+
+```solidity
+struct ERC165Storage {
+    /// @notice Mapping of interface IDs to whether they are supported
+    mapping(bytes4 => bool) supportedInterfaces;
+}
+```
+

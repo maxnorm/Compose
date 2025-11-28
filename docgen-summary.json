@@ -1,0 +1,210 @@
+{
+  "timestamp": "2025-11-28T03:15:08.366Z",
+  "facets": [
+    {
+      "title": "IERC6909",
+      "file": "website/docs/contracts/facets/IERC6909.mdx"
+    },
+    {
+      "title": "IERC20",
+      "file": "website/docs/contracts/facets/IERC20.mdx"
+    },
+    {
+      "title": "IERC1155Receiver",
+      "file": "website/docs/contracts/facets/IERC1155Receiver.mdx"
+    },
+    {
+      "title": "IERC2981",
+      "file": "website/docs/contracts/facets/IERC2981.mdx"
+    },
+    {
+      "title": "IERC721Enumerable",
+      "file": "website/docs/contracts/facets/IERC721Enumerable.mdx"
+    },
+    {
+      "title": "IERC721Receiver",
+      "file": "website/docs/contracts/facets/IERC721Receiver.mdx"
+    },
+    {
+      "title": "IERC1155",
+      "file": "website/docs/contracts/facets/IERC1155.mdx"
+    },
+    {
+      "title": "IERC721",
+      "file": "website/docs/contracts/facets/IERC721.mdx"
+    },
+    {
+      "title": "IERC173",
+      "file": "website/docs/contracts/facets/IERC173.mdx"
+    },
+    {
+      "title": "OwnerTwoStepsFacet",
+      "file": "website/docs/contracts/facets/OwnerTwoStepsFacet.mdx"
+    },
+    {
+      "title": "AccessControlPausableFacet",
+      "file": "website/docs/contracts/facets/AccessControlPausableFacet.mdx"
+    },
+    {
+      "title": "AccessControlTemporalFacet",
+      "file": "website/docs/contracts/facets/AccessControlTemporalFacet.mdx"
+    },
+    {
+      "title": "OwnerFacet",
+      "file": "website/docs/contracts/facets/OwnerFacet.mdx"
+    },
+    {
+      "title": "AccessControlFacet",
+      "file": "website/docs/contracts/facets/AccessControlFacet.mdx"
+    },
+    {
+      "title": "ERC20Facet",
+      "file": "website/docs/contracts/facets/ERC20Facet.mdx"
+    },
+    {
+      "title": "ERC20BurnFacet",
+      "file": "website/docs/contracts/facets/ERC20BurnFacet.mdx"
+    },
+    {
+      "title": "ERC20PermitFacet",
+      "file": "website/docs/contracts/facets/ERC20PermitFacet.mdx"
+    },
+    {
+      "title": "ERC20BridgeableFacet",
+      "file": "website/docs/contracts/facets/ERC20BridgeableFacet.mdx"
+    },
+    {
+      "title": "ERC1155Facet",
+      "file": "website/docs/contracts/facets/ERC1155Facet.mdx"
+    },
+    {
+      "title": "IERC1155Receiver",
+      "file": "website/docs/contracts/facets/IERC1155Receiver.mdx"
+    },
+    {
+      "title": "ERC6909Facet",
+      "file": "website/docs/contracts/facets/ERC6909Facet.mdx"
+    },
+    {
+      "title": "ERC721EnumerableBurnFacet",
+      "file": "website/docs/contracts/facets/ERC721EnumerableBurnFacet.mdx"
+    },
+    {
+      "title": "ERC721EnumerableFacet",
+      "file": "website/docs/contracts/facets/ERC721EnumerableFacet.mdx"
+    },
+    {
+      "title": "IERC721Receiver",
+      "file": "website/docs/contracts/facets/IERC721Receiver.mdx"
+    },
+    {
+      "title": "ERC721BurnFacet",
+      "file": "website/docs/contracts/facets/ERC721BurnFacet.mdx"
+    },
+    {
+      "title": "IERC721Receiver",
+      "file": "website/docs/contracts/facets/IERC721Receiver.mdx"
+    },
+    {
+      "title": "ERC721Facet",
+      "file": "website/docs/contracts/facets/ERC721Facet.mdx"
+    },
+    {
+      "title": "IERC721Receiver",
+      "file": "website/docs/contracts/facets/IERC721Receiver.mdx"
+    },
+    {
+      "title": "RoyaltyFacet",
+      "file": "website/docs/contracts/facets/RoyaltyFacet.mdx"
+    },
+    {
+      "title": "ERC165Facet",
+      "file": "website/docs/contracts/facets/ERC165Facet.mdx"
+    },
+    {
+      "title": "IERC165",
+      "file": "website/docs/contracts/facets/IERC165.mdx"
+    },
+    {
+      "title": "DiamondCutFacet",
+      "file": "website/docs/contracts/facets/DiamondCutFacet.mdx"
+    },
+    {
+      "title": "DiamondLoupeFacet",
+      "file": "website/docs/contracts/facets/DiamondLoupeFacet.mdx"
+    }
+  ],
+  "libraries": [
+    {
+      "title": "LibOwnerTwoSteps",
+      "file": "website/docs/contracts/libraries/LibOwnerTwoSteps.mdx"
+    },
+    {
+      "title": "LibAccessControlPausable",
+      "file": "website/docs/contracts/libraries/LibAccessControlPausable.mdx"
+    },
+    {
+      "title": "LibAccessControlTemporal",
+      "file": "website/docs/contracts/libraries/LibAccessControlTemporal.mdx"
+    },
+    {
+      "title": "LibOwner",
+      "file": "website/docs/contracts/libraries/LibOwner.mdx"
+    },
+    {
+      "title": "LibAccessControl",
+      "file": "website/docs/contracts/libraries/LibAccessControl.mdx"
+    },
+    {
+      "title": "LibERC20",
+      "file": "website/docs/contracts/libraries/LibERC20.mdx"
+    },
+    {
+      "title": "LibERC20Bridgeable",
+      "file": "website/docs/contracts/libraries/LibERC20Bridgeable.mdx"
+    },
+    {
+      "title": "IERC1155Receiver",
+      "file": "website/docs/contracts/libraries/IERC1155Receiver.mdx"
+    },
+    {
+      "title": "LibERC1155",
+      "file": "website/docs/contracts/libraries/LibERC1155.mdx"
+    },
+    {
+      "title": "LibERC6909",
+      "file": "website/docs/contracts/libraries/LibERC6909.mdx"
+    },
+    {
+      "title": "LibERC721Enumerable",
+      "file": "website/docs/contracts/libraries/LibERC721Enumerable.mdx"
+    },
+    {
+      "title": "LibERC721",
+      "file": "website/docs/contracts/libraries/LibERC721.mdx"
+    },
+    {
+      "title": "LibRoyalty",
+      "file": "website/docs/contracts/libraries/LibRoyalty.mdx"
+    },
+    {
+      "title": "LibERC165",
+      "file": "website/docs/contracts/libraries/LibERC165.mdx"
+    },
+    {
+      "title": "LibDiamond",
+      "file": "website/docs/contracts/libraries/LibDiamond.mdx"
+    },
+    {
+      "title": "LibUtils",
+      "file": "website/docs/contracts/libraries/LibUtils.mdx"
+    },
+    {
+      "title": "LibNonReentrancy",
+      "file": "website/docs/contracts/libraries/LibNonReentrancy.mdx"
+    }
+  ],
+  "skipped": [],
+  "errors": [],
+  "totalGenerated": 50
+}

@@ -1,0 +1,358 @@
+---
+sidebar_position: 99
+title: "ERC6909Facet"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+import APIReference from '@site/src/components/api/APIReference';
+
+<DocHero
+  title="ERC6909Facet"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+**Title:**
+
+ERC-6909 Minimal Multi-Token Interface
+
+[View Source](https://github.com/maxnorm/Compose/blob/c5fa0f9e7d2d9c835414fc63aa46e9da0ac324f9/src/token/ERC6909/ERC6909/ERC6909Facet.sol)
+
+## Functions
+
+### getStorage
+
+```solidity
+function getStorage() internal pure returns (ERC6909Storage storage s);
+```
+
+Returns a pointer to the ERC-6909 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+
+<APIReference
+  method="GET"
+  endpoint="getStorage"
+  description="Returns a pointer to the ERC-6909 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION."
+  parameters={[]}
+  response={{
+      "s": "The ERC6909Storage struct in storage."
+  }}
+/>
+
+### balanceOf
+
+```solidity
+function balanceOf(address _owner, uint256 _id) external view returns (uint256);
+```
+
+Owner balance of an id.
+
+<APIReference
+  method="GET"
+  endpoint="balanceOf"
+  description="Owner balance of an id."
+  parameters={[
+      {
+          "name": "_owner",
+          "type": "address",
+          "required": true,
+          "description": "The address of the owner."
+      },
+      {
+          "name": "_id",
+          "type": "uint256",
+          "required": true,
+          "description": "The id of the token."
+      }
+  ]}
+  response={{
+      "result": "The balance of the token."
+  }}
+/>
+
+### allowance
+
+```solidity
+function allowance(address _owner, address _spender, uint256 _id) external view returns (uint256);
+```
+
+Spender allowance of an id.
+
+<APIReference
+  method="GET"
+  endpoint="allowance"
+  description="Spender allowance of an id."
+  parameters={[
+      {
+          "name": "_owner",
+          "type": "address",
+          "required": true,
+          "description": "The address of the owner."
+      },
+      {
+          "name": "_spender",
+          "type": "address",
+          "required": true,
+          "description": "The address of the spender."
+      },
+      {
+          "name": "_id",
+          "type": "uint256",
+          "required": true,
+          "description": "The id of the token."
+      }
+  ]}
+  response={{
+      "result": "The allowance of the token."
+  }}
+/>
+
+### isOperator
+
+```solidity
+function isOperator(address _owner, address _spender) external view returns (bool);
+```
+
+Checks if a spender is approved by an owner as an operator.
+
+<APIReference
+  method="GET"
+  endpoint="isOperator"
+  description="Checks if a spender is approved by an owner as an operator."
+  parameters={[
+      {
+          "name": "_owner",
+          "type": "address",
+          "required": true,
+          "description": "The address of the owner."
+      },
+      {
+          "name": "_spender",
+          "type": "address",
+          "required": true,
+          "description": "The address of the spender."
+      }
+  ]}
+  response={{
+      "result": "The approval status."
+  }}
+/>
+
+### transfer
+
+```solidity
+function transfer(address _receiver, uint256 _id, uint256 _amount) external returns (bool);
+```
+
+Transfers an amount of an id from the caller to a receiver.
+
+<APIReference
+  method="POST"
+  endpoint="transfer"
+  description="Transfers an amount of an id from the caller to a receiver."
+  parameters={[
+      {
+          "name": "_receiver",
+          "type": "address",
+          "required": true,
+          "description": "The address of the receiver."
+      },
+      {
+          "name": "_id",
+          "type": "uint256",
+          "required": true,
+          "description": "The id of the token."
+      },
+      {
+          "name": "_amount",
+          "type": "uint256",
+          "required": true,
+          "description": "The amount of the token."
+      }
+  ]}
+  response={{
+      "result": "Whether the transfer succeeded."
+  }}
+/>
+
+### transferFrom
+
+```solidity
+function transferFrom(address _sender, address _receiver, uint256 _id, uint256 _amount) external returns (bool);
+```
+
+Transfers an amount of an id from a sender to a receiver.
+
+<APIReference
+  method="POST"
+  endpoint="transferFrom"
+  description="Transfers an amount of an id from a sender to a receiver."
+  parameters={[
+      {
+          "name": "_sender",
+          "type": "address",
+          "required": true,
+          "description": "The address of the sender."
+      },
+      {
+          "name": "_receiver",
+          "type": "address",
+          "required": true,
+          "description": "The address of the receiver."
+      },
+      {
+          "name": "_id",
+          "type": "uint256",
+          "required": true,
+          "description": "The id of the token."
+      },
+      {
+          "name": "_amount",
+          "type": "uint256",
+          "required": true,
+          "description": "The amount of the token."
+      }
+  ]}
+  response={{
+      "result": "Whether the transfer succeeded."
+  }}
+/>
+
+### approve
+
+```solidity
+function approve(address _spender, uint256 _id, uint256 _amount) external returns (bool);
+```
+
+Approves an amount of an id to a spender.
+
+<APIReference
+  method="POST"
+  endpoint="approve"
+  description="Approves an amount of an id to a spender."
+  parameters={[
+      {
+          "name": "_spender",
+          "type": "address",
+          "required": true,
+          "description": "The address of the spender."
+      },
+      {
+          "name": "_id",
+          "type": "uint256",
+          "required": true,
+          "description": "The id of the token."
+      },
+      {
+          "name": "_amount",
+          "type": "uint256",
+          "required": true,
+          "description": "The amount of the token."
+      }
+  ]}
+  response={{
+      "result": "Whether the approval succeeded."
+  }}
+/>
+
+### setOperator
+
+```solidity
+function setOperator(address _spender, bool _approved) external returns (bool);
+```
+
+Sets or removes a spender as an operator for the caller.
+
+<APIReference
+  method="POST"
+  endpoint="setOperator"
+  description="Sets or removes a spender as an operator for the caller."
+  parameters={[
+      {
+          "name": "_spender",
+          "type": "address",
+          "required": true,
+          "description": "The address of the spender."
+      },
+      {
+          "name": "_approved",
+          "type": "bool",
+          "required": true,
+          "description": "The approval status."
+      }
+  ]}
+  response={{
+      "result": "Whether the operator update succeeded."
+  }}
+/>
+
+## Events
+
+### Transfer
+
+```solidity
+event Transfer(
+    address _caller, address indexed _sender, address indexed _receiver, uint256 indexed _id, uint256 _amount
+);
+```
+
+### OperatorSet
+
+```solidity
+event OperatorSet(address indexed _owner, address indexed _spender, bool _approved);
+```
+
+### Approval
+
+```solidity
+event Approval(address indexed _owner, address indexed _spender, uint256 indexed _id, uint256 _amount);
+```
+
+## Errors
+
+### ERC6909InsufficientBalance
+
+```solidity
+error ERC6909InsufficientBalance(address _sender, uint256 _balance, uint256 _needed, uint256 _id);
+```
+
+### ERC6909InsufficientAllowance
+
+```solidity
+error ERC6909InsufficientAllowance(address _spender, uint256 _allowance, uint256 _needed, uint256 _id);
+```
+
+### ERC6909InvalidReceiver
+
+```solidity
+error ERC6909InvalidReceiver(address _receiver);
+```
+
+### ERC6909InvalidSender
+
+```solidity
+error ERC6909InvalidSender(address _sender);
+```
+
+### ERC6909InvalidSpender
+
+```solidity
+error ERC6909InvalidSpender(address _spender);
+```
+
+## Structs
+
+### ERC6909Storage
+
+```solidity
+struct ERC6909Storage {
+    mapping(address owner => mapping(uint256 id => uint256 amount)) balanceOf;
+    mapping(address owner => mapping(address spender => mapping(uint256 id => uint256 amount))) allowance;
+    mapping(address owner => mapping(address spender => bool)) isOperator;
+}
+```
+

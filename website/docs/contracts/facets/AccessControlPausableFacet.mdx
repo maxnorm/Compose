@@ -1,0 +1,223 @@
+---
+sidebar_position: 99
+title: "AccessControlPausableFacet"
+description: "API documentation for AccessControlPausableFacet"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+import APIReference from '@site/src/components/api/APIReference';
+
+<DocHero
+  title="AccessControlPausableFacet"
+  subtitle="API documentation for AccessControlPausableFacet"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+Documentation for AccessControlPausableFacet.
+
+[View Source](https://github.com/maxnorm/Compose/blob/c5fa0f9e7d2d9c835414fc63aa46e9da0ac324f9/src/access/AccessControlPausable/AccessControlPausableFacet.sol)
+
+## Functions
+
+### getAccessControlStorage
+
+```solidity
+function getAccessControlStorage() internal pure returns (AccessControlStorage storage s);
+```
+
+Returns the storage for AccessControl.
+
+<APIReference
+  method="GET"
+  endpoint="getAccessControlStorage"
+  description="Returns the storage for AccessControl."
+  parameters={[]}
+  response={{
+      "s": "The AccessControl storage struct."
+  }}
+/>
+
+### getStorage
+
+```solidity
+function getStorage() internal pure returns (AccessControlPausableStorage storage s);
+```
+
+Returns the storage for AccessControlPausable.
+
+<APIReference
+  method="GET"
+  endpoint="getStorage"
+  description="Returns the storage for AccessControlPausable."
+  parameters={[]}
+  response={{
+      "s": "The AccessControlPausable storage struct."
+  }}
+/>
+
+### isRolePaused
+
+```solidity
+function isRolePaused(bytes32 _role) external view returns (bool);
+```
+
+Returns if a role is paused.
+
+<APIReference
+  method="GET"
+  endpoint="isRolePaused"
+  description="Returns if a role is paused."
+  parameters={[
+      {
+          "name": "_role",
+          "type": "bytes32",
+          "required": true,
+          "description": "The role to check."
+      }
+  ]}
+  response={{
+      "result": "True if the role is paused, false otherwise."
+  }}
+/>
+
+### pauseRole
+
+```solidity
+function pauseRole(bytes32 _role) external;
+```
+
+Temporarily disables a role, preventing all accounts from using it. Only the admin of the role can pause it. Emits a RolePaused event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
+
+<APIReference
+  method="POST"
+  endpoint="pauseRole"
+  description="Temporarily disables a role, preventing all accounts from using it. Only the admin of the role can pause it. Emits a RolePaused event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role."
+  parameters={[
+      {
+          "name": "_role",
+          "type": "bytes32",
+          "required": true,
+          "description": "The role to pause."
+      }
+  ]}
+/>
+
+### unpauseRole
+
+```solidity
+function unpauseRole(bytes32 _role) external;
+```
+
+Re-enables a role that was previously paused. Only the admin of the role can unpause it. Emits a RoleUnpaused event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
+
+<APIReference
+  method="POST"
+  endpoint="unpauseRole"
+  description="Re-enables a role that was previously paused. Only the admin of the role can unpause it. Emits a RoleUnpaused event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role."
+  parameters={[
+      {
+          "name": "_role",
+          "type": "bytes32",
+          "required": true,
+          "description": "The role to unpause."
+      }
+  ]}
+/>
+
+### requireRoleNotPaused
+
+```solidity
+function requireRoleNotPaused(bytes32 _role, address _account) external view;
+```
+
+Checks if an account has a role and if the role is not paused. - error: AccessControlUnauthorizedAccount If the account does not have the role. - error: AccessControlRolePaused If the role is paused.
+
+<APIReference
+  method="POST"
+  endpoint="requireRoleNotPaused"
+  description="Checks if an account has a role and if the role is not paused. - error: AccessControlUnauthorizedAccount If the account does not have the role. - error: AccessControlRolePaused If the role is paused."
+  parameters={[
+      {
+          "name": "_role",
+          "type": "bytes32",
+          "required": true,
+          "description": "The role to check."
+      },
+      {
+          "name": "_account",
+          "type": "address",
+          "required": true,
+          "description": "The account to check the role for."
+      }
+  ]}
+/>
+
+## Events
+
+### RolePaused
+
+Event emitted when a role is paused.
+
+```solidity
+event RolePaused(bytes32 indexed _role, address indexed _account);
+```
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `_role` | `bytes32` | The role that was paused. |
+| `_account` | `address` | The account that paused the role. |
+
+### RoleUnpaused
+
+Event emitted when a role is unpaused.
+
+```solidity
+event RoleUnpaused(bytes32 indexed _role, address indexed _account);
+```
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `_role` | `bytes32` | The role that was unpaused. |
+| `_account` | `address` | The account that unpaused the role. |
+
+## Errors
+
+### AccessControlUnauthorizedAccount
+
+Thrown when the account does not have a specific role.
+
+```solidity
+error AccessControlUnauthorizedAccount(address _account, bytes32 _role);
+```
+
+### AccessControlRolePaused
+
+Thrown when a role is paused and an operation requiring that role is attempted.
+
+```solidity
+error AccessControlRolePaused(bytes32 _role);
+```
+
+## Structs
+
+### AccessControlStorage
+
+```solidity
+struct AccessControlStorage {
+    mapping(address account => mapping(bytes32 role => bool hasRole)) hasRole;
+    mapping(bytes32 role => bytes32 adminRole) adminRole;
+}
+```
+
+### AccessControlPausableStorage
+
+```solidity
+struct AccessControlPausableStorage {
+    mapping(bytes32 role => bool paused) pausedRoles;
+}
+```
+
