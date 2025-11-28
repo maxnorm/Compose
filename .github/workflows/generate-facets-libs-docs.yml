@@ -91,8 +91,8 @@ jobs:
         run: |
           # Check if any files were generated
           if [ -f "docgen-summary.json" ]; then
-            TOTAL=$(cat docgen-summary.json | grep -o '"totalGenerated":[0-9]*' | grep -o '[0-9]*')
-            if [ "$TOTAL" -gt "0" ]; then
+            TOTAL=$(cat docgen-summary.json | jq -r '.totalGenerated // 0' 2>/dev/null || echo "0")
+            if [ -n "$TOTAL" ] && [ "$TOTAL" -gt "0" ]; then
               echo "has_generated=true" >> $GITHUB_OUTPUT
               echo "Generated $TOTAL documentation files"
             else
@@ -129,7 +129,7 @@ jobs:
           # Create body
           {
             echo 'body<<EOF'
-            echo '## 📚 Auto-Generated API Documentation'
+            echo '## Auto-Generated API Documentation'
             echo ''
             echo 'This PR contains auto-generated documentation from contract NatSpec comments.'
             echo ''
@@ -147,10 +147,10 @@ jobs:
               echo ''
             fi
             echo '### What was done'
-            echo '1. ✅ Extracted NatSpec using `forge doc`'
-            echo '2. ✅ Converted to Docusaurus MDX format'
-            echo '3. ✅ Enhanced content with GitHub Copilot'
-            echo '4. ✅ Verified documentation build'
+            echo '1. Extracted NatSpec using `forge doc`'
+            echo '2. Converted to Docusaurus MDX format'
+            echo '3. Enhanced content with GitHub Copilot'
+            echo '4. Verified documentation build'
             echo ''
             echo '### Review Checklist'
             echo '- [ ] Review generated content for accuracy'
