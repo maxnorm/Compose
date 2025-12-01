@@ -33,11 +33,12 @@ function sanitizeForMdx(str) {
 
 /**
  * Convert object/array to a safe JavaScript expression for JSX attributes
+ * Returns the value wrapped in curly braces for direct use in JSX: {value}
  * @param {*} obj - Value to convert
- * @returns {string} JSON string safe for JSX
+ * @returns {string} JSX expression with curly braces: {JSON}
  */
 function toJsxExpression(obj) {
-  if (obj == null) return 'null';
+  if (obj == null) return '{null}';
   
   try {
     let jsonStr = JSON.stringify(obj);
@@ -45,10 +46,11 @@ function toJsxExpression(obj) {
     jsonStr = jsonStr.replace(/[\n\r]/g, ' ').replace(/\s+/g, ' ').trim();
     // Verify it's valid JSON
     JSON.parse(jsonStr);
-    return jsonStr;
+    // Return with JSX curly braces included
+    return `{${jsonStr}}`;
   } catch (e) {
     console.warn('Invalid JSON generated:', e.message);
-    return Array.isArray(obj) ? '[]' : '{}';
+    return Array.isArray(obj) ? '{[]}' : '{{}}';
   }
 }
 
