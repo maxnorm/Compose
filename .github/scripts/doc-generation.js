@@ -214,10 +214,6 @@ async function main() {
 
   if (solFiles.length === 0) {
     console.log('No Solidity files to process');
-    console.log('\nUsage:');
-    console.log('  node index.js [changed-files-list]  - Process files from list');
-    console.log('  node index.js --all                 - Process all .sol files');
-    console.log('  node index.js                       - Process git-changed files');
     return;
   }
 
