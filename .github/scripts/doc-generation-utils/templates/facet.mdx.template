@@ -1,0 +1,146 @@
+---
+sidebar_position: {{position}}
+title: "{{escapeYaml title}}"
+description: "{{escapeYaml description}}"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+import APIReference from '@site/src/components/api/APIReference';
+
+<DocHero
+  title="{{escapeJsx title}}"
+  subtitle="{{escapeJsx subtitle}}"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+{{overview}}
+
+{{#if gitSource}}
+[View Source]({{gitSource}})
+
+{{/if}}
+{{#if keyFeatures}}
+<Callout type="info" title="Key Features">
+{{keyFeatures}}
+</Callout>
+
+{{/if}}
+{{#if hasFunctions}}
+## Functions
+
+{{#each functions}}
+### {{name}}
+
+{{#if signature}}
+```solidity
+{{signature}}
+```
+
+{{/if}}
+{{#if description}}
+{{sanitizeMdx description}}
+
+{{/if}}
+<APIReference
+  method="{{method}}"
+  endpoint="{{escapeJsx name}}"
+  description="{{escapeJsx description}}"
+  parameters={{{toJsxExpression params}}}
+{{#if hasReturns}}
+  response={{{toJsxExpression returns}}}
+{{/if}}
+/>
+
+{{/each}}
+{{/if}}
+{{#if hasEvents}}
+## Events
+
+{{#each events}}
+### {{name}}
+
+{{#if description}}
+{{description}}
+
+{{/if}}
+{{#if signature}}
+```solidity
+{{signature}}
+```
+
+{{/if}}
+{{#if hasParams}}
+| Parameter | Type | Description |
+|-----------|------|-------------|
+{{#each params}}
+| `{{name}}` | `{{type}}` | {{escapeMarkdownTable description}} |
+{{/each}}
+
+{{/if}}
+{{/each}}
+{{/if}}
+{{#if hasErrors}}
+## Errors
+
+{{#each errors}}
+### {{name}}
+
+{{#if description}}
+{{description}}
+
+{{/if}}
+{{#if signature}}
+```solidity
+{{signature}}
+```
+
+{{/if}}
+{{/each}}
+{{/if}}
+{{#if hasStructs}}
+## Structs
+
+{{#each structs}}
+### {{name}}
+
+{{#if description}}
+{{description}}
+
+{{/if}}
+{{#if definition}}
+```solidity
+{{definition}}
+```
+
+{{/if}}
+{{/each}}
+{{/if}}
+{{#if usageExample}}
+## Usage Example
+
+```solidity
+{{usageExample}}
+```
+
+{{/if}}
+{{#if bestPractices}}
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+{{bestPractices}}
+</Callout>
+
+{{/if}}
+{{#if securityConsiderations}}
+## Security Considerations
+
+<Callout type="warning" title="Security">
+{{securityConsiderations}}
+</Callout>
+
+{{/if}}
+

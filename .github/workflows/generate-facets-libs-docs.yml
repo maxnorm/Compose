@@ -103,7 +103,7 @@ jobs:
             echo "has_generated=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Build documentation site (verify)
+      - name: Verify documentation site build
         if: steps.check-generated.outputs.has_generated == 'true'
         working-directory: website
         run: |

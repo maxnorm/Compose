@@ -4,10 +4,6 @@
  * Converts forge doc output to Docusaurus MDX format
  * with optional GitHub Copilot enhancement.
  * 
- * Usage:
- *   node index.js [changed-files-list]
- *   node index.js --all
- * 
  * Environment variables:
  *   GITHUB_TOKEN - GitHub token for Copilot API (optional)
  *   SKIP_ENHANCEMENT - Set to 'true' to skip Copilot enhancement
@@ -15,7 +11,6 @@
 
 const path = require('path');
 const {
-  CONFIG,
   getAllSolFiles,
   findForgeDocFiles,
   getContractType,

@@ -1,409 +1,221 @@
 /**
  * MDX Templates for Docusaurus documentation
- * Generates rich documentation pages with custom components
+ * Uses template files with a simple template engine
  */
 
-/**
- * Generate the frontmatter and imports section
- * @param {object} data - Documentation data
- * @param {number} position - Sidebar position
- * @returns {string} Frontmatter and imports
- */
-function generateHeader(data, position = 99) {
-  const description = data.description || `API documentation for ${data.title}`;
-  
-  return `---
-sidebar_position: ${position}
-title: "${escapeYaml(data.title)}"
-description: "${escapeYaml(description)}"
----
-
-import DocHero from '@site/src/components/docs/DocHero';
-import Callout from '@site/src/components/ui/Callout';
-import APIReference from '@site/src/components/api/APIReference';
-
-`;
-}
+const { loadAndRenderTemplate, helpers } = require('./template-engine');
+const { sanitizeForMdx } = helpers;
 
 /**
- * Generate the hero section
- * @param {object} data - Documentation data
- * @returns {string} Hero component JSX
- */
-function generateHero(data) {
-  const subtitle = data.subtitle || data.description || `API documentation for ${data.title}`;
-  
-  return `<DocHero
-  title="${escapeJsx(data.title)}"
-  subtitle="${escapeJsx(subtitle)}"
-  variant="gradient"
-  height="small"
-/>
-
-`;
-}
-
-/**
- * Generate the overview section
- * @param {object} data - Documentation data
- * @returns {string} Overview markdown
- */
-function generateOverview(data) {
-  let overview = `## Overview\n\n`;
-  overview += `${data.overview || data.description || `Documentation for ${data.title}.`}\n\n`;
-
-  if (data.gitSource) {
-    overview += `[View Source](${data.gitSource})\n\n`;
-  }
-
-  return overview;
-}
-
-/**
- * Generate the key features callout
- * @param {object} data - Documentation data
- * @returns {string} Key features callout
- */
-function generateKeyFeatures(data) {
-  if (!data.keyFeatures) return '';
-
-  return `<Callout type="info" title="Key Features">
-${data.keyFeatures}
-</Callout>
-
-`;
-}
-
-/**
- * Generate function documentation using APIReference component
+ * Prepare function data for template rendering (facet style - with APIReference)
  * @param {object} fn - Function data
- * @returns {string} Function documentation
+ * @returns {object} Prepared function data
  */
-function generateFunctionDoc(fn) {
+function prepareFacetFunctionData(fn) {
   const method = (fn.mutability === 'view' || fn.mutability === 'pure') ? 'GET' : 'POST';
   
-  let doc = `### ${fn.name}\n\n`;
-  
-  // Show signature as code block if available
-  if (fn.signature) {
-    doc += `\`\`\`solidity
-${fn.signature}
-\`\`\`\n\n`;
-  }
-  
-  // Sanitize description for markdown context (escape JSX-like syntax)
-  if (fn.description) {
-    const safeDescription = sanitizeForMdx(fn.description);
-    doc += `${safeDescription}\n\n`;
-  }
-
   // Build parameters array - sanitize descriptions to prevent MDX parsing issues
-  const paramsArray = fn.params.map(p => ({
+  const paramsArray = (fn.params || []).map(p => ({
     name: p.name,
     type: p.type,
     required: true,
     description: sanitizeForMdx(p.description || ''),
   }));
 
-  // Use function name as endpoint instead of full signature to avoid JSX parsing issues
-  // The full signature is shown above as a code block
-  const endpoint = fn.name;
-
-  // Stringify parameters as a single line to avoid MDX parsing issues with multiline JSON
-  const paramsJson = JSON.stringify(paramsArray);
-  
-  doc += `<APIReference
-  method="${method}"
-  endpoint="${escapeJsx(endpoint)}"
-  description="${escapeJsx(fn.notice || fn.description || '')}"
-  parameters={${paramsJson}}
-`;
-
-  // Add response if there are returns - sanitize descriptions
+  // Build response object for facets (APIReference expects an object)
+  let returnsObj = null;
   if (fn.returns && fn.returns.length > 0) {
-    const responseObj = {};
+    returnsObj = {};
     fn.returns.forEach((r, idx) => {
       const key = r.name || `result${idx > 0 ? idx + 1 : ''}`;
-      const value = r.description || r.type;
-      responseObj[key] = sanitizeForMdx(value);
+      const value = sanitizeForMdx(r.description || r.type);
+      returnsObj[key] = value;
     });
-    // Stringify response as a single line to avoid MDX parsing issues
-    const responseJson = JSON.stringify(responseObj);
-    doc += `  response={${responseJson}}
-`;
   }
 
-  doc += `/>\n\n`;
-
-  return doc;
+  return {
+    name: fn.name,
+    method,
+    signature: fn.signature,
+    description: fn.notice || fn.description || '',
+    params: paramsArray,
+    returns: returnsObj,
+    hasReturns: returnsObj != null,
+    hasParams: paramsArray.length > 0,
+  };
 }
 
 /**
- * Generate functions section
- * @param {object} data - Documentation data
- * @returns {string} Functions section
- */
-function generateFunctionsSection(data) {
-  if (!data.functions || data.functions.length === 0) return '';
-
-  let section = `## Functions\n\n`;
-
-  for (const fn of data.functions) {
-    section += generateFunctionDoc(fn);
-  }
-
-  return section;
-}
-
-/**
- * Generate library-specific function documentation (table format)
+ * Prepare function data for template rendering (library style - with tables)
  * @param {object} fn - Function data
- * @returns {string} Function documentation
+ * @returns {object} Prepared function data
  */
-function generateLibraryFunctionDoc(fn) {
-  let doc = `### ${fn.name}\n\n`;
+function prepareLibraryFunctionData(fn) {
+  // Build parameters array
+  const paramsArray = (fn.params || []).map(p => ({
+    name: p.name,
+    type: p.type,
+    description: p.description || '',
+  }));
 
-  if (fn.description) {
-    doc += `${fn.description}\n\n`;
-  }
+  // Build returns array for library template (expects array for table rendering)
+  const returnsArray = (fn.returns || []).map(r => ({
+    name: r.name || '-',
+    type: r.type,
+    description: r.description || '',
+  }));
 
-  if (fn.signature) {
-    doc += `\`\`\`solidity
-${fn.signature}
-\`\`\`\n\n`;
-  }
-
-  if (fn.params && fn.params.length > 0) {
-    doc += `**Parameters**\n\n`;
-    doc += `| Name | Type | Description |\n`;
-    doc += `|------|------|-------------|\n`;
-    for (const p of fn.params) {
-      // Escape pipe characters and other markdown special chars in descriptions
-      const safeDesc = (p.description || '').replace(/\|/g, '\\|').replace(/\n/g, ' ');
-      doc += `| \`${p.name}\` | \`${p.type}\` | ${safeDesc} |\n`;
-    }
-    doc += `\n`;
-  }
-
-  if (fn.returns && fn.returns.length > 0) {
-    doc += `**Returns**\n\n`;
-    doc += `| Name | Type | Description |\n`;
-    doc += `|------|------|-------------|\n`;
-    for (const r of fn.returns) {
-      // Escape pipe characters and other markdown special chars in descriptions
-      const safeDesc = (r.description || '').replace(/\|/g, '\\|').replace(/\n/g, ' ');
-      doc += `| \`${r.name || '-'}\` | \`${r.type}\` | ${safeDesc} |\n`;
-    }
-    doc += `\n`;
-  }
-
-  return doc;
+  return {
+    name: fn.name,
+    signature: fn.signature,
+    description: fn.notice || fn.description || '',
+    params: paramsArray,
+    returns: returnsArray,
+    hasReturns: returnsArray.length > 0,
+    hasParams: paramsArray.length > 0,
+  };
 }
 
 /**
- * Generate library functions section
- * @param {object} data - Documentation data
- * @returns {string} Functions section for library
+ * Prepare event data for template rendering
+ * @param {object} event - Event data
+ * @returns {object} Prepared event data
  */
-function generateLibraryFunctionsSection(data) {
-  if (!data.functions || data.functions.length === 0) return '';
-
-  let section = `## Functions\n\n`;
-
-  for (const fn of data.functions) {
-    section += generateLibraryFunctionDoc(fn);
-  }
-
-  return section;
+function prepareEventData(event) {
+  return {
+    name: event.name,
+    description: event.description || '',
+    signature: event.signature,
+    params: (event.params || []).map(p => ({
+      name: p.name,
+      type: p.type,
+      description: p.description || '',
+    })),
+    hasParams: (event.params || []).length > 0,
+  };
 }
 
 /**
- * Generate events section
- * @param {object} data - Documentation data
- * @returns {string} Events section
+ * Prepare error data for template rendering
+ * @param {object} error - Error data
+ * @returns {object} Prepared error data
  */
-function generateEventsSection(data) {
-  if (!data.events || data.events.length === 0) return '';
+function prepareErrorData(error) {
+  return {
+    name: error.name,
+    description: error.description || '',
+    signature: error.signature,
+  };
+}
 
-  let section = `## Events\n\n`;
+/**
+ * Prepare struct data for template rendering
+ * @param {object} struct - Struct data
+ * @returns {object} Prepared struct data
+ */
+function prepareStructData(struct) {
+  return {
+    name: struct.name,
+    description: struct.description || '',
+    definition: struct.definition,
+  };
+}
 
-  for (const event of data.events) {
-    section += `### ${event.name}\n\n`;
+/**
+ * Validate documentation data
+ * @param {object} data - Documentation data to validate
+ * @throws {Error} If data is invalid
+ */
+function validateData(data) {
+  if (!data || typeof data !== 'object') {
+    throw new Error('Invalid data: expected an object');
+  }
+  if (!data.title || typeof data.title !== 'string') {
+    throw new Error('Invalid data: missing or invalid title');
+  }
+}
+
+/**
+ * Prepare base data common to both facet and library templates
+ * @param {object} data - Documentation data
+ * @param {number} position - Sidebar position
+ * @returns {object} Base prepared data
+ */
+function prepareBaseData(data, position = 99) {
+  validateData(data);
+  
+  const description = data.description || `Contract documentation for ${data.title}`;
+  const subtitle = data.subtitle || data.description || `Contract documentation for ${data.title}`;
+  const overview = data.overview || data.description || `Documentation for ${data.title}.`;
+
+  return {
+    position,
+    title: data.title,
+    description,
+    subtitle,
+    overview,
+    gitSource: data.gitSource || '',
+    keyFeatures: data.keyFeatures || '',
+    usageExample: data.usageExample || '',
+    bestPractices: data.bestPractices || '',
+    securityConsiderations: data.securityConsiderations || '',
+    integrationNotes: data.integrationNotes || '',
+    storageInfo: data.storageInfo || '',
     
-    if (event.description) {
-      section += `${event.description}\n\n`;
-    }
-
-    if (event.signature) {
-      section += `\`\`\`solidity
-${event.signature}
-\`\`\`\n\n`;
-    }
-
-    if (event.params && event.params.length > 0) {
-      section += `| Parameter | Type | Description |\n`;
-      section += `|-----------|------|-------------|\n`;
-      for (const p of event.params) {
-        // Escape pipe characters and other markdown special chars in descriptions
-        const safeDesc = (p.description || '').replace(/\|/g, '\\|').replace(/\n/g, ' ');
-        section += `| \`${p.name}\` | \`${p.type}\` | ${safeDesc} |\n`;
-      }
-      section += `\n`;
-    }
-  }
-
-  return section;
-}
-
-/**
- * Generate errors section
- * @param {object} data - Documentation data
- * @returns {string} Errors section
- */
-function generateErrorsSection(data) {
-  if (!data.errors || data.errors.length === 0) return '';
-
-  let section = `## Errors\n\n`;
-
-  for (const error of data.errors) {
-    section += `### ${error.name}\n\n`;
+    // Events
+    events: (data.events || []).map(prepareEventData),
+    hasEvents: (data.events || []).length > 0,
     
-    if (error.description) {
-      section += `${error.description}\n\n`;
-    }
-
-    if (error.signature) {
-      section += `\`\`\`solidity
-${error.signature}
-\`\`\`\n\n`;
-    }
-  }
-
-  return section;
-}
-
-/**
- * Generate structs section
- * @param {object} data - Documentation data
- * @returns {string} Structs section
- */
-function generateStructsSection(data) {
-  if (!data.structs || data.structs.length === 0) return '';
-
-  let section = `## Structs\n\n`;
-
-  for (const struct of data.structs) {
-    section += `### ${struct.name}\n\n`;
+    // Errors
+    errors: (data.errors || []).map(prepareErrorData),
+    hasErrors: (data.errors || []).length > 0,
     
-    if (struct.description) {
-      section += `${struct.description}\n\n`;
-    }
-
-    if (struct.definition) {
-      section += `\`\`\`solidity
-${struct.definition}
-\`\`\`\n\n`;
-    }
-  }
-
-  return section;
+    // Structs
+    structs: (data.structs || []).map(prepareStructData),
+    hasStructs: (data.structs || []).length > 0,
+    
+    // State variables (for libraries)
+    stateVariables: (data.stateVariables || []).map(v => ({
+      name: v.name,
+      description: v.description || '',
+    })),
+    hasStateVariables: (data.stateVariables || []).length > 0,
+    hasStorage: Boolean(data.storageInfo || (data.stateVariables && data.stateVariables.length > 0)),
+  };
 }
 
 /**
- * Generate usage example section
+ * Prepare data for facet template rendering
  * @param {object} data - Documentation data
- * @returns {string} Usage example section
+ * @param {number} position - Sidebar position
+ * @returns {object} Prepared data for facet template
  */
-function generateUsageExample(data) {
-  if (!data.usageExample) return '';
-
-  return `## Usage Example
-
-\`\`\`solidity
-${data.usageExample}
-\`\`\`
-
-`;
+function prepareFacetData(data, position = 99) {
+  const baseData = prepareBaseData(data, position);
+  
+  return {
+    ...baseData,
+    // Functions with APIReference-compatible format
+    functions: (data.functions || []).map(prepareFacetFunctionData),
+    hasFunctions: (data.functions || []).length > 0,
+  };
 }
 
 /**
- * Generate best practices callout
+ * Prepare data for library template rendering
  * @param {object} data - Documentation data
- * @returns {string} Best practices callout
+ * @param {number} position - Sidebar position
+ * @returns {object} Prepared data for library template
  */
-function generateBestPractices(data) {
-  if (!data.bestPractices) return '';
-
-  return `## Best Practices
-
-<Callout type="tip" title="Best Practice">
-${data.bestPractices}
-</Callout>
-
-`;
-}
-
-/**
- * Generate security considerations callout
- * @param {object} data - Documentation data
- * @returns {string} Security considerations callout
- */
-function generateSecurityConsiderations(data) {
-  if (!data.securityConsiderations) return '';
-
-  return `## Security Considerations
-
-<Callout type="warning" title="Security">
-${data.securityConsiderations}
-</Callout>
-
-`;
-}
-
-/**
- * Generate integration notes callout (for libraries)
- * @param {object} data - Documentation data
- * @returns {string} Integration notes callout
- */
-function generateIntegrationNotes(data) {
-  if (!data.integrationNotes) return '';
-
-  return `## Integration Notes
-
-<Callout type="success" title="Shared Storage">
-${data.integrationNotes}
-</Callout>
-
-`;
-}
-
-/**
- * Generate storage info section (for libraries)
- * @param {object} data - Documentation data
- * @returns {string} Storage section
- */
-function generateStorageSection(data) {
-  if (!data.storageInfo && (!data.stateVariables || data.stateVariables.length === 0)) {
-    return '';
-  }
-
-  let section = `## Storage\n\n`;
-
-  if (data.storageInfo) {
-    section += `${data.storageInfo}\n\n`;
-  }
-
-  if (data.stateVariables && data.stateVariables.length > 0) {
-    section += `### State Variables\n\n`;
-    for (const v of data.stateVariables) {
-      section += `#### ${v.name}\n\n`;
-      if (v.description) {
-        section += `${v.description}\n\n`;
-      }
-    }
-  }
-
-  return section;
+function prepareLibraryData(data, position = 99) {
+  const baseData = prepareBaseData(data, position);
+  
+  return {
+    ...baseData,
+    // Functions with table-compatible format (returns as array)
+    functions: (data.functions || []).map(prepareLibraryFunctionData),
+    hasFunctions: (data.functions || []).length > 0,
+  };
 }
 
 /**
@@ -413,21 +225,8 @@ function generateStorageSection(data) {
  * @returns {string} Complete MDX document
  */
 function generateFacetDoc(data, position = 99) {
-  let doc = '';
-
-  doc += generateHeader(data, position);
-  doc += generateHero(data);
-  doc += generateOverview(data);
-  doc += generateKeyFeatures(data);
-  doc += generateFunctionsSection(data);
-  doc += generateEventsSection(data);
-  doc += generateErrorsSection(data);
-  doc += generateStructsSection(data);
-  doc += generateUsageExample(data);
-  doc += generateBestPractices(data);
-  doc += generateSecurityConsiderations(data);
-
-  return doc;
+  const preparedData = prepareFacetData(data, position);
+  return loadAndRenderTemplate('facet', preparedData);
 }
 
 /**
@@ -437,101 +236,11 @@ function generateFacetDoc(data, position = 99) {
  * @returns {string} Complete MDX document
  */
 function generateLibraryDoc(data, position = 99) {
-  let doc = '';
-
-  doc += generateHeader(data, position);
-  doc += generateHero(data);
-  doc += generateOverview(data);
-
-  // Library-specific intro callout
-  doc += `<Callout type="info" title="Library Usage">
-This library provides internal functions for use in your custom facets. Import it to access shared storage.
-</Callout>
-
-`;
-
-  doc += generateStorageSection(data);
-  doc += generateLibraryFunctionsSection(data);
-  doc += generateEventsSection(data);
-  doc += generateErrorsSection(data);
-  doc += generateStructsSection(data);
-  doc += generateUsageExample(data);
-  doc += generateBestPractices(data);
-  doc += generateIntegrationNotes(data);
-
-  return doc;
-}
-
-/**
- * Escape special characters for YAML
- * @param {string} str - String to escape
- * @returns {string} Escaped string (ready to be wrapped in quotes)
- */
-function escapeYaml(str) {
-  if (!str) return '';
-  // Escape quotes and newlines, and remove any trailing/leading whitespace
-  return str
-    .replace(/\\/g, '\\\\')  // Escape backslashes first
-    .replace(/"/g, '\\"')     // Escape double quotes
-    .replace(/\n/g, ' ')      // Replace newlines with spaces
-    .trim();                  // Remove leading/trailing whitespace
-}
-
-/**
- * Sanitize text to prevent MDX from interpreting it as JSX
- * Escapes angle brackets and other characters that could break MDX parsing
- * @param {string} str - String to sanitize
- * @returns {string} Sanitized string
- */
-function sanitizeForMdx(str) {
-  if (!str) return '';
-  
-  // Escape all angle brackets to prevent MDX from trying to parse JSX
-  // This is safe for markdown content where we want literal angle brackets
-  return str
-    .replace(/</g, '&lt;')  // Escape less-than
-    .replace(/>/g, '&gt;');  // Escape greater-than
-}
-
-/**
- * Escape special characters for JSX attributes
- * @param {string} str - String to escape
- * @returns {string} Escaped string
- */
-function escapeJsx(str) {
-  if (!str) return '';
-  
-  // First sanitize to prevent MDX parsing issues
-  let escaped = sanitizeForMdx(str);
-  
-  // Then escape for JSX attributes
-  return escaped
-    .replace(/\\/g, '\\\\')  // Escape backslashes first
-    .replace(/"/g, '\\"')     // Escape double quotes
-    .replace(/'/g, "\\'")     // Escape single quotes
-    .replace(/\n/g, ' ')      // Replace newlines with spaces
-    .replace(/</g, '&lt;')    // Escape less-than (in case sanitizeForMdx missed any)
-    .replace(/>/g, '&gt;')    // Escape greater-than (in case sanitizeForMdx missed any)
-    .replace(/\{/g, '&#123;') // Escape opening braces
-    .replace(/\}/g, '&#125;') // Escape closing braces
-    .trim();                 // Remove leading/trailing whitespace
+  const preparedData = prepareLibraryData(data, position);
+  return loadAndRenderTemplate('library', preparedData);
 }
 
 module.exports = {
   generateFacetDoc,
   generateLibraryDoc,
-  generateHeader,
-  generateHero,
-  generateOverview,
-  generateFunctionsSection,
-  generateLibraryFunctionsSection,
-  generateEventsSection,
-  generateErrorsSection,
-  generateStructsSection,
-  generateUsageExample,
-  generateBestPractices,
-  generateSecurityConsiderations,
-  generateIntegrationNotes,
 };
-
-

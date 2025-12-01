@@ -1,15 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
-const { readFileSafe, writeFileSafe } = require('../workflow-utils');
-
-// Configuration
-const CONFIG = {
-  forgeDocsDir: 'docs/src/src',
-  websiteDocsDir: 'website/docs',
-  facetsOutputDir: 'website/docs/contracts/facets',
-  librariesOutputDir: 'website/docs/contracts/libraries',
-};
+const { readFileSafe } = require('../workflow-utils');
+const CONFIG = require('./config');
 
 /**
  * Get list of changed Solidity files from git diff
@@ -122,7 +115,6 @@ function readChangedFilesFromFile(filePath) {
 }
 
 module.exports = {
-  CONFIG,
   getChangedSolFiles,
   getAllSolFiles,
   findForgeDocFiles,

@@ -4,13 +4,7 @@
  */
 
 const https = require('https');
-
-// GitHub Copilot API configuration
-const COPILOT_CONFIG = {
-  host: 'api.github.com',
-  model: 'gpt-4o',
-  maxTokens: 2000,
-};
+const { copilot: COPILOT_CONFIG } = require('./config');
 
 /**
  * Make HTTPS request (promisified)

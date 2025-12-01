@@ -1,0 +1,173 @@
+---
+sidebar_position: {{position}}
+title: "{{escapeYaml title}}"
+description: "{{escapeYaml description}}"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="{{escapeJsx title}}"
+  subtitle="{{escapeJsx subtitle}}"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+{{overview}}
+
+{{#if gitSource}}
+[View Source]({{gitSource}})
+
+{{/if}}
+<Callout type="info" title="Library Usage">
+This library provides internal functions for use in your custom facets. Import it to access shared storage.
+</Callout>
+
+{{#if hasStorage}}
+## Storage
+
+{{#if storageInfo}}
+{{storageInfo}}
+
+{{/if}}
+{{#if hasStateVariables}}
+### State Variables
+
+{{#each stateVariables}}
+#### {{name}}
+
+{{#if description}}
+{{description}}
+
+{{/if}}
+{{/each}}
+{{/if}}
+{{/if}}
+{{#if hasFunctions}}
+## Functions
+
+{{#each functions}}
+### {{name}}
+
+{{#if description}}
+{{description}}
+
+{{/if}}
+{{#if signature}}
+```solidity
+{{signature}}
+```
+
+{{/if}}
+{{#if hasParams}}
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+{{#each params}}
+| `{{name}}` | `{{type}}` | {{escapeMarkdownTable description}} |
+{{/each}}
+
+{{/if}}
+{{#if hasReturns}}
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+{{#each returns}}
+| `{{name}}` | `{{type}}` | {{escapeMarkdownTable description}} |
+{{/each}}
+
+{{/if}}
+{{/each}}
+{{/if}}
+{{#if hasEvents}}
+## Events
+
+{{#each events}}
+### {{name}}
+
+{{#if description}}
+{{description}}
+
+{{/if}}
+{{#if signature}}
+```solidity
+{{signature}}
+```
+
+{{/if}}
+{{#if hasParams}}
+| Parameter | Type | Description |
+|-----------|------|-------------|
+{{#each params}}
+| `{{name}}` | `{{type}}` | {{escapeMarkdownTable description}} |
+{{/each}}
+
+{{/if}}
+{{/each}}
+{{/if}}
+{{#if hasErrors}}
+## Errors
+
+{{#each errors}}
+### {{name}}
+
+{{#if description}}
+{{description}}
+
+{{/if}}
+{{#if signature}}
+```solidity
+{{signature}}
+```
+
+{{/if}}
+{{/each}}
+{{/if}}
+{{#if hasStructs}}
+## Structs
+
+{{#each structs}}
+### {{name}}
+
+{{#if description}}
+{{description}}
+
+{{/if}}
+{{#if definition}}
+```solidity
+{{definition}}
+```
+
+{{/if}}
+{{/each}}
+{{/if}}
+{{#if usageExample}}
+## Usage Example
+
+```solidity
+{{usageExample}}
+```
+
+{{/if}}
+{{#if bestPractices}}
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+{{bestPractices}}
+</Callout>
+
+{{/if}}
+{{#if integrationNotes}}
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+{{integrationNotes}}
+</Callout>
+
+{{/if}}
+
