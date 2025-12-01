@@ -121,47 +121,26 @@ jobs:
         if: steps.check-generated.outputs.has_generated == 'true'
         id: pr-body
         run: |
-          # Read summary
-          FACETS=$(cat docgen-summary.json | jq -r '.facets[].title' 2>/dev/null | sed 's/^/- /' || echo "")
-          LIBRARIES=$(cat docgen-summary.json | jq -r '.libraries[].title' 2>/dev/null | sed 's/^/- /' || echo "")
-          TOTAL=$(cat docgen-summary.json | jq -r '.totalGenerated' 2>/dev/null || echo "0")
+          node .github/scripts/doc-generation-utils/pr-body-generator.js docgen-summary.json >> $GITHUB_OUTPUT
+
+      - name: Clean up tmp files and stage website pages
+        if: steps.check-generated.outputs.has_generated == 'true'
+        run: |
+          # Remove forge docs folder (if it exists)
+          if [ -d "docs" ]; then
+            rm -rf docs
+          fi
           
-          # Create body
-          {
-            echo 'body<<EOF'
-            echo '## Auto-Generated API Documentation'
-            echo ''
-            echo 'This PR contains auto-generated documentation from contract NatSpec comments.'
-            echo ''
-            echo '### Summary'
-            echo "- **Total generated:** $TOTAL files"
-            echo ''
-            if [ -n "$FACETS" ]; then
-              echo '### Facets'
-              echo "$FACETS"
-              echo ''
-            fi
-            if [ -n "$LIBRARIES" ]; then
-              echo '### Libraries'
-              echo "$LIBRARIES"
-              echo ''
-            fi
-            echo '### What was done'
-            echo '1. Extracted NatSpec using `forge doc`'
-            echo '2. Converted to Docusaurus MDX format'
-            echo '3. Enhanced content with GitHub Copilot'
-            echo '4. Verified documentation build'
-            echo ''
-            echo '### Review Checklist'
-            echo '- [ ] Review generated content for accuracy'
-            echo '- [ ] Verify code examples are correct'
-            echo '- [ ] Check for any missing documentation'
-            echo '- [ ] Ensure consistency with existing docs'
-            echo ''
-            echo '---'
-            echo '* This PR was automatically generated. Please review before merging.*'
-            echo 'EOF'
-          } >> $GITHUB_OUTPUT
+          # Remove summary file (if it exists)
+          if [ -f "docgen-summary.json" ]; then
+            rm -f docgen-summary.json
+          fi
+          
+          # Reset any staged changes
+          git reset
+          
+          # Only stage website documentation files
+          git add website/docs/contracts/
 
       - name: Create Pull Request
         if: steps.check-generated.outputs.has_generated == 'true'
