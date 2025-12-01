@@ -1,0 +1,45 @@
+---
+sidebar_position: 99
+title: "IERC721Receiver"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+import APIReference from '@site/src/components/api/APIReference';
+
+<DocHero
+  title="IERC721Receiver"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+**Title:**
+
+ERC-721 Token Receiver Interface
+
+[View Source](https://github.com/maxnorm/Compose/blob/9d31e7ed569453791f4cfdd4ad4c8785f43e1e85/src/token/ERC721/ERC721/ERC721Facet.sol)
+
+## Functions
+
+### onERC721Received
+
+```solidity
+function onERC721Received(address _operator, address _from, uint256 _tokenId, bytes calldata _data)
+    external
+    returns (bytes4);
+```
+
+Handles the receipt of an NFT.
+
+<APIReference
+  method="POST"
+  endpoint="onERC721Received"
+  description="Handles the receipt of an NFT."
+  parameters={[{"name":"_operator","type":"address","required":true,"description":"The address which called `safeTransferFrom`."},{"name":"_from","type":"address","required":true,"description":"The previous owner of the token."},{"name":"_tokenId","type":"uint256","required":true,"description":"The NFT identifier being transferred."},{"name":"_data","type":"bytes","required":true,"description":"Additional data with no specified format."}]}
+  response={{"result":"The selector to confirm the token transfer."}}
+/>
+

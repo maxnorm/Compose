@@ -1,0 +1,164 @@
+---
+sidebar_position: 99
+title: "ERC20PermitFacet"
+description: "API documentation for ERC20PermitFacet"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+import APIReference from '@site/src/components/api/APIReference';
+
+<DocHero
+  title="ERC20PermitFacet"
+  subtitle="API documentation for ERC20PermitFacet"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+Documentation for ERC20PermitFacet.
+
+[View Source](https://github.com/maxnorm/Compose/blob/9d31e7ed569453791f4cfdd4ad4c8785f43e1e85/src/token/ERC20/ERC20/ERC20PermitFacet.sol)
+
+## Functions
+
+### getERC20Storage
+
+```solidity
+function getERC20Storage() internal pure returns (ERC20Storage storage s);
+```
+
+<APIReference
+  method="GET"
+  endpoint="getERC20Storage"
+  description=""
+  parameters={[]}
+/>
+
+### getStorage
+
+```solidity
+function getStorage() internal pure returns (ERC20PermitStorage storage s);
+```
+
+<APIReference
+  method="GET"
+  endpoint="getStorage"
+  description=""
+  parameters={[]}
+/>
+
+### nonces
+
+```solidity
+function nonces(address _owner) external view returns (uint256);
+```
+
+Returns the current nonce for an owner. This value changes each time a permit is used.
+
+<APIReference
+  method="GET"
+  endpoint="nonces"
+  description="Returns the current nonce for an owner. This value changes each time a permit is used."
+  parameters={[{"name":"_owner","type":"address","required":true,"description":"The address of the owner."}]}
+  response={{"result":"The current nonce."}}
+/>
+
+### DOMAIN_SEPARATOR
+
+```solidity
+function DOMAIN_SEPARATOR() external view returns (bytes32);
+```
+
+Returns the domain separator used in the encoding of the signature for permit. This value is unique to a contract and chain ID combination to prevent replay attacks.
+
+<APIReference
+  method="GET"
+  endpoint="DOMAIN_SEPARATOR"
+  description="Returns the domain separator used in the encoding of the signature for permit. This value is unique to a contract and chain ID combination to prevent replay attacks."
+  parameters={[]}
+  response={{"result":"The domain separator."}}
+/>
+
+### permit
+
+```solidity
+function permit(
+    address _owner,
+    address _spender,
+    uint256 _value,
+    uint256 _deadline,
+    uint8 _v,
+    bytes32 _r,
+    bytes32 _s
+) external;
+```
+
+Sets the allowance for a spender via a signature. This function implements EIP-2612 permit functionality.
+
+<APIReference
+  method="POST"
+  endpoint="permit"
+  description="Sets the allowance for a spender via a signature. This function implements EIP-2612 permit functionality."
+  parameters={[{"name":"_owner","type":"address","required":true,"description":"The address of the token owner."},{"name":"_spender","type":"address","required":true,"description":"The address of the spender."},{"name":"_value","type":"uint256","required":true,"description":"The amount of tokens to approve."},{"name":"_deadline","type":"uint256","required":true,"description":"The deadline for the permit (timestamp)."},{"name":"_v","type":"uint8","required":true,"description":"The recovery byte of the signature."},{"name":"_r","type":"bytes32","required":true,"description":"The r value of the signature."},{"name":"_s","type":"bytes32","required":true,"description":"The s value of the signature."}]}
+/>
+
+## Events
+
+### Approval
+
+Emitted when an approval is made for a spender by an owner.
+
+```solidity
+event Approval(address indexed _owner, address indexed _spender, uint256 _value);
+```
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `_owner` | `address` | The address granting the allowance. |
+| `_spender` | `address` | The address receiving the allowance. |
+| `_value` | `uint256` | The amount approved. |
+
+## Errors
+
+### ERC2612InvalidSignature
+
+Thrown when a permit signature is invalid or expired.
+
+```solidity
+error ERC2612InvalidSignature(
+    address _owner, address _spender, uint256 _value, uint256 _deadline, uint8 _v, bytes32 _r, bytes32 _s
+);
+```
+
+### ERC20InvalidSpender
+
+Thrown when the spender address is invalid (e.g., zero address).
+
+```solidity
+error ERC20InvalidSpender(address _spender);
+```
+
+## Structs
+
+### ERC20Storage
+
+```solidity
+struct ERC20Storage {
+    mapping(address owner => uint256 balance) balanceOf;
+    uint256 totalSupply;
+    mapping(address owner => mapping(address spender => uint256 allowance)) allowance;
+    uint8 decimals;
+    string name;
+}
+```
+
+### ERC20PermitStorage
+
+```solidity
+struct ERC20PermitStorage {
+    mapping(address owner => uint256) nonces;
+}
+```
+

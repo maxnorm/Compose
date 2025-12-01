@@ -1,0 +1,57 @@
+---
+sidebar_position: 99
+title: "LibNonReentrancy"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+import APIReference from '@site/src/components/api/APIReference';
+
+<DocHero
+  title="LibNonReentrancy"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+**Title:**
+
+LibNonReentrancy - Non-Reentrancy Library
+
+[View Source](https://github.com/maxnorm/Compose/blob/9d31e7ed569453791f4cfdd4ad4c8785f43e1e85/src/libraries/LibNonReentrancy.sol)
+
+<Callout type="info" title="Library Usage">
+This library provides internal functions for use in your custom facets. Import it to access shared storage.
+</Callout>
+
+## Storage
+
+### State Variables
+
+#### NON_REENTRANT_SLOT
+
+## Functions
+
+### enter
+
+```solidity
+function enter() internal;
+```
+
+### exit
+
+```solidity
+function exit() internal;
+```
+
+## Errors
+
+### Reentrancy
+
+```solidity
+error Reentrancy();
+```
+
