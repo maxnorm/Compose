@@ -1,0 +1,191 @@
+---
+sidebar_position: 99
+title: "ERC20BridgeableFacet"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="ERC20BridgeableFacet"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+**Title:**
+
+ERC20Bridgeable — ERC-7802 Implementation Facet
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/486d859471e9877e9fab1d6c2ba1751795e49c90/src/token/ERC20/ERC20Bridgeable/ERC20BridgeableFacet.sol)
+
+
+
+
+## Functions
+
+
+### getERC20Storage
+
+
+Returns the ERC20 storage struct from the predefined diamond storage slot. Uses inline assembly to set the storage slot reference.
+
+
+
+
+
+
+### getAccessControlStorage
+
+
+
+
+
+
+
+
+
+### crosschainMint
+
+
+Cross-chain mint — callable only by an address having the `trusted-bridge` role.
+
+
+
+
+
+
+### crosschainBurn
+
+
+Cross-chain burn — callable only by an address having the `trusted-bridge` role.
+
+
+
+
+
+
+### checkTokenBridge
+
+
+Internal check to check if the bridge (caller) is trusted. Reverts if caller is zero or not in the AccessControl `trusted-bridge` role.
+
+
+
+
+
+
+
+
+## Events
+
+
+### CrosschainMint
+
+
+Emitted when tokens are minted via a cross-chain bridge.
+
+
+
+
+
+### CrosschainBurn
+
+
+Emitted when a crosschain transfer burns tokens.
+
+
+
+
+
+### Transfer
+
+
+Emitted when tokens are transferred between two addresses.
+
+
+
+
+
+
+
+## Errors
+
+
+### ERC20InvalidReciever
+
+
+Revert when a provided receiver is invalid(e.g,zero address) .
+
+
+
+
+### ERC20InvalidSender
+
+
+Thrown when the sender address is invalid (e.g., zero address).
+
+
+
+
+### ERC20InvalidBridgeAccount
+
+
+Revert when caller is not a trusted bridge.
+
+
+
+
+### ERC20InvalidCallerAddress
+
+
+
+
+
+
+
+### AccessControlUnauthorizedAccount
+
+
+Thrown when the account does not have a specific role.
+
+
+
+
+### ERC20InsufficientBalance
+
+
+
+
+
+
+
+
+
+## Structs
+
+
+### ERC20Storage
+
+
+
+
+
+
+
+### AccessControlStorage
+
+
+
+
+
+
+
+
+
+
+

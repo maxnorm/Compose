@@ -1,0 +1,77 @@
+---
+sidebar_position: 99
+title: "IERC1155Receiver"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="IERC1155Receiver"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+**Title:**
+
+ERC-1155 Token Receiver Interface
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/486d859471e9877e9fab1d6c2ba1751795e49c90/src/token/ERC1155/LibERC1155.sol)
+
+
+<Callout type="info" title="Library Usage">
+This library provides internal functions for use in your custom facets. Import it to access shared storage.
+</Callout>
+
+
+
+
+
+
+
+## Functions
+
+
+### onERC1155Received
+
+
+Handles the receipt of a single ERC-1155 token type. This function is called at the end of a `safeTransferFrom` after the balance has been updated. IMPORTANT: To accept the transfer, this must return `bytes4(keccak256(&quot;onERC1155Received(address,address,uint256,uint256,bytes)&quot;))` (i.e. 0xf23a6e61, or its own function selector).
+
+
+
+
+
+
+### onERC1155BatchReceived
+
+
+Handles the receipt of multiple ERC-1155 token types. This function is called at the end of a `safeBatchTransferFrom` after the balances have been updated. IMPORTANT: To accept the transfer(s), this must return `bytes4(keccak256(&quot;onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)&quot;))` (i.e. 0xbc197c81, or its own function selector).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

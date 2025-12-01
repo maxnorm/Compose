@@ -1,0 +1,200 @@
+---
+sidebar_position: 99
+title: "LibERC20"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="LibERC20"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+**Title:**
+
+LibERC20 — ERC-20 Library
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/486d859471e9877e9fab1d6c2ba1751795e49c90/src/token/ERC20/ERC20/LibERC20.sol)
+
+
+<Callout type="info" title="Library Usage">
+This library provides internal functions for use in your custom facets. Import it to access shared storage.
+</Callout>
+
+
+## Storage
+
+
+Storage position: `STORAGE_POSITION` - Used for diamond storage pattern.
+
+
+
+### State Variables
+
+
+#### STORAGE_POSITION
+
+
+
+
+
+
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns a pointer to the ERC-20 storage struct. Uses inline assembly to bind the storage struct to the fixed storage position.
+
+
+
+
+
+
+### mint
+
+
+Mints new tokens to a specified address. Increases both total supply and the recipient&#39;s balance.
+
+
+
+
+
+
+### burn
+
+
+Burns tokens from a specified address. Decreases both total supply and the sender&#39;s balance.
+
+
+
+
+
+
+### transferFrom
+
+
+Transfers tokens from one address to another using an allowance. Deducts the spender&#39;s allowance and updates balances.
+
+
+
+
+
+
+### transfer
+
+
+Transfers tokens from the caller to another address. Updates balances directly without allowance mechanism.
+
+
+
+
+
+
+### approve
+
+
+Approves a spender to transfer tokens on behalf of the caller. Sets the allowance for the spender.
+
+
+
+
+
+
+
+
+## Events
+
+
+### Transfer
+
+
+Emitted when tokens are transferred between addresses.
+
+
+
+
+
+### Approval
+
+
+Emitted when an approval is made for a spender by an owner.
+
+
+
+
+
+
+
+## Errors
+
+
+### ERC20InsufficientBalance
+
+
+Thrown when a sender attempts to transfer or burn more tokens than their balance.
+
+
+
+
+### ERC20InvalidSender
+
+
+Thrown when the sender address is invalid (e.g., zero address).
+
+
+
+
+### ERC20InvalidReceiver
+
+
+Thrown when the receiver address is invalid (e.g., zero address).
+
+
+
+
+### ERC20InsufficientAllowance
+
+
+Thrown when a spender tries to spend more than their allowance.
+
+
+
+
+### ERC20InvalidSpender
+
+
+Thrown when the spender address is invalid (e.g., zero address).
+
+
+
+
+
+
+## Structs
+
+
+### ERC20Storage
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,171 @@
+---
+sidebar_position: 99
+title: "LibERC721"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="LibERC721"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+**Title:**
+
+ERC-721 Library for Compose
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/486d859471e9877e9fab1d6c2ba1751795e49c90/src/token/ERC721/ERC721/LibERC721.sol)
+
+
+<Callout type="info" title="Library Usage">
+This library provides internal functions for use in your custom facets. Import it to access shared storage.
+</Callout>
+
+
+## Storage
+
+
+Storage position: `STORAGE_POSITION` - Used for diamond storage pattern.
+
+
+
+### State Variables
+
+
+#### STORAGE_POSITION
+
+
+
+
+
+
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns the ERC-721 storage struct from its predefined slot. Uses inline assembly to access diamond storage location.
+
+
+
+
+
+
+### transferFrom
+
+
+Transfers ownership of a token ID from one address to another. Validates ownership, approval, and receiver address before updating state.
+
+
+
+
+
+
+### mint
+
+
+Mints a new ERC-721 token to the specified address. Reverts if the receiver address is zero or if the token already exists.
+
+
+
+
+
+
+### burn
+
+
+Burns (destroys) a specific ERC-721 token. Reverts if the token does not exist. Clears ownership and approval.
+
+
+
+
+
+
+
+
+## Events
+
+
+### Transfer
+
+
+Emitted when ownership of a token changes, including minting and burning.
+
+
+
+
+
+
+
+## Errors
+
+
+### ERC721NonexistentToken
+
+
+Thrown when attempting to interact with a non-existent token.
+
+
+
+
+### ERC721IncorrectOwner
+
+
+Thrown when the sender is not the owner of the token.
+
+
+
+
+### ERC721InvalidSender
+
+
+Thrown when the sender address is invalid (e.g., zero address).
+
+
+
+
+### ERC721InvalidReceiver
+
+
+Thrown when the receiver address is invalid (e.g., zero address).
+
+
+
+
+### ERC721InsufficientApproval
+
+
+Thrown when an operator lacks sufficient approval to manage a token.
+
+
+
+
+
+
+## Structs
+
+
+### ERC721Storage
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,239 @@
+---
+sidebar_position: 99
+title: "LibERC1155"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="LibERC1155"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+**Title:**
+
+LibERC1155 — ERC-1155 Library
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/486d859471e9877e9fab1d6c2ba1751795e49c90/src/token/ERC1155/LibERC1155.sol)
+
+
+<Callout type="info" title="Library Usage">
+This library provides internal functions for use in your custom facets. Import it to access shared storage.
+</Callout>
+
+
+## Storage
+
+
+Storage position: `STORAGE_POSITION` - Used for diamond storage pattern.
+
+
+
+### State Variables
+
+
+#### STORAGE_POSITION
+
+
+
+
+
+
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns the ERC-1155 storage struct from the predefined diamond storage slot. Uses inline assembly to set the storage slot reference.
+
+
+
+
+
+
+### mint
+
+
+Mints a single token type to an address. Increases the balance and emits a TransferSingle event. Performs receiver validation if recipient is a contract.
+
+
+
+
+
+
+### mintBatch
+
+
+Mints multiple token types to an address in a single transaction. Increases balances for each token type and emits a TransferBatch event. Performs receiver validation if recipient is a contract.
+
+
+
+
+
+
+### burn
+
+
+Burns a single token type from an address. Decreases the balance and emits a TransferSingle event. Reverts if the account has insufficient balance.
+
+
+
+
+
+
+### burnBatch
+
+
+Burns multiple token types from an address in a single transaction. Decreases balances for each token type and emits a TransferBatch event. Reverts if the account has insufficient balance for any token type.
+
+
+
+
+
+
+### safeTransferFrom
+
+
+Safely transfers a single token type from one address to another. Validates ownership, approval, and receiver address before updating balances. Performs ERC1155Receiver validation if recipient is a contract (safe transfer). Complies with EIP-1155 safe transfer requirements.
+
+
+
+
+
+
+### safeBatchTransferFrom
+
+
+Safely transfers multiple token types from one address to another in a single transaction. Validates ownership, approval, and receiver address before updating balances for each token type. Performs ERC1155Receiver validation if recipient is a contract (safe transfer). Complies with EIP-1155 safe transfer requirements.
+
+
+
+
+
+
+### setTokenURI
+
+
+Sets the token-specific URI for a given token ID. Sets tokenURIs[_tokenId] to the provided string and emits a URI event with the full computed URI. The emitted URI is the concatenation of baseURI and the token-specific URI.
+
+
+
+
+
+
+### setBaseURI
+
+
+Sets the base URI prefix for token-specific URIs. The base URI is concatenated with token-specific URIs set via setTokenURI. Does not affect the default URI used when no token-specific URI is set.
+
+
+
+
+
+
+
+
+## Events
+
+
+### TransferSingle
+
+
+Emitted when a single token type is transferred.
+
+
+
+
+
+### TransferBatch
+
+
+Emitted when multiple token types are transferred.
+
+
+
+
+
+### URI
+
+
+Emitted when the URI for token type `_id` changes to `_value`.
+
+
+
+
+
+
+
+## Errors
+
+
+### ERC1155InsufficientBalance
+
+
+Thrown when insufficient balance for a transfer or burn operation.
+
+
+
+
+### ERC1155InvalidSender
+
+
+Thrown when the sender address is invalid.
+
+
+
+
+### ERC1155InvalidReceiver
+
+
+Thrown when the receiver address is invalid.
+
+
+
+
+### ERC1155InvalidArrayLength
+
+
+Thrown when array lengths don&#39;t match in batch operations.
+
+
+
+
+### ERC1155MissingApprovalForAll
+
+
+Thrown when missing approval for an operator.
+
+
+
+
+
+
+## Structs
+
+
+### ERC1155Storage
+
+
+
+
+
+
+
+
+
+
+
+

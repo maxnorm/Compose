@@ -1,0 +1,217 @@
+---
+sidebar_position: 99
+title: "LibERC6909"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="LibERC6909"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+**Title:**
+
+LibERC6909 — ERC-6909 Library
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/486d859471e9877e9fab1d6c2ba1751795e49c90/src/token/ERC6909/ERC6909/LibERC6909.sol)
+
+
+<Callout type="info" title="Library Usage">
+This library provides internal functions for use in your custom facets. Import it to access shared storage.
+</Callout>
+
+
+## Storage
+
+
+Storage position: `STORAGE_POSITION` - Used for diamond storage pattern.
+
+
+
+### State Variables
+
+
+#### STORAGE_POSITION
+
+
+
+
+
+
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns a pointer to the ERC-6909 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+
+
+
+
+
+
+### mint
+
+
+Mints `_amount` of token id `_id` to `_to`.
+
+
+
+
+
+
+### burn
+
+
+Burns `_amount` of token id `_id` from `_from`.
+
+
+
+
+
+
+### transfer
+
+
+Transfers `_amount` of token id `_id` from `_from` to `_to`. Allowance is not deducted if it is `type(uint256).max` Allowance is not deducted if `_by` is an operator for `_from`.
+
+
+
+
+
+
+### approve
+
+
+Approves an amount of an id to a spender.
+
+
+
+
+
+
+### setOperator
+
+
+Sets or removes a spender as an operator for the caller.
+
+
+
+
+
+
+
+
+## Events
+
+
+### Transfer
+
+
+
+
+
+
+
+
+### OperatorSet
+
+
+
+
+
+
+
+
+### Approval
+
+
+
+
+
+
+
+
+
+
+## Errors
+
+
+### ERC6909InsufficientBalance
+
+
+
+
+
+
+
+### ERC6909InsufficientAllowance
+
+
+
+
+
+
+
+### ERC6909InvalidApprover
+
+
+
+
+
+
+
+### ERC6909InvalidReceiver
+
+
+
+
+
+
+
+### ERC6909InvalidSender
+
+
+
+
+
+
+
+### ERC6909InvalidSpender
+
+
+
+
+
+
+
+
+
+## Structs
+
+
+### ERC6909Storage
+
+
+
+
+
+
+
+
+
+
+
+

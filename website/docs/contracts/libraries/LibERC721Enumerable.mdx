@@ -1,0 +1,171 @@
+---
+sidebar_position: 99
+title: "LibERC721Enumerable"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="LibERC721Enumerable"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+**Title:**
+
+ERC-721 Enumerable Library for Compose
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/486d859471e9877e9fab1d6c2ba1751795e49c90/src/token/ERC721/ERC721Enumerable/LibERC721Enumerable.sol)
+
+
+<Callout type="info" title="Library Usage">
+This library provides internal functions for use in your custom facets. Import it to access shared storage.
+</Callout>
+
+
+## Storage
+
+
+Storage position: `STORAGE_POSITION` - Used for diamond storage pattern.
+
+
+
+### State Variables
+
+
+#### STORAGE_POSITION
+
+
+
+
+
+
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns the ERC-721 enumerable storage struct from its predefined slot. Uses inline assembly to point to the correct diamond storage position.
+
+
+
+
+
+
+### transferFrom
+
+
+Transfers a token ID from one address to another, updating enumeration data. Validates ownership, approval, and receiver address before state updates.
+
+
+
+
+
+
+### mint
+
+
+Mints a new ERC-721 token to the specified address, adding it to enumeration lists. Reverts if the receiver address is zero or if the token already exists.
+
+
+
+
+
+
+### burn
+
+
+Burns (destroys) an existing ERC-721 token, removing it from enumeration lists. Reverts if the token does not exist or if the sender is not authorized.
+
+
+
+
+
+
+
+
+## Events
+
+
+### Transfer
+
+
+Emitted when ownership of a token changes, including minting and burning.
+
+
+
+
+
+
+
+## Errors
+
+
+### ERC721NonexistentToken
+
+
+Thrown when attempting to interact with a non-existent token.
+
+
+
+
+### ERC721IncorrectOwner
+
+
+Thrown when the sender is not the owner of the token.
+
+
+
+
+### ERC721InvalidSender
+
+
+Thrown when the sender address is invalid.
+
+
+
+
+### ERC721InvalidReceiver
+
+
+Thrown when the receiver address is invalid.
+
+
+
+
+### ERC721InsufficientApproval
+
+
+Thrown when an operator lacks approval to manage a token.
+
+
+
+
+
+
+## Structs
+
+
+### ERC721EnumerableStorage
+
+
+
+
+
+
+
+
+
+
+
+

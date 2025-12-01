@@ -1,0 +1,247 @@
+---
+sidebar_position: 99
+title: "DiamondCutFacet"
+description: "Add=0, Replace=1, Remove=2"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="DiamondCutFacet"
+  subtitle="Add=0, Replace=1, Remove=2"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+Add=0, Replace=1, Remove=2
+
+```solidity
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/486d859471e9877e9fab1d6c2ba1751795e49c90/src/diamond/DiamondCutFacet.sol)
+
+
+
+
+## Functions
+
+
+### getOwnerStorage
+
+
+Returns a pointer to the owner storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+
+
+
+
+
+
+### getDiamondStorage
+
+
+
+
+
+
+
+
+
+### addFunctions
+
+
+
+
+
+
+
+
+
+### replaceFunctions
+
+
+
+
+
+
+
+
+
+### removeFunctions
+
+
+
+
+
+
+
+
+
+### diamondCut
+
+
+Add/replace/remove any number of functions and optionally execute a function with delegatecall
+
+
+
+
+
+
+
+
+## Events
+
+
+### DiamondCut
+
+
+
+
+
+
+
+
+
+
+## Errors
+
+
+### OwnerUnauthorizedAccount
+
+
+
+
+
+
+
+### NoSelectorsProvidedForFacet
+
+
+
+
+
+
+
+### NoBytecodeAtAddress
+
+
+
+
+
+
+
+### RemoveFacetAddressMustBeZeroAddress
+
+
+
+
+
+
+
+### IncorrectFacetCutAction
+
+
+
+
+
+
+
+### CannotAddFunctionToDiamondThatAlreadyExists
+
+
+
+
+
+
+
+### CannotReplaceImmutableFunction
+
+
+
+
+
+
+
+### CannotReplaceFunctionWithTheSameFunctionFromTheSameFacet
+
+
+
+
+
+
+
+### CannotReplaceFunctionThatDoesNotExists
+
+
+
+
+
+
+
+### CannotRemoveFunctionThatDoesNotExist
+
+
+
+
+
+
+
+### CannotRemoveImmutableFunction
+
+
+
+
+
+
+
+### InitializationFunctionReverted
+
+
+
+
+
+
+
+
+
+## Structs
+
+
+### OwnerStorage
+
+
+
+
+
+
+
+### FacetAndPosition
+
+
+
+
+
+
+
+### DiamondStorage
+
+
+
+
+
+
+
+### FacetCut
+
+
+
+
+
+
+
+
+
+
+

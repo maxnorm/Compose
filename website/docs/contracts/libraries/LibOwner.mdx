@@ -1,0 +1,157 @@
+---
+sidebar_position: 99
+title: "LibOwner"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="LibOwner"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+**Title:**
+
+ERC-173 Contract Ownership
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/486d859471e9877e9fab1d6c2ba1751795e49c90/src/access/Owner/LibOwner.sol)
+
+
+<Callout type="info" title="Library Usage">
+This library provides internal functions for use in your custom facets. Import it to access shared storage.
+</Callout>
+
+
+## Storage
+
+
+Storage position: `STORAGE_POSITION` - Used for diamond storage pattern.
+
+
+
+### State Variables
+
+
+#### STORAGE_POSITION
+
+
+
+
+
+
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns a pointer to the ERC-173 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+
+
+
+
+
+
+### owner
+
+
+Get the address of the owner
+
+
+
+
+
+
+### requireOwner
+
+
+
+
+
+
+
+
+
+### transferOwnership
+
+
+Set the address of the new owner of the contract Set _newOwner to address(0) to renounce any ownership.
+
+
+
+
+
+
+### renounceOwnership
+
+
+
+
+
+
+
+
+
+
+
+## Events
+
+
+### OwnershipTransferred
+
+
+
+
+
+
+
+
+
+
+## Errors
+
+
+### OwnerUnauthorizedAccount
+
+
+
+
+
+
+
+### OwnerAlreadyRenounced
+
+
+
+
+
+
+
+
+
+## Structs
+
+
+### OwnerStorage
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,289 @@
+---
+sidebar_position: 99
+title: "ERC721Facet"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="ERC721Facet"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+**Title:**
+
+ERC-721 Token
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/486d859471e9877e9fab1d6c2ba1751795e49c90/src/token/ERC721/ERC721/ERC721Facet.sol)
+
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns a pointer to the ERC-721 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+
+
+
+
+
+
+### name
+
+
+Returns the token collection name.
+
+
+
+
+
+
+### symbol
+
+
+Returns the token collection symbol.
+
+
+
+
+
+
+### tokenURI
+
+
+Provide the metadata URI for a given token ID.
+
+
+
+
+
+
+### balanceOf
+
+
+Returns the number of tokens owned by a given address.
+
+
+
+
+
+
+### ownerOf
+
+
+Returns the owner of a given token ID.
+
+
+
+
+
+
+### getApproved
+
+
+Returns the approved address for a given token ID.
+
+
+
+
+
+
+### isApprovedForAll
+
+
+Returns true if an operator is approved to manage all of an owner's assets.
+
+
+
+
+
+
+### approve
+
+
+Approves another address to transfer the given token ID.
+
+
+
+
+
+
+### setApprovalForAll
+
+
+Approves or revokes permission for an operator to manage all caller's assets.
+
+
+
+
+
+
+### internalTransferFrom
+
+
+Internal function to transfer a token, checking for ownership and approval.
+
+
+
+
+
+
+### transferFrom
+
+
+Transfers a token from one address to another.
+
+
+
+
+
+
+### safeTransferFrom
+
+
+Safely transfers a token, checking if the receiver can handle ERC-721 tokens.
+
+
+
+
+
+
+### safeTransferFrom
+
+
+Safely transfers a token with additional data.
+
+
+
+
+
+
+
+
+## Events
+
+
+### Transfer
+
+
+
+
+
+
+
+
+### Approval
+
+
+
+
+
+
+
+
+### ApprovalForAll
+
+
+
+
+
+
+
+
+
+
+## Errors
+
+
+### ERC721InvalidOwner
+
+
+
+
+
+
+
+### ERC721NonexistentToken
+
+
+
+
+
+
+
+### ERC721IncorrectOwner
+
+
+
+
+
+
+
+### ERC721InvalidSender
+
+
+
+
+
+
+
+### ERC721InvalidReceiver
+
+
+
+
+
+
+
+### ERC721InsufficientApproval
+
+
+
+
+
+
+
+### ERC721InvalidApprover
+
+
+
+
+
+
+
+### ERC721InvalidOperator
+
+
+
+
+
+
+
+
+
+## Structs
+
+
+### ERC721Storage
+
+
+
+
+
+
+
+
+
+
+

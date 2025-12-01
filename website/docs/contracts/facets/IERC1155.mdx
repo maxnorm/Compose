@@ -1,0 +1,211 @@
+---
+sidebar_position: 99
+title: "IERC1155"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="IERC1155"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+**Title:**
+
+ERC-1155 Multi Token Standard Interface
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/486d859471e9877e9fab1d6c2ba1751795e49c90/src/interfaces/IERC1155.sol)
+
+
+
+
+## Functions
+
+
+### balanceOf
+
+
+Returns the amount of tokens of token type `id` owned by `account`.
+
+
+
+
+
+
+### balanceOfBatch
+
+
+Batched version of balanceOf.
+
+
+
+
+
+
+### setApprovalForAll
+
+
+Grants or revokes permission to `operator` to transfer the caller's tokens.
+
+
+
+
+
+
+### isApprovedForAll
+
+
+Returns true if `operator` is approved to transfer `account`'s tokens.
+
+
+
+
+
+
+### safeTransferFrom
+
+
+Transfers `value` amount of token type `id` from `from` to `to`.
+
+
+
+
+
+
+### safeBatchTransferFrom
+
+
+Batched version of safeTransferFrom.
+
+
+
+
+
+
+### uri
+
+
+Returns the URI for token type `id`.
+
+
+
+
+
+
+
+
+## Events
+
+
+### TransferSingle
+
+
+Emitted when `value` amount of tokens of type `id` are transferred from `from` to `to` by `operator`.
+
+
+
+
+
+### TransferBatch
+
+
+Equivalent to multiple TransferSingle events, where `operator`, `from` and `to` are the same for all transfers.
+
+
+
+
+
+### ApprovalForAll
+
+
+Emitted when `account` grants or revokes permission to `operator` to transfer their tokens.
+
+
+
+
+
+### URI
+
+
+Emitted when the URI for token type `id` changes to `value`.
+
+
+
+
+
+
+
+## Errors
+
+
+### ERC1155InsufficientBalance
+
+
+Error indicating insufficient balance for a transfer.
+
+
+
+
+### ERC1155InvalidSender
+
+
+Error indicating the sender address is invalid.
+
+
+
+
+### ERC1155InvalidReceiver
+
+
+Error indicating the receiver address is invalid.
+
+
+
+
+### ERC1155MissingApprovalForAll
+
+
+Error indicating missing approval for an operator.
+
+
+
+
+### ERC1155InvalidApprover
+
+
+Error indicating the approver address is invalid.
+
+
+
+
+### ERC1155InvalidOperator
+
+
+Error indicating the operator address is invalid.
+
+
+
+
+### ERC1155InvalidArrayLength
+
+
+Error indicating array length mismatch in batch operations.
+
+
+
+
+
+
+
+
+
+
+
+

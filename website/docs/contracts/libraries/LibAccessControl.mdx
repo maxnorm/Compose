@@ -1,0 +1,182 @@
+---
+sidebar_position: 99
+title: "LibAccessControl"
+description: "Contract documentation for LibAccessControl"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="LibAccessControl"
+  subtitle="Contract documentation for LibAccessControl"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+Documentation for LibAccessControl.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/486d859471e9877e9fab1d6c2ba1751795e49c90/src/access/AccessControl/LibAccessControl.sol)
+
+
+<Callout type="info" title="Library Usage">
+This library provides internal functions for use in your custom facets. Import it to access shared storage.
+</Callout>
+
+
+## Storage
+
+
+Storage position: `STORAGE_POSITION` - Used for diamond storage pattern.
+
+
+
+### State Variables
+
+
+#### STORAGE_POSITION
+
+
+
+
+
+
+#### DEFAULT_ADMIN_ROLE
+
+
+
+
+
+
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns the storage for the AccessControl.
+
+
+
+
+
+
+### requireRole
+
+
+function to check if an account has a required role. error: AccessControlUnauthorizedAccount If the account does not have the role.
+
+
+
+
+
+
+### hasRole
+
+
+function to check if an account has a role.
+
+
+
+
+
+
+### setRoleAdmin
+
+
+function to set the admin role for a role.
+
+
+
+
+
+
+### grantRole
+
+
+function to grant a role to an account.
+
+
+
+
+
+
+### revokeRole
+
+
+function to revoke a role from an account.
+
+
+
+
+
+
+
+
+## Events
+
+
+### RoleAdminChanged
+
+
+Emitted when the admin role for a role is changed.
+
+
+
+
+
+### RoleGranted
+
+
+Emitted when a role is granted to an account.
+
+
+
+
+
+### RoleRevoked
+
+
+Emitted when a role is revoked from an account.
+
+
+
+
+
+
+
+## Errors
+
+
+### AccessControlUnauthorizedAccount
+
+
+Thrown when the account does not have a specific role.
+
+
+
+
+
+
+## Structs
+
+
+### AccessControlStorage
+
+
+
+
+
+
+
+
+
+
+
+

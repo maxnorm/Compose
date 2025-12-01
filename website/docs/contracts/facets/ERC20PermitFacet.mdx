@@ -1,0 +1,139 @@
+---
+sidebar_position: 99
+title: "ERC20PermitFacet"
+description: "Contract documentation for ERC20PermitFacet"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="ERC20PermitFacet"
+  subtitle="Contract documentation for ERC20PermitFacet"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+Documentation for ERC20PermitFacet.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/486d859471e9877e9fab1d6c2ba1751795e49c90/src/token/ERC20/ERC20/ERC20PermitFacet.sol)
+
+
+
+
+## Functions
+
+
+### getERC20Storage
+
+
+
+
+
+
+
+
+
+### getStorage
+
+
+
+
+
+
+
+
+
+### nonces
+
+
+Returns the current nonce for an owner. This value changes each time a permit is used.
+
+
+
+
+
+
+### DOMAIN_SEPARATOR
+
+
+Returns the domain separator used in the encoding of the signature for permit. This value is unique to a contract and chain ID combination to prevent replay attacks.
+
+
+
+
+
+
+### permit
+
+
+Sets the allowance for a spender via a signature. This function implements EIP-2612 permit functionality.
+
+
+
+
+
+
+
+
+## Events
+
+
+### Approval
+
+
+Emitted when an approval is made for a spender by an owner.
+
+
+
+
+
+
+
+## Errors
+
+
+### ERC2612InvalidSignature
+
+
+Thrown when a permit signature is invalid or expired.
+
+
+
+
+### ERC20InvalidSpender
+
+
+Thrown when the spender address is invalid (e.g., zero address).
+
+
+
+
+
+
+## Structs
+
+
+### ERC20Storage
+
+
+
+
+
+
+
+### ERC20PermitStorage
+
+
+
+
+
+
+
+
+
+
+

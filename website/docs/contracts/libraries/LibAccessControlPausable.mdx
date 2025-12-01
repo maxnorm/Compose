@@ -1,0 +1,189 @@
+---
+sidebar_position: 99
+title: "LibAccessControlPausable"
+description: "Contract documentation for LibAccessControlPausable"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="LibAccessControlPausable"
+  subtitle="Contract documentation for LibAccessControlPausable"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+Documentation for LibAccessControlPausable.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/486d859471e9877e9fab1d6c2ba1751795e49c90/src/access/AccessControlPausable/LibAccessControlPausable.sol)
+
+
+<Callout type="info" title="Library Usage">
+This library provides internal functions for use in your custom facets. Import it to access shared storage.
+</Callout>
+
+
+## Storage
+
+
+Storage position: `ACCESS_CONTROL_STORAGE_POSITION` - Used for diamond storage pattern.
+
+
+
+### State Variables
+
+
+#### ACCESS_CONTROL_STORAGE_POSITION
+
+
+
+
+
+
+#### PAUSABLE_STORAGE_POSITION
+
+
+
+
+
+
+
+
+
+## Functions
+
+
+### getAccessControlStorage
+
+
+Returns the storage for AccessControl.
+
+
+
+
+
+
+### getStorage
+
+
+Returns the storage for AccessControlPausable.
+
+
+
+
+
+
+### isRolePaused
+
+
+function to check if a role is paused.
+
+
+
+
+
+
+### pauseRole
+
+
+function to pause a role.
+
+
+
+
+
+
+### unpauseRole
+
+
+function to unpause a role.
+
+
+
+
+
+
+### requireRoleNotPaused
+
+
+function to check if an account has a role and if the role is not paused. - error: AccessControlUnauthorizedAccount If the account does not have the role. - error: AccessControlRolePaused If the role is paused.
+
+
+
+
+
+
+
+
+## Events
+
+
+### RolePaused
+
+
+Event emitted when a role is paused.
+
+
+
+
+
+### RoleUnpaused
+
+
+Event emitted when a role is unpaused.
+
+
+
+
+
+
+
+## Errors
+
+
+### AccessControlUnauthorizedAccount
+
+
+Thrown when the account does not have a specific role.
+
+
+
+
+### AccessControlRolePaused
+
+
+Thrown when a role is paused and an operation requiring that role is attempted.
+
+
+
+
+
+
+## Structs
+
+
+### AccessControlStorage
+
+
+
+
+
+
+
+### AccessControlPausableStorage
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,199 @@
+---
+sidebar_position: 99
+title: "LibAccessControlTemporal"
+description: "Contract documentation for LibAccessControlTemporal"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="LibAccessControlTemporal"
+  subtitle="Contract documentation for LibAccessControlTemporal"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+Documentation for LibAccessControlTemporal.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/486d859471e9877e9fab1d6c2ba1751795e49c90/src/access/AccessControlTemporal/LibAccessControlTemporal.sol)
+
+
+<Callout type="info" title="Library Usage">
+This library provides internal functions for use in your custom facets. Import it to access shared storage.
+</Callout>
+
+
+## Storage
+
+
+Storage position: `ACCESS_CONTROL_STORAGE_POSITION` - Used for diamond storage pattern.
+
+
+
+### State Variables
+
+
+#### ACCESS_CONTROL_STORAGE_POSITION
+
+
+
+
+
+
+#### TEMPORAL_STORAGE_POSITION
+
+
+
+
+
+
+
+
+
+## Functions
+
+
+### getAccessControlStorage
+
+
+Returns the storage for AccessControl.
+
+
+
+
+
+
+### getStorage
+
+
+Returns the storage for AccessControlTemporal.
+
+
+
+
+
+
+### getRoleExpiry
+
+
+function to get the expiry timestamp for a role assignment.
+
+
+
+
+
+
+### isRoleExpired
+
+
+function to check if a role assignment has expired.
+
+
+
+
+
+
+### grantRoleWithExpiry
+
+
+function to grant a role with an expiry timestamp.
+
+
+
+
+
+
+### revokeTemporalRole
+
+
+function to revoke a temporal role.
+
+
+
+
+
+
+### requireValidRole
+
+
+function to check if an account has a valid (non-expired) role. - error: AccessControlUnauthorizedAccount If the account does not have the role. - error: AccessControlRoleExpired If the role has expired.
+
+
+
+
+
+
+
+
+## Events
+
+
+### RoleGrantedWithExpiry
+
+
+Event emitted when a role is granted with an expiry timestamp.
+
+
+
+
+
+### TemporalRoleRevoked
+
+
+Event emitted when a temporal role is revoked.
+
+
+
+
+
+
+
+## Errors
+
+
+### AccessControlUnauthorizedAccount
+
+
+Thrown when the account does not have a specific role.
+
+
+
+
+### AccessControlRoleExpired
+
+
+Thrown when a role has expired.
+
+
+
+
+
+
+## Structs
+
+
+### AccessControlStorage
+
+
+
+
+
+
+
+### AccessControlTemporalStorage
+
+
+
+
+
+
+
+
+
+
+
+

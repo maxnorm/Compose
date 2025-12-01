@@ -1,0 +1,186 @@
+---
+sidebar_position: 99
+title: "LibOwnerTwoSteps"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="LibOwnerTwoSteps"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+**Title:**
+
+ERC-173 Two-Step Contract Ownership Library
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/486d859471e9877e9fab1d6c2ba1751795e49c90/src/access/OwnerTwoSteps/LibOwnerTwoSteps.sol)
+
+
+<Callout type="info" title="Library Usage">
+This library provides internal functions for use in your custom facets. Import it to access shared storage.
+</Callout>
+
+
+## Storage
+
+
+Storage position: `STORAGE_POSITION` - Used for diamond storage pattern.
+
+
+
+### State Variables
+
+
+#### STORAGE_POSITION
+
+
+
+
+
+
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns a pointer to the ERC-173 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+
+
+
+
+
+
+### owner
+
+
+
+
+
+
+
+
+
+### pendingOwner
+
+
+
+
+
+
+
+
+
+### requireOwner
+
+
+
+
+
+
+
+
+
+### transferOwnership
+
+
+Initiates a two-step ownership transfer.
+
+
+
+
+
+
+### acceptOwnership
+
+
+
+
+
+
+
+
+
+### renounceOwnership
+
+
+
+
+
+
+
+
+
+
+
+## Events
+
+
+### OwnershipTransferStarted
+
+
+
+
+
+
+
+
+### OwnershipTransferred
+
+
+
+
+
+
+
+
+
+
+## Errors
+
+
+### OwnerUnauthorizedAccount
+
+
+
+
+
+
+
+### OwnerAlreadyRenounced
+
+
+
+
+
+
+
+
+
+## Structs
+
+
+### OwnerTwoStepsStorage
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,158 @@
+---
+sidebar_position: 99
+title: "AccessControlPausableFacet"
+description: "Contract documentation for AccessControlPausableFacet"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="AccessControlPausableFacet"
+  subtitle="Contract documentation for AccessControlPausableFacet"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+Documentation for AccessControlPausableFacet.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/486d859471e9877e9fab1d6c2ba1751795e49c90/src/access/AccessControlPausable/AccessControlPausableFacet.sol)
+
+
+
+
+## Functions
+
+
+### getAccessControlStorage
+
+
+Returns the storage for AccessControl.
+
+
+
+
+
+
+### getStorage
+
+
+Returns the storage for AccessControlPausable.
+
+
+
+
+
+
+### isRolePaused
+
+
+Returns if a role is paused.
+
+
+
+
+
+
+### pauseRole
+
+
+Temporarily disables a role, preventing all accounts from using it. Only the admin of the role can pause it. Emits a RolePaused event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
+
+
+
+
+
+
+### unpauseRole
+
+
+Re-enables a role that was previously paused. Only the admin of the role can unpause it. Emits a RoleUnpaused event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
+
+
+
+
+
+
+### requireRoleNotPaused
+
+
+Checks if an account has a role and if the role is not paused. - error: AccessControlUnauthorizedAccount If the account does not have the role. - error: AccessControlRolePaused If the role is paused.
+
+
+
+
+
+
+
+
+## Events
+
+
+### RolePaused
+
+
+Event emitted when a role is paused.
+
+
+
+
+
+### RoleUnpaused
+
+
+Event emitted when a role is unpaused.
+
+
+
+
+
+
+
+## Errors
+
+
+### AccessControlUnauthorizedAccount
+
+
+Thrown when the account does not have a specific role.
+
+
+
+
+### AccessControlRolePaused
+
+
+Thrown when a role is paused and an operation requiring that role is attempted.
+
+
+
+
+
+
+## Structs
+
+
+### AccessControlStorage
+
+
+
+
+
+
+
+### AccessControlPausableStorage
+
+
+
+
+
+
+
+
+
+
+
