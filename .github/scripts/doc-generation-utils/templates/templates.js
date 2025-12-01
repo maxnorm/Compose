@@ -7,40 +7,32 @@ const { loadAndRenderTemplate } = require('./template-engine');
 const { sanitizeForMdx } = require('./helpers');
 
 /**
- * Prepare function data for template rendering (facet style - with APIReference)
+ * Prepare function data for template rendering (facet style - with tables)
  * @param {object} fn - Function data
  * @returns {object} Prepared function data
  */
 function prepareFacetFunctionData(fn) {
-  const method = (fn.mutability === 'view' || fn.mutability === 'pure') ? 'GET' : 'POST';
-  
-  // Build parameters array - sanitize descriptions to prevent MDX parsing issues
+  // Build parameters array
   const paramsArray = (fn.params || []).map(p => ({
     name: p.name,
     type: p.type,
-    required: true,
-    description: sanitizeForMdx(p.description || ''),
+    description: p.description || '',
   }));
 
-  // Build response object for facets (APIReference expects an object)
-  let returnsObj = null;
-  if (fn.returns && fn.returns.length > 0) {
-    returnsObj = {};
-    fn.returns.forEach((r, idx) => {
-      const key = r.name || `result${idx > 0 ? idx + 1 : ''}`;
-      const value = sanitizeForMdx(r.description || r.type);
-      returnsObj[key] = value;
-    });
-  }
+  // Build returns array for table rendering
+  const returnsArray = (fn.returns || []).map(r => ({
+    name: r.name || '-',
+    type: r.type,
+    description: r.description || '',
+  }));
 
   return {
     name: fn.name,
-    method,
     signature: fn.signature,
     description: fn.notice || fn.description || '',
     params: paramsArray,
-    returns: returnsObj,
-    hasReturns: returnsObj != null,
+    returns: returnsArray,
+    hasReturns: returnsArray.length > 0,
     hasParams: paramsArray.length > 0,
   };
 }

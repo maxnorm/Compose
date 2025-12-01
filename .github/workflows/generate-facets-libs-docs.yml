@@ -24,7 +24,7 @@ permissions:
 
 jobs:
   generate-docs:
-    name: Generate Doc Pages
+    name: Generate Pages
     runs-on: ubuntu-latest
     
     steps:

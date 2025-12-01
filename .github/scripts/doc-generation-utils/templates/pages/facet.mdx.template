@@ -6,7 +6,6 @@ description: "{{escapeYaml description}}"
 
 import DocHero from '@site/src/components/docs/DocHero';
 import Callout from '@site/src/components/ui/Callout';
-import APIReference from '@site/src/components/api/APIReference';
 
 <DocHero
   title="{{escapeJsx title}}"
@@ -35,26 +34,36 @@ import APIReference from '@site/src/components/api/APIReference';
 {{#each functions}}
 ### {{name}}
 
+{{#if description}}
+{{sanitizeMdx description}}
+
+{{/if}}
 {{#if signature}}
 ```solidity
 {{signature}}
 ```
 
 {{/if}}
-{{#if description}}
-{{sanitizeMdx description}}
+{{#if hasParams}}
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+{{#each params}}
+| `{{name}}` | `{{type}}` | {{escapeMarkdownTable description}} |
+{{/each}}
 
 {{/if}}
-<APIReference
-  method="{{method}}"
-  endpoint="{{escapeJsx name}}"
-  description="{{escapeJsx description}}"
-  parameters={{{toJsxExpression params}}}
 {{#if hasReturns}}
-  response={{{toJsxExpression returns}}}
-{{/if}}
-/>
+**Returns**
 
+| Name | Type | Description |
+|------|------|-------------|
+{{#each returns}}
+| `{{name}}` | `{{type}}` | {{escapeMarkdownTable description}} |
+{{/each}}
+
+{{/if}}
 {{/each}}
 {{/if}}
 {{#if hasEvents}}
@@ -143,4 +152,3 @@ import APIReference from '@site/src/components/api/APIReference';
 </Callout>
 
 {{/if}}
-
