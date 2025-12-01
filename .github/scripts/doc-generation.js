@@ -19,7 +19,7 @@ const {
 } = require('./doc-generation-utils/doc-generation-utils');
 const { readFileSafe, writeFileSafe } = require('./workflow-utils');
 const { parseForgeDocMarkdown, extractStorageInfo } = require('./doc-generation-utils/parser');
-const { generateFacetDoc, generateLibraryDoc } = require('./doc-generation-utils/templates');
+const { generateFacetDoc, generateLibraryDoc } = require('./doc-generation-utils/templates/templates');
 const { enhanceWithCopilot, shouldSkipEnhancement } = require('./doc-generation-utils/copilot-enhancement');
 
 // Track processed files for summary

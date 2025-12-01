@@ -15,114 +15,9 @@
 const fs = require('fs');
 const path = require('path');
 
-// ============================================================================
-// Helper Functions
-// ============================================================================
-
-/**
- * Escape special characters for YAML frontmatter
- * @param {string} str - String to escape
- * @returns {string} Escaped string safe for YAML
- */
-function escapeYaml(str) {
-  if (!str) return '';
-  return str
-    .replace(/\\/g, '\\\\')
-    .replace(/"/g, '\\"')
-    .replace(/\n/g, ' ')
-    .trim();
-}
-
-/**
- * Sanitize text to prevent MDX from interpreting it as JSX
- * @param {string} str - String to sanitize
- * @returns {string} Sanitized string
- */
-function sanitizeForMdx(str) {
-  if (!str) return '';
-  return str
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-}
-
-/**
- * Convert object/array to a safe JavaScript expression for JSX attributes
- * @param {*} obj - Value to convert
- * @returns {string} JSON string safe for JSX
- */
-function toJsxExpression(obj) {
-  if (obj == null) return 'null';
-  
-  try {
-    let jsonStr = JSON.stringify(obj);
-    // Ensure single line
-    jsonStr = jsonStr.replace(/[\n\r]/g, ' ').replace(/\s+/g, ' ').trim();
-    // Verify it's valid JSON
-    JSON.parse(jsonStr);
-    return jsonStr;
-  } catch (e) {
-    console.warn('Invalid JSON generated:', e.message);
-    return Array.isArray(obj) ? '[]' : '{}';
-  }
-}
-
-/**
- * Escape special characters for JSX string attributes
- * @param {string} str - String to escape
- * @returns {string} Escaped string safe for JSX attributes
- */
-function escapeJsx(str) {
-  if (!str) return '';
-  
-  return sanitizeForMdx(str)
-    .replace(/\\/g, '\\\\')
-    .replace(/"/g, '\\"')
-    .replace(/'/g, "\\'")
-    .replace(/\n/g, ' ')
-    .replace(/\{/g, '&#123;')
-    .replace(/\}/g, '&#125;')
-    .trim();
-}
-
-/**
- * Escape markdown table special characters
- * @param {string} str - String to escape
- * @returns {string} Escaped string safe for markdown tables
- */
-function escapeMarkdownTable(str) {
-  if (!str) return '';
-  return str
-    .replace(/\|/g, '\\|')
-    .replace(/\n/g, ' ');
-}
-
-/**
- * Escape HTML entities for safe display
- * @param {string} str - String to escape
- * @returns {string} HTML-escaped string
- */
-function escapeHtml(str) {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
-/**
- * Helper functions registry
- * Add new helpers here to make them available in templates
- */
-const helpers = {
-  escapeYaml,
-  escapeJsx,
-  sanitizeMdx: sanitizeForMdx,
-  toJsxExpression,
-  escapeMarkdownTable,
-  escapeHtml,
-};
+// Import helpers from separate module
+const helpers = require('./helpers');
+const { escapeHtml } = helpers;
 
 // ============================================================================
 // Core Template Engine
@@ -173,10 +68,11 @@ function isTruthy(value) {
  * @param {string} helperName - Name of the helper
  * @param {string[]} args - Argument strings (variable paths or literals)
  * @param {object} context - Current template context
+ * @param {object} helperRegistry - Registry of helper functions
  * @returns {string} Result of helper function
  */
-function processHelper(helperName, args, context) {
-  const helper = helpers[helperName];
+function processHelper(helperName, args, context, helperRegistry) {
+  const helper = helperRegistry[helperName];
   if (!helper) {
     console.warn(`Unknown template helper: ${helperName}`);
     return '';
@@ -202,9 +98,10 @@ function processHelper(helperName, args, context) {
  * @param {string} expression - The expression inside {{ }}
  * @param {object} context - Current template context
  * @param {boolean} escapeOutput - Whether to HTML-escape the output
+ * @param {object} helperRegistry - Registry of helper functions
  * @returns {string} Processed value
  */
-function processExpression(expression, context, escapeOutput = true) {
+function processExpression(expression, context, escapeOutput, helperRegistry) {
   const expr = expression.trim();
   
   // Check for helper with parentheses: helperName(arg1, arg2)
@@ -212,14 +109,14 @@ function processExpression(expression, context, escapeOutput = true) {
   if (parenMatch) {
     const [, helperName, argsStr] = parenMatch;
     const args = argsStr ? argsStr.split(',').map(a => a.trim()) : [];
-    return processHelper(helperName, args, context);
+    return processHelper(helperName, args, context, helperRegistry);
   }
   
   // Check for helper with space: helperName variable
   const spaceMatch = expr.match(/^(\w+)\s+(.+)$/);
-  if (spaceMatch && helpers[spaceMatch[1]]) {
+  if (spaceMatch && helperRegistry[spaceMatch[1]]) {
     const [, helperName, arg] = spaceMatch;
-    return processHelper(helperName, [arg], context);
+    return processHelper(helperName, [arg], context, helperRegistry);
   }
   
   // Regular variable lookup
@@ -235,9 +132,10 @@ function processExpression(expression, context, escapeOutput = true) {
  * Handles all variable substitutions, helpers, conditionals, and loops
  * @param {string} content - Template content to process
  * @param {object} context - Data context
+ * @param {object} helperRegistry - Registry of helper functions
  * @returns {string} Processed content
  */
-function processContent(content, context) {
+function processContent(content, context, helperRegistry) {
   let result = content;
   
   // Process conditionals: {{#if variable}}...{{/if}}
@@ -261,20 +159,20 @@ function processContent(content, context) {
       // Create item context by merging parent context with item properties
       const itemContext = { ...context, ...item, index };
       // Recursively process the loop content
-      return processContent(loopContent, itemContext);
+      return processContent(loopContent, itemContext, helperRegistry);
     }).join('');
   });
   
   // Process triple braces for unescaped output: {{{variable}}}
   const tripleBracePattern = /\{\{\{([^}]+)\}\}\}/g;
   result = result.replace(tripleBracePattern, (match, expr) => {
-    return processExpression(expr, context, false);
+    return processExpression(expr, context, false, helperRegistry);
   });
   
   // Process double braces for escaped output: {{variable}}
   const doubleBracePattern = /\{\{([^}]+)\}\}/g;
   result = result.replace(doubleBracePattern, (match, expr) => {
-    return processExpression(expr, context, true);
+    return processExpression(expr, context, true, helperRegistry);
   });
   
   return result;
@@ -290,7 +188,7 @@ function renderTemplate(template, data) {
   if (!template) return '';
   if (!data) data = {};
   
-  return processContent(template, { ...data });
+  return processContent(template, { ...data }, helpers);
 }
 
 /**
@@ -298,7 +196,7 @@ function renderTemplate(template, data) {
  * @returns {string[]} Array of template names (without extension)
  */
 function listAvailableTemplates() {
-  const templatesDir = path.join(__dirname, 'templates');
+  const templatesDir = path.join(__dirname, 'templates/pages');
   try {
     return fs.readdirSync(templatesDir)
       .filter(f => f.endsWith('.mdx.template'))
@@ -316,7 +214,7 @@ function listAvailableTemplates() {
  * @throws {Error} If template cannot be loaded
  */
 function loadAndRenderTemplate(templateName, data) {
-  const templatePath = path.join(__dirname, 'templates', `${templateName}.mdx.template`);
+  const templatePath = path.join(__dirname, 'templates/pages', `${templateName}.mdx.template`);
   
   try {
     if (!fs.existsSync(templatePath)) {

@@ -3,8 +3,8 @@
  * Uses template files with a simple template engine
  */
 
-const { loadAndRenderTemplate, helpers } = require('./template-engine');
-const { sanitizeForMdx } = helpers;
+const { loadAndRenderTemplate } = require('./template-engine');
+const { sanitizeForMdx } = require('./helpers');
 
 /**
  * Prepare function data for template rendering (facet style - with APIReference)
