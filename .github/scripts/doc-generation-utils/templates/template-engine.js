@@ -19,10 +19,6 @@ const path = require('path');
 const helpers = require('./helpers');
 const { escapeHtml } = helpers;
 
-// ============================================================================
-// Core Template Engine
-// ============================================================================
-
 /**
  * Get value from object using dot notation path
  * @param {object} obj - Object to get value from
@@ -196,7 +192,7 @@ function renderTemplate(template, data) {
  * @returns {string[]} Array of template names (without extension)
  */
 function listAvailableTemplates() {
-  const templatesDir = path.join(__dirname, 'templates/pages');
+  const templatesDir = path.join(__dirname, 'pages');
   try {
     return fs.readdirSync(templatesDir)
       .filter(f => f.endsWith('.mdx.template'))
@@ -214,7 +210,7 @@ function listAvailableTemplates() {
  * @throws {Error} If template cannot be loaded
  */
 function loadAndRenderTemplate(templateName, data) {
-  const templatePath = path.join(__dirname, 'templates/pages', `${templateName}.mdx.template`);
+  const templatePath = path.join(__dirname, 'pages', `${templateName}.mdx.template`);
   
   try {
     if (!fs.existsSync(templatePath)) {

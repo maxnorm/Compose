@@ -18,7 +18,7 @@ const {
   readChangedFilesFromFile,
 } = require('./doc-generation-utils/doc-generation-utils');
 const { readFileSafe, writeFileSafe } = require('./workflow-utils');
-const { parseForgeDocMarkdown, extractStorageInfo } = require('./doc-generation-utils/parser');
+const { parseForgeDocMarkdown, extractStorageInfo } = require('./doc-generation-utils/forge-doc-parser');
 const { generateFacetDoc, generateLibraryDoc } = require('./doc-generation-utils/templates/templates');
 const { enhanceWithCopilot, shouldSkipEnhancement } = require('./doc-generation-utils/copilot-enhancement');
 
