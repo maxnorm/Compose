@@ -7,17 +7,96 @@ const { loadAndRenderTemplate } = require('./template-engine');
 const { sanitizeForMdx } = require('./helpers');
 
 /**
+ * Extract parameters from function signature string
+ * @param {string} signature - Function signature string
+ * @returns {Array} Array of parameter objects with name and type
+ */
+function extractParamsFromSignature(signature) {
+  if (!signature || typeof signature !== 'string') return [];
+  
+  // Match function parameters: function name(params) or just (params)
+  const paramMatch = signature.match(/\(([^)]*)\)/);
+  if (!paramMatch || !paramMatch[1]) return [];
+  
+  const paramsStr = paramMatch[1].trim();
+  if (!paramsStr) return [];
+  
+  // Split by comma, but be careful with nested generics
+  const params = [];
+  let currentParam = '';
+  let depth = 0;
+  
+  for (let i = 0; i < paramsStr.length; i++) {
+    const char = paramsStr[i];
+    if (char === '<') depth++;
+    else if (char === '>') depth--;
+    else if (char === ',' && depth === 0) {
+      const trimmed = currentParam.trim();
+      if (trimmed) {
+        // Parse "type name" or just "type"
+        const parts = trimmed.split(/\s+/);
+        if (parts.length >= 2) {
+          // Has both type and name
+          const type = parts.slice(0, -1).join(' ');
+          const name = parts[parts.length - 1];
+          params.push({ name, type, description: '' });
+        } else if (parts.length === 1) {
+          // Just type, no name
+          params.push({ name: '', type: parts[0], description: '' });
+        }
+      }
+      currentParam = '';
+      continue;
+    }
+    currentParam += char;
+  }
+  
+  // Handle last parameter
+  const trimmed = currentParam.trim();
+  if (trimmed) {
+    const parts = trimmed.split(/\s+/);
+    if (parts.length >= 2) {
+      const type = parts.slice(0, -1).join(' ');
+      const name = parts[parts.length - 1];
+      params.push({ name, type, description: '' });
+    } else if (parts.length === 1) {
+      params.push({ name: '', type: parts[0], description: '' });
+    }
+  }
+  
+  return params;
+}
+
+/**
  * Prepare function data for template rendering (facet style - with tables)
  * @param {object} fn - Function data
  * @returns {object} Prepared function data
  */
 function prepareFacetFunctionData(fn) {
-  // Build parameters array
-  const paramsArray = (fn.params || []).map(p => ({
-    name: p.name,
-    type: p.type,
-    description: p.description || '',
-  }));
+  // Build parameters array, filtering out invalid parameters
+  // Invalid parameters include: empty names or names matching the function name (parsing error)
+  let paramsArray = (fn.params || [])
+    .filter(p => {
+      // Handle different possible data structures
+      const paramName = p.name || p.param || p.parameter || '';
+      const paramType = p.type || p.paramType || '';
+      
+      // Filter out parameters with empty or missing names
+      if (!paramName || !paramName.trim()) return false;
+      // Filter out parameters where name matches function name (indicates parsing error)
+      if (paramName === fn.name) return false;
+      return true;
+    })
+    .map(p => ({
+      name: p.name || p.param || p.parameter || '',
+      type: p.type || p.paramType || '',
+      description: p.description || p.desc || '',
+    }));
+  
+  // If no valid parameters found, try extracting from signature
+  if (paramsArray.length === 0 && fn.signature) {
+    paramsArray = extractParamsFromSignature(fn.signature);
+  }
 
   // Build returns array for table rendering
   const returnsArray = (fn.returns || []).map(r => ({
@@ -43,12 +122,21 @@ function prepareFacetFunctionData(fn) {
  * @returns {object} Prepared function data
  */
 function prepareLibraryFunctionData(fn) {
-  // Build parameters array
-  const paramsArray = (fn.params || []).map(p => ({
-    name: p.name,
-    type: p.type,
-    description: p.description || '',
-  }));
+  // Build parameters array, filtering out invalid parameters
+  // Invalid parameters include: empty names or names matching the function name (parsing error)
+  const paramsArray = (fn.params || [])
+    .filter(p => {
+      // Filter out parameters with empty or missing names
+      if (!p.name || !p.name.trim()) return false;
+      // Filter out parameters where name matches function name (indicates parsing error)
+      if (p.name === fn.name) return false;
+      return true;
+    })
+    .map(p => ({
+      name: p.name,
+      type: p.type || '',
+      description: p.description || '',
+    }));
 
   // Build returns array for library template (expects array for table rendering)
   const returnsArray = (fn.returns || []).map(r => ({
