@@ -1,0 +1,270 @@
+---
+sidebar_position: 99
+title: "AccessControlPausableFacet"
+description: "Contract documentation for AccessControlPausableFacet"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="AccessControlPausableFacet"
+  subtitle="Contract documentation for AccessControlPausableFacet"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+Documentation for AccessControlPausableFacet.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/e3e377cf3d77e94dc30e10812da2bdd1907ca159/src/access/AccessControlPausable/AccessControlPausableFacet.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Self-contained facet with no imports or inheritance
+- Only `external` and `internal` function visibility
+- Follows Compose readability-first conventions
+- Ready for diamond integration
+</Callout>
+
+
+
+## Functions
+
+
+### getAccessControlStorage
+
+
+Returns the storage for AccessControl.
+
+
+
+```solidity
+function getAccessControlStorage() internal pure returns (AccessControlStorage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getAccessControlStorage` | `` | Returns the storage for AccessControl. |
+
+### getStorage
+
+
+Returns the storage for AccessControlPausable.
+
+
+
+```solidity
+function getStorage() internal pure returns (AccessControlPausableStorage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getStorage` | `` | Returns the storage for AccessControlPausable. |
+
+### isRolePaused
+
+
+Returns if a role is paused.
+
+
+
+```solidity
+function isRolePaused(bytes32 _role) external view returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `isRolePaused` | `` | Returns if a role is paused. |
+
+### pauseRole
+
+
+Temporarily disables a role, preventing all accounts from using it. Only the admin of the role can pause it. Emits a [RolePaused](//home/mn/os-contribution/Compose/docs/src/src/access/AccessControlPausable/AccessControlPausableFacet.sol/contract.AccessControlPausableFacet.md#rolepaused) event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
+
+
+
+```solidity
+function pauseRole(bytes32 _role) external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `pauseRole` | `` | Temporarily disables a role, preventing all accounts from using it. Only the admin of the role can pause it. Emits a [RolePaused](//home/mn/os-contribution/Compose/docs/src/src/access/AccessControlPausable/AccessControlPausableFacet.sol/contract.AccessControlPausableFacet.md#rolepaused) event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role. |
+
+### unpauseRole
+
+
+Re-enables a role that was previously paused. Only the admin of the role can unpause it. Emits a [RoleUnpaused](//home/mn/os-contribution/Compose/docs/src/src/access/AccessControlPausable/AccessControlPausableFacet.sol/contract.AccessControlPausableFacet.md#roleunpaused) event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
+
+
+
+```solidity
+function unpauseRole(bytes32 _role) external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `unpauseRole` | `` | Re-enables a role that was previously paused. Only the admin of the role can unpause it. Emits a [RoleUnpaused](//home/mn/os-contribution/Compose/docs/src/src/access/AccessControlPausable/AccessControlPausableFacet.sol/contract.AccessControlPausableFacet.md#roleunpaused) event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role. |
+
+### requireRoleNotPaused
+
+
+Checks if an account has a role and if the role is not paused. - error: AccessControlUnauthorizedAccount If the account does not have the role. - error: AccessControlRolePaused If the role is paused.
+
+
+
+```solidity
+function requireRoleNotPaused(bytes32 _role, address _account) external view;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `requireRoleNotPaused` | `` | Checks if an account has a role and if the role is not paused. - error: AccessControlUnauthorizedAccount If the account does not have the role. - error: AccessControlRolePaused If the role is paused. |
+
+
+
+
+
+
+
+## Events
+
+
+### RolePaused
+
+
+Event emitted when a role is paused.
+
+
+
+```solidity
+event RolePaused(bytes32 indexed _role, address indexed _account);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `RolePaused` | `` | Event emitted when a role is paused. |
+
+### RoleUnpaused
+
+
+Event emitted when a role is unpaused.
+
+
+
+```solidity
+event RoleUnpaused(bytes32 indexed _role, address indexed _account);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `RoleUnpaused` | `` | Event emitted when a role is unpaused. |
+
+
+
+
+
+
+## Errors
+
+
+### AccessControlUnauthorizedAccount
+
+
+Thrown when the account does not have a specific role.
+
+
+
+```solidity
+error AccessControlUnauthorizedAccount(address _account, bytes32 _role);
+```
+
+
+
+### AccessControlRolePaused
+
+
+Thrown when a role is paused and an operation requiring that role is attempted.
+
+
+
+```solidity
+error AccessControlRolePaused(bytes32 _role);
+```
+
+
+
+
+
+## Structs
+
+
+### AccessControlStorage
+
+
+
+```solidity
+struct AccessControlStorage {
+    mapping(address account =&gt; mapping(bytes32 role =&gt; bool hasRole)) hasRole;
+    mapping(bytes32 role =&gt; bytes32 adminRole) adminRole;
+}
+```
+
+
+
+### AccessControlPausableStorage
+
+
+
+```solidity
+struct AccessControlPausableStorage {
+    mapping(bytes32 role =&gt; bool paused) pausedRoles;
+}
+```
+
+
+
+
+
+
+
