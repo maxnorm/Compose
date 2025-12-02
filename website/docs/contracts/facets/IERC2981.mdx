@@ -1,0 +1,111 @@
+---
+sidebar_position: 99
+title: "IERC2981"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="IERC2981"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+**Title:**
+
+ERC-2981 NFT Royalty Standard Interface
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/21dc7260ede2a70f647074cc724c78ca08dfafb9/src/interfaces/IERC2981.sol)
+
+
+
+
+## Functions
+
+
+### royaltyInfo
+
+
+Returns royalty information for a given token and sale price. Called with the sale price to determine how much royalty is owed and to whom. Implementations MUST calculate royalty as a percentage of the sale price.
+
+
+
+```solidity
+function royaltyInfo(uint256 _tokenId, uint256 _salePrice)
+    external
+    view
+    returns (address receiver, uint256 royaltyAmount);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `royaltyInfo` | `` | Returns royalty information for a given token and sale price. Called with the sale price to determine how much royalty is owed and to whom. Implementations MUST calculate royalty as a percentage of the sale price. |
+
+
+
+
+
+
+
+
+
+
+## Errors
+
+
+### ERC2981InvalidDefaultRoyalty
+
+
+
+```solidity
+error ERC2981InvalidDefaultRoyalty(uint256 _numerator, uint256 _denominator);
+```
+
+
+
+### ERC2981InvalidDefaultRoyaltyReceiver
+
+
+
+```solidity
+error ERC2981InvalidDefaultRoyaltyReceiver(address _receiver);
+```
+
+
+
+### ERC2981InvalidTokenRoyalty
+
+
+
+```solidity
+error ERC2981InvalidTokenRoyalty(uint256 _tokenId, uint256 _numerator, uint256 _denominator);
+```
+
+
+
+### ERC2981InvalidTokenRoyaltyReceiver
+
+
+
+```solidity
+error ERC2981InvalidTokenRoyaltyReceiver(uint256 _tokenId, address _receiver);
+```
+
+
+
+
+
+
+
+

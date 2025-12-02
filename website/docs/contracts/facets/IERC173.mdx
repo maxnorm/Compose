@@ -1,0 +1,128 @@
+---
+sidebar_position: 99
+title: "IERC173"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="IERC173"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+**Title:**
+
+ERC-173 Contract Ownership Standard Interface
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/21dc7260ede2a70f647074cc724c78ca08dfafb9/src/interfaces/IERC173.sol)
+
+
+
+
+## Functions
+
+
+### owner
+
+
+Get the address of the owner
+
+
+
+```solidity
+function owner() external view returns (address);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `owner` | `` | Get the address of the owner |
+
+### transferOwnership
+
+
+Set the address of the new owner of the contract Set _newOwner to address(0) to renounce any ownership.
+
+
+
+```solidity
+function transferOwnership(address _newOwner) external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `transferOwnership` | `` | Set the address of the new owner of the contract Set _newOwner to address(0) to renounce any ownership. |
+
+
+
+
+
+
+
+## Events
+
+
+### OwnershipTransferred
+
+
+
+```solidity
+event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `OwnershipTransferred` | `` |  |
+
+
+
+
+
+
+## Errors
+
+
+### OwnableUnauthorizedAccount
+
+
+
+```solidity
+error OwnableUnauthorizedAccount();
+```
+
+
+
+### OwnableAlreadyRenounced
+
+
+
+```solidity
+error OwnableAlreadyRenounced();
+```
+
+
+
+
+
+
+
+

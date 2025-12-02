@@ -1,0 +1,369 @@
+---
+sidebar_position: 99
+title: "IERC1155"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="IERC1155"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+**Title:**
+
+ERC-1155 Multi Token Standard Interface
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/21dc7260ede2a70f647074cc724c78ca08dfafb9/src/interfaces/IERC1155.sol)
+
+
+
+
+## Functions
+
+
+### balanceOf
+
+
+Returns the amount of tokens of token type `id` owned by `account`.
+
+
+
+```solidity
+function balanceOf(address _account, uint256 _id) external view returns (uint256);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `balanceOf` | `` | Returns the amount of tokens of token type `id` owned by `account`. |
+
+### balanceOfBatch
+
+
+Batched version of balanceOf.
+
+
+
+```solidity
+function balanceOfBatch(address[] calldata _accounts, uint256[] calldata _ids)
+    external
+    view
+    returns (uint256[] memory);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `balanceOfBatch` | `` | Batched version of balanceOf. |
+
+### setApprovalForAll
+
+
+Grants or revokes permission to `operator` to transfer the caller's tokens.
+
+
+
+```solidity
+function setApprovalForAll(address _operator, bool _approved) external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `setApprovalForAll` | `` | Grants or revokes permission to `operator` to transfer the caller's tokens. |
+
+### isApprovedForAll
+
+
+Returns true if `operator` is approved to transfer `account`'s tokens.
+
+
+
+```solidity
+function isApprovedForAll(address _account, address _operator) external view returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `isApprovedForAll` | `` | Returns true if `operator` is approved to transfer `account`'s tokens. |
+
+### safeTransferFrom
+
+
+Transfers `value` amount of token type `id` from `from` to `to`.
+
+
+
+```solidity
+function safeTransferFrom(address _from, address _to, uint256 _id, uint256 _value, bytes calldata _data) external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `safeTransferFrom` | `` | Transfers `value` amount of token type `id` from `from` to `to`. |
+
+### safeBatchTransferFrom
+
+
+Batched version of safeTransferFrom.
+
+
+
+```solidity
+function safeBatchTransferFrom(
+    address _from,
+    address _to,
+    uint256[] calldata _ids,
+    uint256[] calldata _values,
+    bytes calldata _data
+) external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `safeBatchTransferFrom` | `` | Batched version of safeTransferFrom. |
+
+### uri
+
+
+Returns the URI for token type `id`.
+
+
+
+```solidity
+function uri(uint256 _id) external view returns (string memory);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `uri` | `` | Returns the URI for token type `id`. |
+
+
+
+
+
+
+
+## Events
+
+
+### TransferSingle
+
+
+Emitted when `value` amount of tokens of type `id` are transferred from `from` to `to` by `operator`.
+
+
+
+```solidity
+event TransferSingle(
+    address indexed _operator, address indexed _from, address indexed _to, uint256 _id, uint256 _value
+);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `TransferSingle` | `` | Emitted when `value` amount of tokens of type `id` are transferred from `from` to `to` by `operator`. |
+
+### TransferBatch
+
+
+Equivalent to multiple TransferSingle events, where `operator`, `from` and `to` are the same for all transfers.
+
+
+
+```solidity
+event TransferBatch(
+    address indexed _operator, address indexed _from, address indexed _to, uint256[] _ids, uint256[] _values
+);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `TransferBatch` | `` | Equivalent to multiple TransferSingle events, where `operator`, `from` and `to` are the same for all transfers. |
+
+### ApprovalForAll
+
+
+Emitted when `account` grants or revokes permission to `operator` to transfer their tokens.
+
+
+
+```solidity
+event ApprovalForAll(address indexed _account, address indexed _operator, bool _approved);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `ApprovalForAll` | `` | Emitted when `account` grants or revokes permission to `operator` to transfer their tokens. |
+
+### URI
+
+
+Emitted when the URI for token type `id` changes to `value`.
+
+
+
+```solidity
+event URI(string _value, uint256 indexed _id);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `URI` | `` | Emitted when the URI for token type `id` changes to `value`. |
+
+
+
+
+
+
+## Errors
+
+
+### ERC1155InsufficientBalance
+
+
+Error indicating insufficient balance for a transfer.
+
+
+
+```solidity
+error ERC1155InsufficientBalance(address _sender, uint256 _balance, uint256 _needed, uint256 _tokenId);
+```
+
+
+
+### ERC1155InvalidSender
+
+
+Error indicating the sender address is invalid.
+
+
+
+```solidity
+error ERC1155InvalidSender(address _sender);
+```
+
+
+
+### ERC1155InvalidReceiver
+
+
+Error indicating the receiver address is invalid.
+
+
+
+```solidity
+error ERC1155InvalidReceiver(address _receiver);
+```
+
+
+
+### ERC1155MissingApprovalForAll
+
+
+Error indicating missing approval for an operator.
+
+
+
+```solidity
+error ERC1155MissingApprovalForAll(address _operator, address _owner);
+```
+
+
+
+### ERC1155InvalidApprover
+
+
+Error indicating the approver address is invalid.
+
+
+
+```solidity
+error ERC1155InvalidApprover(address _approver);
+```
+
+
+
+### ERC1155InvalidOperator
+
+
+Error indicating the operator address is invalid.
+
+
+
+```solidity
+error ERC1155InvalidOperator(address _operator);
+```
+
+
+
+### ERC1155InvalidArrayLength
+
+
+Error indicating array length mismatch in batch operations.
+
+
+
+```solidity
+error ERC1155InvalidArrayLength(uint256 _idsLength, uint256 _valuesLength);
+```
+
+
+
+
+
+
+
+
