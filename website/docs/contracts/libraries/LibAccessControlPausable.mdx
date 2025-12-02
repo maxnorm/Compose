@@ -1,0 +1,320 @@
+---
+sidebar_position: 99
+title: "LibAccessControlPausable"
+description: "Contract documentation for LibAccessControlPausable"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+## Overview
+
+LibAccessControlPausable provides functionality for managing roles with pause capabilities in diamond contracts. It simplifies role-based access control and enhances security by allowing roles to be explicitly paused, preventing unintended access. This library is optimized for clarity and seamless integration with the diamond storage pattern.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/e3e377cf3d77e94dc30e10812da2bdd1907ca159/src/access/AccessControlPausable/LibAccessControlPausable.sol)
+
+
+<Callout type="info" title="Library Usage">
+This library provides internal functions for use in your custom facets. Import it to access shared storage.
+</Callout>
+
+
+## Storage
+
+
+Storage position: `ACCESS_CONTROL_STORAGE_POSITION` - Used for diamond storage pattern.
+
+
+
+### State Variables
+
+
+#### ACCESS_CONTROL_STORAGE_POSITION
+
+
+
+#### PAUSABLE_STORAGE_POSITION
+
+
+
+
+
+
+## Functions
+
+
+### getAccessControlStorage
+
+
+Returns the storage for AccessControl.
+
+
+
+```solidity
+function getAccessControlStorage() internal pure returns (AccessControlStorage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getAccessControlStorage` | `` | Returns the storage for AccessControl. |
+
+### getStorage
+
+
+Returns the storage for AccessControlPausable.
+
+
+
+```solidity
+function getStorage() internal pure returns (AccessControlPausableStorage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getStorage` | `` | Returns the storage for AccessControlPausable. |
+
+### isRolePaused
+
+
+function to check if a role is paused.
+
+
+
+```solidity
+function isRolePaused(bytes32 _role) internal view returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `isRolePaused` | `` | function to check if a role is paused. |
+
+### pauseRole
+
+
+function to pause a role.
+
+
+
+```solidity
+function pauseRole(bytes32 _role) internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `pauseRole` | `` | function to pause a role. |
+
+### unpauseRole
+
+
+function to unpause a role.
+
+
+
+```solidity
+function unpauseRole(bytes32 _role) internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `unpauseRole` | `` | function to unpause a role. |
+
+### requireRoleNotPaused
+
+
+function to check if an account has a role and if the role is not paused. - error: AccessControlUnauthorizedAccount If the account does not have the role. - error: AccessControlRolePaused If the role is paused.
+
+
+
+```solidity
+function requireRoleNotPaused(bytes32 _role, address _account) internal view;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `requireRoleNotPaused` | `` | function to check if an account has a role and if the role is not paused. - error: AccessControlUnauthorizedAccount If the account does not have the role. - error: AccessControlRolePaused If the role is paused. |
+
+
+
+
+
+
+
+## Events
+
+
+### RolePaused
+
+
+Event emitted when a role is paused.
+
+
+
+```solidity
+event RolePaused(bytes32 indexed _role, address indexed _account);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `RolePaused` | `` | Event emitted when a role is paused. |
+
+### RoleUnpaused
+
+
+Event emitted when a role is unpaused.
+
+
+
+```solidity
+event RoleUnpaused(bytes32 indexed _role, address indexed _account);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `RoleUnpaused` | `` | Event emitted when a role is unpaused. |
+
+
+
+
+
+
+## Errors
+
+
+### AccessControlUnauthorizedAccount
+
+
+Thrown when the account does not have a specific role.
+
+
+
+```solidity
+error AccessControlUnauthorizedAccount(address _account, bytes32 _role);
+```
+
+
+
+### AccessControlRolePaused
+
+
+Thrown when a role is paused and an operation requiring that role is attempted.
+
+
+
+```solidity
+error AccessControlRolePaused(bytes32 _role);
+```
+
+
+
+
+
+## Structs
+
+
+### AccessControlStorage
+
+
+
+```solidity
+struct AccessControlStorage {
+    mapping(address account =&gt; mapping(bytes32 role =&gt; bool hasRole)) hasRole;
+    mapping(bytes32 role =&gt; bytes32 adminRole) adminRole;
+}
+```
+
+
+
+### AccessControlPausableStorage
+
+
+
+```solidity
+struct AccessControlPausableStorage {
+    mapping(bytes32 role =&gt; bool paused) pausedRoles;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;
+
+import {LibAccessControlPausable} from &quot;./LibAccessControlPausable.sol&quot;;
+
+contract ExampleFacet {
+    function pauseAdminRole() external {
+        LibAccessControlPausable.pauseRole(keccak256(&quot;ADMIN_ROLE&quot;));
+    }
+
+    function isAdminRolePaused() external view returns (bool) {
+        return LibAccessControlPausable.isRolePaused(keccak256(&quot;ADMIN_ROLE&quot;));
+    }
+
+    function performAction() external {
+        LibAccessControlPausable.requireRoleNotPaused(msg.sender, keccak256(&quot;USER_ROLE&quot;));
+        // Action logic here
+    }
+}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Always validate role status using `requireRoleNotPaused` before performing critical actions.
+- Use role pausing selectively to avoid unnecessary interruptions in contract operations.
+- Avoid removing or reordering storage variables within diamond contracts to maintain compatibility.
+</Callout>
+
+
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+LibAccessControlPausable uses the diamond storage pattern to manage role states, ensuring all changes are interoperable and visible across facets in the same diamond contract. This design minimizes coupling and maximizes composability for customizable access control solutions.
+</Callout>
+
+
+
