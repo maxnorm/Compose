@@ -215,6 +215,9 @@ function listAvailableTemplates() {
  * @throws {Error} If template cannot be loaded
  */
 function loadAndRenderTemplate(templateName, data) {
+  console.log('Loading template:', templateName);
+  console.log('Data:', data);
+  
   const templatePath = path.join(__dirname, 'pages', `${templateName}.mdx.template`);
   
   try {

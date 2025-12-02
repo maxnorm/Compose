@@ -7,13 +7,6 @@ description: "{{escapeYaml description}}"
 import DocHero from '@site/src/components/docs/DocHero';
 import Callout from '@site/src/components/ui/Callout';
 
-<DocHero
-  title="{{escapeJsx title}}"
-  subtitle="{{escapeJsx subtitle}}"
-  variant="gradient"
-  height="small"
-/>
-
 ## Overview
 
 {{overview}}
