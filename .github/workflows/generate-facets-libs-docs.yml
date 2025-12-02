@@ -122,7 +122,7 @@ jobs:
         if: steps.check-generated.outputs.has_generated == 'true'
         id: pr-body
         run: |
-          node .github/scripts/doc-generation-utils/pr-body-generator.js docgen-summary.json >> $GITHUB_OUTPUT
+          node .github/scripts/generate-docs-utils/pr-body-generator.js docgen-summary.json >> $GITHUB_OUTPUT
 
       - name: Clean up tmp files and stage website pages
         if: steps.check-generated.outputs.has_generated == 'true'
