@@ -1,12 +1,13 @@
 /**
- * GitHub Copilot integration for documentation enhancement
- * Uses GitHub Models API to generate better documentation content
+ * GitHub Models integration for documentation enhancement
+ * Uses Azure AI inference endpoint with GitHub token auth
+ * See: https://github.blog/changelog/2025-04-14-github-actions-token-integration-now-generally-available-in-github-models/
  */
 
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
-const { copilot: COPILOT_CONFIG } = require('./config');
+const { models: MODELS_CONFIG } = require('./config');
 
 // Load repository instructions for context
 let REPO_INSTRUCTIONS = '';
@@ -146,7 +147,7 @@ Respond ONLY with valid JSON in this exact format (no markdown code blocks, no e
  */
 async function enhanceWithCopilot(data, contractType, token) {
   if (!token) {
-    console.log('    ⚠️  No GitHub token provided, skipping Copilot enhancement');
+    console.log('    ⚠️  No GitHub token provided, skipping AI enhancement');
     return addFallbackContent(data, contractType);
   }
 
@@ -164,14 +165,16 @@ async function enhanceWithCopilot(data, contractType, token) {
         content: userPrompt,
       },
     ],
-    model: COPILOT_CONFIG.model,
-    max_tokens: COPILOT_CONFIG.maxTokens,
+    model: MODELS_CONFIG.model,
+    max_tokens: MODELS_CONFIG.maxTokens,
   });
 
+  // GitHub Models uses Azure AI inference endpoint
+  // Authentication: GITHUB_TOKEN works directly in GitHub Actions
   const options = {
-    hostname: COPILOT_CONFIG.host,
+    hostname: MODELS_CONFIG.host,
     port: 443,
-    path: '/copilot/chat/completions',
+    path: '/chat/completions',
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -182,7 +185,7 @@ async function enhanceWithCopilot(data, contractType, token) {
   };
 
   try {
-    console.log('Calling GitHub Copilot API...');
+    console.log('    Calling GitHub Models API...');
     const response = await makeRequest(options, requestBody);
 
     if (response.choices && response.choices[0] && response.choices[0].message) {
@@ -191,7 +194,7 @@ async function enhanceWithCopilot(data, contractType, token) {
       try {
         // Try to parse the response as JSON
         let enhanced = JSON.parse(content);
-        console.log('Copilot enhancement successful');
+        console.log('    ✅ AI enhancement successful');
         
         // Merge enhanced content with original data
         return {
@@ -204,16 +207,16 @@ async function enhanceWithCopilot(data, contractType, token) {
           securityConsiderations: enhanced.securityConsiderations || null,
         };
       } catch (parseError) {
-        console.log('Could not parse Copilot response as JSON');
+        console.log('    ⚠️  Could not parse API response as JSON');
         console.log('    Response:', content.substring(0, 200));
         return addFallbackContent(data, contractType);
       }
     }
 
-    console.log('    Unexpected Copilot response format');
+    console.log('    ⚠️  Unexpected API response format');
     return addFallbackContent(data, contractType);
   } catch (error) {
-    console.log(`    Copilot API error: ${error.message}`);
+    console.log(`    ⚠️  GitHub Models API error: ${error.message}`);
     return addFallbackContent(data, contractType);
   }
 }

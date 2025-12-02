@@ -16,9 +16,11 @@ module.exports = {
   // Template settings
   defaultSidebarPosition: 99,
   
-  // Copilot API settings (for optional enhancement)
-  copilot: {
-    host: 'api.github.com',
+  // GitHub Models API settings (for optional AI enhancement)
+  // Uses Azure AI inference endpoint with GitHub token auth in Actions
+  // See: https://github.blog/changelog/2025-04-14-github-actions-token-integration-now-generally-available-in-github-models/
+  models: {
+    host: 'models.inference.ai.azure.com',
     model: 'gpt-4o',
     maxTokens: 2000,
   },
