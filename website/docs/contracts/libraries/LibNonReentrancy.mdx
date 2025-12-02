@@ -1,0 +1,120 @@
+---
+sidebar_position: 99
+title: "LibNonReentrancy"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="LibNonReentrancy"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+**Title:**
+
+LibNonReentrancy - Non-Reentrancy Library
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/96792f368ec510b406d397129eb2a3394d1bba91/src/libraries/LibNonReentrancy.sol)
+
+
+<Callout type="info" title="Library Usage">
+This library provides internal functions for use in your custom facets. Import it to access shared storage.
+</Callout>
+
+
+## Storage
+
+
+
+
+
+
+### State Variables
+
+
+#### NON_REENTRANT_SLOT
+
+
+
+
+
+
+## Functions
+
+
+### enter
+
+
+
+```solidity
+function enter() internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `enter` | `` |  |
+
+### exit
+
+
+
+```solidity
+function exit() internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `exit` | `` |  |
+
+
+
+
+
+
+
+
+
+
+## Errors
+
+
+### Reentrancy
+
+
+
+```solidity
+error Reentrancy();
+```
+
+
+
+
+
+
+
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+This library accesses shared diamond storage, so changes made through this library are immediately visible to facets using the same storage pattern. All functions are internal as per Compose conventions.
+</Callout>
+
+
+
