@@ -1,0 +1,270 @@
+---
+sidebar_position: 99
+title: "OwnerTwoStepsFacet"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="OwnerTwoStepsFacet"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+The OwnerTwoStepsFacet provides two-step ownership transfer for diamond contracts, aligning with the ERC-173 standard. It enables improved security and transparency through pending owner confirmation before finalizing the ownership change.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/2ba2081cb9214075b097344cc10dc74bec360da3/src/access/OwnerTwoSteps/OwnerTwoSteps.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Implements two-step ownership transfer for added security
+- Fully conforms to ERC-173
+- Provides functions for initiating and accepting ownership transfer
+</Callout>
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns a pointer to the ERC-173 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+
+
+
+```solidity
+function getStorage() internal pure returns (OwnerTwoStepsStorage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getStorage` | `` | Returns a pointer to the ERC-173 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION. |
+
+### owner
+
+
+Get the address of the owner
+
+
+
+```solidity
+function owner() external view returns (address);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `owner` | `` | Get the address of the owner |
+
+### pendingOwner
+
+
+Get the address of the pending owner
+
+
+
+```solidity
+function pendingOwner() external view returns (address);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `pendingOwner` | `` | Get the address of the pending owner |
+
+### transferOwnership
+
+
+Set the address of the new owner of the contract
+
+
+
+```solidity
+function transferOwnership(address _newOwner) external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `transferOwnership` | `` | Set the address of the new owner of the contract |
+
+### acceptOwnership
+
+
+
+```solidity
+function acceptOwnership() external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `acceptOwnership` | `` |  |
+
+### renounceOwnership
+
+
+
+```solidity
+function renounceOwnership() external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `renounceOwnership` | `` |  |
+
+
+
+
+
+
+
+## Events
+
+
+### OwnershipTransferStarted
+
+
+
+```solidity
+event OwnershipTransferStarted(address indexed _previousOwner, address indexed _newOwner);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `OwnershipTransferStarted` | `` |  |
+
+### OwnershipTransferred
+
+
+
+```solidity
+event OwnershipTransferred(address indexed _previousOwner, address indexed _newOwner);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `OwnershipTransferred` | `` |  |
+
+
+
+
+
+
+## Errors
+
+
+### OwnerUnauthorizedAccount
+
+
+
+```solidity
+error OwnerUnauthorizedAccount();
+```
+
+
+
+
+
+## Structs
+
+
+### OwnerTwoStepsStorage
+
+
+
+```solidity
+struct OwnerTwoStepsStorage {
+    address owner;
+    address pendingOwner;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;
+
+import {DiamondCutFacet} from &quot;./DiamondCutFacet.sol&quot;;
+import {OwnerTwoStepsFacet} from &quot;./OwnerTwoStepsFacet.sol&quot;;
+
+contract ExampleDiamond {
+    constructor(address _contractOwner) {
+        DiamondCutFacet diamondCutFacet = new DiamondCutFacet();
+        OwnerTwoStepsFacet ownerFacet = new OwnerTwoStepsFacet();
+
+        // Example: Set initial owner using OwnerTwoStepsFacet
+        IDiamondCut.FacetCut[] memory cut = new IDiamondCut.FacetCut[](2);
+        cut[0] = IDiamondCut.FacetCut({facetAddress: address(diamondCutFacet), action: IDiamondCut.FacetCutAction.Add, functionSelectors: diamondCutFacet.getSelectors()});
+        cut[1] = IDiamondCut.FacetCut({facetAddress: address(ownerFacet), action: IDiamondCut.FacetCutAction.Add, functionSelectors: ownerFacet.getSelectors()});
+
+        diamondCutFacet.diamondCut(cut, address(0), &quot;&quot;);
+        ownerFacet.transferOwnership(_contractOwner);
+    }
+}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Use two-step transfer to avoid accidental ownership changes or malicious takeovers.
+- Always validate pending ownership actions before accepting them.
+- Ensure `renounceOwnership` is only used when intentionally relinquishing control.
+</Callout>
+
+
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Ensure the pending owner address is verified before accepting ownership. Reentrancy protections are not required as state changes are minimal, but conditions should be explicitly verified to avoid misuse.
+</Callout>
+
+

@@ -1,0 +1,488 @@
+---
+sidebar_position: 99
+title: "ERC721Facet"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="ERC721Facet"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+**Title:**
+
+ERC-721 Token
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/2ba2081cb9214075b097344cc10dc74bec360da3/src/token/ERC721/ERC721/ERC721Facet.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Self-contained facet with no imports or inheritance
+- Only `external` and `internal` function visibility
+- Follows Compose readability-first conventions
+- Ready for diamond integration
+</Callout>
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns a pointer to the ERC-721 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+
+
+
+```solidity
+function getStorage() internal pure returns (ERC721Storage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getStorage` | `` | Returns a pointer to the ERC-721 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION. |
+
+### name
+
+
+Returns the token collection name.
+
+
+
+```solidity
+function name() external view returns (string memory);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `name` | `` | Returns the token collection name. |
+
+### symbol
+
+
+Returns the token collection symbol.
+
+
+
+```solidity
+function symbol() external view returns (string memory);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `symbol` | `` | Returns the token collection symbol. |
+
+### tokenURI
+
+
+Provide the metadata URI for a given token ID.
+
+
+
+```solidity
+function tokenURI(uint256 _tokenId) external view returns (string memory);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `tokenURI` | `` | Provide the metadata URI for a given token ID. |
+
+### balanceOf
+
+
+Returns the number of tokens owned by a given address.
+
+
+
+```solidity
+function balanceOf(address _owner) external view returns (uint256);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `balanceOf` | `` | Returns the number of tokens owned by a given address. |
+
+### ownerOf
+
+
+Returns the owner of a given token ID.
+
+
+
+```solidity
+function ownerOf(uint256 _tokenId) public view returns (address);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `ownerOf` | `` | Returns the owner of a given token ID. |
+
+### getApproved
+
+
+Returns the approved address for a given token ID.
+
+
+
+```solidity
+function getApproved(uint256 _tokenId) external view returns (address);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getApproved` | `` | Returns the approved address for a given token ID. |
+
+### isApprovedForAll
+
+
+Returns true if an operator is approved to manage all of an owner's assets.
+
+
+
+```solidity
+function isApprovedForAll(address _owner, address _operator) external view returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `isApprovedForAll` | `` | Returns true if an operator is approved to manage all of an owner's assets. |
+
+### approve
+
+
+Approves another address to transfer the given token ID.
+
+
+
+```solidity
+function approve(address _to, uint256 _tokenId) external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `approve` | `` | Approves another address to transfer the given token ID. |
+
+### setApprovalForAll
+
+
+Approves or revokes permission for an operator to manage all caller's assets.
+
+
+
+```solidity
+function setApprovalForAll(address _operator, bool _approved) external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `setApprovalForAll` | `` | Approves or revokes permission for an operator to manage all caller's assets. |
+
+### internalTransferFrom
+
+
+Internal function to transfer a token, checking for ownership and approval.
+
+
+
+```solidity
+function internalTransferFrom(address _from, address _to, uint256 _tokenId) internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `internalTransferFrom` | `` | Internal function to transfer a token, checking for ownership and approval. |
+
+### transferFrom
+
+
+Transfers a token from one address to another.
+
+
+
+```solidity
+function transferFrom(address _from, address _to, uint256 _tokenId) external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `transferFrom` | `` | Transfers a token from one address to another. |
+
+### safeTransferFrom
+
+
+Safely transfers a token, checking if the receiver can handle ERC-721 tokens.
+
+
+
+```solidity
+function safeTransferFrom(address _from, address _to, uint256 _tokenId) external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `safeTransferFrom` | `` | Safely transfers a token, checking if the receiver can handle ERC-721 tokens. |
+
+### safeTransferFrom
+
+
+Safely transfers a token with additional data.
+
+
+
+```solidity
+function safeTransferFrom(address _from, address _to, uint256 _tokenId, bytes calldata _data) external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `safeTransferFrom` | `` | Safely transfers a token with additional data. |
+
+
+
+
+
+
+
+## Events
+
+
+### Transfer
+
+
+
+```solidity
+event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `Transfer` | `` |  |
+
+### Approval
+
+
+
+```solidity
+event Approval(address indexed _owner, address indexed _to, uint256 indexed _tokenId);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `Approval` | `` |  |
+
+### ApprovalForAll
+
+
+
+```solidity
+event ApprovalForAll(address indexed _owner, address indexed _operator, bool _approved);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `ApprovalForAll` | `` |  |
+
+
+
+
+
+
+## Errors
+
+
+### ERC721InvalidOwner
+
+
+
+```solidity
+error ERC721InvalidOwner(address _owner);
+```
+
+
+
+### ERC721NonexistentToken
+
+
+
+```solidity
+error ERC721NonexistentToken(uint256 _tokenId);
+```
+
+
+
+### ERC721IncorrectOwner
+
+
+
+```solidity
+error ERC721IncorrectOwner(address _sender, uint256 _tokenId, address _owner);
+```
+
+
+
+### ERC721InvalidSender
+
+
+
+```solidity
+error ERC721InvalidSender(address _sender);
+```
+
+
+
+### ERC721InvalidReceiver
+
+
+
+```solidity
+error ERC721InvalidReceiver(address _receiver);
+```
+
+
+
+### ERC721InsufficientApproval
+
+
+
+```solidity
+error ERC721InsufficientApproval(address _operator, uint256 _tokenId);
+```
+
+
+
+### ERC721InvalidApprover
+
+
+
+```solidity
+error ERC721InvalidApprover(address _approver);
+```
+
+
+
+### ERC721InvalidOperator
+
+
+
+```solidity
+error ERC721InvalidOperator(address _operator);
+```
+
+
+
+
+
+## Structs
+
+
+### ERC721Storage
+
+
+
+```solidity
+struct ERC721Storage {
+    mapping(uint256 tokenId =&gt; address owner) ownerOf;
+    mapping(address owner =&gt; uint256 balance) balanceOf;
+    mapping(address owner =&gt; mapping(address operator =&gt; bool approved)) isApprovedForAll;
+    mapping(uint256 tokenId =&gt; address approved) approved;
+    string name;
+    string symbol;
+    string baseURI;
+}
+```
+
+
+
+
+
+
+

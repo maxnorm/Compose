@@ -1,0 +1,326 @@
+---
+sidebar_position: 99
+title: "LibOwnerTwoSteps"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="LibOwnerTwoSteps"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+LibOwnerTwoSteps is a Compose library enabling secure two-step ownership management for diamond contracts, adhering to the ERC-173 standard. It ensures seamless integration with the diamond storage pattern, providing flexibility for ownership transfer while preserving transparency and security.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/2ba2081cb9214075b097344cc10dc74bec360da3/src/access/OwnerTwoSteps/LibOwnerTwoSteps.sol)
+
+
+<Callout type="info" title="Library Usage">
+This library provides internal functions for use in your custom facets. Import it to access shared storage.
+</Callout>
+
+
+## Storage
+
+
+Storage position: `STORAGE_POSITION` - Used for diamond storage pattern.
+
+
+
+### State Variables
+
+
+#### STORAGE_POSITION
+
+
+
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns a pointer to the ERC-173 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+
+
+
+```solidity
+function getStorage() internal pure returns (OwnerTwoStepsStorage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getStorage` | `` | Returns a pointer to the ERC-173 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION. |
+
+### owner
+
+
+
+```solidity
+function owner() internal view returns (address);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `owner` | `` |  |
+
+### pendingOwner
+
+
+
+```solidity
+function pendingOwner() internal view returns (address);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `pendingOwner` | `` |  |
+
+### requireOwner
+
+
+
+```solidity
+function requireOwner() internal view;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `requireOwner` | `` |  |
+
+### transferOwnership
+
+
+Initiates a two-step ownership transfer.
+
+
+
+```solidity
+function transferOwnership(address _newOwner) internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `transferOwnership` | `` | Initiates a two-step ownership transfer. |
+
+### acceptOwnership
+
+
+
+```solidity
+function acceptOwnership() internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `acceptOwnership` | `` |  |
+
+### renounceOwnership
+
+
+
+```solidity
+function renounceOwnership() internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `renounceOwnership` | `` |  |
+
+
+
+
+
+
+
+## Events
+
+
+### OwnershipTransferStarted
+
+
+
+```solidity
+event OwnershipTransferStarted(address indexed _previousOwner, address indexed _newOwner);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `OwnershipTransferStarted` | `` |  |
+
+### OwnershipTransferred
+
+
+
+```solidity
+event OwnershipTransferred(address indexed _previousOwner, address indexed _newOwner);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `OwnershipTransferred` | `` |  |
+
+
+
+
+
+
+## Errors
+
+
+### OwnerUnauthorizedAccount
+
+
+
+```solidity
+error OwnerUnauthorizedAccount();
+```
+
+
+
+### OwnerAlreadyRenounced
+
+
+
+```solidity
+error OwnerAlreadyRenounced();
+```
+
+
+
+
+
+## Structs
+
+
+### OwnerTwoStepsStorage
+
+
+
+```solidity
+struct OwnerTwoStepsStorage {
+    address owner;
+    address pendingOwner;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.17;
+
+library LibOwnerTwoSteps {
+    bytes32 constant STORAGE_POSITION = keccak256(&quot;diamond.ownership.storage&quot;);
+
+    struct OwnershipStorage {
+        address owner;
+        address pendingOwner;
+    }
+
+    function getStorage() internal pure returns (OwnershipStorage storage os) {
+        bytes32 position = STORAGE_POSITION;
+        assembly {
+            os.slot := position
+        }
+    }
+
+    function transferOwnership(address _newOwner) internal {
+        OwnershipStorage storage os = getStorage();
+        require(_newOwner != address(0), &quot;New owner cannot be zero address&quot;);
+        os.pendingOwner = _newOwner;
+    }
+
+    function acceptOwnership() internal {
+        OwnershipStorage storage os = getStorage();
+        require(msg.sender == os.pendingOwner, &quot;Caller is not pending owner&quot;);
+        os.owner = os.pendingOwner;
+        os.pendingOwner = address(0);
+    }
+}
+
+contract MyDiamondFacet {
+    function transferOwnership(address _newOwner) external {
+        LibOwnerTwoSteps.transferOwnership(_newOwner);
+    }
+
+    function acceptOwnership() external {
+        LibOwnerTwoSteps.acceptOwnership();
+    }
+}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Always verify the caller in ownership-related functions to enforce permissions.
+- Use the getStorage function to safely access the storage struct without relying on hardcoded storage locations.
+- Ensure any facet interacting with this library adheres to the diamond&#39;s ownership and access control policies.
+</Callout>
+
+
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+LibOwnerTwoSteps leverages the diamond storage pattern by using a uniquely-defined storage slot (STORAGE_POSITION) to manage access to ownership data. Any changes made to ownership via this library are immediately reflected and accessible across all diamond facets, ensuring consistent state management.
+</Callout>
+
+
+

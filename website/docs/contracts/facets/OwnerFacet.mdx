@@ -1,0 +1,222 @@
+---
+sidebar_position: 99
+title: "OwnerFacet"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="OwnerFacet"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+The OwnerFacet provides essential ownership management functionality for diamond contracts, enabling secure and straightforward implementation of access control. It allows querying the current owner, transferring ownership, and renouncing ownership in a minimalistic, composable design.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/2ba2081cb9214075b097344cc10dc74bec360da3/src/access/Owner/OwnerFacet.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Provides secure ownership management for diamonds.
+- Includes methods to query, transfer, and renounce ownership.
+- Ensures clarity and composability within diamond proxy architecture.
+</Callout>
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns a pointer to the owner storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+
+
+
+```solidity
+function getStorage() internal pure returns (OwnerStorage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getStorage` | `` | Returns a pointer to the owner storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION. |
+
+### owner
+
+
+Get the address of the owner
+
+
+
+```solidity
+function owner() external view returns (address);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `owner` | `` | Get the address of the owner |
+
+### transferOwnership
+
+
+Set the address of the new owner of the contract Set _newOwner to address(0) to renounce any ownership.
+
+
+
+```solidity
+function transferOwnership(address _newOwner) external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `transferOwnership` | `` | Set the address of the new owner of the contract Set _newOwner to address(0) to renounce any ownership. |
+
+### renounceOwnership
+
+
+
+```solidity
+function renounceOwnership() external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `renounceOwnership` | `` |  |
+
+
+
+
+
+
+
+## Events
+
+
+### OwnershipTransferred
+
+
+
+```solidity
+event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `OwnershipTransferred` | `` |  |
+
+
+
+
+
+
+## Errors
+
+
+### OwnerUnauthorizedAccount
+
+
+
+```solidity
+error OwnerUnauthorizedAccount();
+```
+
+
+
+
+
+## Structs
+
+
+### OwnerStorage
+
+
+
+```solidity
+struct OwnerStorage {
+    address owner;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;
+
+import &quot;./Diamond.sol&quot;;
+
+contract MyDiamond {
+    Diamond private diamond;
+
+    constructor(address diamondAddress) {
+        diamond = Diamond(diamondAddress);
+    }
+
+    function setNewOwner(address _newOwner) external {
+        bytes memory data = abi.encodeWithSignature(&quot;transferOwnership(address)&quot;, _newOwner);
+        (bool success,) = address(diamond).call(data);
+        require(success, &quot;Transfer ownership failed&quot;);
+    }
+
+    function getCurrentOwner() external view returns (address) {
+        bytes memory data = abi.encodeWithSignature(&quot;owner()&quot;);
+        (bool success, bytes memory result) = address(diamond).staticcall(data);
+        require(success, &quot;Owner query failed&quot;);
+        return abi.decode(result, (address));
+    }
+}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Always verify and restrict access when calling ownership-related functions.
+- Use the transferOwnership function rather than directly manipulating the owner to avoid accidental state corruption.
+- Define a clear process for ownership renunciation to avoid unintentionally locking critical functionality.
+</Callout>
+
+
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Ensure only the current owner can invoke transferOwnership or renounceOwnership to prevent unauthorized access or permanent loss of control. Be cautious when renouncing ownership; certain functionalities might become inaccessible, so thoroughly evaluate the implications.
+</Callout>
+
+

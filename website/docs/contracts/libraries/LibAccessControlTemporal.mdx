@@ -1,0 +1,348 @@
+---
+sidebar_position: 99
+title: "LibAccessControlTemporal"
+description: "Contract documentation for LibAccessControlTemporal"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="LibAccessControlTemporal"
+  subtitle="Contract documentation for LibAccessControlTemporal"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+LibAccessControlTemporal provides role-based access control functionalities with temporal (time-based) constraints. It enables role assignments with expiry timestamps, ensuring fine-grained and self-expiring permissions in diamond contracts.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/2ba2081cb9214075b097344cc10dc74bec360da3/src/access/AccessControlTemporal/LibAccessControlTemporal.sol)
+
+
+<Callout type="info" title="Library Usage">
+This library provides internal functions for use in your custom facets. Import it to access shared storage.
+</Callout>
+
+
+## Storage
+
+
+Storage position: `ACCESS_CONTROL_STORAGE_POSITION` - Used for diamond storage pattern.
+
+
+
+### State Variables
+
+
+#### ACCESS_CONTROL_STORAGE_POSITION
+
+
+
+#### TEMPORAL_STORAGE_POSITION
+
+
+
+
+
+
+## Functions
+
+
+### getAccessControlStorage
+
+
+Returns the storage for AccessControl.
+
+
+
+```solidity
+function getAccessControlStorage() internal pure returns (AccessControlStorage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getAccessControlStorage` | `` | Returns the storage for AccessControl. |
+
+### getStorage
+
+
+Returns the storage for AccessControlTemporal.
+
+
+
+```solidity
+function getStorage() internal pure returns (AccessControlTemporalStorage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getStorage` | `` | Returns the storage for AccessControlTemporal. |
+
+### getRoleExpiry
+
+
+function to get the expiry timestamp for a role assignment.
+
+
+
+```solidity
+function getRoleExpiry(bytes32 _role, address _account) internal view returns (uint256);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getRoleExpiry` | `` | function to get the expiry timestamp for a role assignment. |
+
+### isRoleExpired
+
+
+function to check if a role assignment has expired.
+
+
+
+```solidity
+function isRoleExpired(bytes32 _role, address _account) internal view returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `isRoleExpired` | `` | function to check if a role assignment has expired. |
+
+### grantRoleWithExpiry
+
+
+function to grant a role with an expiry timestamp.
+
+
+
+```solidity
+function grantRoleWithExpiry(bytes32 _role, address _account, uint256 _expiresAt) internal returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `grantRoleWithExpiry` | `` | function to grant a role with an expiry timestamp. |
+
+### revokeTemporalRole
+
+
+function to revoke a temporal role.
+
+
+
+```solidity
+function revokeTemporalRole(bytes32 _role, address _account) internal returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `revokeTemporalRole` | `` | function to revoke a temporal role. |
+
+### requireValidRole
+
+
+function to check if an account has a valid (non-expired) role. - error: AccessControlUnauthorizedAccount If the account does not have the role. - error: AccessControlRoleExpired If the role has expired.
+
+
+
+```solidity
+function requireValidRole(bytes32 _role, address _account) internal view;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `requireValidRole` | `` | function to check if an account has a valid (non-expired) role. - error: AccessControlUnauthorizedAccount If the account does not have the role. - error: AccessControlRoleExpired If the role has expired. |
+
+
+
+
+
+
+
+## Events
+
+
+### RoleGrantedWithExpiry
+
+
+Event emitted when a role is granted with an expiry timestamp.
+
+
+
+```solidity
+event RoleGrantedWithExpiry(
+    bytes32 indexed _role, address indexed _account, uint256 _expiresAt, address indexed _sender
+);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `RoleGrantedWithExpiry` | `` | Event emitted when a role is granted with an expiry timestamp. |
+
+### TemporalRoleRevoked
+
+
+Event emitted when a temporal role is revoked.
+
+
+
+```solidity
+event TemporalRoleRevoked(bytes32 indexed _role, address indexed _account, address indexed _sender);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `TemporalRoleRevoked` | `` | Event emitted when a temporal role is revoked. |
+
+
+
+
+
+
+## Errors
+
+
+### AccessControlUnauthorizedAccount
+
+
+Thrown when the account does not have a specific role.
+
+
+
+```solidity
+error AccessControlUnauthorizedAccount(address _account, bytes32 _role);
+```
+
+
+
+### AccessControlRoleExpired
+
+
+Thrown when a role has expired.
+
+
+
+```solidity
+error AccessControlRoleExpired(bytes32 _role, address _account);
+```
+
+
+
+
+
+## Structs
+
+
+### AccessControlStorage
+
+
+
+```solidity
+struct AccessControlStorage {
+    mapping(address account =&gt; mapping(bytes32 role =&gt; bool hasRole)) hasRole;
+    mapping(bytes32 role =&gt; bytes32 adminRole) adminRole;
+}
+```
+
+
+
+### AccessControlTemporalStorage
+
+
+
+```solidity
+struct AccessControlTemporalStorage {
+    mapping(address account =&gt; mapping(bytes32 role =&gt; uint256 expiryTimestamp)) roleExpiry;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;
+
+import &quot;LibAccessControlTemporal.sol&quot;;
+
+contract ExampleDiamond {
+    function assignTemporalRole(address _account, bytes32 _role, uint256 _expiry) external {
+        LibAccessControlTemporal.grantRoleWithExpiry(_account, _role, _expiry);
+    }
+
+    function validateRole(address _account, bytes32 _role) external view returns (bool) {
+        return !LibAccessControlTemporal.isRoleExpired(_account, _role);
+    }
+
+    function ensureAccountHasValidRole(address _account, bytes32 _role) external view {
+        LibAccessControlTemporal.requireValidRole(_account, _role);
+    }
+}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Use `grantRoleWithExpiry` to assign roles with precise time bounds, minimizing unnecessary authorizations.
+- Always check role validity using `isRoleExpired` or `requireValidRole` before performing sensitive actions to ensure access compliance.
+- Revoke expired roles proactively using `revokeTemporalRole` to keep storage clean and access policies up-to-date.
+</Callout>
+
+
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+This library adheres to the diamond storage pattern, directly modifying storage structures shared across facets. Changes to role assignments or expirations are immediately visible to all compatible facets within the diamond.
+</Callout>
+
+
+
