@@ -1,0 +1,266 @@
+---
+sidebar_position: 99
+title: "LibOwnerTwoSteps"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="LibOwnerTwoSteps"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+**Title:**
+
+ERC-173 Two-Step Contract Ownership Library
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/6e0a412da9679600dd76f4ad43ff79d6364a55cb/src/access/OwnerTwoSteps/LibOwnerTwoSteps.sol)
+
+
+<Callout type="info" title="Library Usage">
+This library provides internal functions for use in your custom facets. Import it to access shared storage.
+</Callout>
+
+
+## Storage
+
+
+Storage position: `STORAGE_POSITION` - Used for diamond storage pattern.
+
+
+
+### State Variables
+
+
+#### STORAGE_POSITION
+
+
+
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns a pointer to the ERC-173 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+
+
+
+```solidity
+function getStorage() internal pure returns (OwnerTwoStepsStorage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getStorage` | `` | Returns a pointer to the ERC-173 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION. |
+
+### owner
+
+
+
+```solidity
+function owner() internal view returns (address);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `owner` | `` |  |
+
+### pendingOwner
+
+
+
+```solidity
+function pendingOwner() internal view returns (address);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `pendingOwner` | `` |  |
+
+### requireOwner
+
+
+
+```solidity
+function requireOwner() internal view;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `requireOwner` | `` |  |
+
+### transferOwnership
+
+
+Initiates a two-step ownership transfer.
+
+
+
+```solidity
+function transferOwnership(address _newOwner) internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `transferOwnership` | `` | Initiates a two-step ownership transfer. |
+
+### acceptOwnership
+
+
+
+```solidity
+function acceptOwnership() internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `acceptOwnership` | `` |  |
+
+### renounceOwnership
+
+
+
+```solidity
+function renounceOwnership() internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `renounceOwnership` | `` |  |
+
+
+
+
+
+
+
+## Events
+
+
+### OwnershipTransferStarted
+
+
+
+```solidity
+event OwnershipTransferStarted(address indexed _previousOwner, address indexed _newOwner);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `OwnershipTransferStarted` | `` |  |
+
+### OwnershipTransferred
+
+
+
+```solidity
+event OwnershipTransferred(address indexed _previousOwner, address indexed _newOwner);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `OwnershipTransferred` | `` |  |
+
+
+
+
+
+
+## Errors
+
+
+### OwnerUnauthorizedAccount
+
+
+
+```solidity
+error OwnerUnauthorizedAccount();
+```
+
+
+
+### OwnerAlreadyRenounced
+
+
+
+```solidity
+error OwnerAlreadyRenounced();
+```
+
+
+
+
+
+## Structs
+
+
+### OwnerTwoStepsStorage
+
+
+
+```solidity
+struct OwnerTwoStepsStorage {
+    address owner;
+    address pendingOwner;
+}
+```
+
+
+
+
+
+
+
+
