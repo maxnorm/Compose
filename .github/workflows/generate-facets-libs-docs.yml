@@ -81,9 +81,9 @@ jobs:
           SKIP_ENHANCEMENT: ${{ github.event.inputs.skip_enhancement || 'false' }}
         run: |
           if [ "${{ steps.changed-files.outputs.process_all }}" == "true" ]; then
-            node .github/scripts/doc-generation.js --all
+            node .github/scripts/generate-docs.js --all
           else
-            node .github/scripts/doc-generation.js /tmp/changed_sol_files.txt
+            node .github/scripts/generate-docs.js /tmp/changed_sol_files.txt
           fi
 
       - name: Check for generated files
