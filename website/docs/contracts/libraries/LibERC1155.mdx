@@ -1,0 +1,443 @@
+---
+sidebar_position: 99
+title: "LibERC1155"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="LibERC1155"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+LibERC1155 is a utility library for managing the core functionality of ERC-1155 tokens in a Compose diamond architecture. It provides highly efficient and composable methods for minting, burning, transferring, and setting URIs, tailored to work seamlessly with the diamond storage pattern for scalable and modular contracts.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/38545161423dd99e31b48b0eff41d260712fe731/src/token/ERC1155/LibERC1155.sol)
+
+
+<Callout type="info" title="Library Usage">
+This library provides internal functions for use in your custom facets. Import it to access shared storage.
+</Callout>
+
+
+## Storage
+
+
+Storage position: `STORAGE_POSITION` - Used for diamond storage pattern.
+
+
+
+### State Variables
+
+
+#### STORAGE_POSITION
+
+
+
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns the ERC-1155 storage struct from the predefined diamond storage slot. Uses inline assembly to set the storage slot reference.
+
+
+
+```solidity
+function getStorage() internal pure returns (ERC1155Storage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getStorage` | `` | Returns the ERC-1155 storage struct from the predefined diamond storage slot. Uses inline assembly to set the storage slot reference. |
+
+### mint
+
+
+Mints a single token type to an address. Increases the balance and emits a TransferSingle event. Performs receiver validation if recipient is a contract.
+
+
+
+```solidity
+function mint(address _to, uint256 _id, uint256 _value, bytes memory _data) internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `mint` | `` | Mints a single token type to an address. Increases the balance and emits a TransferSingle event. Performs receiver validation if recipient is a contract. |
+
+### mintBatch
+
+
+Mints multiple token types to an address in a single transaction. Increases balances for each token type and emits a TransferBatch event. Performs receiver validation if recipient is a contract.
+
+
+
+```solidity
+function mintBatch(address _to, uint256[] memory _ids, uint256[] memory _values, bytes memory _data) internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `mintBatch` | `` | Mints multiple token types to an address in a single transaction. Increases balances for each token type and emits a TransferBatch event. Performs receiver validation if recipient is a contract. |
+
+### burn
+
+
+Burns a single token type from an address. Decreases the balance and emits a TransferSingle event. Reverts if the account has insufficient balance.
+
+
+
+```solidity
+function burn(address _from, uint256 _id, uint256 _value) internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `burn` | `` | Burns a single token type from an address. Decreases the balance and emits a TransferSingle event. Reverts if the account has insufficient balance. |
+
+### burnBatch
+
+
+Burns multiple token types from an address in a single transaction. Decreases balances for each token type and emits a TransferBatch event. Reverts if the account has insufficient balance for any token type.
+
+
+
+```solidity
+function burnBatch(address _from, uint256[] memory _ids, uint256[] memory _values) internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `burnBatch` | `` | Burns multiple token types from an address in a single transaction. Decreases balances for each token type and emits a TransferBatch event. Reverts if the account has insufficient balance for any token type. |
+
+### safeTransferFrom
+
+
+Safely transfers a single token type from one address to another. Validates ownership, approval, and receiver address before updating balances. Performs ERC1155Receiver validation if recipient is a contract (safe transfer). Complies with EIP-1155 safe transfer requirements.
+
+
+
+```solidity
+function safeTransferFrom(address _from, address _to, uint256 _id, uint256 _value, address _operator) internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `safeTransferFrom` | `` | Safely transfers a single token type from one address to another. Validates ownership, approval, and receiver address before updating balances. Performs ERC1155Receiver validation if recipient is a contract (safe transfer). Complies with EIP-1155 safe transfer requirements. |
+
+### safeBatchTransferFrom
+
+
+Safely transfers multiple token types from one address to another in a single transaction. Validates ownership, approval, and receiver address before updating balances for each token type. Performs ERC1155Receiver validation if recipient is a contract (safe transfer). Complies with EIP-1155 safe transfer requirements.
+
+
+
+```solidity
+function safeBatchTransferFrom(
+    address _from,
+    address _to,
+    uint256[] memory _ids,
+    uint256[] memory _values,
+    address _operator
+) internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `safeBatchTransferFrom` | `` | Safely transfers multiple token types from one address to another in a single transaction. Validates ownership, approval, and receiver address before updating balances for each token type. Performs ERC1155Receiver validation if recipient is a contract (safe transfer). Complies with EIP-1155 safe transfer requirements. |
+
+### setTokenURI
+
+
+Sets the token-specific URI for a given token ID. Sets tokenURIs[_tokenId] to the provided string and emits a URI event with the full computed URI. The emitted URI is the concatenation of baseURI and the token-specific URI.
+
+
+
+```solidity
+function setTokenURI(uint256 _tokenId, string memory _tokenURI) internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `setTokenURI` | `` | Sets the token-specific URI for a given token ID. Sets tokenURIs[_tokenId] to the provided string and emits a URI event with the full computed URI. The emitted URI is the concatenation of baseURI and the token-specific URI. |
+
+### setBaseURI
+
+
+Sets the base URI prefix for token-specific URIs. The base URI is concatenated with token-specific URIs set via setTokenURI. Does not affect the default URI used when no token-specific URI is set.
+
+
+
+```solidity
+function setBaseURI(string memory _baseURI) internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `setBaseURI` | `` | Sets the base URI prefix for token-specific URIs. The base URI is concatenated with token-specific URIs set via setTokenURI. Does not affect the default URI used when no token-specific URI is set. |
+
+
+
+
+
+
+
+## Events
+
+
+### TransferSingle
+
+
+Emitted when a single token type is transferred.
+
+
+
+```solidity
+event TransferSingle(
+    address indexed _operator, address indexed _from, address indexed _to, uint256 _id, uint256 _value
+);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `TransferSingle` | `` | Emitted when a single token type is transferred. |
+
+### TransferBatch
+
+
+Emitted when multiple token types are transferred.
+
+
+
+```solidity
+event TransferBatch(
+    address indexed _operator, address indexed _from, address indexed _to, uint256[] _ids, uint256[] _values
+);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `TransferBatch` | `` | Emitted when multiple token types are transferred. |
+
+### URI
+
+
+Emitted when the URI for token type `_id` changes to `_value`.
+
+
+
+```solidity
+event URI(string _value, uint256 indexed _id);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `URI` | `` | Emitted when the URI for token type `_id` changes to `_value`. |
+
+
+
+
+
+
+## Errors
+
+
+### ERC1155InsufficientBalance
+
+
+Thrown when insufficient balance for a transfer or burn operation.
+
+
+
+```solidity
+error ERC1155InsufficientBalance(address _sender, uint256 _balance, uint256 _needed, uint256 _tokenId);
+```
+
+
+
+### ERC1155InvalidSender
+
+
+Thrown when the sender address is invalid.
+
+
+
+```solidity
+error ERC1155InvalidSender(address _sender);
+```
+
+
+
+### ERC1155InvalidReceiver
+
+
+Thrown when the receiver address is invalid.
+
+
+
+```solidity
+error ERC1155InvalidReceiver(address _receiver);
+```
+
+
+
+### ERC1155InvalidArrayLength
+
+
+Thrown when array lengths don&#39;t match in batch operations.
+
+
+
+```solidity
+error ERC1155InvalidArrayLength(uint256 _idsLength, uint256 _valuesLength);
+```
+
+
+
+### ERC1155MissingApprovalForAll
+
+
+Thrown when missing approval for an operator.
+
+
+
+```solidity
+error ERC1155MissingApprovalForAll(address _operator, address _owner);
+```
+
+
+
+
+
+## Structs
+
+
+### ERC1155Storage
+
+
+
+```solidity
+struct ERC1155Storage {
+    mapping(uint256 id =&gt; mapping(address account =&gt; uint256 balance)) balanceOf;
+    mapping(address account =&gt; mapping(address operator =&gt; bool)) isApprovedForAll;
+    string uri;
+    string baseURI;
+    mapping(uint256 tokenId =&gt; string) tokenURIs;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;
+
+import &quot;path_to_lib/LibERC1155.sol&quot;;
+
+contract MyDiamond {
+    function mintToken(address _to, uint256 _id, uint256 _amount) external {
+        LibERC1155.Storage storage s = LibERC1155.getStorage();
+        LibERC1155.mint(s, _to, _id, _amount, &quot;0x&quot;);
+    }
+
+    function burnToken(address _from, uint256 _id, uint256 _amount) external {
+        LibERC1155.Storage storage s = LibERC1155.getStorage();
+        LibERC1155.burn(s, _from, _id, _amount);
+    }
+
+    function setBaseTokenURI(string memory _baseURI) external {
+        LibERC1155.Storage storage s = LibERC1155.getStorage();
+        LibERC1155.setBaseURI(s, _baseURI);
+    }
+}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Always fetch the storage struct using `getStorage` every time before accessing or modifying ERC-1155 state.
+- Validate ownership and approvals before invoking transfer or burn methods.
+- Follow EIP-1155 guidelines for safe transfers using `safeTransferFrom` and `safeBatchTransferFrom` to ensure compatibility with the standard.
+</Callout>
+
+
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+LibERC1155 operates directly on a predefined diamond storage slot, ensuring all updates are visible automatically to other facets in the diamond that access the same storage. This design enables safe and efficient state sharing across the diamond while maintaining modularity.
+</Callout>
+
+
+

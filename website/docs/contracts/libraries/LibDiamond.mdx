@@ -1,0 +1,381 @@
+---
+sidebar_position: 99
+title: "LibDiamond"
+description: "Add=0, Replace=1, Remove=2"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="LibDiamond"
+  subtitle="Add=0, Replace=1, Remove=2"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+LibDiamond is a core library designed for use with the diamond standard (EIP-2535), enabling the dynamic addition, replacement, and removal of contract functions. It provides a robust and efficient way to manage functionality changes, ensuring that smart contracts remain flexible and modular over time.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/38545161423dd99e31b48b0eff41d260712fe731/src/diamond/LibDiamond.sol)
+
+
+<Callout type="info" title="Library Usage">
+This library provides internal functions for use in your custom facets. Import it to access shared storage.
+</Callout>
+
+
+## Storage
+
+
+Storage position: `DIAMOND_STORAGE_POSITION` - Used for diamond storage pattern.
+
+
+
+### State Variables
+
+
+#### DIAMOND_STORAGE_POSITION
+
+
+
+
+
+
+## Functions
+
+
+### getStorage
+
+
+
+```solidity
+function getStorage() internal pure returns (DiamondStorage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getStorage` | `` |  |
+
+### addFunctions
+
+
+
+```solidity
+function addFunctions(address _facet, bytes4[] calldata _functionSelectors) internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `addFunctions` | `` |  |
+
+### replaceFunctions
+
+
+
+```solidity
+function replaceFunctions(address _facet, bytes4[] calldata _functionSelectors) internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `replaceFunctions` | `` |  |
+
+### removeFunctions
+
+
+
+```solidity
+function removeFunctions(address _facet, bytes4[] calldata _functionSelectors) internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `removeFunctions` | `` |  |
+
+### diamondCut
+
+
+Add/replace/remove any number of functions and optionally execute a function with delegatecall
+
+
+
+```solidity
+function diamondCut(FacetCut[] calldata _diamondCut, address _init, bytes calldata _calldata) internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `diamondCut` | `` | Add/replace/remove any number of functions and optionally execute a function with delegatecall |
+
+
+
+
+
+
+
+## Events
+
+
+### DiamondCut
+
+
+
+```solidity
+event DiamondCut(FacetCut[] _diamondCut, address _init, bytes _calldata);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `DiamondCut` | `` |  |
+
+
+
+
+
+
+## Errors
+
+
+### NoSelectorsProvidedForFacet
+
+
+
+```solidity
+error NoSelectorsProvidedForFacet(address _facet);
+```
+
+
+
+### NoBytecodeAtAddress
+
+
+
+```solidity
+error NoBytecodeAtAddress(address _contractAddress, string _message);
+```
+
+
+
+### RemoveFacetAddressMustBeZeroAddress
+
+
+
+```solidity
+error RemoveFacetAddressMustBeZeroAddress(address _facet);
+```
+
+
+
+### IncorrectFacetCutAction
+
+
+
+```solidity
+error IncorrectFacetCutAction(uint8 _action);
+```
+
+
+
+### CannotAddFunctionToDiamondThatAlreadyExists
+
+
+
+```solidity
+error CannotAddFunctionToDiamondThatAlreadyExists(bytes4 _selector);
+```
+
+
+
+### CannotReplaceImmutableFunction
+
+
+
+```solidity
+error CannotReplaceImmutableFunction(bytes4 _selector);
+```
+
+
+
+### CannotReplaceFunctionWithTheSameFunctionFromTheSameFacet
+
+
+
+```solidity
+error CannotReplaceFunctionWithTheSameFunctionFromTheSameFacet(bytes4 _selector);
+```
+
+
+
+### CannotReplaceFunctionThatDoesNotExists
+
+
+
+```solidity
+error CannotReplaceFunctionThatDoesNotExists(bytes4 _selector);
+```
+
+
+
+### CannotRemoveFunctionThatDoesNotExist
+
+
+
+```solidity
+error CannotRemoveFunctionThatDoesNotExist(bytes4 _selector);
+```
+
+
+
+### CannotRemoveImmutableFunction
+
+
+
+```solidity
+error CannotRemoveImmutableFunction(bytes4 _selector);
+```
+
+
+
+### InitializationFunctionReverted
+
+
+
+```solidity
+error InitializationFunctionReverted(address _initializationContractAddress, bytes _calldata);
+```
+
+
+
+
+
+## Structs
+
+
+### FacetAndPosition
+
+
+
+```solidity
+struct FacetAndPosition {
+    address facet;
+    uint16 position;
+}
+```
+
+
+
+### DiamondStorage
+
+
+
+```solidity
+struct DiamondStorage {
+    mapping(bytes4 functionSelector =&gt; FacetAndPosition) facetAndPosition;
+    // Array of all function selectors that can be called in the diamond
+    bytes4[] selectors;
+}
+```
+
+
+
+### FacetCut
+
+
+
+```solidity
+struct FacetCut {
+    address facetAddress;
+    FacetCutAction action;
+    bytes4[] functionSelectors;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;
+
+import {LibDiamond} from &#39;./LibDiamond.sol&#39;;
+
+contract ExampleDiamond {
+    function diamondCutExample() external {
+        LibDiamond.FacetCut[] memory diamondCuts = new LibDiamond.FacetCut[](2);
+
+        diamondCuts[0] = LibDiamond.FacetCut({
+            facetAddress: address(0x1234...5678),
+            action: LibDiamond.Add,
+            functionSelectors: new bytes4[](1)
+        });
+        diamondCuts[0].functionSelectors[0] = bytes4(keccak256(&quot;newFunction()&quot;));
+
+        diamondCuts[1] = LibDiamond.FacetCut({
+            facetAddress: address(0x9abc...def0),
+            action: LibDiamond.Replace,
+            functionSelectors: new bytes4[](1)
+        });
+        diamondCuts[1].functionSelectors[0] = bytes4(keccak256(&quot;existingFunction()&quot;));
+
+        LibDiamond.diamondCut(
+            diamondCuts,
+            address(0),
+            &quot;&quot;
+        );
+    }
+}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Always ensure to test the diamondCut function in a controlled environment before deploying to production.
+- Avoid unauthorized modifications by implementing strong access control mechanisms when integrating this library in contracts.
+- Use custom errors appropriately for efficient error reporting and gas optimization.
+</Callout>
+
+
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+LibDiamond operates seamlessly with the diamond storage pattern by directly modifying storage structures. Any changes made via LibDiamond functions are immediately visible to facets, ensuring consistency across the diamond contract. It is essential to follow EIP-2535 guidelines when using this library to maintain storage integrity and avoid conflicts.
+</Callout>
+
+
+

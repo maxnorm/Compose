@@ -1,0 +1,168 @@
+---
+sidebar_position: 99
+title: "RoyaltyFacet"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="RoyaltyFacet"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+The RoyaltyFacet provides functionality for managing and querying royalty information within an ERC-2981 compliant diamond contract. It allows for the calculation of royalties as a percentage of a sale price, with support for both global and token-specific royalty configurations.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/38545161423dd99e31b48b0eff41d260712fe731/src/token/Royalty/RoyaltyFacet.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Compatible with ERC-2981 royaltyInfo standard.
+- Supports global and token-specific royalty configurations.
+- Calculates royalties using basis points for precision.
+</Callout>
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns a pointer to the royalty storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+
+
+
+```solidity
+function getStorage() internal pure returns (RoyaltyStorage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getStorage` | `` | Returns a pointer to the royalty storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION. |
+
+### royaltyInfo
+
+
+Returns royalty information for a given token and sale price. Returns token-specific royalty if set, otherwise falls back to default royalty. Royalty amount is calculated as a percentage of the sale price using basis points. Implements the ERC-2981 royaltyInfo function.
+
+
+
+```solidity
+function royaltyInfo(uint256 _tokenId, uint256 _salePrice)
+    external
+    view
+    returns (address receiver, uint256 royaltyAmount);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `royaltyInfo` | `` | Returns royalty information for a given token and sale price. Returns token-specific royalty if set, otherwise falls back to default royalty. Royalty amount is calculated as a percentage of the sale price using basis points. Implements the ERC-2981 royaltyInfo function. |
+
+
+
+
+
+
+
+
+
+
+
+## Structs
+
+
+### RoyaltyInfo
+
+
+
+```solidity
+struct RoyaltyInfo {
+    address receiver;
+    uint96 royaltyFraction;
+}
+```
+
+
+
+### RoyaltyStorage
+
+
+
+```solidity
+struct RoyaltyStorage {
+    RoyaltyInfo defaultRoyaltyInfo;
+    mapping(uint256 tokenId =&gt; RoyaltyInfo) tokenRoyaltyInfo;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;
+
+import {IDiamondCut} from &quot;./interfaces/IDiamondCut.sol&quot;;
+import {RoyaltyFacet} from &quot;./RoyaltyFacet.sol&quot;;
+
+contract ExampleUsage {
+    address diamondAddress = 0xYourDiamondAddress;
+
+    function queryRoyalty(uint256 _tokenId, uint256 _salePrice) external view returns (address, uint256) {
+        (bool success, bytes memory data) = diamondAddress.staticcall(
+            abi.encodeWithSelector(RoyaltyFacet.royaltyInfo.selector, _tokenId, _salePrice)
+        );
+        require(success, &quot;Query failed&quot;);
+        return abi.decode(data, (address, uint256));
+    }
+
+    function getRoyaltyStorage() external view returns (bytes32 storagePointer) {
+        (bool success, bytes memory data) = diamondAddress.staticcall(
+            abi.encodeWithSelector(RoyaltyFacet.getStorage.selector)
+        );
+        require(success, &quot;Query failed&quot;);
+        return abi.decode(data, (bytes32));
+    }
+}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Ensure consistent initialization of the royalty storage struct during deployment.
+- Use token-specific royalties sparingly and fall back to global defaults for simplicity.
+- Validate inputs, such as sale prices, to avoid unexpected behaviors.
+</Callout>
+
+
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Ensure that only authorized parties can modify royalty settings when extended to include write functionalities. Verify input values to mitigate risk of overflow/underflow issues when calculating royalty amounts. Avoid reentrancy vulnerabilities by maintaining a read-only design and offloading write functions to other trusted facets.
+</Callout>
+
+

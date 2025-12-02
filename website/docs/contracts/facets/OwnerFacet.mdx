@@ -1,0 +1,217 @@
+---
+sidebar_position: 99
+title: "OwnerFacet"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="OwnerFacet"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+The OwnerFacet provides essential ownership management functions within a diamond contract. It offers a secure and straightforward way to manage the ownership of a contract, including transferring ownership or renouncing it entirely, while adhering to the diamond storage pattern for state management.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/38545161423dd99e31b48b0eff41d260712fe731/src/access/Owner/OwnerFacet.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Simple and secure ownership management via diamond storage.
+- Functions to get, set, and renounce ownership explicitly.
+- Designed for easy integration into diamond contracts.
+</Callout>
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns a pointer to the owner storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+
+
+
+```solidity
+function getStorage() internal pure returns (OwnerStorage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getStorage` | `` | Returns a pointer to the owner storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION. |
+
+### owner
+
+
+Get the address of the owner
+
+
+
+```solidity
+function owner() external view returns (address);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `owner` | `` | Get the address of the owner |
+
+### transferOwnership
+
+
+Set the address of the new owner of the contract Set _newOwner to address(0) to renounce any ownership.
+
+
+
+```solidity
+function transferOwnership(address _newOwner) external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `transferOwnership` | `` | Set the address of the new owner of the contract Set _newOwner to address(0) to renounce any ownership. |
+
+### renounceOwnership
+
+
+
+```solidity
+function renounceOwnership() external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `renounceOwnership` | `` |  |
+
+
+
+
+
+
+
+## Events
+
+
+### OwnershipTransferred
+
+
+
+```solidity
+event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `OwnershipTransferred` | `` |  |
+
+
+
+
+
+
+## Errors
+
+
+### OwnerUnauthorizedAccount
+
+
+
+```solidity
+error OwnerUnauthorizedAccount();
+```
+
+
+
+
+
+## Structs
+
+
+### OwnerStorage
+
+
+
+```solidity
+struct OwnerStorage {
+    address owner;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+contract ExampleDiamond {
+    OwnerFacet private ownerFacet;
+
+    constructor(address _ownerFacetAddress) {
+        ownerFacet = OwnerFacet(_ownerFacetAddress);
+    }
+
+    function getOwner() external view returns (address) {
+        return ownerFacet.owner();
+    }
+
+    function changeOwner(address _newOwner) external {
+        ownerFacet.transferOwnership(_newOwner);
+    }
+
+    function renounceOwnership() external {
+        ownerFacet.renounceOwnership();
+    }
+}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Always validate that only the current owner can call ownership-modifying functions (e.g., transferOwnership or renounceOwnership).
+- Use the getStorage function only in internal contexts where ownership-related state must be accessed securely and explicitly.
+- When transferring ownership, ensure that the new owner address is valid and capable of managing the facet for secure contract governance.
+</Callout>
+
+
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Ensure proper access control is implemented for ownership-changing functions to prevent unauthorized access. Avoid improperly setting the owner address to avoid permissions mismanagement. The renounceOwnership function should be used with caution as it makes the contract permanently permissionless and could lead to loss of administrative capability.
+</Callout>
+
+

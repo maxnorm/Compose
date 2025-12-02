@@ -1,0 +1,230 @@
+---
+sidebar_position: 99
+title: "ERC721BurnFacet"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="ERC721BurnFacet"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+The ERC721BurnFacet provides functionality to burn ERC-721 tokens while updating token enumeration tracking. This facet enables efficient token management and ensures compatibility with the diamond storage model.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/38545161423dd99e31b48b0eff41d260712fe731/src/token/ERC721/ERC721/ERC721BurnFacet.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Provides direct functionality to burn ERC-721 tokens.
+- Includes efficient, inline-access storage retrieval using the diamond storage pattern.
+</Callout>
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns a pointer to the ERC-721 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+
+
+
+```solidity
+function getStorage() internal pure returns (ERC721Storage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getStorage` | `` | Returns a pointer to the ERC-721 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION. |
+
+### burn
+
+
+Burns (destroys) a token, removing it from enumeration tracking.
+
+
+
+```solidity
+function burn(uint256 _tokenId) external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `burn` | `` | Burns (destroys) a token, removing it from enumeration tracking. |
+
+
+
+
+
+
+
+## Events
+
+
+### Transfer
+
+
+
+```solidity
+event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `Transfer` | `` |  |
+
+### Approval
+
+
+
+```solidity
+event Approval(address indexed _owner, address indexed _to, uint256 indexed _tokenId);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `Approval` | `` |  |
+
+### ApprovalForAll
+
+
+
+```solidity
+event ApprovalForAll(address indexed _owner, address indexed _operator, bool _approved);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `ApprovalForAll` | `` |  |
+
+
+
+
+
+
+## Errors
+
+
+### ERC721NonexistentToken
+
+
+
+```solidity
+error ERC721NonexistentToken(uint256 _tokenId);
+```
+
+
+
+### ERC721InsufficientApproval
+
+
+
+```solidity
+error ERC721InsufficientApproval(address _operator, uint256 _tokenId);
+```
+
+
+
+
+
+## Structs
+
+
+### ERC721Storage
+
+
+
+```solidity
+struct ERC721Storage {
+    mapping(uint256 tokenId =&gt; address owner) ownerOf;
+    mapping(address owner =&gt; uint256 balance) balanceOf;
+    mapping(address owner =&gt; mapping(address operator =&gt; bool approved)) isApprovedForAll;
+    mapping(uint256 tokenId =&gt; address approved) approved;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+interface IDiamondCut {
+    struct FacetCut {
+        address facetAddress;
+        uint8 action; // 0 = Add, 1 = Replace, 2 = Remove
+        bytes4[] functionSelectors;
+    }
+    function diamondCut(FacetCut[] calldata cuts, address _init, bytes calldata _calldata) external;
+}
+
+contract UseERC721BurnFacet {
+    function integrateFacet(IDiamondCut diamondCut, address facetAddress) external {
+        IDiamondCut.FacetCut[] memory cuts = new IDiamondCut.FacetCut[](1);
+        cuts[0] = IDiamondCut.FacetCut({
+            facetAddress: facetAddress,
+            action: 0, // Add
+            functionSelectors: new bytes4[](2)
+        });
+        cuts[0].functionSelectors[0] = ERC721BurnFacet.getStorage.selector;
+        cuts[0].functionSelectors[1] = ERC721BurnFacet.burn.selector;
+
+        diamondCut.diamondCut(cuts, address(0), &quot;&quot;);
+    }
+
+    function burnToken(address diamond, uint256 tokenId) external {
+        ERC721(diamond).burn(tokenId);
+    }
+}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Always ensure proper access control when implementing the burn function to prevent unauthorized destruction of tokens.
+- Use getStorage judiciously to access and update ERC-721 state without introducing inconsistencies.
+- Ensure this facet is integrated comprehensively during diamond assembly to avoid function collisions.
+</Callout>
+
+
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Proper access control must be implemented to restrict the burn function to authorized users, such as token owners or approved operators. Ensure the diamond storage layout is consistent and validated during facet addition. Avoid reentrancy issues by properly ordering external calls and state changes in custom functions.
+</Callout>
+
+

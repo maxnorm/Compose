@@ -1,0 +1,333 @@
+---
+sidebar_position: 99
+title: "LibAccessControlPausable"
+description: "Contract documentation for LibAccessControlPausable"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="LibAccessControlPausable"
+  subtitle="Contract documentation for LibAccessControlPausable"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+LibAccessControlPausable is a library designed to extend access control mechanisms in diamond contracts with the ability to pause specific roles. It simplifies role-based management for developers by providing utility functions to pause, unpause, and check the status of roles while seamlessly integrating with the diamond storage pattern.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/38545161423dd99e31b48b0eff41d260712fe731/src/access/AccessControlPausable/LibAccessControlPausable.sol)
+
+
+<Callout type="info" title="Library Usage">
+This library provides internal functions for use in your custom facets. Import it to access shared storage.
+</Callout>
+
+
+## Storage
+
+
+Storage position: `ACCESS_CONTROL_STORAGE_POSITION` - Used for diamond storage pattern.
+
+
+
+### State Variables
+
+
+#### ACCESS_CONTROL_STORAGE_POSITION
+
+
+
+#### PAUSABLE_STORAGE_POSITION
+
+
+
+
+
+
+## Functions
+
+
+### getAccessControlStorage
+
+
+Returns the storage for AccessControl.
+
+
+
+```solidity
+function getAccessControlStorage() internal pure returns (AccessControlStorage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getAccessControlStorage` | `` | Returns the storage for AccessControl. |
+
+### getStorage
+
+
+Returns the storage for AccessControlPausable.
+
+
+
+```solidity
+function getStorage() internal pure returns (AccessControlPausableStorage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getStorage` | `` | Returns the storage for AccessControlPausable. |
+
+### isRolePaused
+
+
+function to check if a role is paused.
+
+
+
+```solidity
+function isRolePaused(bytes32 _role) internal view returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `isRolePaused` | `` | function to check if a role is paused. |
+
+### pauseRole
+
+
+function to pause a role.
+
+
+
+```solidity
+function pauseRole(bytes32 _role) internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `pauseRole` | `` | function to pause a role. |
+
+### unpauseRole
+
+
+function to unpause a role.
+
+
+
+```solidity
+function unpauseRole(bytes32 _role) internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `unpauseRole` | `` | function to unpause a role. |
+
+### requireRoleNotPaused
+
+
+function to check if an account has a role and if the role is not paused. - error: AccessControlUnauthorizedAccount If the account does not have the role. - error: AccessControlRolePaused If the role is paused.
+
+
+
+```solidity
+function requireRoleNotPaused(bytes32 _role, address _account) internal view;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `requireRoleNotPaused` | `` | function to check if an account has a role and if the role is not paused. - error: AccessControlUnauthorizedAccount If the account does not have the role. - error: AccessControlRolePaused If the role is paused. |
+
+
+
+
+
+
+
+## Events
+
+
+### RolePaused
+
+
+Event emitted when a role is paused.
+
+
+
+```solidity
+event RolePaused(bytes32 indexed _role, address indexed _account);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `RolePaused` | `` | Event emitted when a role is paused. |
+
+### RoleUnpaused
+
+
+Event emitted when a role is unpaused.
+
+
+
+```solidity
+event RoleUnpaused(bytes32 indexed _role, address indexed _account);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `RoleUnpaused` | `` | Event emitted when a role is unpaused. |
+
+
+
+
+
+
+## Errors
+
+
+### AccessControlUnauthorizedAccount
+
+
+Thrown when the account does not have a specific role.
+
+
+
+```solidity
+error AccessControlUnauthorizedAccount(address _account, bytes32 _role);
+```
+
+
+
+### AccessControlRolePaused
+
+
+Thrown when a role is paused and an operation requiring that role is attempted.
+
+
+
+```solidity
+error AccessControlRolePaused(bytes32 _role);
+```
+
+
+
+
+
+## Structs
+
+
+### AccessControlStorage
+
+
+
+```solidity
+struct AccessControlStorage {
+    mapping(address account =&gt; mapping(bytes32 role =&gt; bool hasRole)) hasRole;
+    mapping(bytes32 role =&gt; bytes32 adminRole) adminRole;
+}
+```
+
+
+
+### AccessControlPausableStorage
+
+
+
+```solidity
+struct AccessControlPausableStorage {
+    mapping(bytes32 role =&gt; bool paused) pausedRoles;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+library LibAccessControlPausable {
+    struct AccessControlPausableStorage {
+        mapping(bytes32 =&gt; bool) pausedRoles;
+    }
+
+    function getStorage() internal pure returns (AccessControlPausableStorage storage strg) {
+        bytes32 slot = keccak256(&quot;diamond.standard.accesscontrolpausable.storage&quot;);
+        assembly {
+            strg.slot := slot
+        }
+    }
+
+    function isRolePaused(bytes32 _role) internal view returns (bool) {
+        return getStorage().pausedRoles[_role];
+    }
+
+    function pauseRole(bytes32 _role) internal {
+        getStorage().pausedRoles[_role] = true;
+    }
+
+    function unpauseRole(bytes32 _role) internal {
+        delete getStorage().pausedRoles[_role];
+    }
+}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Always check if a role is paused using isRolePaused before executing role-specific actions.
+- Avoid removing roles or modifying AccessControlPausableStorage structure in ways that change storage slot layout.
+- Use requireRoleNotPaused to ensure role consistency and prevent unexpected permission handling.
+</Callout>
+
+
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+LibAccessControlPausable uses the diamond storage pattern to manage paused roles. Changes made to the storage by this library are immediately visible to all facets within the diamond, ensuring seamless composability and consistency across all access control related operations.
+</Callout>
+
+
+

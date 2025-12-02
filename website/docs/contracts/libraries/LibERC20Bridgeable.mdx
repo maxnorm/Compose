@@ -1,0 +1,365 @@
+---
+sidebar_position: 99
+title: "LibERC20Bridgeable"
+description: "Contract documentation for LibERC20Bridgeable"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="LibERC20Bridgeable"
+  subtitle="Contract documentation for LibERC20Bridgeable"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+LibERC20Bridgeable enables cross-chain minting and burning of ERC20 tokens in diamond contract architectures. It ensures secure functionality by leveraging role-based access control and the Compose storage and diamond proxy patterns, providing a reusable, scalable solution.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/38545161423dd99e31b48b0eff41d260712fe731/src/token/ERC20/ERC20Bridgeable/LibERC20Bridgeable.sol)
+
+
+<Callout type="info" title="Library Usage">
+This library provides internal functions for use in your custom facets. Import it to access shared storage.
+</Callout>
+
+
+## Storage
+
+
+Storage position: `ERC20_STORAGE_POSITION` - Used for diamond storage pattern.
+
+
+
+### State Variables
+
+
+#### ERC20_STORAGE_POSITION
+
+
+
+#### ACCESS_STORAGE_POSITION
+
+
+
+
+
+
+## Functions
+
+
+### getERC20Storage
+
+
+Returns the ERC20 storage struct from the predefined diamond storage slot. Uses inline assembly to set the storage slot reference.
+
+
+
+```solidity
+function getERC20Storage() internal pure returns (ERC20Storage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getERC20Storage` | `` | Returns the ERC20 storage struct from the predefined diamond storage slot. Uses inline assembly to set the storage slot reference. |
+
+### getAccessControlStorage
+
+
+
+```solidity
+function getAccessControlStorage() internal pure returns (AccessControlStorage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getAccessControlStorage` | `` |  |
+
+### crosschainMint
+
+
+Cross-chain mint — callable only by an address having the `trusted-bridge` role.
+
+
+
+```solidity
+function crosschainMint(address _account, uint256 _value) internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `crosschainMint` | `` | Cross-chain mint — callable only by an address having the `trusted-bridge` role. |
+
+### crosschainBurn
+
+
+Cross-chain burn — callable only by an address having the `trusted-bridge` role.
+
+
+
+```solidity
+function crosschainBurn(address _from, uint256 _value) internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `crosschainBurn` | `` | Cross-chain burn — callable only by an address having the `trusted-bridge` role. |
+
+### checkTokenBridge
+
+
+Internal check to check if the bridge (caller) is trusted. Reverts if caller is zero or not in the AccessControl `trusted-bridge` role.
+
+
+
+```solidity
+function checkTokenBridge(address _caller) internal view;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `checkTokenBridge` | `` | Internal check to check if the bridge (caller) is trusted. Reverts if caller is zero or not in the AccessControl `trusted-bridge` role. |
+
+
+
+
+
+
+
+## Events
+
+
+### CrosschainMint
+
+
+Emitted when tokens are minted via a cross-chain bridge.
+
+
+
+```solidity
+event CrosschainMint(address indexed _to, uint256 _amount, address indexed _sender);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `CrosschainMint` | `` | Emitted when tokens are minted via a cross-chain bridge. |
+
+### CrosschainBurn
+
+
+Emitted when a crosschain transfer burns tokens.
+
+
+
+```solidity
+event CrosschainBurn(address indexed _from, uint256 _amount, address indexed _sender);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `CrosschainBurn` | `` | Emitted when a crosschain transfer burns tokens. |
+
+### Transfer
+
+
+Emitted when tokens are transferred between two addresses.
+
+
+
+```solidity
+event Transfer(address indexed _from, address indexed _to, uint256 _value);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `Transfer` | `` | Emitted when tokens are transferred between two addresses. |
+
+
+
+
+
+
+## Errors
+
+
+### ERC20InvalidReciever
+
+
+Revert when a provided receiver is invalid(e.g,zero address) .
+
+
+
+```solidity
+error ERC20InvalidReciever(address _receiver);
+```
+
+
+
+### ERC20InvalidSender
+
+
+Thrown when the sender address is invalid (e.g., zero address).
+
+
+
+```solidity
+error ERC20InvalidSender(address _sender);
+```
+
+
+
+### ERC20InvalidBridgeAccount
+
+
+Revert when caller is not a trusted bridge.
+
+
+
+```solidity
+error ERC20InvalidBridgeAccount(address _caller);
+```
+
+
+
+### ERC20InvalidCallerAddress
+
+
+
+```solidity
+error ERC20InvalidCallerAddress(address _caller);
+```
+
+
+
+### AccessControlUnauthorizedAccount
+
+
+Thrown when the account does not have a specific role.
+
+
+
+```solidity
+error AccessControlUnauthorizedAccount(address _account, bytes32 _role);
+```
+
+
+
+### ERC20InsufficientBalance
+
+
+
+```solidity
+error ERC20InsufficientBalance(address _from, uint256 _accountBalance, uint256 _value);
+```
+
+
+
+
+
+## Structs
+
+
+### ERC20Storage
+
+
+
+```solidity
+struct ERC20Storage {
+    mapping(address owner =&gt; uint256 balance) balanceOf;
+    uint256 totalSupply;
+}
+```
+
+
+
+### AccessControlStorage
+
+
+
+```solidity
+struct AccessControlStorage {
+    mapping(address account =&gt; mapping(bytes32 role =&gt; bool hasRole)) hasRole;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.20;
+
+import &quot;./LibERC20Bridgeable.sol&quot;;
+
+contract MyTokenFacet {
+    function mintCrosschain(address _to, uint256 _amount) external {
+        require(LibERC20Bridgeable.checkTokenBridge(msg.sender), &quot;Not a trusted bridge&quot;);
+        LibERC20Bridgeable.crosschainMint(_to, _amount);
+    }
+
+    function burnCrosschain(address _from, uint256 _amount) external {
+        require(LibERC20Bridgeable.checkTokenBridge(msg.sender), &quot;Not a trusted bridge&quot;);
+        LibERC20Bridgeable.crosschainBurn(_from, _amount);
+    }
+}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Carefully define and assign the `trusted-bridge` role when calling crosschainMint or crosschainBurn.
+- Validate and audit bridge callers to ensure permissions are correctly enforced.
+- Avoid directly modifying any diamond storage outside of the library to maintain consistency.
+</Callout>
+
+
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+LibERC20Bridgeable adheres to the diamond storage pattern, ensuring compatibility with other facets. Changes made using this library (such as minting or burning) are immediately visible to all facets that utilize the same diamond storage.
+</Callout>
+
+
+

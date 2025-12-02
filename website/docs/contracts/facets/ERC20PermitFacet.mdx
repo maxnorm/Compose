@@ -1,0 +1,286 @@
+---
+sidebar_position: 99
+title: "ERC20PermitFacet"
+description: "Contract documentation for ERC20PermitFacet"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="ERC20PermitFacet"
+  subtitle="Contract documentation for ERC20PermitFacet"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+The ERC20PermitFacet allows ERC-20 token allowances to be set via cryptographic EIP-2612 signatures instead of on-chain transactions. This functionality facilitates gasless approvals and improves user experience in diamond proxy contracts while adhering to EIP standards.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/38545161423dd99e31b48b0eff41d260712fe731/src/token/ERC20/ERC20/ERC20PermitFacet.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Implements EIP-2612 standard for gasless token approvals.
+- Provides nonce tracking to prevent signature replay attacks.
+</Callout>
+
+
+
+## Functions
+
+
+### getERC20Storage
+
+
+
+```solidity
+function getERC20Storage() internal pure returns (ERC20Storage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getERC20Storage` | `` |  |
+
+### getStorage
+
+
+
+```solidity
+function getStorage() internal pure returns (ERC20PermitStorage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getStorage` | `` |  |
+
+### nonces
+
+
+Returns the current nonce for an owner. This value changes each time a permit is used.
+
+
+
+```solidity
+function nonces(address _owner) external view returns (uint256);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `nonces` | `` | Returns the current nonce for an owner. This value changes each time a permit is used. |
+
+### DOMAIN_SEPARATOR
+
+
+Returns the domain separator used in the encoding of the signature for permit. This value is unique to a contract and chain ID combination to prevent replay attacks.
+
+
+
+```solidity
+function DOMAIN_SEPARATOR() external view returns (bytes32);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `DOMAIN_SEPARATOR` | `` | Returns the domain separator used in the encoding of the signature for permit. This value is unique to a contract and chain ID combination to prevent replay attacks. |
+
+### permit
+
+
+Sets the allowance for a spender via a signature. This function implements EIP-2612 permit functionality.
+
+
+
+```solidity
+function permit(
+    address _owner,
+    address _spender,
+    uint256 _value,
+    uint256 _deadline,
+    uint8 _v,
+    bytes32 _r,
+    bytes32 _s
+) external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `permit` | `` | Sets the allowance for a spender via a signature. This function implements EIP-2612 permit functionality. |
+
+
+
+
+
+
+
+## Events
+
+
+### Approval
+
+
+Emitted when an approval is made for a spender by an owner.
+
+
+
+```solidity
+event Approval(address indexed _owner, address indexed _spender, uint256 _value);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `Approval` | `` | Emitted when an approval is made for a spender by an owner. |
+
+
+
+
+
+
+## Errors
+
+
+### ERC2612InvalidSignature
+
+
+Thrown when a permit signature is invalid or expired.
+
+
+
+```solidity
+error ERC2612InvalidSignature(
+    address _owner, address _spender, uint256 _value, uint256 _deadline, uint8 _v, bytes32 _r, bytes32 _s
+);
+```
+
+
+
+### ERC20InvalidSpender
+
+
+Thrown when the spender address is invalid (e.g., zero address).
+
+
+
+```solidity
+error ERC20InvalidSpender(address _spender);
+```
+
+
+
+
+
+## Structs
+
+
+### ERC20Storage
+
+
+
+```solidity
+struct ERC20Storage {
+    mapping(address owner =&gt; uint256 balance) balanceOf;
+    uint256 totalSupply;
+    mapping(address owner =&gt; mapping(address spender =&gt; uint256 allowance)) allowance;
+    uint8 decimals;
+    string name;
+}
+```
+
+
+
+### ERC20PermitStorage
+
+
+
+```solidity
+struct ERC20PermitStorage {
+    mapping(address owner =&gt; uint256) nonces;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;
+
+import {Diamond} from &quot;./Diamond.sol&quot;;
+import {ERC20PermitFacet} from &quot;./ERC20PermitFacet.sol&quot;;
+
+contract TokenInteraction {
+    function usePermit(
+        address _diamondAddress,
+        address _owner,
+        address _spender,
+        uint256 _value,
+        uint256 _deadline,
+        uint8 _v,
+        bytes32 _r,
+        bytes32 _s
+    ) external {
+        ERC20PermitFacet(_diamondAddress).permit(
+            _owner,
+            _spender,
+            _value,
+            _deadline,
+            _v,
+            _r,
+            _s
+        );
+    }
+}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Ensure DOMAIN_SEPARATOR is correctly calculated and unique per deployment to prevent replay attacks.
+- Use secure handling for function parameters and signature verification logic.
+- Regularly test the permit function with various scenarios such as edge cases for nonce expiration and signature correctness.
+</Callout>
+
+
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Verify that DOMAIN_SEPARATOR remains consistent across transactions and chains, as inconsistency can compromise replay attack prevention. Validate signatures thoroughly inside the `permit` function to ensure they are legitimate and match the owner&#39;s intent. Test for reentrancy attacks in surrounding external calls when using `permit` in multi-step workflows.
+</Callout>
+
+
