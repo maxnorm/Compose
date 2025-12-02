@@ -1,0 +1,316 @@
+---
+sidebar_position: 99
+title: "LibAccessControl"
+description: "Contract documentation for LibAccessControl"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+## Overview
+
+LibAccessControl is a library for managing role-based access control in diamond contracts. It simplifies assigning, revoking, and verifying roles across facets while maintaining security and composability. This ensures a cohesive authorization system compatible with the diamond storage pattern.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/7206f045d711880c211b967e80d72745b52f5cfc/src/access/AccessControl/LibAccessControl.sol)
+
+
+<Callout type="info" title="Library Usage">
+This library provides internal functions for use in your custom facets. Import it to access shared storage.
+</Callout>
+
+
+## Storage
+
+
+Storage position: `STORAGE_POSITION` - Used for diamond storage pattern.
+
+
+
+### State Variables
+
+
+#### STORAGE_POSITION
+
+
+
+#### DEFAULT_ADMIN_ROLE
+
+
+
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns the storage for the AccessControl.
+
+
+
+```solidity
+function getStorage() internal pure returns (AccessControlStorage storage _s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getStorage` | `` | Returns the storage for the AccessControl. |
+
+### requireRole
+
+
+function to check if an account has a required role. error: AccessControlUnauthorizedAccount If the account does not have the role.
+
+
+
+```solidity
+function requireRole(bytes32 _role, address _account) internal view;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `requireRole` | `` | function to check if an account has a required role. error: AccessControlUnauthorizedAccount If the account does not have the role. |
+
+### hasRole
+
+
+function to check if an account has a role.
+
+
+
+```solidity
+function hasRole(bytes32 _role, address _account) internal view returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `hasRole` | `` | function to check if an account has a role. |
+
+### setRoleAdmin
+
+
+function to set the admin role for a role.
+
+
+
+```solidity
+function setRoleAdmin(bytes32 _role, bytes32 _adminRole) internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `setRoleAdmin` | `` | function to set the admin role for a role. |
+
+### grantRole
+
+
+function to grant a role to an account.
+
+
+
+```solidity
+function grantRole(bytes32 _role, address _account) internal returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `grantRole` | `` | function to grant a role to an account. |
+
+### revokeRole
+
+
+function to revoke a role from an account.
+
+
+
+```solidity
+function revokeRole(bytes32 _role, address _account) internal returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `revokeRole` | `` | function to revoke a role from an account. |
+
+
+
+
+
+
+
+## Events
+
+
+### RoleAdminChanged
+
+
+Emitted when the admin role for a role is changed.
+
+
+
+```solidity
+event RoleAdminChanged(bytes32 indexed _role, bytes32 indexed _previousAdminRole, bytes32 indexed _newAdminRole);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `RoleAdminChanged` | `` | Emitted when the admin role for a role is changed. |
+
+### RoleGranted
+
+
+Emitted when a role is granted to an account.
+
+
+
+```solidity
+event RoleGranted(bytes32 indexed _role, address indexed _account, address indexed _sender);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `RoleGranted` | `` | Emitted when a role is granted to an account. |
+
+### RoleRevoked
+
+
+Emitted when a role is revoked from an account.
+
+
+
+```solidity
+event RoleRevoked(bytes32 indexed _role, address indexed _account, address indexed _sender);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `RoleRevoked` | `` | Emitted when a role is revoked from an account. |
+
+
+
+
+
+
+## Errors
+
+
+### AccessControlUnauthorizedAccount
+
+
+Thrown when the account does not have a specific role.
+
+
+
+```solidity
+error AccessControlUnauthorizedAccount(address _account, bytes32 _role);
+```
+
+
+
+
+
+## Structs
+
+
+### AccessControlStorage
+
+
+
+```solidity
+struct AccessControlStorage {
+    mapping(address account =&gt; mapping(bytes32 role =&gt; bool hasRole)) hasRole;
+    mapping(bytes32 role =&gt; bytes32 adminRole) adminRole;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;
+
+import &quot;LibAccessControl.sol&quot;;
+
+contract ExampleDiamondFacet {
+    function secureAction() external {
+        // Ensure caller has the required role before proceeding
+        LibAccessControl.requireRole(msg.sender, keccak256(&quot;ROLE_ADMIN&quot;));
+        // Business logic
+    }
+
+    function assignRole(address _account) external {
+        // Grant ROLE_USER to the specified account
+        LibAccessControl.grantRole(_account, keccak256(&quot;ROLE_USER&quot;));
+    }
+
+    function revokeRole(address _account) external {
+        // Revoke ROLE_USER from the specified account
+        LibAccessControl.revokeRole(_account, keccak256(&quot;ROLE_USER&quot;));
+    }
+}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Always define clear and distinct roles to avoid confusion.
+- Use LibAccessControl.requireRole for critical function access verifications.
+- Organize role assignments and revocations in admin-managed flows.
+</Callout>
+
+
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+LibAccessControl operates within the diamond storage pattern, ensuring roles and permissions defined in storage are accessible and consistent across all facets. Changes made to roles are immediately visible to other facets interacting with the same diamond storage.
+</Callout>
+
+
+

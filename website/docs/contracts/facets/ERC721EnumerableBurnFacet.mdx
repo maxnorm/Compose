@@ -1,0 +1,201 @@
+---
+sidebar_position: 99
+title: "ERC721EnumerableBurnFacet"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="ERC721EnumerableBurnFacet"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+The ERC721EnumerableBurnFacet allows tokens to be burned (permanently destroyed) while ensuring their removal from enumeration tracking, maintaining the integrity of token enumerability in a diamond contract. It provides a lightweight method to manage token lifecycles within ERC-721 implementations.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/7206f045d711880c211b967e80d72745b52f5cfc/src/token/ERC721/ERC721Enumerable/ERC721EnumerableBurnFacet.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Burns ERC-721 tokens permanently while updating enumeration tracking.
+- Provides access to facet-specific storage through a predictable and structured pattern.
+</Callout>
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns the storage struct used by this facet.
+
+
+
+```solidity
+function getStorage() internal pure returns (ERC721EnumerableStorage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getStorage` | `` | Returns the storage struct used by this facet. |
+
+### burn
+
+
+Burns (destroys) a token, removing it from enumeration tracking.
+
+
+
+```solidity
+function burn(uint256 _tokenId) external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `burn` | `` | Burns (destroys) a token, removing it from enumeration tracking. |
+
+
+
+
+
+
+
+## Events
+
+
+### Transfer
+
+
+Emitted when ownership of a token changes, including burning.
+
+
+
+```solidity
+event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `Transfer` | `` | Emitted when ownership of a token changes, including burning. |
+
+
+
+
+
+
+## Errors
+
+
+### ERC721NonexistentToken
+
+
+Thrown when attempting to interact with a non-existent token.
+
+
+
+```solidity
+error ERC721NonexistentToken(uint256 _tokenId);
+```
+
+
+
+### ERC721InsufficientApproval
+
+
+Thrown when the caller lacks approval to operate on the token.
+
+
+
+```solidity
+error ERC721InsufficientApproval(address _operator, uint256 _tokenId);
+```
+
+
+
+
+
+## Structs
+
+
+### ERC721EnumerableStorage
+
+
+
+```solidity
+struct ERC721EnumerableStorage {
+    mapping(uint256 tokenId =&gt; address owner) ownerOf;
+    mapping(address owner =&gt; uint256[] ownerTokens) ownerTokens;
+    mapping(uint256 tokenId =&gt; uint256 ownerTokensIndex) ownerTokensIndex;
+    uint256[] allTokens;
+    mapping(uint256 tokenId =&gt; uint256 allTokensIndex) allTokensIndex;
+    mapping(address owner =&gt; mapping(address operator =&gt; bool approved)) isApprovedForAll;
+    mapping(uint256 tokenId =&gt; address approved) approved;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;
+
+import { ERC721EnumerableBurnFacet } from &quot;./ERC721EnumerableBurnFacet.sol&quot;;
+
+contract MyDiamondContract {
+    function burnToken(uint256 _tokenId) external {
+        // Assume access control is managed elsewhere in the diamond
+        ERC721EnumerableBurnFacet burnFacet = ERC721EnumerableBurnFacet(address(this));
+        burnFacet.burn(_tokenId);
+    }
+
+    function viewStorage() external view returns (bytes32) {
+        ERC721EnumerableBurnFacet burnFacet = ERC721EnumerableBurnFacet(address(this));
+        return burnFacet.getStorage();
+    }
+}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Ensure the burn function is restricted to authorized users, such as administrators or token owners.
+- Properly test and verify the enumeration state before and after burning tokens.
+- Clearly document how the burn process impacts the token ownership and enumeration mapping.
+</Callout>
+
+
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Limit access to the `burn` function to ensure that only intended users (e.g., token owner, approved operator) can destroy tokens. Verify that the enumeration mappings are consistently updated and cannot be exploited to disrupt the sequence or create inconsistencies in the token list. Be cautious of reentrancy risks if external calls are introduced in future updates.
+</Callout>
+
+

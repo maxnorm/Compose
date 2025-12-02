@@ -1,0 +1,379 @@
+---
+sidebar_position: 99
+title: "ERC6909Facet"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="ERC6909Facet"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+The ERC6909Facet implements ERC-6909 token functionality within a diamond proxy pattern, providing modular and efficient token storage, approvals, and transfers. It enables token holders and operators to manage balances and allowances in a permissioned and composable manner, crucial features for advanced token management use cases.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/7206f045d711880c211b967e80d72745b52f5cfc/src/token/ERC6909/ERC6909/ERC6909Facet.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Implements ERC-6909 token management for diamonds.
+- Modular, composable, and reusable design compatible with the diamond standard.
+- Supports balance queries, token approvals, and operator management.
+</Callout>
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns a pointer to the ERC-6909 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+
+
+
+```solidity
+function getStorage() internal pure returns (ERC6909Storage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getStorage` | `` | Returns a pointer to the ERC-6909 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION. |
+
+### balanceOf
+
+
+Owner balance of an id.
+
+
+
+```solidity
+function balanceOf(address _owner, uint256 _id) external view returns (uint256);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `balanceOf` | `` | Owner balance of an id. |
+
+### allowance
+
+
+Spender allowance of an id.
+
+
+
+```solidity
+function allowance(address _owner, address _spender, uint256 _id) external view returns (uint256);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `allowance` | `` | Spender allowance of an id. |
+
+### isOperator
+
+
+Checks if a spender is approved by an owner as an operator.
+
+
+
+```solidity
+function isOperator(address _owner, address _spender) external view returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `isOperator` | `` | Checks if a spender is approved by an owner as an operator. |
+
+### transfer
+
+
+Transfers an amount of an id from the caller to a receiver.
+
+
+
+```solidity
+function transfer(address _receiver, uint256 _id, uint256 _amount) external returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `transfer` | `` | Transfers an amount of an id from the caller to a receiver. |
+
+### transferFrom
+
+
+Transfers an amount of an id from a sender to a receiver.
+
+
+
+```solidity
+function transferFrom(address _sender, address _receiver, uint256 _id, uint256 _amount) external returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `transferFrom` | `` | Transfers an amount of an id from a sender to a receiver. |
+
+### approve
+
+
+Approves an amount of an id to a spender.
+
+
+
+```solidity
+function approve(address _spender, uint256 _id, uint256 _amount) external returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `approve` | `` | Approves an amount of an id to a spender. |
+
+### setOperator
+
+
+Sets or removes a spender as an operator for the caller.
+
+
+
+```solidity
+function setOperator(address _spender, bool _approved) external returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `setOperator` | `` | Sets or removes a spender as an operator for the caller. |
+
+
+
+
+
+
+
+## Events
+
+
+### Transfer
+
+
+
+```solidity
+event Transfer(
+    address _caller, address indexed _sender, address indexed _receiver, uint256 indexed _id, uint256 _amount
+);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `Transfer` | `` |  |
+
+### OperatorSet
+
+
+
+```solidity
+event OperatorSet(address indexed _owner, address indexed _spender, bool _approved);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `OperatorSet` | `` |  |
+
+### Approval
+
+
+
+```solidity
+event Approval(address indexed _owner, address indexed _spender, uint256 indexed _id, uint256 _amount);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `Approval` | `` |  |
+
+
+
+
+
+
+## Errors
+
+
+### ERC6909InsufficientBalance
+
+
+
+```solidity
+error ERC6909InsufficientBalance(address _sender, uint256 _balance, uint256 _needed, uint256 _id);
+```
+
+
+
+### ERC6909InsufficientAllowance
+
+
+
+```solidity
+error ERC6909InsufficientAllowance(address _spender, uint256 _allowance, uint256 _needed, uint256 _id);
+```
+
+
+
+### ERC6909InvalidReceiver
+
+
+
+```solidity
+error ERC6909InvalidReceiver(address _receiver);
+```
+
+
+
+### ERC6909InvalidSender
+
+
+
+```solidity
+error ERC6909InvalidSender(address _sender);
+```
+
+
+
+### ERC6909InvalidSpender
+
+
+
+```solidity
+error ERC6909InvalidSpender(address _spender);
+```
+
+
+
+
+
+## Structs
+
+
+### ERC6909Storage
+
+
+
+```solidity
+struct ERC6909Storage {
+    mapping(address owner =&gt; mapping(uint256 id =&gt; uint256 amount)) balanceOf;
+    mapping(address owner =&gt; mapping(address spender =&gt; mapping(uint256 id =&gt; uint256 amount))) allowance;
+    mapping(address owner =&gt; mapping(address spender =&gt; bool)) isOperator;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;
+
+import { DiamondCutFacet } from &quot;./DiamondCutFacet.sol&quot;;
+import { DiamondLoupeFacet } from &quot;./DiamondLoupeFacet.sol&quot;;
+import { ERC6909Facet } from &quot;./ERC6909Facet.sol&quot;;
+
+contract MyTokenDiamond {
+    DiamondCutFacet private diamondCutFacet;
+    DiamondLoupeFacet private diamondLoupeFacet;
+    ERC6909Facet private erc6909Facet;
+
+    function diamondSetup() external {
+        diamondCutFacet = new DiamondCutFacet();
+        diamondLoupeFacet = new DiamondLoupeFacet();
+        erc6909Facet = new ERC6909Facet();
+
+        // Add facets to the diamond here
+        diamondCutFacet.diamondCut(/* facets configuration */);
+    }
+
+    function exampleTokenTransfer(address receiver, uint256 id, uint256 amount) external {
+        erc6909Facet.transfer(receiver, id, amount);
+    }
+}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Ensure that transfer and transferFrom calls are validated with sufficient balances and emit appropriate events for auditability.
+- Use setOperator for batch approvals when high-frequency transfers are expected from specific operators.
+- Avoid storing sensitive logic or unrelated state directly into shared diamond storage.
+</Callout>
+
+
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Access control is critical; ensure only authorized facets or users interact with sensitive functions like setOperator. Validate user inputs thoroughly to prevent overflows or unintended token transfers. Avoid reentrancy issues by marking external state-changing calls as nonReentrant and protecting critical operations with proper checks on storage updates. Ensure any changes to operator approvals or allowances emit events to maintain transparency.
+</Callout>
+
+

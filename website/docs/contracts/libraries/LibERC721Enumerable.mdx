@@ -1,0 +1,299 @@
+---
+sidebar_position: 99
+title: "LibERC721Enumerable"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+## Overview
+
+LibERC721Enumerable is a library designed to facilitate the storage and management of ERC-721 token enumeration data within a diamond proxy architecture. It provides robust functions for token transfers, minting, and burning while maintaining enumeration integrity.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/7206f045d711880c211b967e80d72745b52f5cfc/src/token/ERC721/ERC721Enumerable/LibERC721Enumerable.sol)
+
+
+<Callout type="info" title="Library Usage">
+This library provides internal functions for use in your custom facets. Import it to access shared storage.
+</Callout>
+
+
+## Storage
+
+
+Storage position: `STORAGE_POSITION` - Used for diamond storage pattern.
+
+
+
+### State Variables
+
+
+#### STORAGE_POSITION
+
+
+
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns the ERC-721 enumerable storage struct from its predefined slot. Uses inline assembly to point to the correct diamond storage position.
+
+
+
+```solidity
+function getStorage() internal pure returns (ERC721EnumerableStorage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getStorage` | `` | Returns the ERC-721 enumerable storage struct from its predefined slot. Uses inline assembly to point to the correct diamond storage position. |
+
+### transferFrom
+
+
+Transfers a token ID from one address to another, updating enumeration data. Validates ownership, approval, and receiver address before state updates.
+
+
+
+```solidity
+function transferFrom(address _from, address _to, uint256 _tokenId, address _sender) internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `transferFrom` | `` | Transfers a token ID from one address to another, updating enumeration data. Validates ownership, approval, and receiver address before state updates. |
+
+### mint
+
+
+Mints a new ERC-721 token to the specified address, adding it to enumeration lists. Reverts if the receiver address is zero or if the token already exists.
+
+
+
+```solidity
+function mint(address _to, uint256 _tokenId) internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `mint` | `` | Mints a new ERC-721 token to the specified address, adding it to enumeration lists. Reverts if the receiver address is zero or if the token already exists. |
+
+### burn
+
+
+Burns (destroys) an existing ERC-721 token, removing it from enumeration lists. Reverts if the token does not exist or if the sender is not authorized.
+
+
+
+```solidity
+function burn(uint256 _tokenId, address _sender) internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `burn` | `` | Burns (destroys) an existing ERC-721 token, removing it from enumeration lists. Reverts if the token does not exist or if the sender is not authorized. |
+
+
+
+
+
+
+
+## Events
+
+
+### Transfer
+
+
+Emitted when ownership of a token changes, including minting and burning.
+
+
+
+```solidity
+event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `Transfer` | `` | Emitted when ownership of a token changes, including minting and burning. |
+
+
+
+
+
+
+## Errors
+
+
+### ERC721NonexistentToken
+
+
+Thrown when attempting to interact with a non-existent token.
+
+
+
+```solidity
+error ERC721NonexistentToken(uint256 _tokenId);
+```
+
+
+
+### ERC721IncorrectOwner
+
+
+Thrown when the sender is not the owner of the token.
+
+
+
+```solidity
+error ERC721IncorrectOwner(address _sender, uint256 _tokenId, address _owner);
+```
+
+
+
+### ERC721InvalidSender
+
+
+Thrown when the sender address is invalid.
+
+
+
+```solidity
+error ERC721InvalidSender(address _sender);
+```
+
+
+
+### ERC721InvalidReceiver
+
+
+Thrown when the receiver address is invalid.
+
+
+
+```solidity
+error ERC721InvalidReceiver(address _receiver);
+```
+
+
+
+### ERC721InsufficientApproval
+
+
+Thrown when an operator lacks approval to manage a token.
+
+
+
+```solidity
+error ERC721InsufficientApproval(address _operator, uint256 _tokenId);
+```
+
+
+
+
+
+## Structs
+
+
+### ERC721EnumerableStorage
+
+
+
+```solidity
+struct ERC721EnumerableStorage {
+    mapping(uint256 tokenId =&gt; address owner) ownerOf;
+    mapping(address owner =&gt; uint256[] ownerTokens) ownerTokens;
+    mapping(uint256 tokenId =&gt; uint256 ownerTokensIndex) ownerTokensIndex;
+    uint256[] allTokens;
+    mapping(uint256 tokenId =&gt; uint256 allTokensIndex) allTokensIndex;
+    mapping(address owner =&gt; mapping(address operator =&gt; bool approved)) isApprovedForAll;
+    mapping(uint256 tokenId =&gt; address approved) approved;
+    string name;
+    string symbol;
+    string baseURI;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;
+
+library LibERC721Enumerable {
+    function getStorage() internal pure returns (ERC721Storage storage ds) {
+        assembly {
+            ds.slot := &quot;eip1967.proxy.storage.erc721enumerable&quot;
+        }
+    }
+    
+    function transferFrom(address _from, address _to, uint256 _tokenId) internal {
+        ERC721Storage storage ds = getStorage();
+        // Implement transfer logic
+    }
+    
+    function mint(address _to, uint256 _tokenId) internal {
+        ERC721Storage storage ds = getStorage();
+        // Implement mint logic
+    }
+    
+    function burn(uint256 _tokenId) internal {
+        ERC721Storage storage ds = getStorage();
+        // Implement burn logic
+    }
+}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Always validate ownership and approvals when using transferFrom.
+- Ensure receiver addresses are non-zero during minting to prevent accidental token loss.
+- Use the provided getStorage function to access the correct storage slot for enumeration data.
+</Callout>
+
+
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+LibERC721Enumerable operates with diamond storage, ensuring all updates to the storage slot are immediately visible across interacting facets. Accessing enumeration details or modifying token data through this library adheres to the Compose library&#39;s storage design principles.
+</Callout>
+
+
+

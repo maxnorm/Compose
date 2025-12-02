@@ -1,0 +1,289 @@
+---
+sidebar_position: 99
+title: "LibERC721"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+## Overview
+
+LibERC721 is a streamlined library for implementing ERC-721 functionality within diamond contracts. It provides essential methods like token transfers, minting, and burning while offering direct access to diamond storage for effective composability and state management.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/7206f045d711880c211b967e80d72745b52f5cfc/src/token/ERC721/ERC721/LibERC721.sol)
+
+
+<Callout type="info" title="Library Usage">
+This library provides internal functions for use in your custom facets. Import it to access shared storage.
+</Callout>
+
+
+## Storage
+
+
+Storage position: `STORAGE_POSITION` - Used for diamond storage pattern.
+
+
+
+### State Variables
+
+
+#### STORAGE_POSITION
+
+
+
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns the ERC-721 storage struct from its predefined slot. Uses inline assembly to access diamond storage location.
+
+
+
+```solidity
+function getStorage() internal pure returns (ERC721Storage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getStorage` | `` | Returns the ERC-721 storage struct from its predefined slot. Uses inline assembly to access diamond storage location. |
+
+### transferFrom
+
+
+Transfers ownership of a token ID from one address to another. Validates ownership, approval, and receiver address before updating state.
+
+
+
+```solidity
+function transferFrom(address _from, address _to, uint256 _tokenId) internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `transferFrom` | `` | Transfers ownership of a token ID from one address to another. Validates ownership, approval, and receiver address before updating state. |
+
+### mint
+
+
+Mints a new ERC-721 token to the specified address. Reverts if the receiver address is zero or if the token already exists.
+
+
+
+```solidity
+function mint(address _to, uint256 _tokenId) internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `mint` | `` | Mints a new ERC-721 token to the specified address. Reverts if the receiver address is zero or if the token already exists. |
+
+### burn
+
+
+Burns (destroys) a specific ERC-721 token. Reverts if the token does not exist. Clears ownership and approval.
+
+
+
+```solidity
+function burn(uint256 _tokenId) internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `burn` | `` | Burns (destroys) a specific ERC-721 token. Reverts if the token does not exist. Clears ownership and approval. |
+
+
+
+
+
+
+
+## Events
+
+
+### Transfer
+
+
+Emitted when ownership of a token changes, including minting and burning.
+
+
+
+```solidity
+event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `Transfer` | `` | Emitted when ownership of a token changes, including minting and burning. |
+
+
+
+
+
+
+## Errors
+
+
+### ERC721NonexistentToken
+
+
+Thrown when attempting to interact with a non-existent token.
+
+
+
+```solidity
+error ERC721NonexistentToken(uint256 _tokenId);
+```
+
+
+
+### ERC721IncorrectOwner
+
+
+Thrown when the sender is not the owner of the token.
+
+
+
+```solidity
+error ERC721IncorrectOwner(address _sender, uint256 _tokenId, address _owner);
+```
+
+
+
+### ERC721InvalidSender
+
+
+Thrown when the sender address is invalid (e.g., zero address).
+
+
+
+```solidity
+error ERC721InvalidSender(address _sender);
+```
+
+
+
+### ERC721InvalidReceiver
+
+
+Thrown when the receiver address is invalid (e.g., zero address).
+
+
+
+```solidity
+error ERC721InvalidReceiver(address _receiver);
+```
+
+
+
+### ERC721InsufficientApproval
+
+
+Thrown when an operator lacks sufficient approval to manage a token.
+
+
+
+```solidity
+error ERC721InsufficientApproval(address _operator, uint256 _tokenId);
+```
+
+
+
+
+
+## Structs
+
+
+### ERC721Storage
+
+
+
+```solidity
+struct ERC721Storage {
+    mapping(uint256 tokenId =&gt; address owner) ownerOf;
+    mapping(address owner =&gt; uint256 balance) balanceOf;
+    mapping(address owner =&gt; mapping(address operator =&gt; bool approved)) isApprovedForAll;
+    mapping(uint256 tokenId =&gt; address approved) approved;
+    string name;
+    string symbol;
+    string baseURI;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;
+
+import {LibERC721} from &quot;LibERC721.sol&quot;;
+
+contract MyDiamond {
+    function mintToken(address _to, uint256 _tokenId) external {
+        LibERC721.mint(_to, _tokenId);
+    }
+
+    function transferOwnership(address _from, address _to, uint256 _tokenId) external {
+        LibERC721.transferFrom(_from, _to, _tokenId);
+    }
+
+    function burnToken(uint256 _tokenId) external {
+        LibERC721.burn(_tokenId);
+    }
+}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Ensure the diamond contract storage matches the predefined slot used by LibERC721.
+- Verify all external callers comply with ERC-721 standards and handle access control checks if required.
+- Use LibERC721 functions directly to simplify logic and prevent duplication in custom code.
+</Callout>
+
+
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+LibERC721 works seamlessly with the diamond storage pattern, using predefined slots for ERC-721 data. Changes to storage via this library are immediately visible to any facets accessing the same storage, ensuring consistent state across the diamond.
+</Callout>
+
+
+

@@ -1,0 +1,368 @@
+---
+sidebar_position: 99
+title: "LibDiamond"
+description: "Add=0, Replace=1, Remove=2"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+## Overview
+
+LibDiamond is a utility library designed for managing function additions, replacements, and removals in diamond contracts. It facilitates the modular assembly of facets, ensuring seamless upgradeability and composability while adhering to the diamond storage pattern.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/7206f045d711880c211b967e80d72745b52f5cfc/src/diamond/LibDiamond.sol)
+
+
+<Callout type="info" title="Library Usage">
+This library provides internal functions for use in your custom facets. Import it to access shared storage.
+</Callout>
+
+
+## Storage
+
+
+Storage position: `DIAMOND_STORAGE_POSITION` - Used for diamond storage pattern.
+
+
+
+### State Variables
+
+
+#### DIAMOND_STORAGE_POSITION
+
+
+
+
+
+
+## Functions
+
+
+### getStorage
+
+
+
+```solidity
+function getStorage() internal pure returns (DiamondStorage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getStorage` | `` |  |
+
+### addFunctions
+
+
+
+```solidity
+function addFunctions(address _facet, bytes4[] calldata _functionSelectors) internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `addFunctions` | `` |  |
+
+### replaceFunctions
+
+
+
+```solidity
+function replaceFunctions(address _facet, bytes4[] calldata _functionSelectors) internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `replaceFunctions` | `` |  |
+
+### removeFunctions
+
+
+
+```solidity
+function removeFunctions(address _facet, bytes4[] calldata _functionSelectors) internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `removeFunctions` | `` |  |
+
+### diamondCut
+
+
+Add/replace/remove any number of functions and optionally execute a function with delegatecall
+
+
+
+```solidity
+function diamondCut(FacetCut[] calldata _diamondCut, address _init, bytes calldata _calldata) internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `diamondCut` | `` | Add/replace/remove any number of functions and optionally execute a function with delegatecall |
+
+
+
+
+
+
+
+## Events
+
+
+### DiamondCut
+
+
+
+```solidity
+event DiamondCut(FacetCut[] _diamondCut, address _init, bytes _calldata);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `DiamondCut` | `` |  |
+
+
+
+
+
+
+## Errors
+
+
+### NoSelectorsProvidedForFacet
+
+
+
+```solidity
+error NoSelectorsProvidedForFacet(address _facet);
+```
+
+
+
+### NoBytecodeAtAddress
+
+
+
+```solidity
+error NoBytecodeAtAddress(address _contractAddress, string _message);
+```
+
+
+
+### RemoveFacetAddressMustBeZeroAddress
+
+
+
+```solidity
+error RemoveFacetAddressMustBeZeroAddress(address _facet);
+```
+
+
+
+### IncorrectFacetCutAction
+
+
+
+```solidity
+error IncorrectFacetCutAction(uint8 _action);
+```
+
+
+
+### CannotAddFunctionToDiamondThatAlreadyExists
+
+
+
+```solidity
+error CannotAddFunctionToDiamondThatAlreadyExists(bytes4 _selector);
+```
+
+
+
+### CannotReplaceImmutableFunction
+
+
+
+```solidity
+error CannotReplaceImmutableFunction(bytes4 _selector);
+```
+
+
+
+### CannotReplaceFunctionWithTheSameFunctionFromTheSameFacet
+
+
+
+```solidity
+error CannotReplaceFunctionWithTheSameFunctionFromTheSameFacet(bytes4 _selector);
+```
+
+
+
+### CannotReplaceFunctionThatDoesNotExists
+
+
+
+```solidity
+error CannotReplaceFunctionThatDoesNotExists(bytes4 _selector);
+```
+
+
+
+### CannotRemoveFunctionThatDoesNotExist
+
+
+
+```solidity
+error CannotRemoveFunctionThatDoesNotExist(bytes4 _selector);
+```
+
+
+
+### CannotRemoveImmutableFunction
+
+
+
+```solidity
+error CannotRemoveImmutableFunction(bytes4 _selector);
+```
+
+
+
+### InitializationFunctionReverted
+
+
+
+```solidity
+error InitializationFunctionReverted(address _initializationContractAddress, bytes _calldata);
+```
+
+
+
+
+
+## Structs
+
+
+### FacetAndPosition
+
+
+
+```solidity
+struct FacetAndPosition {
+    address facet;
+    uint16 position;
+}
+```
+
+
+
+### DiamondStorage
+
+
+
+```solidity
+struct DiamondStorage {
+    mapping(bytes4 functionSelector =&gt; FacetAndPosition) facetAndPosition;
+    // Array of all function selectors that can be called in the diamond
+    bytes4[] selectors;
+}
+```
+
+
+
+### FacetCut
+
+
+
+```solidity
+struct FacetCut {
+    address facetAddress;
+    FacetCutAction action;
+    bytes4[] functionSelectors;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+import &quot;./LibDiamond.sol&quot;;
+
+contract MyDiamond {
+    function performDiamondCut() external {
+        bytes4[] memory selectorsToAdd = new bytes4[](2);
+        selectorsToAdd[0] = bytes4(keccak256(&quot;functionOne()&quot;));
+        selectorsToAdd[1] = bytes4(keccak256(&quot;functionTwo()&quot;));
+
+        address facetAddress = 0x1234567890123456789012345678901234567890;
+
+        LibDiamond.diamondCut(
+            [
+                LibDiamond.FacetCut({
+                    facetAddress: facetAddress,
+                    action: LibDiamond.Add,
+                    functionSelectors: selectorsToAdd
+                })
+            ],
+            address(0),
+            new bytes(0)
+        );
+    }
+}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Ensure functionSelectors are correctly computed using compatible hash algorithms.
+- Use modular facet additions to minimize coupling and retain composability.
+- Consistently verify diamond storage integrity post-diamondCut operations.
+</Callout>
+
+
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+LibDiamond leverages the diamond storage pattern, ensuring all state changes through diamondCut are immediately visible to facets. Facets interact directly with shared storage, enabling composable and upgradeable contract designs.
+</Callout>
+
+
+

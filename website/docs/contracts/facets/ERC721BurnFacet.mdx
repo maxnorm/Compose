@@ -1,0 +1,224 @@
+---
+sidebar_position: 99
+title: "ERC721BurnFacet"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="ERC721BurnFacet"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+The ERC721BurnFacet provides support for burning ERC-721 tokens in a diamond contract. It includes functionality to securely destroy tokens and update enumeration tracking, ensuring accurate state management in compliance with ERC-721 standards.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/7206f045d711880c211b967e80d72745b52f5cfc/src/token/ERC721/ERC721/ERC721BurnFacet.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Provides secure token burning functionality.
+- Fully compliant with ERC-721 enumeration tracking.
+- Supports diamond contract design for modularity.
+</Callout>
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns a pointer to the ERC-721 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+
+
+
+```solidity
+function getStorage() internal pure returns (ERC721Storage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getStorage` | `` | Returns a pointer to the ERC-721 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION. |
+
+### burn
+
+
+Burns (destroys) a token, removing it from enumeration tracking.
+
+
+
+```solidity
+function burn(uint256 _tokenId) external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `burn` | `` | Burns (destroys) a token, removing it from enumeration tracking. |
+
+
+
+
+
+
+
+## Events
+
+
+### Transfer
+
+
+
+```solidity
+event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `Transfer` | `` |  |
+
+### Approval
+
+
+
+```solidity
+event Approval(address indexed _owner, address indexed _to, uint256 indexed _tokenId);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `Approval` | `` |  |
+
+### ApprovalForAll
+
+
+
+```solidity
+event ApprovalForAll(address indexed _owner, address indexed _operator, bool _approved);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `ApprovalForAll` | `` |  |
+
+
+
+
+
+
+## Errors
+
+
+### ERC721NonexistentToken
+
+
+
+```solidity
+error ERC721NonexistentToken(uint256 _tokenId);
+```
+
+
+
+### ERC721InsufficientApproval
+
+
+
+```solidity
+error ERC721InsufficientApproval(address _operator, uint256 _tokenId);
+```
+
+
+
+
+
+## Structs
+
+
+### ERC721Storage
+
+
+
+```solidity
+struct ERC721Storage {
+    mapping(uint256 tokenId =&gt; address owner) ownerOf;
+    mapping(address owner =&gt; uint256 balance) balanceOf;
+    mapping(address owner =&gt; mapping(address operator =&gt; bool approved)) isApprovedForAll;
+    mapping(uint256 tokenId =&gt; address approved) approved;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;
+
+import {ERC721BurnFacet} from &quot;./ERC721BurnFacet.sol&quot;;
+
+interface Diamond {
+    function execute(address facet, bytes calldata data) external;
+}
+
+contract Example {
+    Diamond public diamond;
+
+    constructor(address _diamond) {
+        diamond = Diamond(_diamond);
+    }
+
+    function burnToken(uint256 _tokenId) external {
+        ERC721BurnFacet burnFacet = ERC721BurnFacet(address(diamond));
+        diamond.execute(address(burnFacet), abi.encodeWithSelector(burnFacet.burn.selector, _tokenId));
+    }
+}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Ensure correct integration with ERC-721 storage using proper storage slot identifiers.
+- Verify state changes (e.g., token enumeration updates) after calls to `burn`.
+- Use precise access control to avoid unauthorized token burns.
+</Callout>
+
+
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Implement strict access control to prevent unauthorized token burns. Carefully test storage slot usage to avoid corruption. Protect against potential reentrancy attacks by ensuring no external calls are made mid-operation in the `burn` function.
+</Callout>
+
+
