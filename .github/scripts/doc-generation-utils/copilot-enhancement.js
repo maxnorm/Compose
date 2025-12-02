@@ -4,7 +4,18 @@
  */
 
 const https = require('https');
+const fs = require('fs');
+const path = require('path');
 const { copilot: COPILOT_CONFIG } = require('./config');
+
+// Load repository instructions for context
+let REPO_INSTRUCTIONS = '';
+try {
+  const instructionsPath = path.join(__dirname, '../../copilot-instructions.md');
+  REPO_INSTRUCTIONS = fs.readFileSync(instructionsPath, 'utf8');
+} catch (e) {
+  console.warn('Could not load copilot-instructions.md:', e.message);
+}
 
 /**
  * Make HTTPS request (promisified)
@@ -45,6 +56,45 @@ function makeRequest(options, body) {
 }
 
 /**
+ * Build the system prompt with repository context
+ * @returns {string} System prompt for Copilot
+ */
+function buildSystemPrompt() {
+  let systemPrompt = `You are a Solidity smart contract documentation expert for the Compose library. 
+Always respond with valid JSON only, no markdown formatting.
+Follow the project conventions and style guidelines strictly.`;
+
+  if (REPO_INSTRUCTIONS) {
+    // Extract key sections from instructions to keep context focused
+    const relevantSections = [
+      '## 3. Core Philosophy',
+      '## 4. Facet Design Principles', 
+      '## 5. Banned Solidity Features',
+      '## 6. Composability Guidelines',
+      '## 11. Code Style Guide',
+    ];
+    
+    let contextSnippets = [];
+    for (const section of relevantSections) {
+      const startIdx = REPO_INSTRUCTIONS.indexOf(section);
+      if (startIdx !== -1) {
+        // Extract section content (up to next ## or 2000 chars max)
+        const nextSection = REPO_INSTRUCTIONS.indexOf('\n## ', startIdx + section.length);
+        const endIdx = nextSection !== -1 ? nextSection : startIdx + 2000;
+        const snippet = REPO_INSTRUCTIONS.slice(startIdx, Math.min(endIdx, startIdx + 2000));
+        contextSnippets.push(snippet.trim());
+      }
+    }
+    
+    if (contextSnippets.length > 0) {
+      systemPrompt += `\n\n--- PROJECT GUIDELINES ---\n${contextSnippets.join('\n\n')}`;
+    }
+  }
+
+  return systemPrompt;
+}
+
+/**
  * Build the prompt for Copilot based on contract type
  * @param {object} data - Parsed documentation data
  * @param {'library' | 'facet'} contractType - Type of contract
@@ -56,9 +106,7 @@ function buildPrompt(data, contractType) {
     .map(f => `- ${f.name}: ${f.description || 'No description'}`)
     .join('\n');
 
-  return `You are a Solidity documentation expert for a diamond proxy (ERC-2535) smart contract library called Compose.
-
-Given this ${contractType} documentation, enhance it by generating:
+  return `Given this ${contractType} documentation from the Compose diamond proxy library, enhance it by generating:
 
 1. **overview**: A clear, concise overview (2-3 sentences) explaining what this ${contractType} does and why it's useful in the context of diamond contracts.
 
@@ -102,17 +150,18 @@ async function enhanceWithCopilot(data, contractType, token) {
     return addFallbackContent(data, contractType);
   }
 
-  const prompt = buildPrompt(data, contractType);
+  const systemPrompt = buildSystemPrompt();
+  const userPrompt = buildPrompt(data, contractType);
 
   const requestBody = JSON.stringify({
     messages: [
       {
         role: 'system',
-        content: 'You are a Solidity smart contract documentation expert. Always respond with valid JSON only, no markdown formatting.',
+        content: systemPrompt,
       },
       {
         role: 'user',
-        content: prompt,
+        content: userPrompt,
       },
     ],
     model: COPILOT_CONFIG.model,
@@ -181,10 +230,10 @@ function addFallbackContent(data, contractType) {
   const enhanced = { ...data };
 
   if (contractType === 'library') {
-    enhanced.integrationNotes = `This library accesses shared diamond storage, so changes made through this library are immediately visible to facets using the same storage pattern.`;
-    enhanced.keyFeatures = `- Internal functions for use in custom facets\n- Follows diamond storage pattern\n- Compatible with ERC-2535 diamonds`;
+    enhanced.integrationNotes = `This library accesses shared diamond storage, so changes made through this library are immediately visible to facets using the same storage pattern. All functions are internal as per Compose conventions.`;
+    enhanced.keyFeatures = `- All functions are \`internal\` for use in custom facets\n- Follows diamond storage pattern (EIP-8042)\n- Compatible with ERC-2535 diamonds\n- No external dependencies or \`using\` directives`;
   } else {
-    enhanced.keyFeatures = `- Complete implementation ready for diamond integration\n- Follows Compose conventions\n- Well-tested and documented`;
+    enhanced.keyFeatures = `- Self-contained facet with no imports or inheritance\n- Only \`external\` and \`internal\` function visibility\n- Follows Compose readability-first conventions\n- Ready for diamond integration`;
   }
 
   return enhanced;
