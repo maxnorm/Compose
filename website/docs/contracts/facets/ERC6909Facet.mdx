@@ -1,0 +1,336 @@
+---
+sidebar_position: 99
+title: "ERC6909Facet"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="ERC6909Facet"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+**Title:**
+
+ERC-6909 Minimal Multi-Token Interface
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/6f1a3b1a498cfd47f5a787deeac91a39072facba/src/token/ERC6909/ERC6909/ERC6909Facet.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Self-contained facet with no imports or inheritance
+- Only `external` and `internal` function visibility
+- Follows Compose readability-first conventions
+- Ready for diamond integration
+</Callout>
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns a pointer to the ERC-6909 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+
+
+
+```solidity
+function getStorage() internal pure returns (ERC6909Storage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getStorage` | `` | Returns a pointer to the ERC-6909 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION. |
+
+### balanceOf
+
+
+Owner balance of an id.
+
+
+
+```solidity
+function balanceOf(address _owner, uint256 _id) external view returns (uint256);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `balanceOf` | `` | Owner balance of an id. |
+
+### allowance
+
+
+Spender allowance of an id.
+
+
+
+```solidity
+function allowance(address _owner, address _spender, uint256 _id) external view returns (uint256);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `allowance` | `` | Spender allowance of an id. |
+
+### isOperator
+
+
+Checks if a spender is approved by an owner as an operator.
+
+
+
+```solidity
+function isOperator(address _owner, address _spender) external view returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `isOperator` | `` | Checks if a spender is approved by an owner as an operator. |
+
+### transfer
+
+
+Transfers an amount of an id from the caller to a receiver.
+
+
+
+```solidity
+function transfer(address _receiver, uint256 _id, uint256 _amount) external returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `transfer` | `` | Transfers an amount of an id from the caller to a receiver. |
+
+### transferFrom
+
+
+Transfers an amount of an id from a sender to a receiver.
+
+
+
+```solidity
+function transferFrom(address _sender, address _receiver, uint256 _id, uint256 _amount) external returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `transferFrom` | `` | Transfers an amount of an id from a sender to a receiver. |
+
+### approve
+
+
+Approves an amount of an id to a spender.
+
+
+
+```solidity
+function approve(address _spender, uint256 _id, uint256 _amount) external returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `approve` | `` | Approves an amount of an id to a spender. |
+
+### setOperator
+
+
+Sets or removes a spender as an operator for the caller.
+
+
+
+```solidity
+function setOperator(address _spender, bool _approved) external returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `setOperator` | `` | Sets or removes a spender as an operator for the caller. |
+
+
+
+
+
+
+
+## Events
+
+
+### Transfer
+
+
+
+```solidity
+event Transfer(
+    address _caller, address indexed _sender, address indexed _receiver, uint256 indexed _id, uint256 _amount
+);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `Transfer` | `` |  |
+
+### OperatorSet
+
+
+
+```solidity
+event OperatorSet(address indexed _owner, address indexed _spender, bool _approved);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `OperatorSet` | `` |  |
+
+### Approval
+
+
+
+```solidity
+event Approval(address indexed _owner, address indexed _spender, uint256 indexed _id, uint256 _amount);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `Approval` | `` |  |
+
+
+
+
+
+
+## Errors
+
+
+### ERC6909InsufficientBalance
+
+
+
+```solidity
+error ERC6909InsufficientBalance(address _sender, uint256 _balance, uint256 _needed, uint256 _id);
+```
+
+
+
+### ERC6909InsufficientAllowance
+
+
+
+```solidity
+error ERC6909InsufficientAllowance(address _spender, uint256 _allowance, uint256 _needed, uint256 _id);
+```
+
+
+
+### ERC6909InvalidReceiver
+
+
+
+```solidity
+error ERC6909InvalidReceiver(address _receiver);
+```
+
+
+
+### ERC6909InvalidSender
+
+
+
+```solidity
+error ERC6909InvalidSender(address _sender);
+```
+
+
+
+### ERC6909InvalidSpender
+
+
+
+```solidity
+error ERC6909InvalidSpender(address _spender);
+```
+
+
+
+
+
+## Structs
+
+
+### ERC6909Storage
+
+
+
+```solidity
+struct ERC6909Storage {
+    mapping(address owner =&gt; mapping(uint256 id =&gt; uint256 amount)) balanceOf;
+    mapping(address owner =&gt; mapping(address spender =&gt; mapping(uint256 id =&gt; uint256 amount))) allowance;
+    mapping(address owner =&gt; mapping(address spender =&gt; bool)) isOperator;
+}
+```
+
+
+
+
+
+
+
