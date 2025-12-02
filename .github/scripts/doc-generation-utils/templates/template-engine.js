@@ -126,6 +126,12 @@ function processExpression(expression, context, escapeOutput, helperRegistry) {
 /**
  * Process template content with the given context
  * Handles all variable substitutions, helpers, conditionals, and loops
+ * 
+ * IMPORTANT: Processing order matters!
+ * 1. Loops first - so nested conditionals are evaluated with correct item context
+ * 2. Conditionals second - after loops have expanded their content
+ * 3. Variables last - after all control structures are resolved
+ * 
  * @param {string} content - Template content to process
  * @param {object} context - Data context
  * @param {object} helperRegistry - Registry of helper functions
@@ -134,16 +140,8 @@ function processExpression(expression, context, escapeOutput, helperRegistry) {
 function processContent(content, context, helperRegistry) {
   let result = content;
   
-  // Process conditionals: {{#if variable}}...{{/if}}
-  // Note: This simple implementation doesn't support nested #if blocks
-  const ifPattern = /\{\{#if\s+([^}]+)\}\}([\s\S]*?)\{\{\/if\}\}/g;
-  result = result.replace(ifPattern, (match, condition, ifContent) => {
-    const value = getValue(context, condition.trim());
-    return isTruthy(value) ? ifContent : '';
-  });
-  
-  // Process loops: {{#each array}}...{{/each}}
-  // Note: This simple implementation doesn't support nested #each blocks
+  // 1. Process loops FIRST: {{#each array}}...{{/each}}
+  // This ensures conditionals inside loops use the correct item context
   const eachPattern = /\{\{#each\s+([^}]+)\}\}([\s\S]*?)\{\{\/each\}\}/g;
   result = result.replace(eachPattern, (match, arrayPath, loopContent) => {
     const array = getValue(context, arrayPath.trim());
@@ -154,18 +152,25 @@ function processContent(content, context, helperRegistry) {
     return array.map((item, index) => {
       // Create item context by merging parent context with item properties
       const itemContext = { ...context, ...item, index };
-      // Recursively process the loop content
+      // Recursively process the loop content with item context
       return processContent(loopContent, itemContext, helperRegistry);
     }).join('');
   });
   
-  // Process triple braces for unescaped output: {{{variable}}}
+  // 2. Process conditionals SECOND: {{#if variable}}...{{/if}}
+  const ifPattern = /\{\{#if\s+([^}]+)\}\}([\s\S]*?)\{\{\/if\}\}/g;
+  result = result.replace(ifPattern, (match, condition, ifContent) => {
+    const value = getValue(context, condition.trim());
+    return isTruthy(value) ? ifContent : '';
+  });
+  
+  // 3. Process triple braces for unescaped output: {{{variable}}}
   const tripleBracePattern = /\{\{\{([^}]+)\}\}\}/g;
   result = result.replace(tripleBracePattern, (match, expr) => {
     return processExpression(expr, context, false, helperRegistry);
   });
   
-  // Process double braces for escaped output: {{variable}}
+  // 4. Process double braces for escaped output: {{variable}}
   const doubleBracePattern = /\{\{([^}]+)\}\}/g;
   result = result.replace(doubleBracePattern, (match, expr) => {
     return processExpression(expr, context, true, helperRegistry);
