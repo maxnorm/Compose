@@ -1,0 +1,255 @@
+---
+sidebar_position: 99
+title: "LibERC721Enumerable"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+## Overview
+
+**Title:**
+
+ERC-721 Enumerable Library for Compose
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/e3e377cf3d77e94dc30e10812da2bdd1907ca159/src/token/ERC721/ERC721Enumerable/LibERC721Enumerable.sol)
+
+
+<Callout type="info" title="Library Usage">
+This library provides internal functions for use in your custom facets. Import it to access shared storage.
+</Callout>
+
+
+## Storage
+
+
+Storage position: `STORAGE_POSITION` - Used for diamond storage pattern.
+
+
+
+### State Variables
+
+
+#### STORAGE_POSITION
+
+
+
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns the ERC-721 enumerable storage struct from its predefined slot. Uses inline assembly to point to the correct diamond storage position.
+
+
+
+```solidity
+function getStorage() internal pure returns (ERC721EnumerableStorage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getStorage` | `` | Returns the ERC-721 enumerable storage struct from its predefined slot. Uses inline assembly to point to the correct diamond storage position. |
+
+### transferFrom
+
+
+Transfers a token ID from one address to another, updating enumeration data. Validates ownership, approval, and receiver address before state updates.
+
+
+
+```solidity
+function transferFrom(address _from, address _to, uint256 _tokenId, address _sender) internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `transferFrom` | `` | Transfers a token ID from one address to another, updating enumeration data. Validates ownership, approval, and receiver address before state updates. |
+
+### mint
+
+
+Mints a new ERC-721 token to the specified address, adding it to enumeration lists. Reverts if the receiver address is zero or if the token already exists.
+
+
+
+```solidity
+function mint(address _to, uint256 _tokenId) internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `mint` | `` | Mints a new ERC-721 token to the specified address, adding it to enumeration lists. Reverts if the receiver address is zero or if the token already exists. |
+
+### burn
+
+
+Burns (destroys) an existing ERC-721 token, removing it from enumeration lists. Reverts if the token does not exist or if the sender is not authorized.
+
+
+
+```solidity
+function burn(uint256 _tokenId, address _sender) internal;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `burn` | `` | Burns (destroys) an existing ERC-721 token, removing it from enumeration lists. Reverts if the token does not exist or if the sender is not authorized. |
+
+
+
+
+
+
+
+## Events
+
+
+### Transfer
+
+
+Emitted when ownership of a token changes, including minting and burning.
+
+
+
+```solidity
+event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `Transfer` | `` | Emitted when ownership of a token changes, including minting and burning. |
+
+
+
+
+
+
+## Errors
+
+
+### ERC721NonexistentToken
+
+
+Thrown when attempting to interact with a non-existent token.
+
+
+
+```solidity
+error ERC721NonexistentToken(uint256 _tokenId);
+```
+
+
+
+### ERC721IncorrectOwner
+
+
+Thrown when the sender is not the owner of the token.
+
+
+
+```solidity
+error ERC721IncorrectOwner(address _sender, uint256 _tokenId, address _owner);
+```
+
+
+
+### ERC721InvalidSender
+
+
+Thrown when the sender address is invalid.
+
+
+
+```solidity
+error ERC721InvalidSender(address _sender);
+```
+
+
+
+### ERC721InvalidReceiver
+
+
+Thrown when the receiver address is invalid.
+
+
+
+```solidity
+error ERC721InvalidReceiver(address _receiver);
+```
+
+
+
+### ERC721InsufficientApproval
+
+
+Thrown when an operator lacks approval to manage a token.
+
+
+
+```solidity
+error ERC721InsufficientApproval(address _operator, uint256 _tokenId);
+```
+
+
+
+
+
+## Structs
+
+
+### ERC721EnumerableStorage
+
+
+
+```solidity
+struct ERC721EnumerableStorage {
+    mapping(uint256 tokenId =&gt; address owner) ownerOf;
+    mapping(address owner =&gt; uint256[] ownerTokens) ownerTokens;
+    mapping(uint256 tokenId =&gt; uint256 ownerTokensIndex) ownerTokensIndex;
+    uint256[] allTokens;
+    mapping(uint256 tokenId =&gt; uint256 allTokensIndex) allTokensIndex;
+    mapping(address owner =&gt; mapping(address operator =&gt; bool approved)) isApprovedForAll;
+    mapping(uint256 tokenId =&gt; address approved) approved;
+    string name;
+    string symbol;
+    string baseURI;
+}
+```
+
+
+
+
+
+
+
+
