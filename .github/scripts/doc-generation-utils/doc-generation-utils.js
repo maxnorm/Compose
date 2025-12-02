@@ -64,6 +64,31 @@ function findForgeDocFiles(solFilePath) {
 }
 
 /**
+ * Determine if a contract is an interface
+ * Interfaces should be skipped from documentation generation
+ * @param {string} title - Contract title/name
+ * @param {string} content - File content (forge doc markdown)
+ * @returns {boolean} True if this is an interface
+ */
+function isInterface(title, content) {
+  // Check if title follows interface naming convention: starts with "I" followed by uppercase
+  if (title && /^I[A-Z]/.test(title)) {
+    return true;
+  }
+  
+  // Check if content indicates it's an interface
+  // Forge doc marks interfaces with "interface" in the first few lines
+  if (content) {
+    const firstLines = content.split('\n').slice(0, 20).join('\n').toLowerCase();
+    if (firstLines.includes('interface ') || firstLines.includes('*interface*')) {
+      return true;
+    }
+  }
+  
+  return false;
+}
+
+/**
  * Determine if a contract is a library or facet
  * @param {string} filePath - Path to the file
  * @param {string} content - File content
@@ -118,6 +143,7 @@ module.exports = {
   getChangedSolFiles,
   getAllSolFiles,
   findForgeDocFiles,
+  isInterface,
   getContractType,
   getOutputDir,
   readChangedFilesFromFile,

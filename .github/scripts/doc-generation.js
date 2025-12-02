@@ -13,6 +13,7 @@ const path = require('path');
 const {
   getAllSolFiles,
   findForgeDocFiles,
+  isInterface,
   getContractType,
   getOutputDir,
   readChangedFilesFromFile,
@@ -50,6 +51,13 @@ async function processForgeDocFile(forgeDocFile, solFilePath) {
   if (!data.title) {
     console.log(`Could not parse title from: ${forgeDocFile}`);
     processedFiles.skipped.push({ file: forgeDocFile, reason: 'No title found' });
+    return false;
+  }
+
+  // Skip interfaces - only generate docs for facets and libraries
+  if (isInterface(data.title, content)) {
+    console.log(`Skipping interface: ${data.title}`);
+    processedFiles.skipped.push({ file: forgeDocFile, reason: 'Interface (filtered)' });
     return false;
   }
 
