@@ -9,6 +9,37 @@ const fs = require('fs');
 const path = require('path');
 const { models: MODELS_CONFIG } = require('./config');
 
+// Rate limiting: GitHub Models has 10 requests per 60s limit
+// We add 7 seconds between calls to stay safe (60/10 = 6, +1 buffer)
+const RATE_LIMIT_DELAY_MS = 7000;
+let lastApiCallTime = 0;
+
+/**
+ * Sleep for specified milliseconds
+ * @param {number} ms - Milliseconds to sleep
+ * @returns {Promise<void>}
+ */
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Wait for rate limit if needed
+ * Ensures at least RATE_LIMIT_DELAY_MS between API calls
+ */
+async function waitForRateLimit() {
+  const now = Date.now();
+  const elapsed = now - lastApiCallTime;
+  
+  if (lastApiCallTime > 0 && elapsed < RATE_LIMIT_DELAY_MS) {
+    const waitTime = RATE_LIMIT_DELAY_MS - elapsed;
+    console.log(`    ⏳ Rate limit: waiting ${Math.ceil(waitTime / 1000)}s...`);
+    await sleep(waitTime);
+  }
+  
+  lastApiCallTime = Date.now();
+}
+
 // Load repository instructions for context
 let REPO_INSTRUCTIONS = '';
 try {
@@ -185,6 +216,8 @@ async function enhanceWithCopilot(data, contractType, token) {
   };
 
   try {
+    // Rate limit: wait if needed to avoid 429 errors
+    await waitForRateLimit();
     console.log('    Calling GitHub Models API...');
     const response = await makeRequest(options, requestBody);
 
