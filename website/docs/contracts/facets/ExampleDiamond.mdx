@@ -1,0 +1,96 @@
+---
+sidebar_position: 99
+title: "ExampleDiamond"
+description: "Contract documentation for ExampleDiamond"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="ExampleDiamond"
+  subtitle="Contract documentation for ExampleDiamond"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+Documentation for ExampleDiamond.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/360786b0d4eeb52619129a69d1620b5ea444a072/src/diamond/example/ExampleDiamond.sol)
+
+
+
+
+## Functions
+
+
+### constructor
+
+
+Struct to hold facet address and its function selectors. struct FacetCut &#123; address facetAddress; FacetCutAction action; // Add=0, Replace=1, Remove=2 bytes4[] functionSelectors; &#125; Initializes the diamond contract with facets, owner and other data. Adds all provided facets to the diamond's function selector mapping and sets the contract owner. Each facet in the array will have its function selectors registered to enable delegatecall routing.
+
+
+
+```solidity
+constructor(LibDiamond.FacetCut[] memory _facets, address _diamondOwner) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `constructor` | `` | Struct to hold facet address and its function selectors. struct FacetCut &#123; address facetAddress; FacetCutAction action; // Add=0, Replace=1, Remove=2 bytes4[] functionSelectors; &#125; Initializes the diamond contract with facets, owner and other data. Adds all provided facets to the diamond's function selector mapping and sets the contract owner. Each facet in the array will have its function selectors registered to enable delegatecall routing. |
+
+### fallback
+
+
+
+```solidity
+fallback() external payable;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `fallback` | `` |  |
+
+### receive
+
+
+
+```solidity
+receive() external payable;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `receive` | `` |  |
+
+
+
+
+
+
+
+
+
+
+
+
+
+

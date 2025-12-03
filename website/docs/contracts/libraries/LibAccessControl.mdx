@@ -1,0 +1,273 @@
+---
+sidebar_position: 99
+title: "LibAccessControl"
+description: "Emitted when the admin role for a role is changed."
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+## Overview
+
+Emitted when the admin role for a role is changed.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/360786b0d4eeb52619129a69d1620b5ea444a072/src/access/AccessControl/LibAccessControl.sol)
+
+
+<Callout type="info" title="Library Usage">
+This library provides internal functions for use in your custom facets. Import it to access shared storage.
+</Callout>
+
+
+## Storage
+
+
+Storage position: `STORAGE_POSITION` - Used for diamond storage pattern.
+
+
+
+### State Variables
+
+
+#### STORAGE_POSITION
+
+
+
+#### DEFAULT_ADMIN_ROLE
+
+
+
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns the storage for the AccessControl. **Returns**
+
+
+
+```solidity
+function getStorage() pure returns (AccessControlStorage storage _s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getStorage` | `` | Returns the storage for the AccessControl. **Returns** |
+
+### grantRole
+
+
+function to grant a role to an account. **Parameters** **Returns**
+
+
+
+```solidity
+function grantRole(bytes32 _role, address _account) returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `grantRole` | `` | function to grant a role to an account. **Parameters** **Returns** |
+
+### hasRole
+
+
+function to check if an account has a role. **Parameters** **Returns**
+
+
+
+```solidity
+function hasRole(bytes32 _role, address _account) view returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `hasRole` | `` | function to check if an account has a role. **Parameters** **Returns** |
+
+### requireRole
+
+
+function to check if an account has a required role. **Note:** error: AccessControlUnauthorizedAccount If the account does not have the role. **Parameters**
+
+
+
+```solidity
+function requireRole(bytes32 _role, address _account) view;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `requireRole` | `` | function to check if an account has a required role. **Note:** error: AccessControlUnauthorizedAccount If the account does not have the role. **Parameters** |
+
+### revokeRole
+
+
+function to revoke a role from an account. **Parameters** **Returns**
+
+
+
+```solidity
+function revokeRole(bytes32 _role, address _account) returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `revokeRole` | `` | function to revoke a role from an account. **Parameters** **Returns** |
+
+### setRoleAdmin
+
+
+function to set the admin role for a role. **Parameters**
+
+
+
+```solidity
+function setRoleAdmin(bytes32 _role, bytes32 _adminRole) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `setRoleAdmin` | `` | function to set the admin role for a role. **Parameters** |
+
+
+
+
+
+
+
+## Events
+
+
+### RoleAdminChanged
+
+
+Emitted when the admin role for a role is changed. **Parameters**
+
+
+
+```solidity
+event RoleAdminChanged(bytes32 indexed _role, bytes32 indexed _previousAdminRole, bytes32 indexed _newAdminRole);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `RoleAdminChanged` | `` | Emitted when the admin role for a role is changed. **Parameters** |
+
+### RoleGranted
+
+
+Emitted when a role is granted to an account. **Parameters**
+
+
+
+```solidity
+event RoleGranted(bytes32 indexed _role, address indexed _account, address indexed _sender);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `RoleGranted` | `` | Emitted when a role is granted to an account. **Parameters** |
+
+### RoleRevoked
+
+
+Emitted when a role is revoked from an account. **Parameters**
+
+
+
+```solidity
+event RoleRevoked(bytes32 indexed _role, address indexed _account, address indexed _sender);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `RoleRevoked` | `` | Emitted when a role is revoked from an account. **Parameters** |
+
+
+
+
+
+
+## Errors
+
+
+### AccessControlUnauthorizedAccount
+
+
+Thrown when the account does not have a specific role. **Parameters**
+
+
+
+```solidity
+error AccessControlUnauthorizedAccount(address _account, bytes32 _role);
+```
+
+
+
+
+
+## Structs
+
+
+### AccessControlStorage
+
+
+
+```solidity
+struct AccessControlStorage {
+mapping(address account =&gt; mapping(bytes32 role =&gt; bool hasRole)) hasRole;
+mapping(bytes32 role =&gt; bytes32 adminRole) adminRole;
+}
+```
+
+
+
+
+
+
+
+
