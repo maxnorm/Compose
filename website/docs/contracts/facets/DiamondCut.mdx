@@ -1,0 +1,372 @@
+---
+sidebar_position: 99
+title: "DiamondCut"
+description: "Documentation for DiamondCut"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="DiamondCut"
+  subtitle="Documentation for DiamondCut"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+The DiamondCut facet is a core component of the Compose diamond proxy library, enabling dynamic upgrades of diamond contract functions. It provides mechanisms to add, remove, or replace functions in a diamond while ensuring flexibility and consistency in on-chain applications.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/f773c1f2b6ca1fc289a7b9ea4f149315edd34199/src/diamond/DiamondCut.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Add, remove, or replace diamond functions dynamically
+- Supports optional delegatecall execution after updates
+- Enables modular and flexible smart contract systems
+</Callout>
+
+
+
+## Functions
+
+
+### addFunctions
+
+
+
+```solidity
+function addFunctions(address _facet, bytes4[] calldata _functionSelectors) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `addFunctions` | `` |  |
+
+### diamondCut
+
+
+Add/replace/remove any number of functions and optionally execute a function with delegatecall **Parameters**
+
+
+
+```solidity
+function diamondCut(FacetCut[] calldata _diamondCut, address _init, bytes calldata _calldata) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `diamondCut` | `` | Add/replace/remove any number of functions and optionally execute a function with delegatecall **Parameters** |
+
+### getStorage
+
+
+
+```solidity
+function getStorage() pure returns (DiamondStorage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getStorage` | `` |  |
+
+### removeFunctions
+
+
+
+```solidity
+function removeFunctions(address _facet, bytes4[] calldata _functionSelectors) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `removeFunctions` | `` |  |
+
+### replaceFunctions
+
+
+
+```solidity
+function replaceFunctions(address _facet, bytes4[] calldata _functionSelectors) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `replaceFunctions` | `` |  |
+
+
+
+
+
+
+
+## Events
+
+
+### DiamondCut
+
+
+
+```solidity
+event DiamondCut(FacetCut[] _diamondCut, address _init, bytes _calldata);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `DiamondCut` | `` |  |
+
+
+
+
+
+
+## Errors
+
+
+### CannotAddFunctionToDiamondThatAlreadyExists
+
+
+
+```solidity
+error CannotAddFunctionToDiamondThatAlreadyExists(bytes4 _selector);
+```
+
+
+
+### CannotRemoveFunctionThatDoesNotExist
+
+
+
+```solidity
+error CannotRemoveFunctionThatDoesNotExist(bytes4 _selector);
+```
+
+
+
+### CannotRemoveImmutableFunction
+
+
+
+```solidity
+error CannotRemoveImmutableFunction(bytes4 _selector);
+```
+
+
+
+### CannotReplaceFunctionThatDoesNotExists
+
+
+
+```solidity
+error CannotReplaceFunctionThatDoesNotExists(bytes4 _selector);
+```
+
+
+
+### CannotReplaceFunctionWithTheSameFunctionFromTheSameFacet
+
+
+
+```solidity
+error CannotReplaceFunctionWithTheSameFunctionFromTheSameFacet(bytes4 _selector);
+```
+
+
+
+### CannotReplaceImmutableFunction
+
+
+
+```solidity
+error CannotReplaceImmutableFunction(bytes4 _selector);
+```
+
+
+
+### IncorrectFacetCutAction
+
+
+
+```solidity
+error IncorrectFacetCutAction(uint8 _action);
+```
+
+
+
+### InitializationFunctionReverted
+
+
+
+```solidity
+error InitializationFunctionReverted(address _initializationContractAddress, bytes _calldata);
+```
+
+
+
+### NoBytecodeAtAddress
+
+
+
+```solidity
+error NoBytecodeAtAddress(address _contractAddress, string _message);
+```
+
+
+
+### NoSelectorsProvidedForFacet
+
+
+
+```solidity
+error NoSelectorsProvidedForFacet(address _facet);
+```
+
+
+
+### RemoveFacetAddressMustBeZeroAddress
+
+
+
+```solidity
+error RemoveFacetAddressMustBeZeroAddress(address _facet);
+```
+
+
+
+
+
+## Structs
+
+
+### FacetCutAction
+
+
+Add=0, Replace=1, Remove=2
+
+
+
+
+### DiamondStorage
+
+
+**Note:** storage-location: erc8042:compose.diamond
+
+
+
+```solidity
+struct DiamondStorage {
+mapping(bytes4 functionSelector =&gt; FacetAndPosition) facetAndPosition;
+/**
+ * Array of all function selectors that can be called in the diamond
+ */
+bytes4[] selectors;
+}
+```
+
+
+
+### FacetAndPosition
+
+
+
+```solidity
+struct FacetAndPosition {
+address facet;
+uint32 position;
+}
+```
+
+
+
+### FacetCut
+
+
+
+```solidity
+struct FacetCut {
+address facetAddress;
+FacetCutAction action;
+bytes4[] functionSelectors;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;
+
+import { DiamondCut } from &quot;./DiamondCut.sol&quot;;
+
+contract MyDiamond {
+    DiamondCut private diamondCut;
+
+    constructor(address _diamondCutAddress) {
+        diamondCut = DiamondCut(_diamondCutAddress);
+    }
+
+    function upgradeDiamond(address[] calldata _newFacets) external {
+        bytes[] memory emptyData = new bytes[](_newFacets.length);
+        diamondCut.diamondCut(
+            _newFacets,
+            emptyData,
+            address(0),
+            &quot;&quot;
+        );
+    }
+}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Always validate new function selectors to avoid overwriting unintended functions.
+- Test all changes in a controlled environment before applying them to the diamond.
+- Ensure facets being added follow the Compose guidelines for readability and transparency.
+</Callout>
+
+
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Ensure only authorized users can invoke the diamondCut function to prevent unauthorized modifications. Validate facet addresses and selectors carefully to avoid potential injection or corruption. Test updates comprehensively to mitigate the risk of unexpected behavior in production.
+</Callout>
+
+

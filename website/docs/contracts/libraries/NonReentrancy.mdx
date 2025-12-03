@@ -1,0 +1,175 @@
+---
+sidebar_position: 99
+title: "NonReentrancy"
+description: "LibNonReentrancy - Non-Reentrancy Library - Provides common non-reentrant functions for Solidity contracts."
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+## Overview
+
+The NonReentrancy library provides reusable non-reentrant functionality for Solidity contracts, ensuring that functions cannot be recursively entered. This library is essential for securing diamond contract facets by preventing reentrancy attacks and maintaining predictable behavior.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/f773c1f2b6ca1fc289a7b9ea4f149315edd34199/src/libraries/NonReentrancy.sol)
+
+
+<Callout type="info" title="Library Usage">
+This library provides internal functions for use in your custom facets. Import it to access shared storage.
+</Callout>
+
+
+## Storage
+
+
+
+
+
+
+### State Variables
+
+
+#### NON_REENTRANT_SLOT
+
+
+
+
+
+
+## Functions
+
+
+### enter
+
+
+How to use as a library in user facets How to use as a modifier in user facets This unlocks the entry into a function
+
+
+
+```solidity
+function enter() ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `enter` | `` | How to use as a library in user facets How to use as a modifier in user facets This unlocks the entry into a function |
+
+### exit
+
+
+This locks the entry into a function
+
+
+
+```solidity
+function exit() ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `exit` | `` | This locks the entry into a function |
+
+
+
+
+
+
+
+
+
+
+## Errors
+
+
+### Reentrancy
+
+
+Function selector - 0x43a0d067
+
+
+
+```solidity
+error Reentrancy();
+```
+
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;
+
+library LibNonReentrancy {
+    uint256 private constant ENTERED = 1;
+    uint256 private constant NOT_ENTERED = 2;
+
+    struct NonReentrancyStorage {
+        uint256 _status;
+    }
+
+    function nonReentrantStorage() internal pure returns (NonReentrancyStorage storage ns) {
+        bytes32 position = keccak256(&quot;lib.nonreentrancy.storage&quot;);
+        assembly {
+            ns.slot := position
+        }
+    }
+
+    function enter() internal {
+        NonReentrancyStorage storage ns = nonReentrantStorage();
+        require(ns._status != ENTERED, &quot;Reentrant call detected&quot;);
+        ns._status = ENTERED;
+    }
+
+    function exit() internal {
+        NonReentrancyStorage storage ns = nonReentrantStorage();
+        ns._status = NOT_ENTERED;
+    }
+}
+
+contract MyFacet {
+    using LibNonReentrancy for LibNonReentrancy;
+
+    function secureFunction() external {
+        LibNonReentrancy.enter();
+
+        // Function logic here.
+
+        LibNonReentrancy.exit();
+    }
+}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Include calls to `enter` at the start and `exit` at the end of non-reentrant functions.
+- Use only in scenarios where reentrancy protection is critical to avoid unnecessary gas costs.
+- Always test extensively for unintended side-effects when adding non-reentrancy checks to complex workflows.
+</Callout>
+
+
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+LibNonReentrancy relies on the diamond storage pattern to maintain state consistency across facets. This ensures that changes made to the non-reentrant status via one facet are immediately visible to all other facets sharing the same storage.
+</Callout>
+
+
+
