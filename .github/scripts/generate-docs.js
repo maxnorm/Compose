@@ -29,7 +29,7 @@ const {
   detectItemTypeFromFilename,
 } = require('./generate-docs-utils/forge-doc-parser');
 const { generateFacetDoc, generateModuleDoc } = require('./generate-docs-utils/templates/templates');
-const { enhanceWithAI, shouldSkipEnhancement } = require('./generate-docs-utils/ai-enhancement');
+const { enhanceWithAI, shouldSkipEnhancement, addFallbackContent } = require('./generate-docs-utils/ai-enhancement');
 
 // Track processed files for summary
 const processedFiles = {
@@ -93,21 +93,18 @@ async function processForgeDocFile(forgeDocFile, solFilePath) {
     enhancedData = await enhanceWithCopilot(data, contractType, token);
   } else {
     console.log(`Skipping AI enhancement for ${data.title}`);
-    // Still add fallback content when skipping AI enhancement
+    // Add fallback content when skipping AI enhancement
     const { addFallbackContent } = require('./generate-docs-utils/copilot-enhancement');
     enhancedData = addFallbackContent(data, contractType);
   }
 
-  // Generate MDX content
   const mdxContent = contractType === 'module'
     ? generateModuleDoc(enhancedData)
     : generateFacetDoc(enhancedData);
 
-  // Determine output path
   const outputDir = getOutputDir(contractType);
   const outputFile = path.join(outputDir, `${data.title}.mdx`);
 
-  // Write the file
   if (writeFileSafe(outputFile, mdxContent)) {
     console.log('✅  Generated:', outputFile);
     
@@ -130,7 +127,6 @@ async function processForgeDocFile(forgeDocFile, solFilePath) {
  * @returns {boolean} True if files are individual items that need aggregation
  */
 function needsAggregation(forgeDocFiles) {
-  // Check if any file matches individual item patterns
   for (const file of forgeDocFiles) {
     const itemType = detectItemTypeFromFilename(file);
     if (itemType) {
@@ -149,7 +145,6 @@ function needsAggregation(forgeDocFiles) {
 async function processAggregatedFiles(forgeDocFiles, solFilePath) {
   console.log(`Aggregating ${forgeDocFiles.length} files for: ${solFilePath}`);
 
-  // Parse all individual item files
   const parsedItems = [];
   let gitSource = '';
 
@@ -176,13 +171,10 @@ async function processAggregatedFiles(forgeDocFiles, solFilePath) {
     return false;
   }
 
-  // Aggregate all parsed items
   const data = aggregateParsedItems(parsedItems, solFilePath);
   
-  // Add source file path for parameter extraction
   data.sourceFilePath = solFilePath;
 
-  // Extract module name and description from source file
   if (!data.title) {
     data.title = extractModuleNameFromPath(solFilePath);
   }
@@ -193,43 +185,35 @@ async function processAggregatedFiles(forgeDocFiles, solFilePath) {
     data.subtitle = sourceDescription;
     data.overview = sourceDescription;
   } else {
-    // If no source description found, use a generic one instead of first item's description
-    // The aggregateParsedItems sets description from first item, which might be wrong
+    // Use a generic description if no source description found
     const genericDescription = `Module providing internal functions for ${data.title}`;
     if (!data.description || data.description.includes('Event emitted') || data.description.includes('Thrown when')) {
-      // Only override if it looks like it came from an item description
       data.description = genericDescription;
       data.subtitle = genericDescription;
       data.overview = genericDescription;
     }
   }
 
-  // Use git source from parsed items if available
   if (gitSource) {
     data.gitSource = gitSource;
   }
 
-  // Determine contract type
   const contractType = getContractType(solFilePath, '');
   console.log(`Type: ${contractType} - ${data.title}`);
 
-  // Extract storage info for modules
   if (contractType === 'module') {
     data.storageInfo = extractStorageInfo(data);
   }
 
-  // Check if we should skip AI enhancement
   const skipAIEnhancement = shouldSkipEnhancement(data) || process.env.SKIP_ENHANCEMENT === 'true';
 
-  // Enhance with Copilot if not skipped, otherwise add fallback content
   let enhancedData = data;
   if (!skipAIEnhancement) {
     const token = process.env.GITHUB_TOKEN;
     enhancedData = await enhanceWithAI(data, contractType, token);
   } else {
     console.log(`Skipping AI enhancement for ${data.title}`);
-    // Still add fallback content when skipping AI enhancement
-    const { addFallbackContent } = require('./generate-docs-utils/ai-enhancement');
+    // Add fallback content when skipping AI enhancement
     enhancedData = addFallbackContent(data, contractType);
   }
 
@@ -275,11 +259,9 @@ async function processSolFile(solFilePath) {
     return;
   }
 
-  // Check if files need aggregation (individual item files)
   if (needsAggregation(forgeDocFiles)) {
     await processAggregatedFiles(forgeDocFiles, solFilePath);
   } else {
-    // Process files individually (contract-level files)
     for (const forgeDocFile of forgeDocFiles) {
       console.log(`Reading: ${path.basename(forgeDocFile)}`);
       await processForgeDocFile(forgeDocFile, solFilePath);
@@ -350,23 +332,19 @@ async function main() {
   let solFiles = [];
 
   if (args.includes('--all')) {
-    // Process all Solidity files
     console.log('Processing all Solidity files...');
     solFiles = getAllSolFiles();
   } else if (args.length > 0 && !args[0].startsWith('--')) {
-    // Process files from list
     const changedFilesPath = args[0];
     console.log(`Reading changed files from: ${changedFilesPath}`);
     solFiles = readChangedFilesFromFile(changedFilesPath);
     
     if (solFiles.length === 0) {
-      // If file doesn't exist or is empty, try getting from git
       console.log('No files in list, checking git diff...');
       const { getChangedSolFiles } = require('./generate-docs-utils/doc-generation-utils');
       solFiles = getChangedSolFiles();
     }
   } else {
-    // Default: get changed files from git
     console.log('Getting changed Solidity files from git...');
     const { getChangedSolFiles } = require('./generate-docs-utils/doc-generation-utils');
     solFiles = getChangedSolFiles();
@@ -379,18 +357,15 @@ async function main() {
 
   console.log(`Found ${solFiles.length} Solidity file(s) to process\n`);
 
-  // Process each file
   for (const solFile of solFiles) {
     await processSolFile(solFile);
-    console.log(''); // Empty line between files
+    console.log('');
   }
 
-  // Print and save summary
   printSummary();
   writeSummaryFile();
 }
 
-// Run main
 main().catch((error) => {
   console.error(`Fatal error: ${error}`);
   process.exit(1);
