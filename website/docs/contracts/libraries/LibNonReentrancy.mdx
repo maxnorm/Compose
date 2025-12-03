@@ -1,0 +1,113 @@
+---
+sidebar_position: 99
+title: "LibNonReentrancy"
+description: "LibNonReentrancy - Non-Reentrancy Library - Provides common non-reentrant functions for Solidity contracts."
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+## Overview
+
+LibNonReentrancy - Non-Reentrancy Library - Provides common non-reentrant functions for Solidity contracts.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/057043a659d1a2c7cf32c80148e04c3e2c6d85f2/src/libraries/LibNonReentrancy.sol)
+
+
+<Callout type="info" title="Library Usage">
+This library provides internal functions for use in your custom facets. Import it to access shared storage.
+</Callout>
+
+
+## Storage
+
+
+
+
+
+
+### State Variables
+
+
+#### NON_REENTRANT_SLOT
+
+
+
+
+
+
+## Functions
+
+
+### enter
+
+
+How to use as a library in user facets How to use as a modifier in user facets This unlocks the entry into a function
+
+
+
+```solidity
+function enter() ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `enter` | `` | How to use as a library in user facets How to use as a modifier in user facets This unlocks the entry into a function |
+
+### exit
+
+
+This locks the entry into a function
+
+
+
+```solidity
+function exit() ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `exit` | `` | This locks the entry into a function |
+
+
+
+
+
+
+
+
+
+
+## Errors
+
+
+### Reentrancy
+
+
+Function selector - 0x43a0d067
+
+
+
+```solidity
+error Reentrancy();
+```
+
+
+
+
+
+
+
+
+
