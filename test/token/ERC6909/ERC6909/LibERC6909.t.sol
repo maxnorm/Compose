@@ -4,7 +4,8 @@ pragma solidity >=0.8.30;
 import {Test} from "forge-std/Test.sol";
 import {stdError} from "forge-std/StdError.sol";
 import {LibERC6909Harness} from "./harnesses/LibERC6909Harness.sol";
-import {LibERC6909} from "../../../../src/token/ERC6909/ERC6909/LibERC6909.sol";
+import "../../../../src/token/ERC6909/ERC6909/LibERC6909.sol" as LibERC6909;
+import {Transfer, OperatorSet, Approval} from "../../../../src/token/ERC6909/ERC6909/LibERC6909.sol";
 
 contract LibERC6909Test is Test {
     LibERC6909Harness internal harness;
@@ -20,9 +21,11 @@ contract LibERC6909Test is Test {
         harness = new LibERC6909Harness();
     }
 
-    // ============================================
-    // Mint Tests
-    // ============================================
+    /**
+     * ============================================
+     * Mint Tests
+     * ============================================
+     */
 
     function test_ShouldRevert_Mint_ToIsZero() external {
         vm.expectRevert(abi.encodeWithSelector(LibERC6909.ERC6909InvalidReceiver.selector, address(0)));
@@ -31,7 +34,7 @@ contract LibERC6909Test is Test {
 
     function test_Mint() external {
         vm.expectEmit();
-        emit LibERC6909.Transfer(address(this), address(0), alice, TOKEN_ID, AMOUNT);
+        emit Transfer(address(this), address(0), alice, TOKEN_ID, AMOUNT);
 
         harness.mint(alice, TOKEN_ID, AMOUNT);
 
@@ -48,7 +51,7 @@ contract LibERC6909Test is Test {
         vm.assume(to != address(0));
 
         vm.expectEmit();
-        emit LibERC6909.Transfer(caller, address(0), to, id, amount);
+        emit Transfer(caller, address(0), to, id, amount);
 
         vm.prank(caller);
         harness.mint(to, id, amount);
@@ -56,9 +59,11 @@ contract LibERC6909Test is Test {
         assertEq(harness.balanceOf(to, id), amount);
     }
 
-    // ============================================
-    // Burn Tests
-    // ============================================
+    /**
+     * ============================================
+     * Burn Tests
+     * ============================================
+     */
 
     function test_ShouldRevert_Burn_InsufficientBalance() external {
         vm.expectRevert(abi.encodeWithSelector(LibERC6909.ERC6909InsufficientBalance.selector, alice, 0, 1, TOKEN_ID));
@@ -74,14 +79,16 @@ contract LibERC6909Test is Test {
         harness.mint(alice, TOKEN_ID, AMOUNT);
 
         vm.expectEmit();
-        emit LibERC6909.Transfer(address(this), alice, address(0), TOKEN_ID, AMOUNT);
+        emit Transfer(address(this), alice, address(0), TOKEN_ID, AMOUNT);
 
         harness.burn(alice, TOKEN_ID, AMOUNT);
 
         assertEq(harness.balanceOf(alice, TOKEN_ID), 0);
     }
 
-    /// @dev First mints tokens and then burns a fraction of them.
+    /**
+     * @dev First mints tokens and then burns a fraction of them.
+     */
     function testFuzz_Burn(address caller, address from, uint256 id, uint256 amount, uint256 burnFrac) external {
         vm.assume(from != address(0));
         amount = bound(amount, 1, type(uint256).max / 1e4);
@@ -91,7 +98,7 @@ contract LibERC6909Test is Test {
         harness.mint(from, id, amount);
 
         vm.expectEmit();
-        emit LibERC6909.Transfer(caller, from, address(0), id, burnAmount);
+        emit Transfer(caller, from, address(0), id, burnAmount);
 
         vm.prank(caller);
         harness.burn(from, id, burnAmount);
@@ -99,9 +106,11 @@ contract LibERC6909Test is Test {
         assertEq(harness.balanceOf(from, id), amount - burnAmount);
     }
 
-    // ============================================
-    // Approve Tests
-    // ============================================
+    /**
+     * ============================================
+     * Approve Tests
+     * ============================================
+     */
 
     function test_ShouldRevert_Approve_OwnerIsZero() external {
         vm.expectRevert(abi.encodeWithSelector(LibERC6909.ERC6909InvalidApprover.selector, address(0)));
@@ -115,7 +124,7 @@ contract LibERC6909Test is Test {
 
     function test_Approve() external {
         vm.expectEmit();
-        emit LibERC6909.Approval(alice, address(this), TOKEN_ID, AMOUNT);
+        emit Approval(alice, address(this), TOKEN_ID, AMOUNT);
 
         harness.approve(alice, address(this), TOKEN_ID, AMOUNT);
 
@@ -127,16 +136,18 @@ contract LibERC6909Test is Test {
         vm.assume(spender != address(0));
 
         vm.expectEmit();
-        emit LibERC6909.Approval(owner, spender, id, amount);
+        emit Approval(owner, spender, id, amount);
 
         harness.approve(owner, spender, id, amount);
 
         assertEq(harness.allowance(owner, spender, id), amount);
     }
 
-    // ============================================
-    // Set Operator Tests
-    // ============================================
+    /**
+     * ============================================
+     * Set Operator Tests
+     * ============================================
+     */
 
     function test_ShouldRevert_SetOperator_OwnerIsZero() external {
         vm.expectRevert(abi.encodeWithSelector(LibERC6909.ERC6909InvalidApprover.selector, address(0)));
@@ -150,7 +161,7 @@ contract LibERC6909Test is Test {
 
     function test_SetOperator_IsApproved() external {
         vm.expectEmit();
-        emit LibERC6909.OperatorSet(alice, address(this), true);
+        emit OperatorSet(alice, address(this), true);
 
         harness.setOperator(alice, address(this), true);
         assertEq(harness.isOperator(alice, address(this)), true);
@@ -160,7 +171,7 @@ contract LibERC6909Test is Test {
         harness.setOperator(alice, address(this), true);
 
         vm.expectEmit();
-        emit LibERC6909.OperatorSet(alice, address(this), false);
+        emit OperatorSet(alice, address(this), false);
 
         harness.setOperator(alice, address(this), false);
 
@@ -172,16 +183,18 @@ contract LibERC6909Test is Test {
         vm.assume(spender != address(0));
 
         vm.expectEmit();
-        emit LibERC6909.OperatorSet(owner, spender, approved);
+        emit OperatorSet(owner, spender, approved);
 
         harness.setOperator(owner, spender, approved);
 
         assertEq(harness.isOperator(owner, spender), approved);
     }
 
-    // ============================================
-    // Transfer Tests
-    // ============================================
+    /**
+     * ============================================
+     * Transfer Tests
+     * ============================================
+     */
 
     function testFuzz_Transfer(address from, address to, uint256 id, uint256 amount) external {
         vm.assume(from != to);
@@ -191,7 +204,7 @@ contract LibERC6909Test is Test {
         harness.mint(from, id, amount);
 
         vm.expectEmit();
-        emit LibERC6909.Transfer(from, from, to, id, amount);
+        emit Transfer(from, from, to, id, amount);
 
         harness.transfer(from, from, to, id, amount);
 
@@ -210,7 +223,7 @@ contract LibERC6909Test is Test {
         harness.setOperator(from, by, true);
 
         vm.expectEmit();
-        emit LibERC6909.Transfer(by, from, to, id, amount);
+        emit Transfer(by, from, to, id, amount);
 
         harness.transfer(by, from, to, id, amount);
 
@@ -237,7 +250,7 @@ contract LibERC6909Test is Test {
         harness.approve(from, by, id, type(uint256).max);
 
         vm.expectEmit();
-        emit LibERC6909.Transfer(by, from, to, id, amount);
+        emit Transfer(by, from, to, id, amount);
 
         harness.transfer(by, from, to, id, amount);
 
@@ -267,7 +280,7 @@ contract LibERC6909Test is Test {
         harness.approve(from, by, id, amount);
 
         vm.expectEmit();
-        emit LibERC6909.Transfer(by, from, to, id, spend);
+        emit Transfer(by, from, to, id, spend);
 
         harness.transfer(by, from, to, id, spend);
 
@@ -392,7 +405,7 @@ contract LibERC6909Test is Test {
         harness.approve(from, by, id, amount);
 
         vm.expectEmit();
-        emit LibERC6909.Transfer(by, from, from, id, spend);
+        emit Transfer(by, from, from, id, spend);
 
         harness.transfer(by, from, from, id, spend);
 
@@ -436,7 +449,7 @@ contract LibERC6909Test is Test {
         harness.approve(from, by, id, allowance);
 
         vm.expectEmit();
-        emit LibERC6909.Transfer(by, from, to, id, 0);
+        emit Transfer(by, from, to, id, 0);
 
         harness.transfer(by, from, to, id, 0);
 
