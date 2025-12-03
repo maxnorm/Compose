@@ -1,0 +1,220 @@
+---
+sidebar_position: 99
+title: "Owner"
+description: "ERC-173 Contract Ownership - Provides internal functions and storage layout for owner management."
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+
+<DocHero
+  title="Owner"
+  subtitle="ERC-173 Contract Ownership - Provides internal functions and storage layout for owner management."
+  variant="gradient"
+  height="small"
+/>
+
+
+## Overview
+
+ERC-173 Contract Ownership - Provides internal functions and storage layout for owner management.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/481136d7c36aaae0be05ee1e91b1d24c70b620b3/src/access/Owner/Owner.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Self-contained facet with no imports or inheritance
+- Only `external` and `internal` function visibility
+- Follows Compose readability-first conventions
+- Ready for diamond integration
+</Callout>
+
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns a pointer to the ERC-173 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION. **Returns**
+
+
+
+```solidity
+function getStorage() pure returns (OwnerStorage storage s);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `s` | `OwnerStorage` | The OwnerStorage struct in storage. |
+
+
+
+
+### owner
+
+
+Get the address of the owner **Returns**
+
+
+
+```solidity
+function owner() view returns (address);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `-` | `address` | The address of the owner. |
+
+
+
+
+### requireOwner
+
+
+Reverts if the caller is not the owner.
+
+
+
+```solidity
+function requireOwner() view;
+```
+
+
+
+
+
+### setContractOwner
+
+
+
+```solidity
+function setContractOwner(address _initialOwner) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_initialOwner` | `address` |  |
+
+
+
+
+
+### transferOwnership
+
+
+Set the address of the new owner of the contract Set _newOwner to address(0) to renounce any ownership. **Parameters**
+
+
+
+```solidity
+function transferOwnership(address _newOwner) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_newOwner` | `address` | The address of the new owner of the contract |
+
+
+
+
+
+
+
+## Events
+
+
+### OwnershipTransferred
+
+
+This emits when ownership of a contract changes.
+
+
+
+```solidity
+event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+```
+
+
+
+
+
+
+## Errors
+
+
+### OwnerAlreadyRenounced
+
+
+
+```solidity
+error OwnerAlreadyRenounced();
+```
+
+
+
+### OwnerUnauthorizedAccount
+
+
+
+```solidity
+error OwnerUnauthorizedAccount();
+```
+
+
+
+
+
+## Structs
+
+
+### OwnerStorage
+
+
+**Note:** storage-location: erc8042:compose.owner
+
+
+
+```solidity
+struct OwnerStorage {
+address owner;
+}
+```
+
+
+
+
+
+
+
+
+
+
+
