@@ -29,7 +29,7 @@ const {
   detectItemTypeFromFilename,
 } = require('./generate-docs-utils/forge-doc-parser');
 const { generateFacetDoc, generateModuleDoc } = require('./generate-docs-utils/templates/templates');
-const { enhanceWithCopilot, shouldSkipEnhancement } = require('./generate-docs-utils/copilot-enhancement');
+const { enhanceWithAI, shouldSkipEnhancement } = require('./generate-docs-utils/ai-enhancement');
 
 // Track processed files for summary
 const processedFiles = {
@@ -225,11 +225,11 @@ async function processAggregatedFiles(forgeDocFiles, solFilePath) {
   let enhancedData = data;
   if (!skipAIEnhancement) {
     const token = process.env.GITHUB_TOKEN;
-    enhancedData = await enhanceWithCopilot(data, contractType, token);
+    enhancedData = await enhanceWithAI(data, contractType, token);
   } else {
     console.log(`Skipping AI enhancement for ${data.title}`);
     // Still add fallback content when skipping AI enhancement
-    const { addFallbackContent } = require('./generate-docs-utils/copilot-enhancement');
+    const { addFallbackContent } = require('./generate-docs-utils/ai-enhancement');
     enhancedData = addFallbackContent(data, contractType);
   }
 

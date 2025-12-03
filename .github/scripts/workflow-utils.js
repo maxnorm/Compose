@@ -1,4 +1,5 @@
 const fs = require('fs');
+const https = require('https');
 const path = require('path');
 const { execSync } = require('child_process');
 
@@ -180,6 +181,53 @@ async function postOrUpdateComment(github, context, prNumber, body, commentMarke
   }
 }
 
+/**
+ * Sleep for specified milliseconds
+ * @param {number} ms - Milliseconds to sleep
+ * @returns {Promise<void>}
+ */
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Make HTTPS request (promisified)
+ * @param {object} options - Request options
+ * @param {string} body - Request body
+ * @returns {Promise<object>} Response data
+ */
+function makeHttpsRequest(options, body) {
+  return new Promise((resolve, reject) => {
+    const req = https.request(options, (res) => {
+      let data = '';
+      
+      res.on('data', (chunk) => {
+        data += chunk;
+      });
+      
+      res.on('end', () => {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          try {
+            resolve(JSON.parse(data));
+          } catch (e) {
+            resolve({ raw: data });
+          }
+        } else {
+          reject(new Error(`HTTP ${res.statusCode}: ${data}`));
+        }
+      });
+    });
+    
+    req.on('error', reject);
+    
+    if (body) {
+      req.write(body);
+    }
+    
+    req.end();
+  });
+}
+
 module.exports = {
   downloadArtifact,
   parsePRNumber,
@@ -187,5 +235,7 @@ module.exports = {
   readFileSafe,
   writeFileSafe,
   ensureDir,
-  postOrUpdateComment
+  postOrUpdateComment,
+  sleep,
+  makeHttpsRequest,
 };

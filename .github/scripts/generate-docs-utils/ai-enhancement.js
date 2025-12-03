@@ -4,24 +4,18 @@
  * See: https://github.blog/changelog/2025-04-14-github-actions-token-integration-now-generally-available-in-github-models/
  */
 
-const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const { models: MODELS_CONFIG } = require('./config');
+const { sleep, makeHttpsRequest } = require('../workflow-utils');
 
 // Rate limiting: GitHub Models has 10 requests per 60s limit
 // We add 7 seconds between calls to stay safe (60/10 = 6, +1 buffer)
-const RATE_LIMIT_DELAY_MS = 7000;
+const RATE_LIMIT_DELAY_MS = 8000;
 let lastApiCallTime = 0;
 
-/**
- * Sleep for specified milliseconds
- * @param {number} ms - Milliseconds to sleep
- * @returns {Promise<void>}
- */
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
+const AI_PROMPT_PATH = path.join(__dirname, '../../docs-gen-prompts.md');
+const REPO_INSTRUCTIONS_PATH = path.join(__dirname, '../../copilot-instructions.md');
 
 /**
  * Wait for rate limit if needed
@@ -43,68 +37,110 @@ async function waitForRateLimit() {
 // Load repository instructions for context
 let REPO_INSTRUCTIONS = '';
 try {
-  const instructionsPath = path.join(__dirname, '../../copilot-instructions.md');
-  REPO_INSTRUCTIONS = fs.readFileSync(instructionsPath, 'utf8');
+  REPO_INSTRUCTIONS = fs.readFileSync(REPO_INSTRUCTIONS_PATH, 'utf8');
 } catch (e) {
   console.warn('Could not load copilot-instructions.md:', e.message);
 }
 
+// Load AI prompts from markdown file
+let AI_PROMPTS = {
+  systemPrompt: '',
+  modulePrompt: '',
+  facetPrompt: '',
+  relevantSections: [],
+  moduleFallback: { integrationNotes: '', keyFeatures: '' },
+  facetFallback: { keyFeatures: '' },
+};
+try {
+  const promptsContent = fs.readFileSync(AI_PROMPT_PATH, 'utf8');
+  AI_PROMPTS = parsePromptsFile(promptsContent);
+} catch (e) {
+  console.warn('Could not load ai-prompts.md:', e.message);
+}
+
 /**
- * Make HTTPS request (promisified)
- * @param {object} options - Request options
- * @param {string} body - Request body
- * @returns {Promise<object>} Response data
+ * Parse the prompts markdown file to extract individual prompts
+ * @param {string} content - Raw markdown content
+ * @returns {object} Parsed prompts and configurations
  */
-function makeRequest(options, body) {
-  return new Promise((resolve, reject) => {
-    const req = https.request(options, (res) => {
-      let data = '';
-      
-      res.on('data', (chunk) => {
-        data += chunk;
-      });
-      
-      res.on('end', () => {
-        if (res.statusCode >= 200 && res.statusCode < 300) {
-          try {
-            resolve(JSON.parse(data));
-          } catch (e) {
-            resolve({ raw: data });
-          }
-        } else {
-          reject(new Error(`HTTP ${res.statusCode}: ${data}`));
-        }
-      });
-    });
-    
-    req.on('error', reject);
-    
-    if (body) {
-      req.write(body);
+function parsePromptsFile(content) {
+  const sections = content.split(/^---$/m).map(s => s.trim()).filter(Boolean);
+  
+  const prompts = {
+    systemPrompt: '',
+    modulePrompt: '',
+    facetPrompt: '',
+    relevantSections: [],
+    moduleFallback: { integrationNotes: '', keyFeatures: '' },
+    facetFallback: { keyFeatures: '' },
+  };
+  
+  for (const section of sections) {
+    if (section.includes('## System Prompt')) {
+      const match = section.match(/## System Prompt\s*\n([\s\S]*)/);
+      if (match) {
+        prompts.systemPrompt = match[1].trim();
+      }
+    } else if (section.includes('## Relevant Guideline Sections')) {
+      // Extract sections from the code block
+      const codeMatch = section.match(/```\n([\s\S]*?)```/);
+      if (codeMatch) {
+        prompts.relevantSections = codeMatch[1]
+          .split('\n')
+          .map(s => s.trim())
+          .filter(s => s.startsWith('## '));
+      }
+    } else if (section.includes('## Module Prompt Template')) {
+      const match = section.match(/## Module Prompt Template\s*\n([\s\S]*)/);
+      if (match) {
+        prompts.modulePrompt = match[1].trim();
+      }
+    } else if (section.includes('## Facet Prompt Template')) {
+      const match = section.match(/## Facet Prompt Template\s*\n([\s\S]*)/);
+      if (match) {
+        prompts.facetPrompt = match[1].trim();
+      }
+    } else if (section.includes('## Module Fallback Content')) {
+      // Parse subsections for integrationNotes and keyFeatures
+      const integrationMatch = section.match(/### integrationNotes\s*\n([\s\S]*?)(?=###|$)/);
+      if (integrationMatch) {
+        prompts.moduleFallback.integrationNotes = integrationMatch[1].trim();
+      }
+      const keyFeaturesMatch = section.match(/### keyFeatures\s*\n([\s\S]*?)(?=###|$)/);
+      if (keyFeaturesMatch) {
+        prompts.moduleFallback.keyFeatures = keyFeaturesMatch[1].trim();
+      }
+    } else if (section.includes('## Facet Fallback Content')) {
+      const keyFeaturesMatch = section.match(/### keyFeatures\s*\n([\s\S]*?)(?=###|$)/);
+      if (keyFeaturesMatch) {
+        prompts.facetFallback.keyFeatures = keyFeaturesMatch[1].trim();
+      }
     }
-    
-    req.end();
-  });
+  }
+  
+  return prompts;
 }
 
 /**
  * Build the system prompt with repository context
+ * Uses the system prompt from the prompts file, or a fallback if not found
  * @returns {string} System prompt for Copilot
  */
 function buildSystemPrompt() {
-  let systemPrompt = `You are a Solidity smart contract documentation expert for the Compose framework. 
+  let systemPrompt = AI_PROMPTS.systemPrompt || `You are a Solidity smart contract documentation expert for the Compose framework. 
 Always respond with valid JSON only, no markdown formatting.
 Follow the project conventions and style guidelines strictly.`;
 
   if (REPO_INSTRUCTIONS) {
-    // Extract key sections from instructions to keep context focused
-    const relevantSections = [
-      '## 3. Core Philosophy',
-      '## 4. Facet Design Principles', 
-      '## 5. Banned Solidity Features',
-      '## 6. Composability Guidelines',
-      '## 11. Code Style Guide',
-    ];
+    const relevantSections = AI_PROMPTS.relevantSections.length > 0
+      ? AI_PROMPTS.relevantSections
+      : [
+          '## 3. Core Philosophy',
+          '## 4. Facet Design Principles', 
+          '## 5. Banned Solidity Features',
+          '## 6. Composability Guidelines',
+          '## 11. Code Style Guide',
+        ];
     
     let contextSnippets = [];
     for (const section of relevantSections) {
@@ -138,6 +174,20 @@ function buildPrompt(data, contractType) {
     .map(f => `- ${f.name}: ${f.description || 'No description'}`)
     .join('\n');
 
+  const promptTemplate = contractType === 'module' 
+    ? AI_PROMPTS.modulePrompt 
+    : AI_PROMPTS.facetPrompt;
+
+  // If we have a template from the file, use it with variable substitution
+  if (promptTemplate) {
+    return promptTemplate
+      .replace(/\{\{title\}\}/g, data.title)
+      .replace(/\{\{description\}\}/g, data.description || 'No description provided')
+      .replace(/\{\{functionNames\}\}/g, functionNames || 'None')
+      .replace(/\{\{functionDescriptions\}\}/g, functionDescriptions || '  None');
+  }
+
+  // Fallback to hardcoded prompt if template not loaded
   return `Given this ${contractType} documentation from the Compose diamond proxy framework, enhance it by generating:
 
 1. **overview**: A clear, concise overview (2-3 sentences) explaining what this ${contractType} does and why it's useful in the context of diamond contracts.
@@ -176,9 +226,9 @@ Respond ONLY with valid JSON in this exact format (no markdown code blocks, no e
  * @param {string} token - GitHub token
  * @returns {Promise<object>} Enhanced data
  */
-async function enhanceWithCopilot(data, contractType, token) {
+async function enhanceWithAI(data, contractType, token) {
   if (!token) {
-    console.log('    ⚠️  No GitHub token provided, skipping AI enhancement');
+    console.log('    ⚠️ No GitHub token provided, skipping AI enhancement');
     return addFallbackContent(data, contractType);
   }
 
@@ -216,19 +266,16 @@ async function enhanceWithCopilot(data, contractType, token) {
   };
 
   try {
-    // Rate limit: wait if needed to avoid 429 errors
     await waitForRateLimit();
-    const response = await makeRequest(options, requestBody);
+    const response = await makeHttpsRequest(options, requestBody);
 
     if (response.choices && response.choices[0] && response.choices[0].message) {
       const content = response.choices[0].message.content;
       
       try {
-        // Try to parse the response as JSON
         let enhanced = JSON.parse(content);
         console.log('✅ AI enhancement successful');
         
-        // Merge enhanced content with original data
         return {
           ...data,
           overview: enhanced.overview || data.overview,
@@ -239,22 +286,22 @@ async function enhanceWithCopilot(data, contractType, token) {
           securityConsiderations: enhanced.securityConsiderations || null,
         };
       } catch (parseError) {
-        console.log('    ⚠️  Could not parse API response as JSON');
+        console.log('    ⚠️ Could not parse API response as JSON');
         console.log('    Response:', content.substring(0, 200));
         return addFallbackContent(data, contractType);
       }
     }
 
-    console.log('    ⚠️  Unexpected API response format');
+    console.log('    ⚠️ Unexpected API response format');
     return addFallbackContent(data, contractType);
   } catch (error) {
-    console.log(`    ⚠️  GitHub Models API error: ${error.message}`);
+    console.log(`    ⚠️ GitHub Models API error: ${error.message}`);
     return addFallbackContent(data, contractType);
   }
 }
 
 /**
- * Add fallback content when Copilot is unavailable
+ * Add fallback content when AI is unavailable
  * @param {object} data - Documentation data
  * @param {'module' | 'facet'} contractType - Type of contract
  * @returns {object} Data with fallback content
@@ -265,10 +312,13 @@ function addFallbackContent(data, contractType) {
   const enhanced = { ...data };
 
   if (contractType === 'module') {
-    enhanced.integrationNotes = `This module accesses shared diamond storage, so changes made through this module are immediately visible to facets using the same storage pattern. All functions are internal as per Compose conventions.`;
-    enhanced.keyFeatures = `- All functions are \`internal\` for use in custom facets\n- Follows diamond storage pattern (EIP-8042)\n- Compatible with ERC-2535 diamonds\n- No external dependencies or \`using\` directives`;
+    enhanced.integrationNotes = AI_PROMPTS.moduleFallback.integrationNotes ||
+      `This module accesses shared diamond storage, so changes made through this module are immediately visible to facets using the same storage pattern. All functions are internal as per Compose conventions.`;
+    enhanced.keyFeatures = AI_PROMPTS.moduleFallback.keyFeatures ||
+      `- All functions are \`internal\` for use in custom facets\n- Follows diamond storage pattern (EIP-8042)\n- Compatible with ERC-2535 diamonds\n- No external dependencies or \`using\` directives`;
   } else {
-    enhanced.keyFeatures = `- Self-contained facet with no imports or inheritance\n- Only \`external\` and \`internal\` function visibility\n- Follows Compose readability-first conventions\n- Ready for diamond integration`;
+    enhanced.keyFeatures = AI_PROMPTS.facetFallback.keyFeatures ||
+      `- Self-contained facet with no imports or inheritance\n- Only \`external\` and \`internal\` function visibility\n- Follows Compose readability-first conventions\n- Ready for diamond integration`;
   }
 
   return enhanced;
@@ -280,15 +330,12 @@ function addFallbackContent(data, contractType) {
  * @returns {boolean} True if should skip
  */
 function shouldSkipEnhancement(data) {
-  // Skip if no functions (likely just an interface)
   if (!data.functions || data.functions.length === 0) {
     return true;
   }
   
-  // Skip if title suggests it's a simple interface
   if (data.title.startsWith('I') && data.title.length > 1 && 
       data.title[1] === data.title[1].toUpperCase()) {
-    // Likely an interface like IERC165, IERC20
     return true;
   }
 
@@ -296,7 +343,7 @@ function shouldSkipEnhancement(data) {
 }
 
 module.exports = {
-  enhanceWithCopilot,
+  enhanceWithAI,
   addFallbackContent,
   shouldSkipEnhancement,
 };
