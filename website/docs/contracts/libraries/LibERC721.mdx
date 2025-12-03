@@ -1,7 +1,7 @@
 ---
 sidebar_position: 99
 title: "LibERC721"
-description: "Provides internal logic for ERC-721 token management using diamond storage."
+description: "ERC-721 Library for Compose - Thrown when attempting to interact with a non-existent token."
 ---
 
 import DocHero from '@site/src/components/docs/DocHero';
@@ -9,12 +9,10 @@ import Callout from '@site/src/components/ui/Callout';
 
 ## Overview
 
-Provides internal logic for ERC-721 token management using diamond storage.
-
-This library is intended to be used by custom facets to integrate with ERC-721 functionality.
+ERC-721 Library for Compose - Thrown when attempting to interact with a non-existent token.
 
 
-[View Source](https://github.com/maxnorm/Compose/blob/e3e377cf3d77e94dc30e10812da2bdd1907ca159/src/token/ERC721/ERC721/LibERC721.sol)
+[View Source](https://github.com/maxnorm/Compose/blob/3f35b447c28348d933bb822a724f81f04d64a99e/src/token/ERC721/ERC721/LibERC721.sol)
 
 
 <Callout type="info" title="Library Usage">
@@ -42,15 +40,35 @@ Storage position: `STORAGE_POSITION` - Used for diamond storage pattern.
 ## Functions
 
 
+### burn
+
+
+Burns (destroys) a specific ERC-721 token. Reverts if the token does not exist. Clears ownership and approval. **Parameters**
+
+
+
+```solidity
+function burn(uint256 _tokenId) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `burn` | `` | Burns (destroys) a specific ERC-721 token. Reverts if the token does not exist. Clears ownership and approval. **Parameters** |
+
 ### getStorage
 
 
-Returns the ERC-721 storage struct from its predefined slot. Uses inline assembly to access diamond storage location.
+Returns the ERC-721 storage struct from its predefined slot. Uses inline assembly to access diamond storage location. **Returns**
 
 
 
 ```solidity
-function getStorage() internal pure returns (ERC721Storage storage s);
+function getStorage() pure returns (ERC721Storage storage s);
 ```
 
 
@@ -60,37 +78,17 @@ function getStorage() internal pure returns (ERC721Storage storage s);
 | Name | Type | Description |
 |------|------|-------------|
 
-| `getStorage` | `` | Returns the ERC-721 storage struct from its predefined slot. Uses inline assembly to access diamond storage location. |
-
-### transferFrom
-
-
-Transfers ownership of a token ID from one address to another. Validates ownership, approval, and receiver address before updating state.
-
-
-
-```solidity
-function transferFrom(address _from, address _to, uint256 _tokenId) internal;
-```
-
-
-
-**Parameters**
-
-| Name | Type | Description |
-|------|------|-------------|
-
-| `transferFrom` | `` | Transfers ownership of a token ID from one address to another. Validates ownership, approval, and receiver address before updating state. |
+| `getStorage` | `` | Returns the ERC-721 storage struct from its predefined slot. Uses inline assembly to access diamond storage location. **Returns** |
 
 ### mint
 
 
-Mints a new ERC-721 token to the specified address. Reverts if the receiver address is zero or if the token already exists.
+Mints a new ERC-721 token to the specified address. Reverts if the receiver address is zero or if the token already exists. **Parameters**
 
 
 
 ```solidity
-function mint(address _to, uint256 _tokenId) internal;
+function mint(address _to, uint256 _tokenId) ;
 ```
 
 
@@ -100,17 +98,14 @@ function mint(address _to, uint256 _tokenId) internal;
 | Name | Type | Description |
 |------|------|-------------|
 
-| `mint` | `` | Mints a new ERC-721 token to the specified address. Reverts if the receiver address is zero or if the token already exists. |
+| `mint` | `` | Mints a new ERC-721 token to the specified address. Reverts if the receiver address is zero or if the token already exists. **Parameters** |
 
-### burn
-
-
-Burns (destroys) a specific ERC-721 token. Reverts if the token does not exist. Clears ownership and approval.
+### setMetadata
 
 
 
 ```solidity
-function burn(uint256 _tokenId) internal;
+function setMetadata(string memory _name, string memory _symbol, string memory _baseURI) ;
 ```
 
 
@@ -120,7 +115,27 @@ function burn(uint256 _tokenId) internal;
 | Name | Type | Description |
 |------|------|-------------|
 
-| `burn` | `` | Burns (destroys) a specific ERC-721 token. Reverts if the token does not exist. Clears ownership and approval. |
+| `setMetadata` | `` |  |
+
+### transferFrom
+
+
+Transfers ownership of a token ID from one address to another. Validates ownership, approval, and receiver address before updating state. **Parameters**
+
+
+
+```solidity
+function transferFrom(address _from, address _to, uint256 _tokenId) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `transferFrom` | `` | Transfers ownership of a token ID from one address to another. Validates ownership, approval, and receiver address before updating state. **Parameters** |
 
 
 
@@ -134,7 +149,7 @@ function burn(uint256 _tokenId) internal;
 ### Transfer
 
 
-Emitted when ownership of a token changes, including minting and burning.
+Emitted when ownership of a token changes, including minting and burning. **Parameters**
 
 
 
@@ -147,7 +162,7 @@ event Transfer(address indexed _from, address indexed _to, uint256 indexed _toke
 | Parameter | Type | Description |
 |-----------|------|-------------|
 
-| `Transfer` | `` | Emitted when ownership of a token changes, including minting and burning. |
+| `Transfer` | `` | Emitted when ownership of a token changes, including minting and burning. **Parameters** |
 
 
 
@@ -157,23 +172,10 @@ event Transfer(address indexed _from, address indexed _to, uint256 indexed _toke
 ## Errors
 
 
-### ERC721NonexistentToken
-
-
-Thrown when attempting to interact with a non-existent token.
-
-
-
-```solidity
-error ERC721NonexistentToken(uint256 _tokenId);
-```
-
-
-
 ### ERC721IncorrectOwner
 
 
-Thrown when the sender is not the owner of the token.
+Thrown when the sender is not the owner of the token. **Parameters**
 
 
 
@@ -183,15 +185,15 @@ error ERC721IncorrectOwner(address _sender, uint256 _tokenId, address _owner);
 
 
 
-### ERC721InvalidSender
+### ERC721InsufficientApproval
 
 
-Thrown when the sender address is invalid (e.g., zero address).
+Thrown when an operator lacks sufficient approval to manage a token. **Parameters**
 
 
 
 ```solidity
-error ERC721InvalidSender(address _sender);
+error ERC721InsufficientApproval(address _operator, uint256 _tokenId);
 ```
 
 
@@ -199,7 +201,7 @@ error ERC721InvalidSender(address _sender);
 ### ERC721InvalidReceiver
 
 
-Thrown when the receiver address is invalid (e.g., zero address).
+Thrown when the receiver address is invalid (e.g., zero address). **Parameters**
 
 
 
@@ -209,15 +211,28 @@ error ERC721InvalidReceiver(address _receiver);
 
 
 
-### ERC721InsufficientApproval
+### ERC721InvalidSender
 
 
-Thrown when an operator lacks sufficient approval to manage a token.
+Thrown when the sender address is invalid (e.g., zero address). **Parameters**
 
 
 
 ```solidity
-error ERC721InsufficientApproval(address _operator, uint256 _tokenId);
+error ERC721InvalidSender(address _sender);
+```
+
+
+
+### ERC721NonexistentToken
+
+
+Thrown when attempting to interact with a non-existent token. **Parameters**
+
+
+
+```solidity
+error ERC721NonexistentToken(uint256 _tokenId);
 ```
 
 
@@ -233,13 +248,13 @@ error ERC721InsufficientApproval(address _operator, uint256 _tokenId);
 
 ```solidity
 struct ERC721Storage {
-    mapping(uint256 tokenId =&gt; address owner) ownerOf;
-    mapping(address owner =&gt; uint256 balance) balanceOf;
-    mapping(address owner =&gt; mapping(address operator =&gt; bool approved)) isApprovedForAll;
-    mapping(uint256 tokenId =&gt; address approved) approved;
-    string name;
-    string symbol;
-    string baseURI;
+mapping(uint256 tokenId =&gt; address owner) ownerOf;
+mapping(address owner =&gt; uint256 balance) balanceOf;
+mapping(address owner =&gt; mapping(address operator =&gt; bool approved)) isApprovedForAll;
+mapping(uint256 tokenId =&gt; address approved) approved;
+string name;
+string symbol;
+string baseURI;
 }
 ```
 
@@ -247,13 +262,6 @@ struct ERC721Storage {
 
 
 
-
-
-## Integration Notes
-
-<Callout type="success" title="Shared Storage">
-This library accesses shared diamond storage, so changes made through this library are immediately visible to facets using the same storage pattern. All functions are internal as per Compose conventions.
-</Callout>
 
 
 

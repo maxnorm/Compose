@@ -1,7 +1,7 @@
 ---
 sidebar_position: 99
 title: "ERC20BridgeableFacet"
-description: "Provides functions and storage layout for ERC20-Bridgeable token logic."
+description: "**Title:**"
 ---
 
 import DocHero from '@site/src/components/docs/DocHero';
@@ -9,28 +9,20 @@ import Callout from '@site/src/components/ui/Callout';
 
 <DocHero
   title="ERC20BridgeableFacet"
-  subtitle="Provides functions and storage layout for ERC20-Bridgeable token logic."
+  subtitle="**Title:**"
   variant="gradient"
   height="small"
 />
 
 ## Overview
 
-Provides functions and storage layout for ERC20-Bridgeable token logic.
+**Title:**
 
-Uses ERC-8042 for storage location standardization and ERC-6093 for error conventions
-
-
-[View Source](https://github.com/maxnorm/Compose/blob/e3e377cf3d77e94dc30e10812da2bdd1907ca159/src/token/ERC20/ERC20Bridgeable/ERC20BridgeableFacet.sol)
+ERC20Bridgeable — ERC-7802 Implementation Facet
 
 
+[View Source](https://github.com/maxnorm/Compose/blob/3f35b447c28348d933bb822a724f81f04d64a99e/src/token/ERC20/ERC20Bridgeable/ERC20BridgeableFacet.sol)
 
-<Callout type="info" title="Key Features">
-- Self-contained facet with no imports or inheritance
-- Only `external` and `internal` function visibility
-- Follows Compose readability-first conventions
-- Ready for diamond integration
-</Callout>
 
 
 
@@ -245,6 +237,9 @@ error ERC20InvalidBridgeAccount(address _caller);
 
 
 ### ERC20InvalidCallerAddress
+
+
+Revert when caller address is invalid.
 
 
 

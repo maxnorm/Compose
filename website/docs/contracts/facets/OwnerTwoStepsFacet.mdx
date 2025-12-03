@@ -1,7 +1,7 @@
 ---
 sidebar_position: 99
 title: "OwnerTwoStepsFacet"
-description: "Contract documentation for OwnerTwoStepsFacet"
+description: "**Title:**"
 ---
 
 import DocHero from '@site/src/components/docs/DocHero';
@@ -9,41 +9,35 @@ import Callout from '@site/src/components/ui/Callout';
 
 <DocHero
   title="OwnerTwoStepsFacet"
-  subtitle="Contract documentation for OwnerTwoStepsFacet"
+  subtitle="**Title:**"
   variant="gradient"
   height="small"
 />
 
 ## Overview
 
-Documentation for OwnerTwoStepsFacet.
+**Title:**
+
+ERC-173 Two-Step Contract Ownership
 
 
-[View Source](https://github.com/maxnorm/Compose/blob/e3e377cf3d77e94dc30e10812da2bdd1907ca159/src/access/OwnerTwoSteps/OwnerTwoSteps.sol)
+[View Source](https://github.com/maxnorm/Compose/blob/3f35b447c28348d933bb822a724f81f04d64a99e/src/access/OwnerTwoSteps/OwnerTwoStepsFacet.sol)
 
-
-
-<Callout type="info" title="Key Features">
-- Self-contained facet with no imports or inheritance
-- Only `external` and `internal` function visibility
-- Follows Compose readability-first conventions
-- Ready for diamond integration
-</Callout>
 
 
 
 ## Functions
 
 
-### getStorage
+### getOwnerStorage
 
 
-Returns a pointer to the ERC-173 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+Returns a pointer to the Owner storage struct. Uses inline assembly to access the storage slot defined by OWNER_STORAGE_POSITION.
 
 
 
 ```solidity
-function getStorage() internal pure returns (OwnerTwoStepsStorage storage s);
+function getOwnerStorage() internal pure returns (OwnerStorage storage s);
 ```
 
 
@@ -53,7 +47,27 @@ function getStorage() internal pure returns (OwnerTwoStepsStorage storage s);
 | Name | Type | Description |
 |------|------|-------------|
 
-| `getStorage` | `` | Returns a pointer to the ERC-173 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION. |
+| `getOwnerStorage` | `` | Returns a pointer to the Owner storage struct. Uses inline assembly to access the storage slot defined by OWNER_STORAGE_POSITION. |
+
+### getPendingOwnerStorage
+
+
+Returns a pointer to the PendingOwner storage struct. Uses inline assembly to access the storage slot defined by PENDING_OWNER_STORAGE_POSITION.
+
+
+
+```solidity
+function getPendingOwnerStorage() internal pure returns (PendingOwnerStorage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getPendingOwnerStorage` | `` | Returns a pointer to the PendingOwner storage struct. Uses inline assembly to access the storage slot defined by PENDING_OWNER_STORAGE_POSITION. |
 
 ### owner
 
@@ -211,13 +225,24 @@ error OwnerUnauthorizedAccount();
 ## Structs
 
 
-### OwnerTwoStepsStorage
+### OwnerStorage
 
 
 
 ```solidity
-struct OwnerTwoStepsStorage {
+struct OwnerStorage {
     address owner;
+}
+```
+
+
+
+### PendingOwnerStorage
+
+
+
+```solidity
+struct PendingOwnerStorage {
     address pendingOwner;
 }
 ```

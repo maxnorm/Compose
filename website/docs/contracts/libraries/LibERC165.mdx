@@ -1,0 +1,115 @@
+---
+sidebar_position: 99
+title: "LibERC165"
+description: "LibERC165 — ERC-165 Standard Interface Detection Library - Provides internal functions and storage layout for ERC-165 interface detection."
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+## Overview
+
+LibERC165 — ERC-165 Standard Interface Detection Library - Provides internal functions and storage layout for ERC-165 interface detection.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/3f35b447c28348d933bb822a724f81f04d64a99e/src/interfaceDetection/ERC165/LibERC165.sol)
+
+
+<Callout type="info" title="Library Usage">
+This library provides internal functions for use in your custom facets. Import it to access shared storage.
+</Callout>
+
+
+## Storage
+
+
+Storage position: `STORAGE_POSITION` - Used for diamond storage pattern.
+
+
+
+### State Variables
+
+
+#### STORAGE_POSITION
+
+
+
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns a pointer to the ERC-165 storage struct. Uses inline assembly to bind the storage struct to the fixed storage position. **Returns**
+
+
+
+```solidity
+function getStorage() pure returns (ERC165Storage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getStorage` | `` | Returns a pointer to the ERC-165 storage struct. Uses inline assembly to bind the storage struct to the fixed storage position. **Returns** |
+
+### registerInterface
+
+
+Register that a contract supports an interface Call this function during initialization to register supported interfaces. For example, in an ERC721 facet initialization, you would call: `LibERC165.registerInterface(type(IERC721).interfaceId)` **Parameters**
+
+
+
+```solidity
+function registerInterface(bytes4 _interfaceId) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `registerInterface` | `` | Register that a contract supports an interface Call this function during initialization to register supported interfaces. For example, in an ERC721 facet initialization, you would call: `LibERC165.registerInterface(type(IERC721).interfaceId)` **Parameters** |
+
+
+
+
+
+
+
+
+
+
+
+## Structs
+
+
+### ERC165Storage
+
+
+
+```solidity
+struct ERC165Storage {
+/*
+ * @notice Mapping of interface IDs to whether they are supported
+ */
+mapping(bytes4 =&gt; bool) supportedInterfaces;
+}
+```
+
+
+
+
+
+
+
+

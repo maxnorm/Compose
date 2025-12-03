@@ -1,7 +1,7 @@
 ---
 sidebar_position: 99
 title: "LibERC20"
-description: "Provides internal functions and storage layout for ERC-20 token logic."
+description: "LibERC20 — ERC-20 Library - Thrown when a sender attempts to transfer or burn more tokens than their balance."
 ---
 
 import DocHero from '@site/src/components/docs/DocHero';
@@ -9,12 +9,10 @@ import Callout from '@site/src/components/ui/Callout';
 
 ## Overview
 
-Provides internal functions and storage layout for ERC-20 token logic.
-
-Uses ERC-8042 for storage location standardization and ERC-6093 for error conventions.
+LibERC20 — ERC-20 Library - Thrown when a sender attempts to transfer or burn more tokens than their balance.
 
 
-[View Source](https://github.com/maxnorm/Compose/blob/e3e377cf3d77e94dc30e10812da2bdd1907ca159/src/token/ERC20/ERC20/LibERC20.sol)
+[View Source](https://github.com/maxnorm/Compose/blob/3f35b447c28348d933bb822a724f81f04d64a99e/src/token/ERC20/ERC20/LibERC20.sol)
 
 
 <Callout type="info" title="Library Usage">
@@ -42,15 +40,15 @@ Storage position: `STORAGE_POSITION` - Used for diamond storage pattern.
 ## Functions
 
 
-### getStorage
+### approve
 
 
-Returns a pointer to the ERC-20 storage struct. Uses inline assembly to bind the storage struct to the fixed storage position.
+Approves a spender to transfer tokens on behalf of the caller. Sets the allowance for the spender. **Parameters**
 
 
 
 ```solidity
-function getStorage() internal pure returns (ERC20Storage storage s);
+function approve(address _spender, uint256 _value) ;
 ```
 
 
@@ -60,37 +58,17 @@ function getStorage() internal pure returns (ERC20Storage storage s);
 | Name | Type | Description |
 |------|------|-------------|
 
-| `getStorage` | `` | Returns a pointer to the ERC-20 storage struct. Uses inline assembly to bind the storage struct to the fixed storage position. |
-
-### mint
-
-
-Mints new tokens to a specified address. Increases both total supply and the recipient&#39;s balance.
-
-
-
-```solidity
-function mint(address _account, uint256 _value) internal;
-```
-
-
-
-**Parameters**
-
-| Name | Type | Description |
-|------|------|-------------|
-
-| `mint` | `` | Mints new tokens to a specified address. Increases both total supply and the recipient's balance. |
+| `approve` | `` | Approves a spender to transfer tokens on behalf of the caller. Sets the allowance for the spender. **Parameters** |
 
 ### burn
 
 
-Burns tokens from a specified address. Decreases both total supply and the sender&#39;s balance.
+Burns tokens from a specified address. Decreases both total supply and the sender's balance. **Parameters**
 
 
 
 ```solidity
-function burn(address _account, uint256 _value) internal;
+function burn(address _account, uint256 _value) ;
 ```
 
 
@@ -100,17 +78,17 @@ function burn(address _account, uint256 _value) internal;
 | Name | Type | Description |
 |------|------|-------------|
 
-| `burn` | `` | Burns tokens from a specified address. Decreases both total supply and the sender's balance. |
+| `burn` | `` | Burns tokens from a specified address. Decreases both total supply and the sender's balance. **Parameters** |
 
-### transferFrom
+### getStorage
 
 
-Transfers tokens from one address to another using an allowance. Deducts the spender&#39;s allowance and updates balances.
+Returns a pointer to the ERC-20 storage struct. Uses inline assembly to bind the storage struct to the fixed storage position. **Returns**
 
 
 
 ```solidity
-function transferFrom(address _from, address _to, uint256 _value) internal;
+function getStorage() pure returns (ERC20Storage storage s);
 ```
 
 
@@ -120,17 +98,37 @@ function transferFrom(address _from, address _to, uint256 _value) internal;
 | Name | Type | Description |
 |------|------|-------------|
 
-| `transferFrom` | `` | Transfers tokens from one address to another using an allowance. Deducts the spender's allowance and updates balances. |
+| `getStorage` | `` | Returns a pointer to the ERC-20 storage struct. Uses inline assembly to bind the storage struct to the fixed storage position. **Returns** |
+
+### mint
+
+
+Mints new tokens to a specified address. Increases both total supply and the recipient's balance. **Parameters**
+
+
+
+```solidity
+function mint(address _account, uint256 _value) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `mint` | `` | Mints new tokens to a specified address. Increases both total supply and the recipient's balance. **Parameters** |
 
 ### transfer
 
 
-Transfers tokens from the caller to another address. Updates balances directly without allowance mechanism.
+Transfers tokens from the caller to another address. Updates balances directly without allowance mechanism. **Parameters**
 
 
 
 ```solidity
-function transfer(address _to, uint256 _value) internal;
+function transfer(address _to, uint256 _value) ;
 ```
 
 
@@ -140,17 +138,17 @@ function transfer(address _to, uint256 _value) internal;
 | Name | Type | Description |
 |------|------|-------------|
 
-| `transfer` | `` | Transfers tokens from the caller to another address. Updates balances directly without allowance mechanism. |
+| `transfer` | `` | Transfers tokens from the caller to another address. Updates balances directly without allowance mechanism. **Parameters** |
 
-### approve
+### transferFrom
 
 
-Approves a spender to transfer tokens on behalf of the caller. Sets the allowance for the spender.
+Transfers tokens from one address to another using an allowance. Deducts the spender's allowance and updates balances. **Parameters**
 
 
 
 ```solidity
-function approve(address _spender, uint256 _value) internal;
+function transferFrom(address _from, address _to, uint256 _value) ;
 ```
 
 
@@ -160,7 +158,7 @@ function approve(address _spender, uint256 _value) internal;
 | Name | Type | Description |
 |------|------|-------------|
 
-| `approve` | `` | Approves a spender to transfer tokens on behalf of the caller. Sets the allowance for the spender. |
+| `transferFrom` | `` | Transfers tokens from one address to another using an allowance. Deducts the spender's allowance and updates balances. **Parameters** |
 
 
 
@@ -171,28 +169,10 @@ function approve(address _spender, uint256 _value) internal;
 ## Events
 
 
-### Transfer
-
-
-Emitted when tokens are transferred between addresses.
-
-
-
-```solidity
-event Transfer(address indexed _from, address indexed _to, uint256 _value);
-```
-
-
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-
-| `Transfer` | `` | Emitted when tokens are transferred between addresses. |
-
 ### Approval
 
 
-Emitted when an approval is made for a spender by an owner.
+Emitted when an approval is made for a spender by an owner. **Parameters**
 
 
 
@@ -205,7 +185,25 @@ event Approval(address indexed _owner, address indexed _spender, uint256 _value)
 | Parameter | Type | Description |
 |-----------|------|-------------|
 
-| `Approval` | `` | Emitted when an approval is made for a spender by an owner. |
+| `Approval` | `` | Emitted when an approval is made for a spender by an owner. **Parameters** |
+
+### Transfer
+
+
+Emitted when tokens are transferred between addresses. **Parameters**
+
+
+
+```solidity
+event Transfer(address indexed _from, address indexed _to, uint256 _value);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `Transfer` | `` | Emitted when tokens are transferred between addresses. **Parameters** |
 
 
 
@@ -215,49 +213,10 @@ event Approval(address indexed _owner, address indexed _spender, uint256 _value)
 ## Errors
 
 
-### ERC20InsufficientBalance
-
-
-Thrown when a sender attempts to transfer or burn more tokens than their balance.
-
-
-
-```solidity
-error ERC20InsufficientBalance(address _sender, uint256 _balance, uint256 _needed);
-```
-
-
-
-### ERC20InvalidSender
-
-
-Thrown when the sender address is invalid (e.g., zero address).
-
-
-
-```solidity
-error ERC20InvalidSender(address _sender);
-```
-
-
-
-### ERC20InvalidReceiver
-
-
-Thrown when the receiver address is invalid (e.g., zero address).
-
-
-
-```solidity
-error ERC20InvalidReceiver(address _receiver);
-```
-
-
-
 ### ERC20InsufficientAllowance
 
 
-Thrown when a spender tries to spend more than their allowance.
+Thrown when a spender tries to spend more than their allowance. **Parameters**
 
 
 
@@ -267,10 +226,49 @@ error ERC20InsufficientAllowance(address _spender, uint256 _allowance, uint256 _
 
 
 
+### ERC20InsufficientBalance
+
+
+Thrown when a sender attempts to transfer or burn more tokens than their balance. **Parameters**
+
+
+
+```solidity
+error ERC20InsufficientBalance(address _sender, uint256 _balance, uint256 _needed);
+```
+
+
+
+### ERC20InvalidReceiver
+
+
+Thrown when the receiver address is invalid (e.g., zero address). **Parameters**
+
+
+
+```solidity
+error ERC20InvalidReceiver(address _receiver);
+```
+
+
+
+### ERC20InvalidSender
+
+
+Thrown when the sender address is invalid (e.g., zero address). **Parameters**
+
+
+
+```solidity
+error ERC20InvalidSender(address _sender);
+```
+
+
+
 ### ERC20InvalidSpender
 
 
-Thrown when the spender address is invalid (e.g., zero address).
+Thrown when the spender address is invalid (e.g., zero address). **Parameters**
 
 
 
@@ -291,13 +289,12 @@ error ERC20InvalidSpender(address _spender);
 
 ```solidity
 struct ERC20Storage {
-    string name;
-    string symbol;
-    uint8 decimals;
-    uint256 totalSupply;
-    mapping(address owner =&gt; uint256 balance) balanceOf;
-    mapping(address owner =&gt; mapping(address spender =&gt; uint256 allowance)) allowance;
-    mapping(address owner =&gt; uint256) nonces;
+mapping(address owner =&gt; uint256 balance) balanceOf;
+uint256 totalSupply;
+mapping(address owner =&gt; mapping(address spender =&gt; uint256 allowance)) allowance;
+uint8 decimals;
+string name;
+string symbol;
 }
 ```
 
@@ -305,13 +302,6 @@ struct ERC20Storage {
 
 
 
-
-
-## Integration Notes
-
-<Callout type="success" title="Shared Storage">
-This library accesses shared diamond storage, so changes made through this library are immediately visible to facets using the same storage pattern. All functions are internal as per Compose conventions.
-</Callout>
 
 
 

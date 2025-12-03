@@ -19,16 +19,8 @@ import Callout from '@site/src/components/ui/Callout';
 Documentation for ERC20Facet.
 
 
-[View Source](https://github.com/maxnorm/Compose/blob/e3e377cf3d77e94dc30e10812da2bdd1907ca159/src/token/ERC20/ERC20/ERC20Facet.sol)
+[View Source](https://github.com/maxnorm/Compose/blob/3f35b447c28348d933bb822a724f81f04d64a99e/src/token/ERC20/ERC20/ERC20Facet.sol)
 
-
-
-<Callout type="info" title="Key Features">
-- Self-contained facet with no imports or inheritance
-- Only `external` and `internal` function visibility
-- Follows Compose readability-first conventions
-- Ready for diamond integration
-</Callout>
 
 
 
@@ -178,7 +170,7 @@ function allowance(address _owner, address _spender) external view returns (uint
 ### approve
 
 
-Approves a spender to transfer up to a certain amount of tokens on behalf of the caller. Emits an [Approval](//home/mn/os-contribution/Compose/docs/src/src/token/ERC20/ERC20/ERC20Facet.sol/contract.ERC20Facet.md#approval) event.
+Approves a spender to transfer up to a certain amount of tokens on behalf of the caller. Emits an Approval event.
 
 
 
@@ -193,12 +185,12 @@ function approve(address _spender, uint256 _value) external returns (bool);
 | Name | Type | Description |
 |------|------|-------------|
 
-| `approve` | `` | Approves a spender to transfer up to a certain amount of tokens on behalf of the caller. Emits an [Approval](//home/mn/os-contribution/Compose/docs/src/src/token/ERC20/ERC20/ERC20Facet.sol/contract.ERC20Facet.md#approval) event. |
+| `approve` | `` | Approves a spender to transfer up to a certain amount of tokens on behalf of the caller. Emits an Approval event. |
 
 ### transfer
 
 
-Transfers tokens to another address. Emits a [Transfer](//home/mn/os-contribution/Compose/docs/src/src/token/ERC20/ERC20/ERC20Facet.sol/contract.ERC20Facet.md#transfer) event.
+Transfers tokens to another address. Emits a Transfer event.
 
 
 
@@ -213,12 +205,12 @@ function transfer(address _to, uint256 _value) external returns (bool);
 | Name | Type | Description |
 |------|------|-------------|
 
-| `transfer` | `` | Transfers tokens to another address. Emits a [Transfer](//home/mn/os-contribution/Compose/docs/src/src/token/ERC20/ERC20/ERC20Facet.sol/contract.ERC20Facet.md#transfer) event. |
+| `transfer` | `` | Transfers tokens to another address. Emits a Transfer event. |
 
 ### transferFrom
 
 
-Transfers tokens on behalf of another account, provided sufficient allowance exists. Emits a [Transfer](//home/mn/os-contribution/Compose/docs/src/src/token/ERC20/ERC20/ERC20Facet.sol/contract.ERC20Facet.md#transfer) event and decreases the spender's allowance.
+Transfers tokens on behalf of another account, provided sufficient allowance exists. Emits a Transfer event and decreases the spender's allowance.
 
 
 
@@ -233,7 +225,7 @@ function transferFrom(address _from, address _to, uint256 _value) external retur
 | Name | Type | Description |
 |------|------|-------------|
 
-| `transferFrom` | `` | Transfers tokens on behalf of another account, provided sufficient allowance exists. Emits a [Transfer](//home/mn/os-contribution/Compose/docs/src/src/token/ERC20/ERC20/ERC20Facet.sol/contract.ERC20Facet.md#transfer) event and decreases the spender's allowance. |
+| `transferFrom` | `` | Transfers tokens on behalf of another account, provided sufficient allowance exists. Emits a Transfer event and decreases the spender's allowance. |
 
 
 

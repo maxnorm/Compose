@@ -1,7 +1,7 @@
 ---
 sidebar_position: 99
 title: "LibDiamond"
-description: "Add=0, Replace=1, Remove=2"
+description: "Diamond Library - Internal functions and storage for diamond proxy functionality."
 ---
 
 import DocHero from '@site/src/components/docs/DocHero';
@@ -9,12 +9,10 @@ import Callout from '@site/src/components/ui/Callout';
 
 ## Overview
 
-Add=0, Replace=1, Remove=2
-
-```solidity
+Diamond Library - Internal functions and storage for diamond proxy functionality.
 
 
-[View Source](https://github.com/maxnorm/Compose/blob/e3e377cf3d77e94dc30e10812da2bdd1907ca159/src/diamond/LibDiamond.sol)
+[View Source](https://github.com/maxnorm/Compose/blob/3f35b447c28348d933bb822a724f81f04d64a99e/src/diamond/LibDiamond.sol)
 
 
 <Callout type="info" title="Library Usage">
@@ -42,12 +40,52 @@ Storage position: `DIAMOND_STORAGE_POSITION` - Used for diamond storage pattern.
 ## Functions
 
 
+### addFacets
+
+
+Adds facets and their function selectors to the diamond. Only supports adding functions during diamond deployment.
+
+
+
+```solidity
+function addFacets(FacetCut[] memory _facets) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `addFacets` | `` | Adds facets and their function selectors to the diamond. Only supports adding functions during diamond deployment. |
+
+### diamondFallback
+
+
+Find facet for function that is called and execute the function if a facet is found and return any value.
+
+
+
+```solidity
+function diamondFallback() ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `diamondFallback` | `` | Find facet for function that is called and execute the function if a facet is found and return any value. |
+
 ### getStorage
 
 
 
 ```solidity
-function getStorage() internal pure returns (DiamondStorage storage s);
+function getStorage() pure returns (DiamondStorage storage s);
 ```
 
 
@@ -58,77 +96,6 @@ function getStorage() internal pure returns (DiamondStorage storage s);
 |------|------|-------------|
 
 | `getStorage` | `` |  |
-
-### addFunctions
-
-
-
-```solidity
-function addFunctions(address _facet, bytes4[] calldata _functionSelectors) internal;
-```
-
-
-
-**Parameters**
-
-| Name | Type | Description |
-|------|------|-------------|
-
-| `addFunctions` | `` |  |
-
-### replaceFunctions
-
-
-
-```solidity
-function replaceFunctions(address _facet, bytes4[] calldata _functionSelectors) internal;
-```
-
-
-
-**Parameters**
-
-| Name | Type | Description |
-|------|------|-------------|
-
-| `replaceFunctions` | `` |  |
-
-### removeFunctions
-
-
-
-```solidity
-function removeFunctions(address _facet, bytes4[] calldata _functionSelectors) internal;
-```
-
-
-
-**Parameters**
-
-| Name | Type | Description |
-|------|------|-------------|
-
-| `removeFunctions` | `` |  |
-
-### diamondCut
-
-
-Add/replace/remove any number of functions and optionally execute a function with delegatecall
-
-
-
-```solidity
-function diamondCut(FacetCut[] calldata _diamondCut, address _init, bytes calldata _calldata) internal;
-```
-
-
-
-**Parameters**
-
-| Name | Type | Description |
-|------|------|-------------|
-
-| `diamondCut` | `` | Add/replace/remove any number of functions and optionally execute a function with delegatecall |
 
 
 
@@ -162,12 +129,32 @@ event DiamondCut(FacetCut[] _diamondCut, address _init, bytes _calldata);
 ## Errors
 
 
-### NoSelectorsProvidedForFacet
+### CannotAddFunctionToDiamondThatAlreadyExists
 
 
 
 ```solidity
-error NoSelectorsProvidedForFacet(address _facet);
+error CannotAddFunctionToDiamondThatAlreadyExists(bytes4 _selector);
+```
+
+
+
+### FunctionNotFound
+
+
+
+```solidity
+error FunctionNotFound(bytes4 _selector);
+```
+
+
+
+### InvalidActionWhenDeployingDiamond
+
+
+
+```solidity
+error InvalidActionWhenDeployingDiamond(address facetAddress, FacetCutAction action, bytes4[] functionSelectors);
 ```
 
 
@@ -182,99 +169,36 @@ error NoBytecodeAtAddress(address _contractAddress, string _message);
 
 
 
-### RemoveFacetAddressMustBeZeroAddress
-
-
-
-```solidity
-error RemoveFacetAddressMustBeZeroAddress(address _facet);
-```
-
-
-
-### IncorrectFacetCutAction
-
-
-
-```solidity
-error IncorrectFacetCutAction(uint8 _action);
-```
-
-
-
-### CannotAddFunctionToDiamondThatAlreadyExists
-
-
-
-```solidity
-error CannotAddFunctionToDiamondThatAlreadyExists(bytes4 _selector);
-```
-
-
-
-### CannotReplaceImmutableFunction
-
-
-
-```solidity
-error CannotReplaceImmutableFunction(bytes4 _selector);
-```
-
-
-
-### CannotReplaceFunctionWithTheSameFunctionFromTheSameFacet
-
-
-
-```solidity
-error CannotReplaceFunctionWithTheSameFunctionFromTheSameFacet(bytes4 _selector);
-```
-
-
-
-### CannotReplaceFunctionThatDoesNotExists
-
-
-
-```solidity
-error CannotReplaceFunctionThatDoesNotExists(bytes4 _selector);
-```
-
-
-
-### CannotRemoveFunctionThatDoesNotExist
-
-
-
-```solidity
-error CannotRemoveFunctionThatDoesNotExist(bytes4 _selector);
-```
-
-
-
-### CannotRemoveImmutableFunction
-
-
-
-```solidity
-error CannotRemoveImmutableFunction(bytes4 _selector);
-```
-
-
-
-### InitializationFunctionReverted
-
-
-
-```solidity
-error InitializationFunctionReverted(address _initializationContractAddress, bytes _calldata);
-```
-
-
-
 
 
 ## Structs
+
+
+### FacetCutAction
+
+
+Add=0, Replace=1, Remove=2
+
+
+
+
+### DiamondStorage
+
+
+**Note:** storage-location: erc8042:compose.diamond
+
+
+
+```solidity
+struct DiamondStorage {
+mapping(bytes4 functionSelector =&gt; FacetAndPosition) facetAndPosition;
+/**
+ * `selectors` contains all function selectors that can be called in the diamond.
+ */
+bytes4[] selectors;
+}
+```
+
 
 
 ### FacetAndPosition
@@ -283,22 +207,8 @@ error InitializationFunctionReverted(address _initializationContractAddress, byt
 
 ```solidity
 struct FacetAndPosition {
-    address facet;
-    uint16 position;
-}
-```
-
-
-
-### DiamondStorage
-
-
-
-```solidity
-struct DiamondStorage {
-    mapping(bytes4 functionSelector =&gt; FacetAndPosition) facetAndPosition;
-    // Array of all function selectors that can be called in the diamond
-    bytes4[] selectors;
+address facet;
+uint32 position;
 }
 ```
 
@@ -310,9 +220,9 @@ struct DiamondStorage {
 
 ```solidity
 struct FacetCut {
-    address facetAddress;
-    FacetCutAction action;
-    bytes4[] functionSelectors;
+address facetAddress;
+FacetCutAction action;
+bytes4[] functionSelectors;
 }
 ```
 
@@ -320,13 +230,6 @@ struct FacetCut {
 
 
 
-
-
-## Integration Notes
-
-<Callout type="success" title="Shared Storage">
-This library accesses shared diamond storage, so changes made through this library are immediately visible to facets using the same storage pattern. All functions are internal as per Compose conventions.
-</Callout>
 
 
 

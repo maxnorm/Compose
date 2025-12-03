@@ -19,16 +19,8 @@ import Callout from '@site/src/components/ui/Callout';
 Documentation for AccessControlTemporalFacet.
 
 
-[View Source](https://github.com/maxnorm/Compose/blob/e3e377cf3d77e94dc30e10812da2bdd1907ca159/src/access/AccessControlTemporal/AccessControlTemporalFacet.sol)
+[View Source](https://github.com/maxnorm/Compose/blob/3f35b447c28348d933bb822a724f81f04d64a99e/src/access/AccessControlTemporal/AccessControlTemporalFacet.sol)
 
-
-
-<Callout type="info" title="Key Features">
-- Self-contained facet with no imports or inheritance
-- Only `external` and `internal` function visibility
-- Follows Compose readability-first conventions
-- Ready for diamond integration
-</Callout>
 
 
 
@@ -118,7 +110,7 @@ function isRoleExpired(bytes32 _role, address _account) external view returns (b
 ### grantRoleWithExpiry
 
 
-Grants a role to an account with an expiry timestamp. Only the admin of the role can grant it with expiry. Emits a [RoleGrantedWithExpiry](//home/mn/os-contribution/Compose/docs/src/src/access/AccessControlTemporal/AccessControlTemporalFacet.sol/contract.AccessControlTemporalFacet.md#rolegrantedwithexpiry) event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
+Grants a role to an account with an expiry timestamp. Only the admin of the role can grant it with expiry. Emits a RoleGrantedWithExpiry event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
 
 
 
@@ -133,12 +125,12 @@ function grantRoleWithExpiry(bytes32 _role, address _account, uint256 _expiresAt
 | Name | Type | Description |
 |------|------|-------------|
 
-| `grantRoleWithExpiry` | `` | Grants a role to an account with an expiry timestamp. Only the admin of the role can grant it with expiry. Emits a [RoleGrantedWithExpiry](//home/mn/os-contribution/Compose/docs/src/src/access/AccessControlTemporal/AccessControlTemporalFacet.sol/contract.AccessControlTemporalFacet.md#rolegrantedwithexpiry) event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role. |
+| `grantRoleWithExpiry` | `` | Grants a role to an account with an expiry timestamp. Only the admin of the role can grant it with expiry. Emits a RoleGrantedWithExpiry event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role. |
 
 ### revokeTemporalRole
 
 
-Revokes a temporal role from an account. Only the admin of the role can revoke it. Emits a [TemporalRoleRevoked](//home/mn/os-contribution/Compose/docs/src/src/access/AccessControlTemporal/AccessControlTemporalFacet.sol/contract.AccessControlTemporalFacet.md#temporalrolerevoked) event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
+Revokes a temporal role from an account. Only the admin of the role can revoke it. Emits a TemporalRoleRevoked event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
 
 
 
@@ -153,7 +145,7 @@ function revokeTemporalRole(bytes32 _role, address _account) external;
 | Name | Type | Description |
 |------|------|-------------|
 
-| `revokeTemporalRole` | `` | Revokes a temporal role from an account. Only the admin of the role can revoke it. Emits a [TemporalRoleRevoked](//home/mn/os-contribution/Compose/docs/src/src/access/AccessControlTemporal/AccessControlTemporalFacet.sol/contract.AccessControlTemporalFacet.md#temporalrolerevoked) event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role. |
+| `revokeTemporalRole` | `` | Revokes a temporal role from an account. Only the admin of the role can revoke it. Emits a TemporalRoleRevoked event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role. |
 
 ### requireValidRole
 

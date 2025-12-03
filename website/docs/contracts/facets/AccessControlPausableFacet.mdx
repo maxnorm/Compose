@@ -19,16 +19,8 @@ import Callout from '@site/src/components/ui/Callout';
 Documentation for AccessControlPausableFacet.
 
 
-[View Source](https://github.com/maxnorm/Compose/blob/e3e377cf3d77e94dc30e10812da2bdd1907ca159/src/access/AccessControlPausable/AccessControlPausableFacet.sol)
+[View Source](https://github.com/maxnorm/Compose/blob/3f35b447c28348d933bb822a724f81f04d64a99e/src/access/AccessControlPausable/AccessControlPausableFacet.sol)
 
-
-
-<Callout type="info" title="Key Features">
-- Self-contained facet with no imports or inheritance
-- Only `external` and `internal` function visibility
-- Follows Compose readability-first conventions
-- Ready for diamond integration
-</Callout>
 
 
 
@@ -98,7 +90,7 @@ function isRolePaused(bytes32 _role) external view returns (bool);
 ### pauseRole
 
 
-Temporarily disables a role, preventing all accounts from using it. Only the admin of the role can pause it. Emits a [RolePaused](//home/mn/os-contribution/Compose/docs/src/src/access/AccessControlPausable/AccessControlPausableFacet.sol/contract.AccessControlPausableFacet.md#rolepaused) event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
+Temporarily disables a role, preventing all accounts from using it. Only the admin of the role can pause it. Emits a RolePaused event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
 
 
 
@@ -113,12 +105,12 @@ function pauseRole(bytes32 _role) external;
 | Name | Type | Description |
 |------|------|-------------|
 
-| `pauseRole` | `` | Temporarily disables a role, preventing all accounts from using it. Only the admin of the role can pause it. Emits a [RolePaused](//home/mn/os-contribution/Compose/docs/src/src/access/AccessControlPausable/AccessControlPausableFacet.sol/contract.AccessControlPausableFacet.md#rolepaused) event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role. |
+| `pauseRole` | `` | Temporarily disables a role, preventing all accounts from using it. Only the admin of the role can pause it. Emits a RolePaused event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role. |
 
 ### unpauseRole
 
 
-Re-enables a role that was previously paused. Only the admin of the role can unpause it. Emits a [RoleUnpaused](//home/mn/os-contribution/Compose/docs/src/src/access/AccessControlPausable/AccessControlPausableFacet.sol/contract.AccessControlPausableFacet.md#roleunpaused) event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
+Re-enables a role that was previously paused. Only the admin of the role can unpause it. Emits a RoleUnpaused event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
 
 
 
@@ -133,7 +125,7 @@ function unpauseRole(bytes32 _role) external;
 | Name | Type | Description |
 |------|------|-------------|
 
-| `unpauseRole` | `` | Re-enables a role that was previously paused. Only the admin of the role can unpause it. Emits a [RoleUnpaused](//home/mn/os-contribution/Compose/docs/src/src/access/AccessControlPausable/AccessControlPausableFacet.sol/contract.AccessControlPausableFacet.md#roleunpaused) event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role. |
+| `unpauseRole` | `` | Re-enables a role that was previously paused. Only the admin of the role can unpause it. Emits a RoleUnpaused event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role. |
 
 ### requireRoleNotPaused
 

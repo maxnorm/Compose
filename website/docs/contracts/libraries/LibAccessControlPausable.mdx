@@ -1,7 +1,7 @@
 ---
 sidebar_position: 99
 title: "LibAccessControlPausable"
-description: "Contract documentation for LibAccessControlPausable"
+description: "Event emitted when a role is paused."
 ---
 
 import DocHero from '@site/src/components/docs/DocHero';
@@ -9,10 +9,10 @@ import Callout from '@site/src/components/ui/Callout';
 
 ## Overview
 
-Documentation for LibAccessControlPausable.
+Event emitted when a role is paused.
 
 
-[View Source](https://github.com/maxnorm/Compose/blob/e3e377cf3d77e94dc30e10812da2bdd1907ca159/src/access/AccessControlPausable/LibAccessControlPausable.sol)
+[View Source](https://github.com/maxnorm/Compose/blob/3f35b447c28348d933bb822a724f81f04d64a99e/src/access/AccessControlPausable/LibAccessControlPausable.sol)
 
 
 <Callout type="info" title="Library Usage">
@@ -47,12 +47,12 @@ Storage position: `ACCESS_CONTROL_STORAGE_POSITION` - Used for diamond storage p
 ### getAccessControlStorage
 
 
-Returns the storage for AccessControl.
+Returns the storage for AccessControl. **Returns**
 
 
 
 ```solidity
-function getAccessControlStorage() internal pure returns (AccessControlStorage storage s);
+function getAccessControlStorage() pure returns (AccessControlStorage storage s);
 ```
 
 
@@ -62,17 +62,17 @@ function getAccessControlStorage() internal pure returns (AccessControlStorage s
 | Name | Type | Description |
 |------|------|-------------|
 
-| `getAccessControlStorage` | `` | Returns the storage for AccessControl. |
+| `getAccessControlStorage` | `` | Returns the storage for AccessControl. **Returns** |
 
 ### getStorage
 
 
-Returns the storage for AccessControlPausable.
+Returns the storage for AccessControlPausable. **Returns**
 
 
 
 ```solidity
-function getStorage() internal pure returns (AccessControlPausableStorage storage s);
+function getStorage() pure returns (AccessControlPausableStorage storage s);
 ```
 
 
@@ -82,17 +82,17 @@ function getStorage() internal pure returns (AccessControlPausableStorage storag
 | Name | Type | Description |
 |------|------|-------------|
 
-| `getStorage` | `` | Returns the storage for AccessControlPausable. |
+| `getStorage` | `` | Returns the storage for AccessControlPausable. **Returns** |
 
 ### isRolePaused
 
 
-function to check if a role is paused.
+function to check if a role is paused. **Parameters** **Returns**
 
 
 
 ```solidity
-function isRolePaused(bytes32 _role) internal view returns (bool);
+function isRolePaused(bytes32 _role) view returns (bool);
 ```
 
 
@@ -102,17 +102,17 @@ function isRolePaused(bytes32 _role) internal view returns (bool);
 | Name | Type | Description |
 |------|------|-------------|
 
-| `isRolePaused` | `` | function to check if a role is paused. |
+| `isRolePaused` | `` | function to check if a role is paused. **Parameters** **Returns** |
 
 ### pauseRole
 
 
-function to pause a role.
+function to pause a role. **Parameters**
 
 
 
 ```solidity
-function pauseRole(bytes32 _role) internal;
+function pauseRole(bytes32 _role) ;
 ```
 
 
@@ -122,37 +122,17 @@ function pauseRole(bytes32 _role) internal;
 | Name | Type | Description |
 |------|------|-------------|
 
-| `pauseRole` | `` | function to pause a role. |
-
-### unpauseRole
-
-
-function to unpause a role.
-
-
-
-```solidity
-function unpauseRole(bytes32 _role) internal;
-```
-
-
-
-**Parameters**
-
-| Name | Type | Description |
-|------|------|-------------|
-
-| `unpauseRole` | `` | function to unpause a role. |
+| `pauseRole` | `` | function to pause a role. **Parameters** |
 
 ### requireRoleNotPaused
 
 
-function to check if an account has a role and if the role is not paused. - error: AccessControlUnauthorizedAccount If the account does not have the role. - error: AccessControlRolePaused If the role is paused.
+function to check if an account has a role and if the role is not paused. **Notes:** - error: AccessControlUnauthorizedAccount If the account does not have the role. - error: AccessControlRolePaused If the role is paused. **Parameters**
 
 
 
 ```solidity
-function requireRoleNotPaused(bytes32 _role, address _account) internal view;
+function requireRoleNotPaused(bytes32 _role, address _account) view;
 ```
 
 
@@ -162,7 +142,27 @@ function requireRoleNotPaused(bytes32 _role, address _account) internal view;
 | Name | Type | Description |
 |------|------|-------------|
 
-| `requireRoleNotPaused` | `` | function to check if an account has a role and if the role is not paused. - error: AccessControlUnauthorizedAccount If the account does not have the role. - error: AccessControlRolePaused If the role is paused. |
+| `requireRoleNotPaused` | `` | function to check if an account has a role and if the role is not paused. **Notes:** - error: AccessControlUnauthorizedAccount If the account does not have the role. - error: AccessControlRolePaused If the role is paused. **Parameters** |
+
+### unpauseRole
+
+
+function to unpause a role. **Parameters**
+
+
+
+```solidity
+function unpauseRole(bytes32 _role) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `unpauseRole` | `` | function to unpause a role. **Parameters** |
 
 
 
@@ -176,7 +176,7 @@ function requireRoleNotPaused(bytes32 _role, address _account) internal view;
 ### RolePaused
 
 
-Event emitted when a role is paused.
+Event emitted when a role is paused. **Parameters**
 
 
 
@@ -189,12 +189,12 @@ event RolePaused(bytes32 indexed _role, address indexed _account);
 | Parameter | Type | Description |
 |-----------|------|-------------|
 
-| `RolePaused` | `` | Event emitted when a role is paused. |
+| `RolePaused` | `` | Event emitted when a role is paused. **Parameters** |
 
 ### RoleUnpaused
 
 
-Event emitted when a role is unpaused.
+Event emitted when a role is unpaused. **Parameters**
 
 
 
@@ -207,7 +207,7 @@ event RoleUnpaused(bytes32 indexed _role, address indexed _account);
 | Parameter | Type | Description |
 |-----------|------|-------------|
 
-| `RoleUnpaused` | `` | Event emitted when a role is unpaused. |
+| `RoleUnpaused` | `` | Event emitted when a role is unpaused. **Parameters** |
 
 
 
@@ -217,23 +217,10 @@ event RoleUnpaused(bytes32 indexed _role, address indexed _account);
 ## Errors
 
 
-### AccessControlUnauthorizedAccount
-
-
-Thrown when the account does not have a specific role.
-
-
-
-```solidity
-error AccessControlUnauthorizedAccount(address _account, bytes32 _role);
-```
-
-
-
 ### AccessControlRolePaused
 
 
-Thrown when a role is paused and an operation requiring that role is attempted.
+Thrown when a role is paused and an operation requiring that role is attempted. **Parameters**
 
 
 
@@ -243,22 +230,22 @@ error AccessControlRolePaused(bytes32 _role);
 
 
 
+### AccessControlUnauthorizedAccount
 
 
-## Structs
-
-
-### AccessControlStorage
+Thrown when the account does not have a specific role. **Parameters**
 
 
 
 ```solidity
-struct AccessControlStorage {
-    mapping(address account =&gt; mapping(bytes32 role =&gt; bool hasRole)) hasRole;
-    mapping(bytes32 role =&gt; bytes32 adminRole) adminRole;
-}
+error AccessControlUnauthorizedAccount(address _account, bytes32 _role);
 ```
 
+
+
+
+
+## Structs
 
 
 ### AccessControlPausableStorage
@@ -267,7 +254,20 @@ struct AccessControlStorage {
 
 ```solidity
 struct AccessControlPausableStorage {
-    mapping(bytes32 role =&gt; bool paused) pausedRoles;
+mapping(bytes32 role =&gt; bool paused) pausedRoles;
+}
+```
+
+
+
+### AccessControlStorage
+
+
+
+```solidity
+struct AccessControlStorage {
+mapping(address account =&gt; mapping(bytes32 role =&gt; bool hasRole)) hasRole;
+mapping(bytes32 role =&gt; bytes32 adminRole) adminRole;
 }
 ```
 
@@ -275,13 +275,6 @@ struct AccessControlPausableStorage {
 
 
 
-
-
-## Integration Notes
-
-<Callout type="success" title="Shared Storage">
-This library accesses shared diamond storage, so changes made through this library are immediately visible to facets using the same storage pattern. All functions are internal as per Compose conventions.
-</Callout>
 
 
 

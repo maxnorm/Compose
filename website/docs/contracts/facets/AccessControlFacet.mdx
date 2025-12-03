@@ -19,16 +19,8 @@ import Callout from '@site/src/components/ui/Callout';
 Documentation for AccessControlFacet.
 
 
-[View Source](https://github.com/maxnorm/Compose/blob/e3e377cf3d77e94dc30e10812da2bdd1907ca159/src/access/AccessControl/AccessControlFacet.sol)
+[View Source](https://github.com/maxnorm/Compose/blob/3f35b447c28348d933bb822a724f81f04d64a99e/src/access/AccessControl/AccessControlFacet.sol)
 
-
-
-<Callout type="info" title="Key Features">
-- Self-contained facet with no imports or inheritance
-- Only `external` and `internal` function visibility
-- Follows Compose readability-first conventions
-- Ready for diamond integration
-</Callout>
 
 
 
@@ -118,7 +110,7 @@ function getRoleAdmin(bytes32 _role) external view returns (bytes32);
 ### setRoleAdmin
 
 
-Sets the admin role for a role. Emits a [RoleAdminChanged](//home/mn/os-contribution/Compose/docs/src/src/access/AccessControl/AccessControlFacet.sol/contract.AccessControlFacet.md#roleadminchanged) event. error: AccessControlUnauthorizedAccount If the caller is not the current admin of the role.
+Sets the admin role for a role. Emits a RoleAdminChanged event. error: AccessControlUnauthorizedAccount If the caller is not the current admin of the role.
 
 
 
@@ -133,12 +125,12 @@ function setRoleAdmin(bytes32 _role, bytes32 _adminRole) external;
 | Name | Type | Description |
 |------|------|-------------|
 
-| `setRoleAdmin` | `` | Sets the admin role for a role. Emits a [RoleAdminChanged](//home/mn/os-contribution/Compose/docs/src/src/access/AccessControl/AccessControlFacet.sol/contract.AccessControlFacet.md#roleadminchanged) event. error: AccessControlUnauthorizedAccount If the caller is not the current admin of the role. |
+| `setRoleAdmin` | `` | Sets the admin role for a role. Emits a RoleAdminChanged event. error: AccessControlUnauthorizedAccount If the caller is not the current admin of the role. |
 
 ### grantRole
 
 
-Grants a role to an account. Emits a [RoleGranted](//home/mn/os-contribution/Compose/docs/src/src/access/AccessControl/AccessControlFacet.sol/contract.AccessControlFacet.md#rolegranted) event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
+Grants a role to an account. Emits a RoleGranted event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
 
 
 
@@ -153,12 +145,12 @@ function grantRole(bytes32 _role, address _account) external;
 | Name | Type | Description |
 |------|------|-------------|
 
-| `grantRole` | `` | Grants a role to an account. Emits a [RoleGranted](//home/mn/os-contribution/Compose/docs/src/src/access/AccessControl/AccessControlFacet.sol/contract.AccessControlFacet.md#rolegranted) event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role. |
+| `grantRole` | `` | Grants a role to an account. Emits a RoleGranted event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role. |
 
 ### revokeRole
 
 
-Revokes a role from an account. Emits a [RoleRevoked](//home/mn/os-contribution/Compose/docs/src/src/access/AccessControl/AccessControlFacet.sol/contract.AccessControlFacet.md#rolerevoked) event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
+Revokes a role from an account. Emits a RoleRevoked event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
 
 
 
@@ -173,12 +165,12 @@ function revokeRole(bytes32 _role, address _account) external;
 | Name | Type | Description |
 |------|------|-------------|
 
-| `revokeRole` | `` | Revokes a role from an account. Emits a [RoleRevoked](//home/mn/os-contribution/Compose/docs/src/src/access/AccessControl/AccessControlFacet.sol/contract.AccessControlFacet.md#rolerevoked) event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role. |
+| `revokeRole` | `` | Revokes a role from an account. Emits a RoleRevoked event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role. |
 
 ### grantRoleBatch
 
 
-Grants a role to multiple accounts in a single transaction. Emits a [RoleGranted](//home/mn/os-contribution/Compose/docs/src/src/access/AccessControl/AccessControlFacet.sol/contract.AccessControlFacet.md#rolegranted) event for each newly granted account. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
+Grants a role to multiple accounts in a single transaction. Emits a RoleGranted event for each newly granted account. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
 
 
 
@@ -193,12 +185,12 @@ function grantRoleBatch(bytes32 _role, address[] calldata _accounts) external;
 | Name | Type | Description |
 |------|------|-------------|
 
-| `grantRoleBatch` | `` | Grants a role to multiple accounts in a single transaction. Emits a [RoleGranted](//home/mn/os-contribution/Compose/docs/src/src/access/AccessControl/AccessControlFacet.sol/contract.AccessControlFacet.md#rolegranted) event for each newly granted account. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role. |
+| `grantRoleBatch` | `` | Grants a role to multiple accounts in a single transaction. Emits a RoleGranted event for each newly granted account. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role. |
 
 ### revokeRoleBatch
 
 
-Revokes a role from multiple accounts in a single transaction. Emits a [RoleRevoked](//home/mn/os-contribution/Compose/docs/src/src/access/AccessControl/AccessControlFacet.sol/contract.AccessControlFacet.md#rolerevoked) event for each account the role is revoked from. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
+Revokes a role from multiple accounts in a single transaction. Emits a RoleRevoked event for each account the role is revoked from. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
 
 
 
@@ -213,12 +205,12 @@ function revokeRoleBatch(bytes32 _role, address[] calldata _accounts) external;
 | Name | Type | Description |
 |------|------|-------------|
 
-| `revokeRoleBatch` | `` | Revokes a role from multiple accounts in a single transaction. Emits a [RoleRevoked](//home/mn/os-contribution/Compose/docs/src/src/access/AccessControl/AccessControlFacet.sol/contract.AccessControlFacet.md#rolerevoked) event for each account the role is revoked from. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role. |
+| `revokeRoleBatch` | `` | Revokes a role from multiple accounts in a single transaction. Emits a RoleRevoked event for each account the role is revoked from. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role. |
 
 ### renounceRole
 
 
-Renounces a role from the caller. Emits a [RoleRevoked](//home/mn/os-contribution/Compose/docs/src/src/access/AccessControl/AccessControlFacet.sol/contract.AccessControlFacet.md#rolerevoked) event. error: AccessControlUnauthorizedSender If the caller is not the account to renounce the role from.
+Renounces a role from the caller. Emits a RoleRevoked event. error: AccessControlUnauthorizedSender If the caller is not the account to renounce the role from.
 
 
 
@@ -233,7 +225,7 @@ function renounceRole(bytes32 _role, address _account) external;
 | Name | Type | Description |
 |------|------|-------------|
 
-| `renounceRole` | `` | Renounces a role from the caller. Emits a [RoleRevoked](//home/mn/os-contribution/Compose/docs/src/src/access/AccessControl/AccessControlFacet.sol/contract.AccessControlFacet.md#rolerevoked) event. error: AccessControlUnauthorizedSender If the caller is not the account to renounce the role from. |
+| `renounceRole` | `` | Renounces a role from the caller. Emits a RoleRevoked event. error: AccessControlUnauthorizedSender If the caller is not the account to renounce the role from. |
 
 
 

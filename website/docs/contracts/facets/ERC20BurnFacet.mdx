@@ -19,16 +19,8 @@ import Callout from '@site/src/components/ui/Callout';
 Documentation for ERC20BurnFacet.
 
 
-[View Source](https://github.com/maxnorm/Compose/blob/e3e377cf3d77e94dc30e10812da2bdd1907ca159/src/token/ERC20/ERC20/ERC20BurnFacet.sol)
+[View Source](https://github.com/maxnorm/Compose/blob/3f35b447c28348d933bb822a724f81f04d64a99e/src/token/ERC20/ERC20/ERC20BurnFacet.sol)
 
-
-
-<Callout type="info" title="Key Features">
-- Self-contained facet with no imports or inheritance
-- Only `external` and `internal` function visibility
-- Follows Compose readability-first conventions
-- Ready for diamond integration
-</Callout>
 
 
 
@@ -58,7 +50,7 @@ function getStorage() internal pure returns (ERC20Storage storage s);
 ### burn
 
 
-Burns (destroys) a specific amount of tokens from the caller's balance. Emits a [Transfer](//home/mn/os-contribution/Compose/docs/src/src/token/ERC20/ERC20/ERC20BurnFacet.sol/contract.ERC20BurnFacet.md#transfer) event to the zero address.
+Burns (destroys) a specific amount of tokens from the caller's balance. Emits a Transfer event to the zero address.
 
 
 
@@ -73,12 +65,12 @@ function burn(uint256 _value) external;
 | Name | Type | Description |
 |------|------|-------------|
 
-| `burn` | `` | Burns (destroys) a specific amount of tokens from the caller's balance. Emits a [Transfer](//home/mn/os-contribution/Compose/docs/src/src/token/ERC20/ERC20/ERC20BurnFacet.sol/contract.ERC20BurnFacet.md#transfer) event to the zero address. |
+| `burn` | `` | Burns (destroys) a specific amount of tokens from the caller's balance. Emits a Transfer event to the zero address. |
 
 ### burnFrom
 
 
-Burns tokens from another account, deducting from the caller's allowance. Emits a [Transfer](//home/mn/os-contribution/Compose/docs/src/src/token/ERC20/ERC20/ERC20BurnFacet.sol/contract.ERC20BurnFacet.md#transfer) event to the zero address.
+Burns tokens from another account, deducting from the caller's allowance. Emits a Transfer event to the zero address.
 
 
 
@@ -93,7 +85,7 @@ function burnFrom(address _account, uint256 _value) external;
 | Name | Type | Description |
 |------|------|-------------|
 
-| `burnFrom` | `` | Burns tokens from another account, deducting from the caller's allowance. Emits a [Transfer](//home/mn/os-contribution/Compose/docs/src/src/token/ERC20/ERC20/ERC20BurnFacet.sol/contract.ERC20BurnFacet.md#transfer) event to the zero address. |
+| `burnFrom` | `` | Burns tokens from another account, deducting from the caller's allowance. Emits a Transfer event to the zero address. |
 
 
 

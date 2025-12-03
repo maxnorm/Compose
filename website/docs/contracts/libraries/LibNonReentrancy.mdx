@@ -1,7 +1,7 @@
 ---
 sidebar_position: 99
 title: "LibNonReentrancy"
-description: "Provides common non-reentrant functions for Solidity contracts."
+description: "LibNonReentrancy - Non-Reentrancy Library - Provides common non-reentrant functions for Solidity contracts."
 ---
 
 import DocHero from '@site/src/components/docs/DocHero';
@@ -9,10 +9,10 @@ import Callout from '@site/src/components/ui/Callout';
 
 ## Overview
 
-Provides common non-reentrant functions for Solidity contracts.
+LibNonReentrancy - Non-Reentrancy Library - Provides common non-reentrant functions for Solidity contracts.
 
 
-[View Source](https://github.com/maxnorm/Compose/blob/e3e377cf3d77e94dc30e10812da2bdd1907ca159/src/libraries/LibNonReentrancy.sol)
+[View Source](https://github.com/maxnorm/Compose/blob/3f35b447c28348d933bb822a724f81f04d64a99e/src/libraries/LibNonReentrancy.sol)
 
 
 <Callout type="info" title="Library Usage">
@@ -43,9 +43,12 @@ This library provides internal functions for use in your custom facets. Import i
 ### enter
 
 
+How to use as a library in user facets How to use as a modifier in user facets This unlocks the entry into a function
+
+
 
 ```solidity
-function enter() internal;
+function enter() ;
 ```
 
 
@@ -55,14 +58,17 @@ function enter() internal;
 | Name | Type | Description |
 |------|------|-------------|
 
-| `enter` | `` |  |
+| `enter` | `` | How to use as a library in user facets How to use as a modifier in user facets This unlocks the entry into a function |
 
 ### exit
 
 
+This locks the entry into a function
+
+
 
 ```solidity
-function exit() internal;
+function exit() ;
 ```
 
 
@@ -72,7 +78,7 @@ function exit() internal;
 | Name | Type | Description |
 |------|------|-------------|
 
-| `exit` | `` |  |
+| `exit` | `` | This locks the entry into a function |
 
 
 
@@ -89,6 +95,9 @@ function exit() internal;
 ### Reentrancy
 
 
+Function selector - 0x43a0d067
+
+
 
 ```solidity
 error Reentrancy();
@@ -99,13 +108,6 @@ error Reentrancy();
 
 
 
-
-
-## Integration Notes
-
-<Callout type="success" title="Shared Storage">
-This library accesses shared diamond storage, so changes made through this library are immediately visible to facets using the same storage pattern. All functions are internal as per Compose conventions.
-</Callout>
 
 
 

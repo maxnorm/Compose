@@ -1,7 +1,7 @@
 ---
 sidebar_position: 99
 title: "ERC1155Facet"
-description: "A complete, dependency-free ERC-1155 implementation using the diamond storage pattern."
+description: "**Title:**"
 ---
 
 import DocHero from '@site/src/components/docs/DocHero';
@@ -9,28 +9,20 @@ import Callout from '@site/src/components/ui/Callout';
 
 <DocHero
   title="ERC1155Facet"
-  subtitle="A complete, dependency-free ERC-1155 implementation using the diamond storage pattern."
+  subtitle="**Title:**"
   variant="gradient"
   height="small"
 />
 
 ## Overview
 
-A complete, dependency-free ERC-1155 implementation using the diamond storage pattern.
+**Title:**
 
-This facet provides balance queries, approvals, safe transfers, and URI management for multi-token contracts.
-
-
-[View Source](https://github.com/maxnorm/Compose/blob/e3e377cf3d77e94dc30e10812da2bdd1907ca159/src/token/ERC1155/ERC1155Facet.sol)
+ERC-1155 Multi Token Standard
 
 
+[View Source](https://github.com/maxnorm/Compose/blob/3f35b447c28348d933bb822a724f81f04d64a99e/src/token/ERC1155/ERC1155Facet.sol)
 
-<Callout type="info" title="Key Features">
-- Self-contained facet with no imports or inheritance
-- Only `external` and `internal` function visibility
-- Follows Compose readability-first conventions
-- Ready for diamond integration
-</Callout>
 
 
 
@@ -60,7 +52,7 @@ function getStorage() internal pure returns (ERC1155Storage storage s);
 ### uri
 
 
-Returns the URI for token type `_id`. If a token-specific URI is set in tokenURIs[_id], returns the concatenation of baseURI and tokenURIs[_id]. Note that baseURI is empty by default and must be set explicitly if concatenation is desired. If no token-specific URI is set, returns the default URI which applies to all token types. The default URI may contain the substring `{id}` which clients should replace with the actual token ID.
+Returns the URI for token type `_id`. If a token-specific URI is set in tokenURIs[_id], returns the concatenation of baseURI and tokenURIs[_id]. Note that baseURI is empty by default and must be set explicitly if concatenation is desired. If no token-specific URI is set, returns the default URI which applies to all token types. The default URI may contain the substring `&#123;id&#125;` which clients should replace with the actual token ID.
 
 
 
@@ -100,7 +92,7 @@ function balanceOf(address _account, uint256 _id) external view returns (uint256
 ### balanceOfBatch
 
 
-Batched version of [balanceOf](//home/mn/os-contribution/Compose/docs/src/src/token/ERC1155/ERC1155Facet.sol/contract.ERC1155Facet.md#balanceof).
+Batched version of balanceOf.
 
 
 
@@ -118,12 +110,12 @@ function balanceOfBatch(address[] calldata _accounts, uint256[] calldata _ids)
 | Name | Type | Description |
 |------|------|-------------|
 
-| `balanceOfBatch` | `` | Batched version of [balanceOf](//home/mn/os-contribution/Compose/docs/src/src/token/ERC1155/ERC1155Facet.sol/contract.ERC1155Facet.md#balanceof). |
+| `balanceOfBatch` | `` | Batched version of balanceOf. |
 
 ### setApprovalForAll
 
 
-Grants or revokes permission to `operator` to transfer the caller's tokens. Emits an [ApprovalForAll](//home/mn/os-contribution/Compose/docs/src/src/token/ERC1155/ERC1155Facet.sol/contract.ERC1155Facet.md#approvalforall) event.
+Grants or revokes permission to `operator` to transfer the caller's tokens. Emits an ApprovalForAll event.
 
 
 
@@ -138,7 +130,7 @@ function setApprovalForAll(address _operator, bool _approved) external;
 | Name | Type | Description |
 |------|------|-------------|
 
-| `setApprovalForAll` | `` | Grants or revokes permission to `operator` to transfer the caller's tokens. Emits an [ApprovalForAll](//home/mn/os-contribution/Compose/docs/src/src/token/ERC1155/ERC1155Facet.sol/contract.ERC1155Facet.md#approvalforall) event. |
+| `setApprovalForAll` | `` | Grants or revokes permission to `operator` to transfer the caller's tokens. Emits an ApprovalForAll event. |
 
 ### isApprovedForAll
 
@@ -163,7 +155,7 @@ function isApprovedForAll(address _account, address _operator) external view ret
 ### safeTransferFrom
 
 
-Transfers `value` amount of token type `id` from `from` to `to`. Emits a [TransferSingle](//home/mn/os-contribution/Compose/docs/src/src/token/ERC1155/ERC1155Facet.sol/contract.ERC1155Facet.md#transfersingle) event.
+Transfers `value` amount of token type `id` from `from` to `to`. Emits a TransferSingle event.
 
 
 
@@ -178,12 +170,12 @@ function safeTransferFrom(address _from, address _to, uint256 _id, uint256 _valu
 | Name | Type | Description |
 |------|------|-------------|
 
-| `safeTransferFrom` | `` | Transfers `value` amount of token type `id` from `from` to `to`. Emits a [TransferSingle](//home/mn/os-contribution/Compose/docs/src/src/token/ERC1155/ERC1155Facet.sol/contract.ERC1155Facet.md#transfersingle) event. |
+| `safeTransferFrom` | `` | Transfers `value` amount of token type `id` from `from` to `to`. Emits a TransferSingle event. |
 
 ### safeBatchTransferFrom
 
 
-Batched version of [safeTransferFrom](//home/mn/os-contribution/Compose/docs/src/src/token/ERC1155/ERC1155Facet.sol/contract.ERC1155Facet.md#safetransferfrom). Emits a [TransferBatch](//home/mn/os-contribution/Compose/docs/src/src/token/ERC1155/ERC1155Facet.sol/contract.ERC1155Facet.md#transferbatch) event.
+Batched version of safeTransferFrom. Emits a TransferBatch event.
 
 
 
@@ -204,7 +196,7 @@ function safeBatchTransferFrom(
 | Name | Type | Description |
 |------|------|-------------|
 
-| `safeBatchTransferFrom` | `` | Batched version of [safeTransferFrom](//home/mn/os-contribution/Compose/docs/src/src/token/ERC1155/ERC1155Facet.sol/contract.ERC1155Facet.md#safetransferfrom). Emits a [TransferBatch](//home/mn/os-contribution/Compose/docs/src/src/token/ERC1155/ERC1155Facet.sol/contract.ERC1155Facet.md#transferbatch) event. |
+| `safeBatchTransferFrom` | `` | Batched version of safeTransferFrom. Emits a TransferBatch event. |
 
 
 
@@ -238,7 +230,7 @@ event TransferSingle(
 ### TransferBatch
 
 
-Equivalent to multiple [TransferSingle](//home/mn/os-contribution/Compose/docs/src/src/token/ERC1155/ERC1155Facet.sol/contract.ERC1155Facet.md#transfersingle) events, where `operator`, `from` and `to` are the same for all transfers.
+Equivalent to multiple TransferSingle events, where `operator`, `from` and `to` are the same for all transfers.
 
 
 
@@ -253,7 +245,7 @@ event TransferBatch(
 | Parameter | Type | Description |
 |-----------|------|-------------|
 
-| `TransferBatch` | `` | Equivalent to multiple [TransferSingle](//home/mn/os-contribution/Compose/docs/src/src/token/ERC1155/ERC1155Facet.sol/contract.ERC1155Facet.md#transfersingle) events, where `operator`, `from` and `to` are the same for all transfers. |
+| `TransferBatch` | `` | Equivalent to multiple TransferSingle events, where `operator`, `from` and `to` are the same for all transfers. |
 
 ### ApprovalForAll
 

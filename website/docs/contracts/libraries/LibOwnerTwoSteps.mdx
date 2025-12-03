@@ -1,7 +1,7 @@
 ---
 sidebar_position: 99
 title: "LibOwnerTwoSteps"
-description: "Provides two-step ownership transfer logic for facets or modular contracts."
+description: "ERC-173 Two-Step Contract Ownership Library - Provides two-step ownership transfer logic for facets or modular contracts."
 ---
 
 import DocHero from '@site/src/components/docs/DocHero';
@@ -9,10 +9,10 @@ import Callout from '@site/src/components/ui/Callout';
 
 ## Overview
 
-Provides two-step ownership transfer logic for facets or modular contracts.
+ERC-173 Two-Step Contract Ownership Library - Provides two-step ownership transfer logic for facets or modular contracts.
 
 
-[View Source](https://github.com/maxnorm/Compose/blob/e3e377cf3d77e94dc30e10812da2bdd1907ca159/src/access/OwnerTwoSteps/LibOwnerTwoSteps.sol)
+[View Source](https://github.com/maxnorm/Compose/blob/3f35b447c28348d933bb822a724f81f04d64a99e/src/access/OwnerTwoSteps/LibOwnerTwoSteps.sol)
 
 
 <Callout type="info" title="Library Usage">
@@ -23,14 +23,18 @@ This library provides internal functions for use in your custom facets. Import i
 ## Storage
 
 
-Storage position: `STORAGE_POSITION` - Used for diamond storage pattern.
+Storage position: `OWNER_STORAGE_POSITION` - Used for diamond storage pattern.
 
 
 
 ### State Variables
 
 
-#### STORAGE_POSITION
+#### OWNER_STORAGE_POSITION
+
+
+
+#### PENDING_OWNER_STORAGE_POSITION
 
 
 
@@ -40,15 +44,15 @@ Storage position: `STORAGE_POSITION` - Used for diamond storage pattern.
 ## Functions
 
 
-### getStorage
+### acceptOwnership
 
 
-Returns a pointer to the ERC-173 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+Finalizes ownership transfer; must be called by the pending owner.
 
 
 
 ```solidity
-function getStorage() internal pure returns (OwnerTwoStepsStorage storage s);
+function acceptOwnership() ;
 ```
 
 
@@ -58,14 +62,57 @@ function getStorage() internal pure returns (OwnerTwoStepsStorage storage s);
 | Name | Type | Description |
 |------|------|-------------|
 
-| `getStorage` | `` | Returns a pointer to the ERC-173 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION. |
+| `acceptOwnership` | `` | Finalizes ownership transfer; must be called by the pending owner. |
+
+### getOwnerStorage
+
+
+Returns a pointer to the Owner storage struct. Uses inline assembly to access the storage slot defined by OWNER_STORAGE_POSITION. **Returns**
+
+
+
+```solidity
+function getOwnerStorage() pure returns (OwnerStorage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getOwnerStorage` | `` | Returns a pointer to the Owner storage struct. Uses inline assembly to access the storage slot defined by OWNER_STORAGE_POSITION. **Returns** |
+
+### getPendingOwnerStorage
+
+
+Returns a pointer to the PendingOwner storage struct. Uses inline assembly to access the storage slot defined by PENDING_OWNER_STORAGE_POSITION. **Returns**
+
+
+
+```solidity
+function getPendingOwnerStorage() pure returns (PendingOwnerStorage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getPendingOwnerStorage` | `` | Returns a pointer to the PendingOwner storage struct. Uses inline assembly to access the storage slot defined by PENDING_OWNER_STORAGE_POSITION. **Returns** |
 
 ### owner
 
 
+Returns the current owner.
+
+
 
 ```solidity
-function owner() internal view returns (address);
+function owner() view returns (address);
 ```
 
 
@@ -75,14 +122,17 @@ function owner() internal view returns (address);
 | Name | Type | Description |
 |------|------|-------------|
 
-| `owner` | `` |  |
+| `owner` | `` | Returns the current owner. |
 
 ### pendingOwner
 
 
+Returns the pending owner (if any).
+
+
 
 ```solidity
-function pendingOwner() internal view returns (address);
+function pendingOwner() view returns (address);
 ```
 
 
@@ -92,68 +142,17 @@ function pendingOwner() internal view returns (address);
 | Name | Type | Description |
 |------|------|-------------|
 
-| `pendingOwner` | `` |  |
-
-### requireOwner
-
-
-
-```solidity
-function requireOwner() internal view;
-```
-
-
-
-**Parameters**
-
-| Name | Type | Description |
-|------|------|-------------|
-
-| `requireOwner` | `` |  |
-
-### transferOwnership
-
-
-Initiates a two-step ownership transfer.
-
-
-
-```solidity
-function transferOwnership(address _newOwner) internal;
-```
-
-
-
-**Parameters**
-
-| Name | Type | Description |
-|------|------|-------------|
-
-| `transferOwnership` | `` | Initiates a two-step ownership transfer. |
-
-### acceptOwnership
-
-
-
-```solidity
-function acceptOwnership() internal;
-```
-
-
-
-**Parameters**
-
-| Name | Type | Description |
-|------|------|-------------|
-
-| `acceptOwnership` | `` |  |
+| `pendingOwner` | `` | Returns the pending owner (if any). |
 
 ### renounceOwnership
 
 
+Renounce ownership of the contract Sets the owner to address(0), disabling all functions restricted to the owner.
+
+
 
 ```solidity
-function renounceOwnership() internal;
+function renounceOwnership() ;
 ```
 
 
@@ -163,7 +162,47 @@ function renounceOwnership() internal;
 | Name | Type | Description |
 |------|------|-------------|
 
-| `renounceOwnership` | `` |  |
+| `renounceOwnership` | `` | Renounce ownership of the contract Sets the owner to address(0), disabling all functions restricted to the owner. |
+
+### requireOwner
+
+
+Reverts if the caller is not the owner.
+
+
+
+```solidity
+function requireOwner() view;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `requireOwner` | `` | Reverts if the caller is not the owner. |
+
+### transferOwnership
+
+
+Initiates a two-step ownership transfer. **Parameters**
+
+
+
+```solidity
+function transferOwnership(address _newOwner) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `transferOwnership` | `` | Initiates a two-step ownership transfer. **Parameters** |
 
 
 
@@ -177,6 +216,9 @@ function renounceOwnership() internal;
 ### OwnershipTransferStarted
 
 
+Emitted when ownership transfer is initiated (pending owner set).
+
+
 
 ```solidity
 event OwnershipTransferStarted(address indexed _previousOwner, address indexed _newOwner);
@@ -187,9 +229,12 @@ event OwnershipTransferStarted(address indexed _previousOwner, address indexed _
 | Parameter | Type | Description |
 |-----------|------|-------------|
 
-| `OwnershipTransferStarted` | `` |  |
+| `OwnershipTransferStarted` | `` | Emitted when ownership transfer is initiated (pending owner set). |
 
 ### OwnershipTransferred
+
+
+Emitted when ownership transfer is finalized.
 
 
 
@@ -202,7 +247,7 @@ event OwnershipTransferred(address indexed _previousOwner, address indexed _newO
 | Parameter | Type | Description |
 |-----------|------|-------------|
 
-| `OwnershipTransferred` | `` |  |
+| `OwnershipTransferred` | `` | Emitted when ownership transfer is finalized. |
 
 
 
@@ -210,16 +255,6 @@ event OwnershipTransferred(address indexed _previousOwner, address indexed _newO
 
 
 ## Errors
-
-
-### OwnerUnauthorizedAccount
-
-
-
-```solidity
-error OwnerUnauthorizedAccount();
-```
-
 
 
 ### OwnerAlreadyRenounced
@@ -232,19 +267,46 @@ error OwnerAlreadyRenounced();
 
 
 
+### OwnerUnauthorizedAccount
+
+
+
+```solidity
+error OwnerUnauthorizedAccount();
+```
+
+
+
 
 
 ## Structs
 
 
-### OwnerTwoStepsStorage
+### OwnerStorage
+
+
+**Note:** storage-location: erc8042:compose.owner
 
 
 
 ```solidity
-struct OwnerTwoStepsStorage {
-    address owner;
-    address pendingOwner;
+struct OwnerStorage {
+address owner;
+}
+```
+
+
+
+### PendingOwnerStorage
+
+
+**Note:** storage-location: erc8042:compose.owner.pending
+
+
+
+```solidity
+struct PendingOwnerStorage {
+address pendingOwner;
 }
 ```
 
@@ -252,13 +314,6 @@ struct OwnerTwoStepsStorage {
 
 
 
-
-
-## Integration Notes
-
-<Callout type="success" title="Shared Storage">
-This library accesses shared diamond storage, so changes made through this library are immediately visible to facets using the same storage pattern. All functions are internal as per Compose conventions.
-</Callout>
 
 
 
