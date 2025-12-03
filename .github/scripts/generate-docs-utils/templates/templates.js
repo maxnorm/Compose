@@ -117,7 +117,36 @@ function prepareFacetFunctionData(fn) {
     if (process.env.DEBUG_PARAMS) {
       console.log(`[DEBUG] No valid params found, extracting from signature`);
     }
-    paramsArray = extractParamsFromSignature(fn.signature);
+    const extractedParams = extractParamsFromSignature(fn.signature);
+    // Apply the same filtering logic to extracted parameters
+    paramsArray = extractedParams
+      .filter(p => {
+        const paramName = (p && (p.name || '')).trim();
+        const paramType = (p && (p.type || '')).trim();
+        
+        // Filter out parameters with empty or missing names
+        if (!paramName) return false;
+        // Filter out parameters where name matches function name (indicates parsing error)
+        if (paramName === fn.name) {
+          if (process.env.DEBUG_PARAMS) {
+            console.log(`[DEBUG] Filtered out invalid param: name="${paramName}" matches function name`);
+          }
+          return false;
+        }
+        // Filter out if type is empty AND name looks like it might be a function name (starts with lowercase, no underscore)
+        if (!paramType && /^[a-z]/.test(paramName) && !paramName.includes('_')) {
+          if (process.env.DEBUG_PARAMS) {
+            console.log(`[DEBUG] Filtered out suspicious param: name="${paramName}" has no type`);
+          }
+          return false;
+        }
+        return true;
+      })
+      .map(p => ({
+        name: (p.name || '').trim(),
+        type: (p.type || '').trim(),
+        description: (p.description || '').trim(),
+      }));
     if (process.env.DEBUG_PARAMS) {
       console.log(`[DEBUG] Extracted params from signature:`, JSON.stringify(paramsArray, null, 2));
     }
@@ -195,7 +224,36 @@ function prepareLibraryFunctionData(fn) {
     if (process.env.DEBUG_PARAMS) {
       console.log(`[DEBUG] No valid params found, extracting from signature`);
     }
-    paramsArray = extractParamsFromSignature(fn.signature);
+    const extractedParams = extractParamsFromSignature(fn.signature);
+    // Apply the same filtering logic to extracted parameters
+    paramsArray = extractedParams
+      .filter(p => {
+        const paramName = (p && (p.name || '')).trim();
+        const paramType = (p && (p.type || '')).trim();
+        
+        // Filter out parameters with empty or missing names
+        if (!paramName) return false;
+        // Filter out parameters where name matches function name (indicates parsing error)
+        if (paramName === fn.name) {
+          if (process.env.DEBUG_PARAMS) {
+            console.log(`[DEBUG] Filtered out invalid param: name="${paramName}" matches function name`);
+          }
+          return false;
+        }
+        // Filter out if type is empty AND name looks like it might be a function name (starts with lowercase, no underscore)
+        if (!paramType && /^[a-z]/.test(paramName) && !paramName.includes('_')) {
+          if (process.env.DEBUG_PARAMS) {
+            console.log(`[DEBUG] Filtered out suspicious param: name="${paramName}" has no type`);
+          }
+          return false;
+        }
+        return true;
+      })
+      .map(p => ({
+        name: (p.name || '').trim(),
+        type: (p.type || '').trim(),
+        description: (p.description || '').trim(),
+      }));
     if (process.env.DEBUG_PARAMS) {
       console.log(`[DEBUG] Extracted params from signature:`, JSON.stringify(paramsArray, null, 2));
     }
