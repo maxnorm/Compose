@@ -1,0 +1,12 @@
+{
+  "label": "Modules",
+  "position": 2,
+  "collapsed": true,
+  "link": {
+    "type": "generated-index",
+    "title": "Modules API",
+    "description": "Complete API documentation for all Compose modules. Modules are Solidity files containing reusable logic (functions, constants, structs, events, errors) that gets pulled into other contracts at compile time.",
+    "keywords": ["modules", "api", "helpers", "storage", "diamond", "solidity"]
+  }
+}
+

@@ -619,7 +619,7 @@ function aggregateParsedItems(parsedItems, sourceFilePath) {
     stateVariables: [],
   };
 
-  // Extract library name from source file path
+  // Extract module name from source file path
   const path = require('path');
   const basename = path.basename(sourceFilePath, '.sol');
   data.title = basename;
@@ -661,7 +661,7 @@ function aggregateParsedItems(parsedItems, sourceFilePath) {
   }
 
   // Set default description if not provided
-  // Don't use item descriptions as library description - they'll be overridden by source file parsing
+  // Don't use item descriptions as module description - they'll be overridden by source file parsing
   if (!data.description || 
       data.description.includes('Event emitted') || 
       data.description.includes('Thrown when') ||

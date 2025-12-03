@@ -1,4 +1,4 @@
-name: Generate Facets & Libraries Docs
+name: Generate Facets & Modules Docs
 
 on:
   push:

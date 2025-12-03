@@ -11,7 +11,7 @@ module.exports = {
   
   // Output paths for generated documentation
   facetsOutputDir: 'website/docs/contracts/facets',
-  librariesOutputDir: 'website/docs/contracts/libraries',
+  modulesOutputDir: 'website/docs/contracts/modules',
   
   // Template settings
   defaultSidebarPosition: 99,

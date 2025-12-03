@@ -124,6 +124,138 @@ function processExpression(expression, context, escapeOutput, helperRegistry) {
 }
 
 /**
+ * Find the matching closing tag for a block, handling nesting
+ * @param {string} content - Content to search
+ * @param {string} openTag - Opening tag pattern (e.g., '#if', '#each')
+ * @param {string} closeTag - Closing tag (e.g., '/if', '/each')
+ * @param {number} startPos - Position after the opening tag
+ * @returns {number} Position of the matching closing tag, or -1 if not found
+ */
+function findMatchingClose(content, openTag, closeTag, startPos) {
+  let depth = 1;
+  let pos = startPos;
+  
+  const openPattern = new RegExp(`\\{\\{${openTag}\\s+[^}]+\\}\\}`, 'g');
+  const closePattern = new RegExp(`\\{\\{${closeTag}\\}\\}`, 'g');
+  
+  while (depth > 0 && pos < content.length) {
+    // Find next open and close tags
+    openPattern.lastIndex = pos;
+    closePattern.lastIndex = pos;
+    
+    const openMatch = openPattern.exec(content);
+    const closeMatch = closePattern.exec(content);
+    
+    if (!closeMatch) {
+      return -1; // No matching close found
+    }
+    
+    // If open comes before close, increase depth
+    if (openMatch && openMatch.index < closeMatch.index) {
+      depth++;
+      pos = openMatch.index + openMatch[0].length;
+    } else {
+      depth--;
+      if (depth === 0) {
+        return closeMatch.index;
+      }
+      pos = closeMatch.index + closeMatch[0].length;
+    }
+  }
+  
+  return -1;
+}
+
+/**
+ * Process nested conditionals: {{#if variable}}...{{/if}}
+ * @param {string} content - Template content
+ * @param {object} context - Data context
+ * @param {object} helperRegistry - Registry of helper functions
+ * @returns {string} Processed content
+ */
+function processConditionals(content, context, helperRegistry) {
+  let result = content;
+  const openPattern = /\{\{#if\s+([^}]+)\}\}/g;
+  
+  let match;
+  while ((match = openPattern.exec(result)) !== null) {
+    const condition = match[1].trim();
+    const startPos = match.index;
+    const afterOpen = startPos + match[0].length;
+    
+    const closePos = findMatchingClose(result, '#if', '/if', afterOpen);
+    if (closePos === -1) {
+      console.warn(`Unmatched {{#if ${condition}}} at position ${startPos}`);
+      break;
+    }
+    
+    const ifContent = result.substring(afterOpen, closePos);
+    const closeEndPos = closePos + '{{/if}}'.length;
+    
+    // Evaluate condition and get replacement
+    const value = getValue(context, condition);
+    const replacement = isTruthy(value) 
+      ? processContent(ifContent, context, helperRegistry)
+      : '';
+    
+    // Replace in result
+    result = result.substring(0, startPos) + replacement + result.substring(closeEndPos);
+    
+    // Reset pattern to start from beginning since we modified the string
+    openPattern.lastIndex = 0;
+  }
+  
+  return result;
+}
+
+/**
+ * Process nested loops: {{#each array}}...{{/each}}
+ * @param {string} content - Template content
+ * @param {object} context - Data context
+ * @param {object} helperRegistry - Registry of helper functions
+ * @returns {string} Processed content
+ */
+function processLoops(content, context, helperRegistry) {
+  let result = content;
+  const openPattern = /\{\{#each\s+([^}]+)\}\}/g;
+  
+  let match;
+  while ((match = openPattern.exec(result)) !== null) {
+    const arrayPath = match[1].trim();
+    const startPos = match.index;
+    const afterOpen = startPos + match[0].length;
+    
+    const closePos = findMatchingClose(result, '#each', '/each', afterOpen);
+    if (closePos === -1) {
+      console.warn(`Unmatched {{#each ${arrayPath}}} at position ${startPos}`);
+      break;
+    }
+    
+    const loopContent = result.substring(afterOpen, closePos);
+    const closeEndPos = closePos + '{{/each}}'.length;
+    
+    // Get array and process each item
+    const array = getValue(context, arrayPath);
+    let replacement = '';
+    
+    if (Array.isArray(array) && array.length > 0) {
+      replacement = array.map((item, index) => {
+        const itemContext = { ...context, ...item, index };
+        return processContent(loopContent, itemContext, helperRegistry);
+      }).join('');
+    }
+    
+    // Replace in result
+    result = result.substring(0, startPos) + replacement + result.substring(closeEndPos);
+    
+    // Reset pattern to start from beginning since we modified the string
+    openPattern.lastIndex = 0;
+  }
+  
+  return result;
+}
+
+/**
  * Process template content with the given context
  * Handles all variable substitutions, helpers, conditionals, and loops
  * 
@@ -140,29 +272,11 @@ function processExpression(expression, context, escapeOutput, helperRegistry) {
 function processContent(content, context, helperRegistry) {
   let result = content;
   
-  // 1. Process loops FIRST: {{#each array}}...{{/each}}
-  // This ensures conditionals inside loops use the correct item context
-  const eachPattern = /\{\{#each\s+([^}]+)\}\}([\s\S]*?)\{\{\/each\}\}/g;
-  result = result.replace(eachPattern, (match, arrayPath, loopContent) => {
-    const array = getValue(context, arrayPath.trim());
-    if (!Array.isArray(array) || array.length === 0) {
-      return '';
-    }
-    
-    return array.map((item, index) => {
-      // Create item context by merging parent context with item properties
-      const itemContext = { ...context, ...item, index };
-      // Recursively process the loop content with item context
-      return processContent(loopContent, itemContext, helperRegistry);
-    }).join('');
-  });
+  // 1. Process loops FIRST (handles nesting properly)
+  result = processLoops(result, context, helperRegistry);
   
-  // 2. Process conditionals SECOND: {{#if variable}}...{{/if}}
-  const ifPattern = /\{\{#if\s+([^}]+)\}\}([\s\S]*?)\{\{\/if\}\}/g;
-  result = result.replace(ifPattern, (match, condition, ifContent) => {
-    const value = getValue(context, condition.trim());
-    return isTruthy(value) ? ifContent : '';
-  });
+  // 2. Process conditionals SECOND (handles nesting properly)
+  result = processConditionals(result, context, helperRegistry);
   
   // 3. Process triple braces for unescaped output: {{{variable}}}
   const tripleBracePattern = /\{\{\{([^}]+)\}\}\}/g;

@@ -213,22 +213,14 @@ function extractParamsFromSignature(signature) {
 }
 
 /**
- * Prepare function data for template rendering (facet style - with tables)
- * @param {object} fn - Function data
- * @param {string} sourceFilePath - Path to the Solidity source file
- * @returns {object} Prepared function data
+ * Filter function parameters, removing invalid entries
+ * Invalid parameters include: empty names or names matching the function name (parsing error)
+ * @param {Array} params - Raw parameters array
+ * @param {string} functionName - Name of the function (to detect parsing errors)
+ * @returns {Array} Filtered and normalized parameters
  */
-function prepareFacetFunctionData(fn, sourceFilePath) {
-  // Debug: log the raw function data
-  if (process.env.DEBUG_PARAMS) {
-    console.log(`\n[DEBUG] Function: ${fn.name}`);
-    console.log(`[DEBUG] Raw params:`, JSON.stringify(fn.params, null, 2));
-    console.log(`[DEBUG] Signature:`, fn.signature);
-  }
-  
-  // Build parameters array, filtering out invalid parameters
-  // Invalid parameters include: empty names or names matching the function name (parsing error)
-  let paramsArray = (fn.params || [])
+function filterAndNormalizeParams(params, functionName) {
+  return (params || [])
     .filter(p => {
       // Handle different possible data structures
       const paramName = (p && (p.name || p.param || p.parameter || '')).trim();
@@ -237,7 +229,7 @@ function prepareFacetFunctionData(fn, sourceFilePath) {
       // Filter out parameters with empty or missing names
       if (!paramName) return false;
       // Filter out parameters where name matches function name (indicates parsing error)
-      if (paramName === fn.name) {
+      if (paramName === functionName) {
         if (process.env.DEBUG_PARAMS) {
           console.log(`[DEBUG] Filtered out invalid param: name="${paramName}" matches function name`);
         }
@@ -257,76 +249,16 @@ function prepareFacetFunctionData(fn, sourceFilePath) {
       type: (p.type || p.paramType || '').trim(),
       description: (p.description || p.desc || '').trim(),
     }));
-  
-  // If no valid parameters found, try extracting from signature
-  if (paramsArray.length === 0 && fn.signature) {
-    if (process.env.DEBUG_PARAMS) {
-      console.log(`[DEBUG] No valid params found, extracting from signature`);
-    }
-    const extractedParams = extractParamsFromSignature(fn.signature);
-    // Apply the same filtering logic to extracted parameters
-    paramsArray = extractedParams
-      .filter(p => {
-        const paramName = (p && (p.name || '')).trim();
-        const paramType = (p && (p.type || '')).trim();
-        
-        // Filter out parameters with empty or missing names
-        if (!paramName) return false;
-        // Filter out parameters where name matches function name (indicates parsing error)
-        if (paramName === fn.name) {
-          if (process.env.DEBUG_PARAMS) {
-            console.log(`[DEBUG] Filtered out invalid param: name="${paramName}" matches function name`);
-          }
-          return false;
-        }
-        // Filter out if type is empty AND name looks like it might be a function name (starts with lowercase, no underscore)
-        if (!paramType && /^[a-z]/.test(paramName) && !paramName.includes('_')) {
-          if (process.env.DEBUG_PARAMS) {
-            console.log(`[DEBUG] Filtered out suspicious param: name="${paramName}" has no type`);
-          }
-          return false;
-        }
-        return true;
-      })
-      .map(p => ({
-        name: (p.name || '').trim(),
-        type: (p.type || '').trim(),
-        description: (p.description || '').trim(),
-      }));
-    if (process.env.DEBUG_PARAMS) {
-      console.log(`[DEBUG] Extracted params from signature:`, JSON.stringify(paramsArray, null, 2));
-    }
-  }
-  
-  if (process.env.DEBUG_PARAMS) {
-    console.log(`[DEBUG] Final paramsArray:`, JSON.stringify(paramsArray, null, 2));
-  }
-  
-  // Build returns array for table rendering
-  const returnsArray = (fn.returns || []).map(r => ({
-    name: r.name || '-',
-    type: r.type,
-    description: r.description || '',
-  }));
-
-  return {
-    name: fn.name,
-    signature: fn.signature,
-    description: fn.notice || fn.description || '',
-    params: paramsArray,
-    returns: returnsArray,
-    hasReturns: returnsArray.length > 0,
-    hasParams: paramsArray.length > 0,
-  };
 }
 
 /**
- * Prepare function data for template rendering (library style - with tables)
+ * Prepare function data for template rendering (shared between facet and module)
  * @param {object} fn - Function data
  * @param {string} sourceFilePath - Path to the Solidity source file
+ * @param {boolean} useSourceExtraction - Whether to try extracting params from source file (for modules)
  * @returns {object} Prepared function data
  */
-function prepareLibraryFunctionData(fn, sourceFilePath) {
+function prepareFunctionData(fn, sourceFilePath, useSourceExtraction = false) {
   // Debug: log the raw function data
   if (process.env.DEBUG_PARAMS) {
     console.log(`\n[DEBUG] Function: ${fn.name}`);
@@ -335,40 +267,12 @@ function prepareLibraryFunctionData(fn, sourceFilePath) {
   }
   
   // Build parameters array, filtering out invalid parameters
-  // Invalid parameters include: empty names or names matching the function name (parsing error)
-  let paramsArray = (fn.params || [])
-    .filter(p => {
-      // Handle different possible data structures
-      const paramName = (p && (p.name || p.param || p.parameter || '')).trim();
-      const paramType = (p && (p.type || p.paramType || '')).trim();
-      
-      // Filter out parameters with empty or missing names
-      if (!paramName) return false;
-      // Filter out parameters where name matches function name (indicates parsing error)
-      if (paramName === fn.name) {
-        if (process.env.DEBUG_PARAMS) {
-          console.log(`[DEBUG] Filtered out invalid param: name="${paramName}" matches function name`);
-        }
-        return false;
-      }
-      // Filter out if type is empty AND name looks like it might be a function name (starts with lowercase, no underscore)
-      if (!paramType && /^[a-z]/.test(paramName) && !paramName.includes('_')) {
-        if (process.env.DEBUG_PARAMS) {
-          console.log(`[DEBUG] Filtered out suspicious param: name="${paramName}" has no type`);
-        }
-        return false;
-      }
-      return true;
-    })
-    .map(p => ({
-      name: (p.name || p.param || p.parameter || '').trim(),
-      type: (p.type || p.paramType || '').trim(),
-      description: (p.description || p.desc || '').trim(),
-    }));
+  let paramsArray = filterAndNormalizeParams(fn.params, fn.name);
   
-  // If no valid parameters found, try extracting from source file first, then signature
+  // If no valid parameters found, try extracting from source file (for modules) or signature
   if (paramsArray.length === 0) {
-    if (sourceFilePath) {
+    // Try source file extraction for modules
+    if (useSourceExtraction && sourceFilePath) {
       if (process.env.DEBUG_PARAMS) {
         console.log(`[DEBUG] No valid params found, extracting from source file: ${sourceFilePath}`);
       }
@@ -378,41 +282,13 @@ function prepareLibraryFunctionData(fn, sourceFilePath) {
       }
     }
     
-    // Fallback to signature extraction if source file extraction didn't work
+    // Fallback to signature extraction if still no params
     if (paramsArray.length === 0 && fn.signature) {
       if (process.env.DEBUG_PARAMS) {
         console.log(`[DEBUG] No valid params found, extracting from signature`);
       }
       const extractedParams = extractParamsFromSignature(fn.signature);
-      // Apply the same filtering logic to extracted parameters
-      paramsArray = extractedParams
-        .filter(p => {
-          const paramName = (p && (p.name || '')).trim();
-          const paramType = (p && (p.type || '')).trim();
-          
-          // Filter out parameters with empty or missing names
-          if (!paramName) return false;
-          // Filter out parameters where name matches function name (indicates parsing error)
-          if (paramName === fn.name) {
-            if (process.env.DEBUG_PARAMS) {
-              console.log(`[DEBUG] Filtered out invalid param: name="${paramName}" matches function name`);
-            }
-            return false;
-          }
-          // Filter out if type is empty AND name looks like it might be a function name (starts with lowercase, no underscore)
-          if (!paramType && /^[a-z]/.test(paramName) && !paramName.includes('_')) {
-            if (process.env.DEBUG_PARAMS) {
-              console.log(`[DEBUG] Filtered out suspicious param: name="${paramName}" has no type`);
-            }
-            return false;
-          }
-          return true;
-        })
-        .map(p => ({
-          name: (p.name || '').trim(),
-          type: (p.type || '').trim(),
-          description: (p.description || '').trim(),
-        }));
+      paramsArray = filterAndNormalizeParams(extractedParams, fn.name);
       if (process.env.DEBUG_PARAMS) {
         console.log(`[DEBUG] Extracted params from signature:`, JSON.stringify(paramsArray, null, 2));
       }
@@ -422,8 +298,8 @@ function prepareLibraryFunctionData(fn, sourceFilePath) {
   if (process.env.DEBUG_PARAMS) {
     console.log(`[DEBUG] Final paramsArray:`, JSON.stringify(paramsArray, null, 2));
   }
-
-  // Build returns array for library template (expects array for table rendering)
+  
+  // Build returns array for table rendering
   const returnsArray = (fn.returns || []).map(r => ({
     name: r.name || '-',
     type: r.type,
@@ -501,7 +377,7 @@ function validateData(data) {
 }
 
 /**
- * Prepare base data common to both facet and library templates
+ * Prepare base data common to both facet and module templates
  * @param {object} data - Documentation data
  * @param {number} position - Sidebar position
  * @returns {object} Base prepared data
@@ -539,7 +415,7 @@ function prepareBaseData(data, position = 99) {
     structs: (data.structs || []).map(prepareStructData),
     hasStructs: (data.structs || []).length > 0,
     
-    // State variables (for libraries)
+    // State variables (for modules)
     stateVariables: (data.stateVariables || []).map(v => ({
       name: v.name,
       description: v.description || '',
@@ -561,53 +437,63 @@ function prepareFacetData(data, position = 99) {
   
   return {
     ...baseData,
-    // Functions with APIReference-compatible format
-    functions: (data.functions || []).map(fn => prepareFacetFunctionData(fn, sourceFilePath)),
+    // Contract type flags for unified template
+    isFacet: true,
+    isModule: false,
+    contractType: 'facet',
+    // Functions with APIReference-compatible format (no source extraction for facets)
+    functions: (data.functions || []).map(fn => prepareFunctionData(fn, sourceFilePath, false)),
     hasFunctions: (data.functions || []).length > 0,
   };
 }
 
 /**
- * Prepare data for library template rendering
+ * Prepare data for module template rendering
  * @param {object} data - Documentation data
  * @param {number} position - Sidebar position
- * @returns {object} Prepared data for library template
+ * @returns {object} Prepared data for module template
  */
-function prepareLibraryData(data, position = 99) {
+function prepareModuleData(data, position = 99) {
   const baseData = prepareBaseData(data, position);
   const sourceFilePath = data.sourceFilePath;
   
   return {
     ...baseData,
-    // Functions with table-compatible format (returns as array)
-    functions: (data.functions || []).map(fn => prepareLibraryFunctionData(fn, sourceFilePath)),
+    // Contract type flags for unified template
+    isFacet: false,
+    isModule: true,
+    contractType: 'module',
+    // Functions with table-compatible format (with source extraction for modules)
+    functions: (data.functions || []).map(fn => prepareFunctionData(fn, sourceFilePath, true)),
     hasFunctions: (data.functions || []).length > 0,
   };
 }
 
 /**
  * Generate complete facet documentation
+ * Uses the unified contract template with isFacet=true
  * @param {object} data - Documentation data
  * @param {number} position - Sidebar position
  * @returns {string} Complete MDX document
  */
 function generateFacetDoc(data, position = 99) {
   const preparedData = prepareFacetData(data, position);
-  return loadAndRenderTemplate('facet', preparedData);
+  return loadAndRenderTemplate('contract', preparedData);
 }
 
 /**
- * Generate complete library documentation
+ * Generate complete module documentation
+ * Uses the unified contract template with isModule=true
  * @param {object} data - Documentation data
  * @param {number} position - Sidebar position
  * @returns {string} Complete MDX document
  */
-function generateLibraryDoc(data, position = 99) {
-  const preparedData = prepareLibraryData(data, position);
-  return loadAndRenderTemplate('library', preparedData);
+function generateModuleDoc(data, position = 99) {
+  const preparedData = prepareModuleData(data, position);
+  return loadAndRenderTemplate('contract', preparedData);
 }
 
 module.exports = {
   generateFacetDoc,
-  generateLibraryDoc,
+  generateModuleDoc,
 };

@@ -17,8 +17,8 @@ const {
   getContractType,
   getOutputDir,
   readChangedFilesFromFile,
-  extractLibraryNameFromPath,
-  extractLibraryDescriptionFromSource,
+  extractModuleNameFromPath,
+  extractModuleDescriptionFromSource,
 } = require('./generate-docs-utils/doc-generation-utils');
 const { readFileSafe, writeFileSafe } = require('./workflow-utils');
 const { 
@@ -28,13 +28,13 @@ const {
   aggregateParsedItems,
   detectItemTypeFromFilename,
 } = require('./generate-docs-utils/forge-doc-parser');
-const { generateFacetDoc, generateLibraryDoc } = require('./generate-docs-utils/templates/templates');
+const { generateFacetDoc, generateModuleDoc } = require('./generate-docs-utils/templates/templates');
 const { enhanceWithCopilot, shouldSkipEnhancement } = require('./generate-docs-utils/copilot-enhancement');
 
 // Track processed files for summary
 const processedFiles = {
   facets: [],
-  libraries: [],
+  modules: [],
   skipped: [],
   errors: [],
 };
@@ -67,7 +67,7 @@ async function processForgeDocFile(forgeDocFile, solFilePath) {
     return false;
   }
 
-  // Skip interfaces - only generate docs for facets and libraries
+  // Skip interfaces - only generate docs for facets and modules
   if (isInterface(data.title, content)) {
     console.log(`Skipping interface: ${data.title}`);
     processedFiles.skipped.push({ file: forgeDocFile, reason: 'Interface (filtered)' });
@@ -78,26 +78,29 @@ async function processForgeDocFile(forgeDocFile, solFilePath) {
   const contractType = getContractType(forgeDocFile, content);
   console.log(`Type: ${contractType} - ${data.title}`);
 
-  // Extract storage info for libraries
-  if (contractType === 'library') {
+  // Extract storage info for modules
+  if (contractType === 'module') {
     data.storageInfo = extractStorageInfo(data);
   }
 
-  // Check if we should skip enhancement (e.g., for interfaces)
-  const skipEnhancement = shouldSkipEnhancement(data) || process.env.SKIP_ENHANCEMENT === 'true';
+  // Check if we should skip AI enhancement (e.g., for interfaces or when SKIP_ENHANCEMENT is set)
+  const skipAIEnhancement = shouldSkipEnhancement(data) || process.env.SKIP_ENHANCEMENT === 'true';
 
-  // Enhance with Copilot if not skipped
+  // Enhance with Copilot if not skipped, otherwise add fallback content
   let enhancedData = data;
-  if (!skipEnhancement) {
+  if (!skipAIEnhancement) {
     const token = process.env.GITHUB_TOKEN;
     enhancedData = await enhanceWithCopilot(data, contractType, token);
   } else {
-    console.log(`Skipping enhancement for ${data.title}`);
+    console.log(`Skipping AI enhancement for ${data.title}`);
+    // Still add fallback content when skipping AI enhancement
+    const { addFallbackContent } = require('./generate-docs-utils/copilot-enhancement');
+    enhancedData = addFallbackContent(data, contractType);
   }
 
   // Generate MDX content
-  const mdxContent = contractType === 'library'
-    ? generateLibraryDoc(enhancedData)
+  const mdxContent = contractType === 'module'
+    ? generateModuleDoc(enhancedData)
     : generateFacetDoc(enhancedData);
 
   // Determine output path
@@ -108,8 +111,8 @@ async function processForgeDocFile(forgeDocFile, solFilePath) {
   if (writeFileSafe(outputFile, mdxContent)) {
     console.log('✅  Generated:', outputFile);
     
-    if (contractType === 'library') {
-      processedFiles.libraries.push({ title: data.title, file: outputFile });
+    if (contractType === 'module') {
+      processedFiles.modules.push({ title: data.title, file: outputFile });
     } else {
       processedFiles.facets.push({ title: data.title, file: outputFile });
     }
@@ -138,7 +141,7 @@ function needsAggregation(forgeDocFiles) {
 }
 
 /**
- * Process aggregated files (for free function libraries)
+ * Process aggregated files (for free function modules)
  * @param {string[]} forgeDocFiles - Array of forge doc file paths
  * @param {string} solFilePath - Original .sol file path
  * @returns {Promise<boolean>} True if processed successfully
@@ -179,12 +182,12 @@ async function processAggregatedFiles(forgeDocFiles, solFilePath) {
   // Add source file path for parameter extraction
   data.sourceFilePath = solFilePath;
 
-  // Extract library name and description from source file
+  // Extract module name and description from source file
   if (!data.title) {
-    data.title = extractLibraryNameFromPath(solFilePath);
+    data.title = extractModuleNameFromPath(solFilePath);
   }
 
-  const sourceDescription = extractLibraryDescriptionFromSource(solFilePath);
+  const sourceDescription = extractModuleDescriptionFromSource(solFilePath);
   if (sourceDescription) {
     data.description = sourceDescription;
     data.subtitle = sourceDescription;
@@ -192,7 +195,7 @@ async function processAggregatedFiles(forgeDocFiles, solFilePath) {
   } else {
     // If no source description found, use a generic one instead of first item's description
     // The aggregateParsedItems sets description from first item, which might be wrong
-    const genericDescription = `Library providing internal functions for ${data.title}`;
+    const genericDescription = `Module providing internal functions for ${data.title}`;
     if (!data.description || data.description.includes('Event emitted') || data.description.includes('Thrown when')) {
       // Only override if it looks like it came from an item description
       data.description = genericDescription;
@@ -210,26 +213,29 @@ async function processAggregatedFiles(forgeDocFiles, solFilePath) {
   const contractType = getContractType(solFilePath, '');
   console.log(`Type: ${contractType} - ${data.title}`);
 
-  // Extract storage info for libraries
-  if (contractType === 'library') {
+  // Extract storage info for modules
+  if (contractType === 'module') {
     data.storageInfo = extractStorageInfo(data);
   }
 
-  // Check if we should skip enhancement
-  const skipEnhancement = shouldSkipEnhancement(data) || process.env.SKIP_ENHANCEMENT === 'true';
+  // Check if we should skip AI enhancement
+  const skipAIEnhancement = shouldSkipEnhancement(data) || process.env.SKIP_ENHANCEMENT === 'true';
 
-  // Enhance with Copilot if not skipped
+  // Enhance with Copilot if not skipped, otherwise add fallback content
   let enhancedData = data;
-  if (!skipEnhancement) {
+  if (!skipAIEnhancement) {
     const token = process.env.GITHUB_TOKEN;
     enhancedData = await enhanceWithCopilot(data, contractType, token);
   } else {
-    console.log(`Skipping enhancement for ${data.title}`);
+    console.log(`Skipping AI enhancement for ${data.title}`);
+    // Still add fallback content when skipping AI enhancement
+    const { addFallbackContent } = require('./generate-docs-utils/copilot-enhancement');
+    enhancedData = addFallbackContent(data, contractType);
   }
 
   // Generate MDX content
-  const mdxContent = contractType === 'library'
-    ? generateLibraryDoc(enhancedData)
+  const mdxContent = contractType === 'module'
+    ? generateModuleDoc(enhancedData)
     : generateFacetDoc(enhancedData);
 
   // Determine output path
@@ -240,8 +246,8 @@ async function processAggregatedFiles(forgeDocFiles, solFilePath) {
   if (writeFileSafe(outputFile, mdxContent)) {
     console.log('✅  Generated:', outputFile);
     
-    if (contractType === 'library') {
-      processedFiles.libraries.push({ title: data.title, file: outputFile });
+    if (contractType === 'module') {
+      processedFiles.modules.push({ title: data.title, file: outputFile });
     } else {
       processedFiles.facets.push({ title: data.title, file: outputFile });
     }
@@ -294,9 +300,9 @@ function printSummary() {
     console.log(`   - ${f.title}`);
   }
 
-  console.log(`\nLibraries generated: ${processedFiles.libraries.length}`);
-  for (const l of processedFiles.libraries) {
-    console.log(`   - ${l.title}`);
+  console.log(`\nModules generated: ${processedFiles.modules.length}`);
+  for (const m of processedFiles.modules) {
+    console.log(`   - ${m.title}`);
   }
 
   if (processedFiles.skipped.length > 0) {
@@ -313,7 +319,7 @@ function printSummary() {
     }
   }
 
-  const total = processedFiles.facets.length + processedFiles.libraries.length;
+  const total = processedFiles.facets.length + processedFiles.modules.length;
   console.log(`\nTotal generated: ${total} documentation files`);
   console.log('='.repeat(50) + '\n');
 }
@@ -325,10 +331,10 @@ function writeSummaryFile() {
   const summary = {
     timestamp: new Date().toISOString(),
     facets: processedFiles.facets,
-    libraries: processedFiles.libraries,
+    modules: processedFiles.modules,
     skipped: processedFiles.skipped,
     errors: processedFiles.errors,
-    totalGenerated: processedFiles.facets.length + processedFiles.libraries.length,
+    totalGenerated: processedFiles.facets.length + processedFiles.modules.length,
   };
 
   writeFileSafe('docgen-summary.json', JSON.stringify(summary, null, 2));

@@ -89,11 +89,11 @@ function isInterface(title, content) {
 }
 
 /**
- * Extract library name from file path
- * @param {string} filePath - Path to the file (e.g., 'src/libraries/LibNonReentrancy.sol' or 'constants.LibNonReentrancy.md')
- * @returns {string} Library name (e.g., 'LibNonReentrancy')
+ * Extract module name from file path
+ * @param {string} filePath - Path to the file (e.g., 'src/modules/LibNonReentrancy.sol' or 'constants.LibNonReentrancy.md')
+ * @returns {string} Module name (e.g., 'LibNonReentrancy')
  */
-function extractLibraryNameFromPath(filePath) {
+function extractModuleNameFromPath(filePath) {
   const path = require('path');
   
   // If it's a constants file, extract from filename
@@ -123,11 +123,11 @@ function extractLibraryNameFromPath(filePath) {
 }
 
 /**
- * Extract library description from source file NatSpec comments
+ * Extract module description from source file NatSpec comments
  * @param {string} solFilePath - Path to the Solidity source file
  * @returns {string} Description extracted from @title and @notice tags
  */
-function extractLibraryDescriptionFromSource(solFilePath) {
+function extractModuleDescriptionFromSource(solFilePath) {
   const content = readFileSafe(solFilePath);
   if (!content) {
     return '';
@@ -221,31 +221,28 @@ function extractLibraryDescriptionFromSource(solFilePath) {
 }
 
 /**
- * Determine if a contract is a library or facet
+ * Determine if a contract is a module or facet
+ * Modules are Solidity files whose top-level code lives outside of contracts and Solidity libraries.
+ * They contain reusable logic that gets pulled into other contracts at compile time.
  * @param {string} filePath - Path to the file
  * @param {string} content - File content
- * @returns {'library' | 'facet'} Contract type
+ * @returns {'module' | 'facet'} Contract type
  */
 function getContractType(filePath, content) {
   const lowerPath = filePath.toLowerCase();
   
-  // Check path patterns
+  // Check path patterns - files with 'lib' in the path are modules
   if (lowerPath.includes('lib')) {
-    // Check if it's a free function library (no 'library' keyword in content)
-    if (content && !content.includes('library ')) {
-      // It's a free function library
-      return 'library';
-    }
-    return 'library';
+    return 'module';
   }
   
   if (lowerPath.includes('facet')) {
     return 'facet';
   }
 
-  // Check content patterns
+  // Check content patterns - files with 'library' keyword (Solidity libraries) are modules
   if (content && content.includes('library ')) {
-    return 'library';
+    return 'module';
   }
 
   // Default to facet for contracts
@@ -254,12 +251,12 @@ function getContractType(filePath, content) {
 
 /**
  * Get output directory based on contract type
- * @param {'library' | 'facet'} contractType - Type of contract
+ * @param {'module' | 'facet'} contractType - Type of contract
  * @returns {string} Output directory path
  */
 function getOutputDir(contractType) {
-  return contractType === 'library' 
-    ? CONFIG.librariesOutputDir 
+  return contractType === 'module' 
+    ? CONFIG.modulesOutputDir 
     : CONFIG.facetsOutputDir;
 }
 
@@ -284,8 +281,8 @@ module.exports = {
   getContractType,
   getOutputDir,
   readChangedFilesFromFile,
-  extractLibraryNameFromPath,
-  extractLibraryDescriptionFromSource,
+  extractModuleNameFromPath,
+  extractModuleDescriptionFromSource,
 };
 
 

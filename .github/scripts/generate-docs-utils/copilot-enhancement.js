@@ -92,7 +92,7 @@ function makeRequest(options, body) {
  * @returns {string} System prompt for Copilot
  */
 function buildSystemPrompt() {
-  let systemPrompt = `You are a Solidity smart contract documentation expert for the Compose library. 
+  let systemPrompt = `You are a Solidity smart contract documentation expert for the Compose framework. 
 Always respond with valid JSON only, no markdown formatting.
 Follow the project conventions and style guidelines strictly.`;
 
@@ -129,7 +129,7 @@ Follow the project conventions and style guidelines strictly.`;
 /**
  * Build the prompt for Copilot based on contract type
  * @param {object} data - Parsed documentation data
- * @param {'library' | 'facet'} contractType - Type of contract
+ * @param {'module' | 'facet'} contractType - Type of contract
  * @returns {string} Prompt for Copilot
  */
 function buildPrompt(data, contractType) {
@@ -138,15 +138,15 @@ function buildPrompt(data, contractType) {
     .map(f => `- ${f.name}: ${f.description || 'No description'}`)
     .join('\n');
 
-  return `Given this ${contractType} documentation from the Compose diamond proxy library, enhance it by generating:
+  return `Given this ${contractType} documentation from the Compose diamond proxy framework, enhance it by generating:
 
 1. **overview**: A clear, concise overview (2-3 sentences) explaining what this ${contractType} does and why it's useful in the context of diamond contracts.
 
-2. **usageExample**: A practical Solidity code example (10-20 lines) showing how to use this ${contractType}. For libraries, show importing and calling functions. For facets, show how it would be used in a diamond.
+2. **usageExample**: A practical Solidity code example (10-20 lines) showing how to use this ${contractType}. For modules, show importing and calling functions. For facets, show how it would be used in a diamond.
 
 3. **bestPractices**: 2-3 bullet points of best practices for using this ${contractType}.
 
-${contractType === 'library' ? '4. **integrationNotes**: A note about how this library works with diamond storage pattern and how changes made through it are visible to facets.' : ''}
+${contractType === 'module' ? '4. **integrationNotes**: A note about how this module works with diamond storage pattern and how changes made through it are visible to facets.' : ''}
 
 ${contractType === 'facet' ? '4. **securityConsiderations**: Important security considerations when using this facet (access control, reentrancy, etc.).' : ''}
 
@@ -165,14 +165,14 @@ Respond ONLY with valid JSON in this exact format (no markdown code blocks, no e
   "usageExample": "solidity code here (use \\n for newlines)",
   "bestPractices": "- Point 1\\n- Point 2\\n- Point 3",
   "keyFeatures": "- Feature 1\\n- Feature 2",
-  ${contractType === 'library' ? '"integrationNotes": "integration notes here"' : '"securityConsiderations": "security notes here"'}
+  ${contractType === 'module' ? '"integrationNotes": "integration notes here"' : '"securityConsiderations": "security notes here"'}
 }`;
 }
 
 /**
  * Enhance documentation data using GitHub Copilot
  * @param {object} data - Parsed documentation data
- * @param {'library' | 'facet'} contractType - Type of contract
+ * @param {'module' | 'facet'} contractType - Type of contract
  * @param {string} token - GitHub token
  * @returns {Promise<object>} Enhanced data
  */
@@ -256,7 +256,7 @@ async function enhanceWithCopilot(data, contractType, token) {
 /**
  * Add fallback content when Copilot is unavailable
  * @param {object} data - Documentation data
- * @param {'library' | 'facet'} contractType - Type of contract
+ * @param {'module' | 'facet'} contractType - Type of contract
  * @returns {object} Data with fallback content
  */
 function addFallbackContent(data, contractType) {
@@ -264,8 +264,8 @@ function addFallbackContent(data, contractType) {
 
   const enhanced = { ...data };
 
-  if (contractType === 'library') {
-    enhanced.integrationNotes = `This library accesses shared diamond storage, so changes made through this library are immediately visible to facets using the same storage pattern. All functions are internal as per Compose conventions.`;
+  if (contractType === 'module') {
+    enhanced.integrationNotes = `This module accesses shared diamond storage, so changes made through this module are immediately visible to facets using the same storage pattern. All functions are internal as per Compose conventions.`;
     enhanced.keyFeatures = `- All functions are \`internal\` for use in custom facets\n- Follows diamond storage pattern (EIP-8042)\n- Compatible with ERC-2535 diamonds\n- No external dependencies or \`using\` directives`;
   } else {
     enhanced.keyFeatures = `- Self-contained facet with no imports or inheritance\n- Only \`external\` and \`internal\` function visibility\n- Follows Compose readability-first conventions\n- Ready for diamond integration`;

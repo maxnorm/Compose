@@ -7,6 +7,15 @@ description: "{{escapeYaml description}}"
 import DocHero from '@site/src/components/docs/DocHero';
 import Callout from '@site/src/components/ui/Callout';
 
+{{#if isFacet}}
+<DocHero
+  title="{{escapeJsx title}}"
+  subtitle="{{escapeJsx subtitle}}"
+  variant="gradient"
+  height="small"
+/>
+
+{{/if}}
 ## Overview
 
 {{sanitizeMdx overview}}
@@ -15,8 +24,15 @@ import Callout from '@site/src/components/ui/Callout';
 [View Source]({{gitSource}})
 
 {{/if}}
-<Callout type="info" title="Library Usage">
-This library provides internal functions for use in your custom facets. Import it to access shared storage.
+{{#if keyFeatures}}
+<Callout type="info" title="Key Features">
+{{sanitizeMdx keyFeatures}}
+</Callout>
+
+{{/if}}
+{{#if isModule}}
+<Callout type="info" title="Module Usage">
+This module provides internal functions for use in your custom facets. Import it to access shared logic and storage.
 </Callout>
 
 {{#if hasStorage}}
@@ -37,6 +53,7 @@ This library provides internal functions for use in your custom facets. Import i
 
 {{/if}}
 {{/each}}
+{{/if}}
 {{/if}}
 {{/if}}
 {{#if hasFunctions}}
@@ -155,6 +172,17 @@ This library provides internal functions for use in your custom facets. Import i
 </Callout>
 
 {{/if}}
+{{#if isFacet}}
+{{#if securityConsiderations}}
+## Security Considerations
+
+<Callout type="warning" title="Security">
+{{sanitizeMdx securityConsiderations}}
+</Callout>
+
+{{/if}}
+{{/if}}
+{{#if isModule}}
 {{#if integrationNotes}}
 ## Integration Notes
 
@@ -162,5 +190,6 @@ This library provides internal functions for use in your custom facets. Import i
 {{sanitizeMdx integrationNotes}}
 </Callout>
 
+{{/if}}
 {{/if}}
 
