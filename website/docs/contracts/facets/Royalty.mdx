@@ -1,0 +1,308 @@
+---
+sidebar_position: 99
+title: "Royalty"
+description: "LibRoyalty - ERC-2981 Royalty Standard Library - Thrown when default royalty fee exceeds 100% (10000 basis points)."
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="Royalty"
+  subtitle="LibRoyalty - ERC-2981 Royalty Standard Library - Thrown when default royalty fee exceeds 100% (10000 basis points)."
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+The Royalty facet implements the ERC-2981 royalty standard, enabling streamlined management of royalty information for NFTs in a diamond contract architecture. It supports both default and token-specific royalties, making it flexible enough for various royalty distribution scenarios while ensuring compliance with industry standards.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/f773c1f2b6ca1fc289a7b9ea4f149315edd34199/src/token/Royalty/Royalty.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Compliant with ERC-2981 Royalty Standard
+- Supports default and token-specific royalty configuration
+- Allows efficient management and querying of royalty information
+</Callout>
+
+
+
+## Functions
+
+
+### deleteDefaultRoyalty
+
+
+Removes default royalty information. After calling this function, royaltyInfo will return (address(0), 0) for tokens without specific royalty.
+
+
+
+```solidity
+function deleteDefaultRoyalty() ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `deleteDefaultRoyalty` | `` | Removes default royalty information. After calling this function, royaltyInfo will return (address(0), 0) for tokens without specific royalty. |
+
+### getStorage
+
+
+Returns the royalty storage struct from its predefined slot. Uses inline assembly to access diamond storage location. **Returns**
+
+
+
+```solidity
+function getStorage() pure returns (RoyaltyStorage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getStorage` | `` | Returns the royalty storage struct from its predefined slot. Uses inline assembly to access diamond storage location. **Returns** |
+
+### resetTokenRoyalty
+
+
+Resets royalty information for a specific token to use the default setting. Clears token-specific royalty storage, causing fallback to default royalty. **Parameters**
+
+
+
+```solidity
+function resetTokenRoyalty(uint256 _tokenId) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `resetTokenRoyalty` | `` | Resets royalty information for a specific token to use the default setting. Clears token-specific royalty storage, causing fallback to default royalty. **Parameters** |
+
+### royaltyInfo
+
+
+Queries royalty information for a given token and sale price. Returns token-specific royalty or falls back to default royalty. Royalty amount is calculated as a percentage of the sale price using basis points. Implements the ERC-2981 royaltyInfo function logic. **Parameters** **Returns**
+
+
+
+```solidity
+function royaltyInfo(uint256 _tokenId, uint256 _salePrice) view returns (address receiver, uint256 royaltyAmount);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `royaltyInfo` | `` | Queries royalty information for a given token and sale price. Returns token-specific royalty or falls back to default royalty. Royalty amount is calculated as a percentage of the sale price using basis points. Implements the ERC-2981 royaltyInfo function logic. **Parameters** **Returns** |
+
+### setDefaultRoyalty
+
+
+Sets the default royalty information that applies to all tokens. Validates receiver and fee, then updates default royalty storage. **Parameters**
+
+
+
+```solidity
+function setDefaultRoyalty(address _receiver, uint96 _feeNumerator) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `setDefaultRoyalty` | `` | Sets the default royalty information that applies to all tokens. Validates receiver and fee, then updates default royalty storage. **Parameters** |
+
+### setTokenRoyalty
+
+
+Sets royalty information for a specific token, overriding the default. Validates receiver and fee, then updates token-specific royalty storage. **Parameters**
+
+
+
+```solidity
+function setTokenRoyalty(uint256 _tokenId, address _receiver, uint96 _feeNumerator) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `setTokenRoyalty` | `` | Sets royalty information for a specific token, overriding the default. Validates receiver and fee, then updates token-specific royalty storage. **Parameters** |
+
+
+
+
+
+
+
+
+
+
+## Errors
+
+
+### ERC2981InvalidDefaultRoyalty
+
+
+Thrown when default royalty fee exceeds 100% (10000 basis points). **Parameters**
+
+
+
+```solidity
+error ERC2981InvalidDefaultRoyalty(uint256 _numerator, uint256 _denominator);
+```
+
+
+
+### ERC2981InvalidDefaultRoyaltyReceiver
+
+
+Thrown when default royalty receiver is the zero address. **Parameters**
+
+
+
+```solidity
+error ERC2981InvalidDefaultRoyaltyReceiver(address _receiver);
+```
+
+
+
+### ERC2981InvalidTokenRoyalty
+
+
+Thrown when token-specific royalty fee exceeds 100% (10000 basis points). **Parameters**
+
+
+
+```solidity
+error ERC2981InvalidTokenRoyalty(uint256 _tokenId, uint256 _numerator, uint256 _denominator);
+```
+
+
+
+### ERC2981InvalidTokenRoyaltyReceiver
+
+
+Thrown when token-specific royalty receiver is the zero address. **Parameters**
+
+
+
+```solidity
+error ERC2981InvalidTokenRoyaltyReceiver(uint256 _tokenId, address _receiver);
+```
+
+
+
+
+
+## Structs
+
+
+### RoyaltyInfo
+
+
+Structure containing royalty information. **Properties**
+
+
+
+```solidity
+struct RoyaltyInfo {
+address receiver;
+uint96 royaltyFraction;
+}
+```
+
+
+
+### RoyaltyStorage
+
+
+**Note:** storage-location: erc8042:compose.erc2981
+
+
+
+```solidity
+struct RoyaltyStorage {
+RoyaltyInfo defaultRoyaltyInfo;
+mapping(uint256 tokenId =&gt; RoyaltyInfo) tokenRoyaltyInfo;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.20;
+
+import {Diamond} from &quot;./Diamond.sol&quot;;
+
+contract RoyaltyDemo {
+    Diamond private diamond;
+
+    constructor(address _diamondAddress) {
+        diamond = Diamond(_diamondAddress);
+    }
+
+    function configureRoyalty() external {
+        // Set default royalty to 5% (500 basis points)
+        diamond.setDefaultRoyalty(address(this), 500);
+        
+        // Override royalty for token ID 1 to 10%
+        diamond.setTokenRoyalty(1, address(this), 1000);
+        
+        // Query royalty information
+        (address receiver, uint256 royaltyAmount) = diamond.royaltyInfo(1, 100 ether);
+
+        // Clear override royalty so it defaults to the setDefaultRoyalty 
+        diamond.resetTokenRoyalty(1);
+    }
+}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Always validate royalty receiver address and ensure it is operational to avoid disruptions in royalty payments.
+- Set reasonable default and token-specific royalty fees to align with industry standards and prevent issues with excessive royalties.
+- Reset token-specific royalties to prevent outdated or unwanted configurations when they're no longer needed.
+</Callout>
+
+
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Ensure access control mechanisms prevent unauthorized or malicious updates to royalty configurations. Beware of reentrancy vulnerabilities in royalty payment flows when integrating royalty receiver logic with external contract calls.
+</Callout>
+
+

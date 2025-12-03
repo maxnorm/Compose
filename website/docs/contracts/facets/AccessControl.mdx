@@ -1,0 +1,310 @@
+---
+sidebar_position: 99
+title: "AccessControl"
+description: "Emitted when the admin role for a role is changed."
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="AccessControl"
+  subtitle="Emitted when the admin role for a role is changed."
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+The AccessControl facet enables flexible and modular role-based access control within a Compose diamond. It allows dynamically assigning, revoking, and verifying roles, as well as defining administrative privileges for role management. This is essential in diamond contracts to enforce permissioned actions without embedding redundant logic within every facet.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/f773c1f2b6ca1fc289a7b9ea4f149315edd34199/src/access/AccessControl/AccessControl.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Secure role assignment and revocation with detailed logging
+- Allows hierarchical role-based structures by setting role administrators
+- Enables flexible and composable access control for diamonds
+</Callout>
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns the storage for the AccessControl. **Returns**
+
+
+
+```solidity
+function getStorage() pure returns (AccessControlStorage storage _s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getStorage` | `` | Returns the storage for the AccessControl. **Returns** |
+
+### grantRole
+
+
+function to grant a role to an account. **Parameters** **Returns**
+
+
+
+```solidity
+function grantRole(bytes32 _role, address _account) returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `grantRole` | `` | function to grant a role to an account. **Parameters** **Returns** |
+
+### hasRole
+
+
+function to check if an account has a role. **Parameters** **Returns**
+
+
+
+```solidity
+function hasRole(bytes32 _role, address _account) view returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `hasRole` | `` | function to check if an account has a role. **Parameters** **Returns** |
+
+### requireRole
+
+
+function to check if an account has a required role. **Note:** error: AccessControlUnauthorizedAccount If the account does not have the role. **Parameters**
+
+
+
+```solidity
+function requireRole(bytes32 _role, address _account) view;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `requireRole` | `` | function to check if an account has a required role. **Note:** error: AccessControlUnauthorizedAccount If the account does not have the role. **Parameters** |
+
+### revokeRole
+
+
+function to revoke a role from an account. **Parameters** **Returns**
+
+
+
+```solidity
+function revokeRole(bytes32 _role, address _account) returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `revokeRole` | `` | function to revoke a role from an account. **Parameters** **Returns** |
+
+### setRoleAdmin
+
+
+function to set the admin role for a role. **Parameters**
+
+
+
+```solidity
+function setRoleAdmin(bytes32 _role, bytes32 _adminRole) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `setRoleAdmin` | `` | function to set the admin role for a role. **Parameters** |
+
+
+
+
+
+
+
+## Events
+
+
+### RoleAdminChanged
+
+
+Emitted when the admin role for a role is changed. **Parameters**
+
+
+
+```solidity
+event RoleAdminChanged(bytes32 indexed _role, bytes32 indexed _previousAdminRole, bytes32 indexed _newAdminRole);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `RoleAdminChanged` | `` | Emitted when the admin role for a role is changed. **Parameters** |
+
+### RoleGranted
+
+
+Emitted when a role is granted to an account. **Parameters**
+
+
+
+```solidity
+event RoleGranted(bytes32 indexed _role, address indexed _account, address indexed _sender);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `RoleGranted` | `` | Emitted when a role is granted to an account. **Parameters** |
+
+### RoleRevoked
+
+
+Emitted when a role is revoked from an account. **Parameters**
+
+
+
+```solidity
+event RoleRevoked(bytes32 indexed _role, address indexed _account, address indexed _sender);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `RoleRevoked` | `` | Emitted when a role is revoked from an account. **Parameters** |
+
+
+
+
+
+
+## Errors
+
+
+### AccessControlUnauthorizedAccount
+
+
+Thrown when the account does not have a specific role. **Parameters**
+
+
+
+```solidity
+error AccessControlUnauthorizedAccount(address _account, bytes32 _role);
+```
+
+
+
+
+
+## Structs
+
+
+### AccessControlStorage
+
+
+
+```solidity
+struct AccessControlStorage {
+mapping(address account =&gt; mapping(bytes32 role =&gt; bool hasRole)) hasRole;
+mapping(bytes32 role =&gt; bytes32 adminRole) adminRole;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.17;
+
+import { IDiamondCut } from &quot;diamond/interfaces/IDiamondCut.sol&quot;;
+import { AccessControl } from &quot;diamond/facets/AccessControl.sol&quot;;
+
+contract MyDiamond {
+    function deployAccessControlFacet() external {
+        IDiamondCut diamondCut = IDiamondCut(diamondAddress);
+
+        // Add AccessControl facet to the diamond
+        diamondCut.diamondCut(
+            [
+                IDiamondCut.FacetCut({
+                    facetAddress: address(new AccessControl()),
+                    action: IDiamondCut.FacetCutAction.Add,
+                    functionSelectors: AccessControl.getSelectors()
+                })
+            ],
+            address(0),
+            &quot;&quot;
+        );
+
+        // Grant an initial role to an account
+        AccessControl(facetAddress).grantRole(keccak256(&quot;ADMIN&quot;), msg.sender);
+    }
+}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Use meaningful and descriptive role identifiers, e.g., keccak256 string hashes to avoid accidental conflicts.
+- Revoke roles immediately when no longer needed or after an account is compromised.
+- Call `hasRole` or `requireRole` before executing sensitive functions to preemptively check access permissions.
+</Callout>
+
+
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Always validate access permissions using `requireRole` or `hasRole` to enforce restrictions. Carefully manage `_admin` accounts to avoid privilege escalation. Take care to prevent reentrancy issues if AccessControl roles are used in conjunction with sensitive external calls.
+</Callout>
+
+

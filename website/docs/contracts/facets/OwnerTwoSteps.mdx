@@ -1,0 +1,355 @@
+---
+sidebar_position: 99
+title: "OwnerTwoSteps"
+description: "ERC-173 Two-Step Contract Ownership Library - Provides two-step ownership transfer logic for facets or modular contracts."
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="OwnerTwoSteps"
+  subtitle="ERC-173 Two-Step Contract Ownership Library - Provides two-step ownership transfer logic for facets or modular contracts."
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+The OwnerTwoSteps library implements a secure two-step ownership transfer process for modular contracts using the diamond standard. It ensures proper access control by introducing pending ownership states, thus permitting the new owner to actively accept ownership before transferring control, improving both security and clarity in ownership transitions.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/f773c1f2b6ca1fc289a7b9ea4f149315edd34199/src/access/OwnerTwoSteps/OwnerTwoSteps.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Implements ERC-173 standard ownership patterns.
+- Enhances ownership security with a pending state.
+- Easy integration with diamond storage layouts.
+</Callout>
+
+
+
+## Functions
+
+
+### acceptOwnership
+
+
+Finalizes ownership transfer; must be called by the pending owner.
+
+
+
+```solidity
+function acceptOwnership() ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `acceptOwnership` | `` | Finalizes ownership transfer; must be called by the pending owner. |
+
+### getOwnerStorage
+
+
+Returns a pointer to the Owner storage struct. Uses inline assembly to access the storage slot defined by OWNER_STORAGE_POSITION. **Returns**
+
+
+
+```solidity
+function getOwnerStorage() pure returns (OwnerStorage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getOwnerStorage` | `` | Returns a pointer to the Owner storage struct. Uses inline assembly to access the storage slot defined by OWNER_STORAGE_POSITION. **Returns** |
+
+### getPendingOwnerStorage
+
+
+Returns a pointer to the PendingOwner storage struct. Uses inline assembly to access the storage slot defined by PENDING_OWNER_STORAGE_POSITION. **Returns**
+
+
+
+```solidity
+function getPendingOwnerStorage() pure returns (PendingOwnerStorage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getPendingOwnerStorage` | `` | Returns a pointer to the PendingOwner storage struct. Uses inline assembly to access the storage slot defined by PENDING_OWNER_STORAGE_POSITION. **Returns** |
+
+### owner
+
+
+Returns the current owner.
+
+
+
+```solidity
+function owner() view returns (address);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `owner` | `` | Returns the current owner. |
+
+### pendingOwner
+
+
+Returns the pending owner (if any).
+
+
+
+```solidity
+function pendingOwner() view returns (address);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `pendingOwner` | `` | Returns the pending owner (if any). |
+
+### renounceOwnership
+
+
+Renounce ownership of the contract Sets the owner to address(0), disabling all functions restricted to the owner.
+
+
+
+```solidity
+function renounceOwnership() ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `renounceOwnership` | `` | Renounce ownership of the contract Sets the owner to address(0), disabling all functions restricted to the owner. |
+
+### requireOwner
+
+
+Reverts if the caller is not the owner.
+
+
+
+```solidity
+function requireOwner() view;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `requireOwner` | `` | Reverts if the caller is not the owner. |
+
+### transferOwnership
+
+
+Initiates a two-step ownership transfer. **Parameters**
+
+
+
+```solidity
+function transferOwnership(address _newOwner) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `transferOwnership` | `` | Initiates a two-step ownership transfer. **Parameters** |
+
+
+
+
+
+
+
+## Events
+
+
+### OwnershipTransferStarted
+
+
+Emitted when ownership transfer is initiated (pending owner set).
+
+
+
+```solidity
+event OwnershipTransferStarted(address indexed _previousOwner, address indexed _newOwner);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `OwnershipTransferStarted` | `` | Emitted when ownership transfer is initiated (pending owner set). |
+
+### OwnershipTransferred
+
+
+Emitted when ownership transfer is finalized.
+
+
+
+```solidity
+event OwnershipTransferred(address indexed _previousOwner, address indexed _newOwner);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `OwnershipTransferred` | `` | Emitted when ownership transfer is finalized. |
+
+
+
+
+
+
+## Errors
+
+
+### OwnerAlreadyRenounced
+
+
+
+```solidity
+error OwnerAlreadyRenounced();
+```
+
+
+
+### OwnerUnauthorizedAccount
+
+
+
+```solidity
+error OwnerUnauthorizedAccount();
+```
+
+
+
+
+
+## Structs
+
+
+### OwnerStorage
+
+
+**Note:** storage-location: erc8042:compose.owner
+
+
+
+```solidity
+struct OwnerStorage {
+address owner;
+}
+```
+
+
+
+### PendingOwnerStorage
+
+
+**Note:** storage-location: erc8042:compose.owner.pending
+
+
+
+```solidity
+struct PendingOwnerStorage {
+address pendingOwner;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;
+
+import &quot;./OwnerTwoSteps.sol&quot;;
+
+contract ExampleDiamond {
+    using OwnerTwoSteps for bytes32;
+
+    /**
+     * Storage Position Constants
+     */
+    bytes32 internal constant OWNER_SLOT = keccak256(&quot;example.owner.slot&quot;);
+    bytes32 internal constant PENDING_OWNER_SLOT = keccak256(&quot;example.pending.owner.slot&quot;);
+
+    function transferOwnership(address _newOwner) external {
+        OWNER_SLOT.transferOwnership(_newOwner);
+    }
+
+    function acceptOwnership() external {
+        OWNER_SLOT.acceptOwnership();
+    }
+
+    function owner() external view returns (address) {
+        return OWNER_SLOT.owner();
+    }
+}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Always verify that a new owner actively accepts the transfer by calling `acceptOwnership`.
+- Use `requireOwner` to restrict critical functions to the current owner.
+- Rename or isolate owner/pending-owner storage slots to avoid conflicts in multi-facet setups.
+</Callout>
+
+
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Ensure all critical functions utilize `requireOwner` for access control. Validate that the pending owner is a trusted and verified account before initiating the transfer via `transferOwnership`. Avoid transferring ownership to contract addresses unless they are explicitly authorized.
+</Callout>
+
+

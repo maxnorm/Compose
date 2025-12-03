@@ -1,0 +1,300 @@
+---
+sidebar_position: 99
+title: "ERC721"
+description: "ERC-721 Library for Compose - Thrown when attempting to interact with a non-existent token."
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="ERC721"
+  subtitle="ERC-721 Library for Compose - Thrown when attempting to interact with a non-existent token."
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+The ERC721 facet facilitates the integration and management of ERC-721 non-fungible tokens (NFTs) within a diamond proxy. It provides essential functions such as minting, burning, transferring tokens, and managing metadata while conforming to the ERC-721 standard.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/f773c1f2b6ca1fc289a7b9ea4f149315edd34199/src/token/ERC721/ERC721/ERC721.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Provides minting and burning functions compliant with the ERC-721 standard
+- Facilitates secure ownership transfer and approval management
+- Enables diamond proxy users to access storage slots specifically for ERC-721 implementation
+</Callout>
+
+
+
+## Functions
+
+
+### burn
+
+
+Burns (destroys) a specific ERC-721 token. Reverts if the token does not exist. Clears ownership and approval. **Parameters**
+
+
+
+```solidity
+function burn(uint256 _tokenId) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `burn` | `` | Burns (destroys) a specific ERC-721 token. Reverts if the token does not exist. Clears ownership and approval. **Parameters** |
+
+### getStorage
+
+
+Returns the ERC-721 storage struct from its predefined slot. Uses inline assembly to access diamond storage location. **Returns**
+
+
+
+```solidity
+function getStorage() pure returns (ERC721Storage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getStorage` | `` | Returns the ERC-721 storage struct from its predefined slot. Uses inline assembly to access diamond storage location. **Returns** |
+
+### mint
+
+
+Mints a new ERC-721 token to the specified address. Reverts if the receiver address is zero or if the token already exists. **Parameters**
+
+
+
+```solidity
+function mint(address _to, uint256 _tokenId) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `mint` | `` | Mints a new ERC-721 token to the specified address. Reverts if the receiver address is zero or if the token already exists. **Parameters** |
+
+### setMetadata
+
+
+
+```solidity
+function setMetadata(string memory _name, string memory _symbol, string memory _baseURI) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `setMetadata` | `` |  |
+
+### transferFrom
+
+
+Transfers ownership of a token ID from one address to another. Validates ownership, approval, and receiver address before updating state. **Parameters**
+
+
+
+```solidity
+function transferFrom(address _from, address _to, uint256 _tokenId) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `transferFrom` | `` | Transfers ownership of a token ID from one address to another. Validates ownership, approval, and receiver address before updating state. **Parameters** |
+
+
+
+
+
+
+
+## Events
+
+
+### Transfer
+
+
+Emitted when ownership of a token changes, including minting and burning. **Parameters**
+
+
+
+```solidity
+event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `Transfer` | `` | Emitted when ownership of a token changes, including minting and burning. **Parameters** |
+
+
+
+
+
+
+## Errors
+
+
+### ERC721IncorrectOwner
+
+
+Thrown when the sender is not the owner of the token. **Parameters**
+
+
+
+```solidity
+error ERC721IncorrectOwner(address _sender, uint256 _tokenId, address _owner);
+```
+
+
+
+### ERC721InsufficientApproval
+
+
+Thrown when an operator lacks sufficient approval to manage a token. **Parameters**
+
+
+
+```solidity
+error ERC721InsufficientApproval(address _operator, uint256 _tokenId);
+```
+
+
+
+### ERC721InvalidReceiver
+
+
+Thrown when the receiver address is invalid (e.g., zero address). **Parameters**
+
+
+
+```solidity
+error ERC721InvalidReceiver(address _receiver);
+```
+
+
+
+### ERC721InvalidSender
+
+
+Thrown when the sender address is invalid (e.g., zero address). **Parameters**
+
+
+
+```solidity
+error ERC721InvalidSender(address _sender);
+```
+
+
+
+### ERC721NonexistentToken
+
+
+Thrown when attempting to interact with a non-existent token. **Parameters**
+
+
+
+```solidity
+error ERC721NonexistentToken(uint256 _tokenId);
+```
+
+
+
+
+
+## Structs
+
+
+### ERC721Storage
+
+
+
+```solidity
+struct ERC721Storage {
+mapping(uint256 tokenId =&gt; address owner) ownerOf;
+mapping(address owner =&gt; uint256 balance) balanceOf;
+mapping(address owner =&gt; mapping(address operator =&gt; bool approved)) isApprovedForAll;
+mapping(uint256 tokenId =&gt; address approved) approved;
+string name;
+string symbol;
+string baseURI;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;
+
+import {Diamond} from &quot;./Diamond.sol&quot;; // Simplified example
+import {ERC721Facet} from &quot;./facets/ERC721Facet.sol&quot;;
+
+contract MyDiamond is Diamond {
+    function exampleUsage() external {
+        // Add ERC721 facet to the diamond
+        bytes memory initFunction = abi.encodeWithSelector(ERC721Facet.mint.selector, _msgSender(), 1);
+        Diamond.addFacet(address(new ERC721Facet()), initFunction);
+
+        // Example: Mint an ERC-721 token
+        ERC721Facet(address(this)).mint(0xAbc123456789abcdef, 1234);
+
+        // Example: Transfer a token
+        ERC721Facet(address(this)).transferFrom(0xAbc123456789abcdef, 0xdef987654321fedcba, 1234);
+    }
+}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Always verify proper initialization of the ERC-721 facet before invoking any function to avoid unexpected errors.
+- Use meaningful and unique token IDs to prevent overlapping among tokens managed by the diamond proxy.
+- Ensure sufficient gas limits are set for minting/burning functions, especially if metadata or event emission is involved.
+</Callout>
+
+
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Ensure all external functions enforce proper access control and validation mechanisms. Avoid calling mint or burn functions within the same transaction that interacts with external contracts (to prevent reentrancy attacks). Confirm that receiver addresses in transferFrom are valid to mitigate undesirable token states or loss.
+</Callout>
+
+

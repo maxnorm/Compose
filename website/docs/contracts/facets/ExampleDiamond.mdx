@@ -1,0 +1,154 @@
+---
+sidebar_position: 99
+title: "ExampleDiamond"
+description: "Contract documentation for ExampleDiamond"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="ExampleDiamond"
+  subtitle="Contract documentation for ExampleDiamond"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+The ExampleDiamond facet initializes and manages the core structure of a diamond contract using the Diamond Storage pattern. It sets up the initial facets, assigns function selectors for delegatecall routing, and establishes the contract owner, enabling modular and extensible smart contract development.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/f773c1f2b6ca1fc289a7b9ea4f149315edd34199/src/diamond/example/ExampleDiamond.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Supports adding, replacing, or removing facets dynamically.
+- Implements delegatecall routing for function selectors to appropriate facet logic.
+</Callout>
+
+
+
+## Functions
+
+
+### constructor
+
+
+Struct to hold facet address and its function selectors. struct FacetCut &#123; address facetAddress; FacetCutAction action; // Add=0, Replace=1, Remove=2 bytes4[] functionSelectors; &#125; Initializes the diamond contract with facets, owner and other data. Adds all provided facets to the diamond's function selector mapping and sets the contract owner. Each facet in the array will have its function selectors registered to enable delegatecall routing.
+
+
+
+```solidity
+constructor(Diamond.FacetCut[] memory _facets, address _diamondOwner) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `constructor` | `` | Struct to hold facet address and its function selectors. struct FacetCut &#123; address facetAddress; FacetCutAction action; // Add=0, Replace=1, Remove=2 bytes4[] functionSelectors; &#125; Initializes the diamond contract with facets, owner and other data. Adds all provided facets to the diamond's function selector mapping and sets the contract owner. Each facet in the array will have its function selectors registered to enable delegatecall routing. |
+
+### fallback
+
+
+
+```solidity
+fallback() external payable;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `fallback` | `` |  |
+
+### receive
+
+
+
+```solidity
+receive() external payable;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `receive` | `` |  |
+
+
+
+
+
+
+
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;
+
+contract ExampleDiamond {
+    struct FacetCut {
+        address facetAddress;
+        FacetCutAction action; // Add = 0, Replace = 1, Remove = 2
+        bytes4[] functionSelectors;
+    }
+
+    enum FacetCutAction { Add, Replace, Remove }
+
+    constructor(FacetCut[] memory _facetCuts, address _owner) {
+        // Initialize the diamond with facets and set the owner
+        for (uint i = 0; i &lt; _facetCuts.length; i++) {
+            FacetCut memory facetCut = _facetCuts[i];
+            // Handle facet addition/replacement/removal (simplified logic)
+            if (facetCut.action == FacetCutAction.Add) {
+                // Add each function selector to the mapping
+            }
+        }
+        // Set contract owner
+    }
+
+    // Example fallback function to route calls
+    fallback() external payable {
+        // Delegate call logic for function selector routing
+    }
+
+    receive() external payable {}
+}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Always verify the addresses of facets before adding to prevent malicious or incorrect facet deployment.
+- Carefully track and document function selector mappings to avoid conflicts or accidental overwrites.
+- Use initializer functions for setting any critical state variables after deployment.
+</Callout>
+
+
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Ensure that the 'owner' is a secure address and implement access control for facet management. Be cautious of reentrancy issues when using fallback or receive functions that interact with external contracts. Validate function selectors to avoid collisions or undefined behavior during routing.
+</Callout>
+
+

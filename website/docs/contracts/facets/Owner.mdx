@@ -1,0 +1,259 @@
+---
+sidebar_position: 99
+title: "Owner"
+description: "ERC-173 Contract Ownership - Provides internal functions and storage layout for owner management."
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="Owner"
+  subtitle="ERC-173 Contract Ownership - Provides internal functions and storage layout for owner management."
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+The Owner facet implements ERC-173 contract ownership management, allowing a contract to track and control an owner address. It provides essential functionality such as verifying ownership and transferring or renouncing ownership, which is critical in managing access control within diamond contracts.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/f773c1f2b6ca1fc289a7b9ea4f149315edd34199/src/access/Owner/Owner.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Implements ERC-173 ownership standard
+- Includes ownership assertion and transfer capabilities
+- Prevents unauthorized access with enforced ownership checks
+</Callout>
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns a pointer to the ERC-173 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION. **Returns**
+
+
+
+```solidity
+function getStorage() pure returns (OwnerStorage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getStorage` | `` | Returns a pointer to the ERC-173 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION. **Returns** |
+
+### owner
+
+
+Get the address of the owner **Returns**
+
+
+
+```solidity
+function owner() view returns (address);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `owner` | `` | Get the address of the owner **Returns** |
+
+### requireOwner
+
+
+Reverts if the caller is not the owner.
+
+
+
+```solidity
+function requireOwner() view;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `requireOwner` | `` | Reverts if the caller is not the owner. |
+
+### setContractOwner
+
+
+
+```solidity
+function setContractOwner(address _initialOwner) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `setContractOwner` | `` |  |
+
+### transferOwnership
+
+
+Set the address of the new owner of the contract Set _newOwner to address(0) to renounce any ownership. **Parameters**
+
+
+
+```solidity
+function transferOwnership(address _newOwner) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `transferOwnership` | `` | Set the address of the new owner of the contract Set _newOwner to address(0) to renounce any ownership. **Parameters** |
+
+
+
+
+
+
+
+## Events
+
+
+### OwnershipTransferred
+
+
+This emits when ownership of a contract changes.
+
+
+
+```solidity
+event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `OwnershipTransferred` | `` | This emits when ownership of a contract changes. |
+
+
+
+
+
+
+## Errors
+
+
+### OwnerAlreadyRenounced
+
+
+
+```solidity
+error OwnerAlreadyRenounced();
+```
+
+
+
+### OwnerUnauthorizedAccount
+
+
+
+```solidity
+error OwnerUnauthorizedAccount();
+```
+
+
+
+
+
+## Structs
+
+
+### OwnerStorage
+
+
+**Note:** storage-location: erc8042:compose.owner
+
+
+
+```solidity
+struct OwnerStorage {
+address owner;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;
+
+import { Diamond } from &quot;./Diamond.sol&quot;;
+import { Owner } from &quot;./facets/Owner.sol&quot;;
+
+contract Example {
+    Diamond private diamond;
+
+    constructor(address diamondAddress) {
+        diamond = Diamond(diamondAddress);
+    }
+
+    function transferDiamondOwnership(address _newOwner) external {
+        bytes memory callData = abi.encodeWithSelector(Owner.transferOwnership.selector, _newOwner);
+        (bool success, ) = address(diamond).call(callData);
+        require(success, &quot;Ownership transfer failed&quot;);
+    }
+
+    function getCurrentOwner() external view returns (address) {
+        bytes memory callData = abi.encodeWithSelector(Owner.owner.selector);
+        (bool success, bytes memory result) = address(diamond).staticcall(callData);
+        require(success, &quot;Failed to fetch owner&quot;);
+        return abi.decode(result, (address));
+    }
+}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Use `requireOwner` to guard any function requiring exclusive owner access.
+- Always check the return values when transferring or renouncing ownership.
+- Document owner-related changes clearly in project governance or on-chain logs.
+</Callout>
+
+
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Ensure `transferOwnership` is properly protected with `requireOwner` to prevent unauthorized access. Be cautious when using `address(0)` in `transferOwnership` as it renounces ownership permanently. Verify ownership changes are reflected correctly to avoid governance issues.
+</Callout>
+
+

@@ -1,0 +1,264 @@
+---
+sidebar_position: 99
+title: "Diamond"
+description: "Diamond Library - Internal functions and storage for diamond proxy functionality."
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+<DocHero
+  title="Diamond"
+  subtitle="Diamond Library - Internal functions and storage for diamond proxy functionality."
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+The Diamond library provides essential internal functionality for managing facets in a diamond proxy setup. It supports adding facets and their selectors during deployment and facilitates function execution by routing calls through the diamondFallback function.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/f773c1f2b6ca1fc289a7b9ea4f149315edd34199/src/diamond/Diamond.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Supports adding and managing facets for diamond proxy contracts
+- Routes calls to appropriate facet functions based on selectors
+- Provides internal storage access for implementers
+</Callout>
+
+
+
+## Functions
+
+
+### addFacets
+
+
+Adds facets and their function selectors to the diamond. Only supports adding functions during diamond deployment.
+
+
+
+```solidity
+function addFacets(FacetCut[] memory _facets) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `addFacets` | `` | Adds facets and their function selectors to the diamond. Only supports adding functions during diamond deployment. |
+
+### diamondFallback
+
+
+Find facet for function that is called and execute the function if a facet is found and return any value.
+
+
+
+```solidity
+function diamondFallback() ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `diamondFallback` | `` | Find facet for function that is called and execute the function if a facet is found and return any value. |
+
+### getStorage
+
+
+
+```solidity
+function getStorage() pure returns (DiamondStorage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getStorage` | `` |  |
+
+
+
+
+
+
+
+## Events
+
+
+### DiamondCut
+
+
+
+```solidity
+event DiamondCut(FacetCut[] _diamondCut, address _init, bytes _calldata);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `DiamondCut` | `` |  |
+
+
+
+
+
+
+## Errors
+
+
+### CannotAddFunctionToDiamondThatAlreadyExists
+
+
+
+```solidity
+error CannotAddFunctionToDiamondThatAlreadyExists(bytes4 _selector);
+```
+
+
+
+### FunctionNotFound
+
+
+
+```solidity
+error FunctionNotFound(bytes4 _selector);
+```
+
+
+
+### InvalidActionWhenDeployingDiamond
+
+
+
+```solidity
+error InvalidActionWhenDeployingDiamond(address facetAddress, FacetCutAction action, bytes4[] functionSelectors);
+```
+
+
+
+### NoBytecodeAtAddress
+
+
+
+```solidity
+error NoBytecodeAtAddress(address _contractAddress, string _message);
+```
+
+
+
+
+
+## Structs
+
+
+### FacetCutAction
+
+
+Add=0, Replace=1, Remove=2
+
+
+
+
+### DiamondStorage
+
+
+**Note:** storage-location: erc8042:compose.diamond
+
+
+
+```solidity
+struct DiamondStorage {
+mapping(bytes4 functionSelector =&gt; FacetAndPosition) facetAndPosition;
+/**
+ * `selectors` contains all function selectors that can be called in the diamond.
+ */
+bytes4[] selectors;
+}
+```
+
+
+
+### FacetAndPosition
+
+
+
+```solidity
+struct FacetAndPosition {
+address facet;
+uint32 position;
+}
+```
+
+
+
+### FacetCut
+
+
+
+```solidity
+struct FacetCut {
+address facetAddress;
+FacetCutAction action;
+bytes4[] functionSelectors;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+contract MyDiamondExample {
+    function initializeDiamond(Diamond diamond, address[] memory _facetAddresses, bytes4[][] memory _selectors) external {
+        // Add facets to the Diamond during deployment
+        for (uint256 i = 0; i &lt; _facetAddresses.length; i++) {
+            diamond.addFacets(_facetAddresses[i], _selectors[i]);
+        }
+    }
+
+    function executeDiamondFallback(Diamond diamond, bytes memory callData) external returns (bytes memory) {
+        // Utilize Diamond fallback to route calls based on selectors
+        bytes memory response = diamond.diamondFallback(callData);
+        return response;
+    }
+}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Always validate facet addresses and selectors before calling addFacets to prevent adding incorrect or malicious functions.
+- Ensure that diamondFallback calls are properly handled with sufficient gas.
+- Use external access control mechanisms to restrict unauthorized users from modifying facets.
+</Callout>
+
+
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Access control is critical when adding facets to prevent malicious or unauthorized modifications. Carefully test the diamondFallback function to avoid routing unintended or unsafe function calls. Consider implementing reentrancy protections where applicable.
+</Callout>
+
+
