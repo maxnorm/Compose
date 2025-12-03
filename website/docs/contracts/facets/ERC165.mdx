@@ -1,0 +1,118 @@
+---
+sidebar_position: 99
+title: "ERC165"
+description: "LibERC165 — ERC-165 Standard Interface Detection Library - Provides internal functions and storage layout for ERC-165 interface detection."
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+
+<DocHero
+  title="ERC165"
+  subtitle="LibERC165 — ERC-165 Standard Interface Detection Library - Provides internal functions and storage layout for ERC-165 interface detection."
+  variant="gradient"
+  height="small"
+/>
+
+
+## Overview
+
+LibERC165 — ERC-165 Standard Interface Detection Library - Provides internal functions and storage layout for ERC-165 interface detection.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/481136d7c36aaae0be05ee1e91b1d24c70b620b3/src/interfaceDetection/ERC165/ERC165.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Self-contained facet with no imports or inheritance
+- Only `external` and `internal` function visibility
+- Follows Compose readability-first conventions
+- Ready for diamond integration
+</Callout>
+
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns a pointer to the ERC-165 storage struct. Uses inline assembly to bind the storage struct to the fixed storage position. **Returns**
+
+
+
+```solidity
+function getStorage() pure returns (ERC165Storage storage s);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `s` | `ERC165Storage` | The ERC-165 storage struct. |
+
+
+
+
+### registerInterface
+
+
+Register that a contract supports an interface Call this function during initialization to register supported interfaces. For example, in an ERC721 facet initialization, you would call: `LibERC165.registerInterface(type(IERC721).interfaceId)` **Parameters**
+
+
+
+```solidity
+function registerInterface(bytes4 _interfaceId) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_interfaceId` | `bytes4` | The interface ID to register |
+
+
+
+
+
+
+
+
+
+## Structs
+
+
+### ERC165Storage
+
+
+
+```solidity
+struct ERC165Storage {
+/*
+ * @notice Mapping of interface IDs to whether they are supported
+ */
+mapping(bytes4 =&gt; bool) supportedInterfaces;
+}
+```
+
+
+
+
+
+
+
+
+
+
+
