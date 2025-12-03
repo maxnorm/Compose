@@ -1,0 +1,340 @@
+---
+sidebar_position: 99
+title: "LibERC6909"
+description: "LibERC6909 — ERC-6909 Library - Thrown when the sender has insufficient balance."
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+## Overview
+
+LibERC6909 — ERC-6909 Library - Thrown when the sender has insufficient balance.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/057043a659d1a2c7cf32c80148e04c3e2c6d85f2/src/token/ERC6909/ERC6909/LibERC6909.sol)
+
+
+<Callout type="info" title="Library Usage">
+This library provides internal functions for use in your custom facets. Import it to access shared storage.
+</Callout>
+
+
+## Storage
+
+
+Storage position: `STORAGE_POSITION` - Used for diamond storage pattern.
+
+
+
+### State Variables
+
+
+#### STORAGE_POSITION
+
+
+
+
+
+
+## Functions
+
+
+### approve
+
+
+Approves an amount of an id to a spender. **Parameters**
+
+
+
+```solidity
+function approve(address _owner, address _spender, uint256 _id, uint256 _amount) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `approve` | `` | Approves an amount of an id to a spender. **Parameters** |
+
+### burn
+
+
+Burns `_amount` of token id `_id` from `_from`. **Parameters**
+
+
+
+```solidity
+function burn(address _from, uint256 _id, uint256 _amount) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `burn` | `` | Burns `_amount` of token id `_id` from `_from`. **Parameters** |
+
+### getStorage
+
+
+Returns a pointer to the ERC-6909 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION. **Returns**
+
+
+
+```solidity
+function getStorage() pure returns (ERC6909Storage storage s);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `getStorage` | `` | Returns a pointer to the ERC-6909 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION. **Returns** |
+
+### mint
+
+
+Mints `_amount` of token id `_id` to `_to`. **Parameters**
+
+
+
+```solidity
+function mint(address _to, uint256 _id, uint256 _amount) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `mint` | `` | Mints `_amount` of token id `_id` to `_to`. **Parameters** |
+
+### setOperator
+
+
+Sets or removes a spender as an operator for the caller. **Parameters**
+
+
+
+```solidity
+function setOperator(address _owner, address _spender, bool _approved) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `setOperator` | `` | Sets or removes a spender as an operator for the caller. **Parameters** |
+
+### transfer
+
+
+Transfers `_amount` of token id `_id` from `_from` to `_to`. Allowance is not deducted if it is `type(uint256).max` Allowance is not deducted if `_by` is an operator for `_from`. **Parameters**
+
+
+
+```solidity
+function transfer(address _by, address _from, address _to, uint256 _id, uint256 _amount) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `transfer` | `` | Transfers `_amount` of token id `_id` from `_from` to `_to`. Allowance is not deducted if it is `type(uint256).max` Allowance is not deducted if `_by` is an operator for `_from`. **Parameters** |
+
+
+
+
+
+
+
+## Events
+
+
+### Approval
+
+
+Emitted when an approval occurs. **Parameters**
+
+
+
+```solidity
+event Approval(address indexed _owner, address indexed _spender, uint256 indexed _id, uint256 _amount);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `Approval` | `` | Emitted when an approval occurs. **Parameters** |
+
+### OperatorSet
+
+
+Emitted when an operator is set. **Parameters**
+
+
+
+```solidity
+event OperatorSet(address indexed _owner, address indexed _spender, bool _approved);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `OperatorSet` | `` | Emitted when an operator is set. **Parameters** |
+
+### Transfer
+
+
+Emitted when a transfer occurs. **Parameters**
+
+
+
+```solidity
+event Transfer(
+address _caller, address indexed _sender, address indexed _receiver, uint256 indexed _id, uint256 _amount
+);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `Transfer` | `` | Emitted when a transfer occurs. **Parameters** |
+
+
+
+
+
+
+## Errors
+
+
+### ERC6909InsufficientAllowance
+
+
+Thrown when the spender has insufficient allowance. **Parameters**
+
+
+
+```solidity
+error ERC6909InsufficientAllowance(address _spender, uint256 _allowance, uint256 _needed, uint256 _id);
+```
+
+
+
+### ERC6909InsufficientBalance
+
+
+Thrown when the sender has insufficient balance. **Parameters**
+
+
+
+```solidity
+error ERC6909InsufficientBalance(address _sender, uint256 _balance, uint256 _needed, uint256 _id);
+```
+
+
+
+### ERC6909InvalidApprover
+
+
+Thrown when the approver address is invalid. **Parameters**
+
+
+
+```solidity
+error ERC6909InvalidApprover(address _approver);
+```
+
+
+
+### ERC6909InvalidReceiver
+
+
+Thrown when the receiver address is invalid. **Parameters**
+
+
+
+```solidity
+error ERC6909InvalidReceiver(address _receiver);
+```
+
+
+
+### ERC6909InvalidSender
+
+
+Thrown when the sender address is invalid. **Parameters**
+
+
+
+```solidity
+error ERC6909InvalidSender(address _sender);
+```
+
+
+
+### ERC6909InvalidSpender
+
+
+Thrown when the spender address is invalid. **Parameters**
+
+
+
+```solidity
+error ERC6909InvalidSpender(address _spender);
+```
+
+
+
+
+
+## Structs
+
+
+### ERC6909Storage
+
+
+**Note:** storage-location: erc8042:compose.erc6909
+
+
+
+```solidity
+struct ERC6909Storage {
+mapping(address owner =&gt; mapping(uint256 id =&gt; uint256 amount)) balanceOf;
+mapping(address owner =&gt; mapping(address spender =&gt; mapping(uint256 id =&gt; uint256 amount))) allowance;
+mapping(address owner =&gt; mapping(address spender =&gt; bool)) isOperator;
+}
+```
+
+
+
+
+
+
+
+
