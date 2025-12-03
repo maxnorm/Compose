@@ -17,9 +17,17 @@ const {
   getContractType,
   getOutputDir,
   readChangedFilesFromFile,
+  extractLibraryNameFromPath,
+  extractLibraryDescriptionFromSource,
 } = require('./generate-docs-utils/doc-generation-utils');
 const { readFileSafe, writeFileSafe } = require('./workflow-utils');
-const { parseForgeDocMarkdown, extractStorageInfo } = require('./generate-docs-utils/forge-doc-parser');
+const { 
+  parseForgeDocMarkdown, 
+  extractStorageInfo,
+  parseIndividualItemFile,
+  aggregateParsedItems,
+  detectItemTypeFromFilename,
+} = require('./generate-docs-utils/forge-doc-parser');
 const { generateFacetDoc, generateLibraryDoc } = require('./generate-docs-utils/templates/templates');
 const { enhanceWithCopilot, shouldSkipEnhancement } = require('./generate-docs-utils/copilot-enhancement');
 
@@ -109,6 +117,125 @@ async function processForgeDocFile(forgeDocFile, solFilePath) {
 }
 
 /**
+ * Check if files need aggregation (individual item files vs contract-level files)
+ * @param {string[]} forgeDocFiles - Array of forge doc file paths
+ * @returns {boolean} True if files are individual items that need aggregation
+ */
+function needsAggregation(forgeDocFiles) {
+  // Check if any file matches individual item patterns
+  for (const file of forgeDocFiles) {
+    const itemType = detectItemTypeFromFilename(file);
+    if (itemType) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Process aggregated files (for free function libraries)
+ * @param {string[]} forgeDocFiles - Array of forge doc file paths
+ * @param {string} solFilePath - Original .sol file path
+ * @returns {Promise<boolean>} True if processed successfully
+ */
+async function processAggregatedFiles(forgeDocFiles, solFilePath) {
+  console.log(`Aggregating ${forgeDocFiles.length} files for: ${solFilePath}`);
+
+  // Parse all individual item files
+  const parsedItems = [];
+  let gitSource = '';
+
+  for (const forgeDocFile of forgeDocFiles) {
+    const content = readFileSafe(forgeDocFile);
+    if (!content) {
+      console.log(`Could not read: ${forgeDocFile}`);
+      continue;
+    }
+
+    console.log(`Reading: ${path.basename(forgeDocFile)}`);
+    const parsed = parseIndividualItemFile(content, forgeDocFile);
+    if (parsed) {
+      parsedItems.push(parsed);
+      if (parsed.gitSource && !gitSource) {
+        gitSource = parsed.gitSource;
+      }
+    }
+  }
+
+  if (parsedItems.length === 0) {
+    console.log(`No valid items found in files for: ${solFilePath}`);
+    processedFiles.errors.push({ file: solFilePath, error: 'No valid items parsed' });
+    return false;
+  }
+
+  // Aggregate all parsed items
+  const data = aggregateParsedItems(parsedItems, solFilePath);
+
+  // Extract library name and description from source file
+  if (!data.title) {
+    data.title = extractLibraryNameFromPath(solFilePath);
+  }
+
+  const sourceDescription = extractLibraryDescriptionFromSource(solFilePath);
+  if (sourceDescription) {
+    data.description = sourceDescription;
+    data.subtitle = sourceDescription;
+    data.overview = sourceDescription;
+  }
+
+  // Use git source from parsed items if available
+  if (gitSource) {
+    data.gitSource = gitSource;
+  }
+
+  // Determine contract type
+  const contractType = getContractType(solFilePath, '');
+  console.log(`Type: ${contractType} - ${data.title}`);
+
+  // Extract storage info for libraries
+  if (contractType === 'library') {
+    data.storageInfo = extractStorageInfo(data);
+  }
+
+  // Check if we should skip enhancement
+  const skipEnhancement = shouldSkipEnhancement(data) || process.env.SKIP_ENHANCEMENT === 'true';
+
+  // Enhance with Copilot if not skipped
+  let enhancedData = data;
+  if (!skipEnhancement) {
+    const token = process.env.GITHUB_TOKEN;
+    enhancedData = await enhanceWithCopilot(data, contractType, token);
+  } else {
+    console.log(`Skipping enhancement for ${data.title}`);
+  }
+
+  // Generate MDX content
+  const mdxContent = contractType === 'library'
+    ? generateLibraryDoc(enhancedData)
+    : generateFacetDoc(enhancedData);
+
+  // Determine output path
+  const outputDir = getOutputDir(contractType);
+  const outputFile = path.join(outputDir, `${data.title}.mdx`);
+
+  // Write the file
+  if (writeFileSafe(outputFile, mdxContent)) {
+    console.log('✅  Generated:', outputFile);
+    
+    if (contractType === 'library') {
+      processedFiles.libraries.push({ title: data.title, file: outputFile });
+    } else {
+      processedFiles.facets.push({ title: data.title, file: outputFile });
+    }
+    
+    return true;
+  }
+
+  processedFiles.errors.push({ file: outputFile, error: 'Could not write file' });
+  return false;
+}
+
+/**
  * Process a Solidity source file
  * @param {string} solFilePath - Path to .sol file
  * @returns {Promise<void>}
@@ -124,9 +251,15 @@ async function processSolFile(solFilePath) {
     return;
   }
 
-  for (const forgeDocFile of forgeDocFiles) {
-    console.log(`Reading: ${path.basename(forgeDocFile)}`);
-    await processForgeDocFile(forgeDocFile, solFilePath);
+  // Check if files need aggregation (individual item files)
+  if (needsAggregation(forgeDocFiles)) {
+    await processAggregatedFiles(forgeDocFiles, solFilePath);
+  } else {
+    // Process files individually (contract-level files)
+    for (const forgeDocFile of forgeDocFiles) {
+      console.log(`Reading: ${path.basename(forgeDocFile)}`);
+      await processForgeDocFile(forgeDocFile, solFilePath);
+    }
   }
 }
 

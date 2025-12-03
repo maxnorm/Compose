@@ -89,6 +89,118 @@ function isInterface(title, content) {
 }
 
 /**
+ * Extract library name from file path
+ * @param {string} filePath - Path to the file (e.g., 'src/libraries/LibNonReentrancy.sol' or 'constants.LibNonReentrancy.md')
+ * @returns {string} Library name (e.g., 'LibNonReentrancy')
+ */
+function extractLibraryNameFromPath(filePath) {
+  const path = require('path');
+  
+  // If it's a constants file, extract from filename
+  const basename = path.basename(filePath);
+  if (basename.startsWith('constants.')) {
+    const match = basename.match(/^constants\.(.+)\.md$/);
+    if (match) {
+      return match[1];
+    }
+  }
+  
+  // Extract from .sol file path
+  if (filePath.endsWith('.sol')) {
+    return path.basename(filePath, '.sol');
+  }
+  
+  // Extract from directory structure (e.g., docs/src/src/libraries/LibNonReentrancy.sol/function.enter.md)
+  const parts = filePath.split(path.sep);
+  for (let i = parts.length - 1; i >= 0; i--) {
+    if (parts[i].endsWith('.sol')) {
+      return path.basename(parts[i], '.sol');
+    }
+  }
+  
+  // Fallback: use basename without extension
+  return path.basename(filePath, path.extname(filePath));
+}
+
+/**
+ * Extract library description from source file NatSpec comments
+ * @param {string} solFilePath - Path to the Solidity source file
+ * @returns {string} Description extracted from @title and @notice tags
+ */
+function extractLibraryDescriptionFromSource(solFilePath) {
+  const content = readFileSafe(solFilePath);
+  if (!content) {
+    return '';
+  }
+
+  const lines = content.split('\n');
+  let inComment = false;
+  let commentBuffer = [];
+  let title = '';
+  let notice = '';
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmed = line.trim();
+
+    // Check if we've reached the first function/constant/error (end of file-level comments)
+    if (trimmed && !trimmed.startsWith('//') && !trimmed.startsWith('/*') && !trimmed.startsWith('*') && 
+        (trimmed.startsWith('function ') || trimmed.startsWith('error ') || trimmed.startsWith('event ') || 
+         trimmed.startsWith('struct ') || trimmed.startsWith('enum ') || trimmed.match(/^\w+\s+constant/))) {
+      break;
+    }
+
+    // Start of block comment
+    if (trimmed.startsWith('/*')) {
+      inComment = true;
+      commentBuffer = [];
+      continue;
+    }
+
+    // End of block comment
+    if (inComment && trimmed.includes('*/')) {
+      inComment = false;
+      const commentText = commentBuffer.join(' ');
+      
+      // Extract @title
+      const titleMatch = commentText.match(/@title\s+(.+?)(?:\s+@|\s*\*\/|$)/);
+      if (titleMatch) {
+        title = titleMatch[1].trim();
+      }
+
+      // Extract @notice
+      const noticeMatch = commentText.match(/@notice\s+(.+?)(?:\s+@|\s*\*\/|$)/);
+      if (noticeMatch) {
+        notice = noticeMatch[1].trim();
+      }
+
+      commentBuffer = [];
+      continue;
+    }
+
+    // Collect comment lines
+    if (inComment) {
+      // Remove comment markers
+      let cleanLine = trimmed.replace(/^\*\s*/, '').replace(/^\s*\*/, '').trim();
+      if (cleanLine && !cleanLine.startsWith('*/')) {
+        commentBuffer.push(cleanLine);
+      }
+    }
+  }
+
+  // Combine title and notice
+  if (title && notice) {
+    return `${title} - ${notice}`;
+  } else if (notice) {
+    return notice;
+  } else if (title) {
+    return title;
+  }
+
+  return '';
+}
+
+/**
  * Determine if a contract is a library or facet
  * @param {string} filePath - Path to the file
  * @param {string} content - File content
@@ -99,6 +211,11 @@ function getContractType(filePath, content) {
   
   // Check path patterns
   if (lowerPath.includes('lib')) {
+    // Check if it's a free function library (no 'library' keyword in content)
+    if (content && !content.includes('library ')) {
+      // It's a free function library
+      return 'library';
+    }
     return 'library';
   }
   
@@ -107,7 +224,7 @@ function getContractType(filePath, content) {
   }
 
   // Check content patterns
-  if (content.includes('library ')) {
+  if (content && content.includes('library ')) {
     return 'library';
   }
 
@@ -147,6 +264,8 @@ module.exports = {
   getContractType,
   getOutputDir,
   readChangedFilesFromFile,
+  extractLibraryNameFromPath,
+  extractLibraryDescriptionFromSource,
 };
 
 
