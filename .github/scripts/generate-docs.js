@@ -55,6 +55,11 @@ async function processForgeDocFile(forgeDocFile, solFilePath) {
 
   // Parse the forge doc markdown
   const data = parseForgeDocMarkdown(content, forgeDocFile);
+  
+  // Add source file path for parameter extraction
+  if (solFilePath) {
+    data.sourceFilePath = solFilePath;
+  }
 
   if (!data.title) {
     console.log(`Could not parse title from: ${forgeDocFile}`);
@@ -170,6 +175,9 @@ async function processAggregatedFiles(forgeDocFiles, solFilePath) {
 
   // Aggregate all parsed items
   const data = aggregateParsedItems(parsedItems, solFilePath);
+  
+  // Add source file path for parameter extraction
+  data.sourceFilePath = solFilePath;
 
   // Extract library name and description from source file
   if (!data.title) {
