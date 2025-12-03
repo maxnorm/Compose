@@ -2,12 +2,12 @@
 pragma solidity >=0.8.30;
 
 import {Test} from "forge-std/Test.sol";
-import {LibERC1155Harness} from "./harnesses/LibERC1155Harness.sol";
-import "../../../../src/token/ERC1155/LibERC1155.sol" as LibERC1155;
+import {ERC1155Harness} from "./harnesses/ERC1155Harness.sol";
+import "../../../../src/token/ERC1155/ERC1155.sol" as ERC1155;
 import {ERC1155ReceiverMock} from "./mocks/ERC1155ReceiverMock.sol";
 
 contract LibERC1155Test is Test {
-    LibERC1155Harness public harness;
+    ERC1155Harness public harness;
 
     address public alice;
     address public bob;
@@ -38,7 +38,7 @@ contract LibERC1155Test is Test {
         bob = makeAddr("bob");
         charlie = makeAddr("charlie");
 
-        harness = new LibERC1155Harness();
+        harness = new ERC1155Harness();
         harness.initialize(DEFAULT_URI);
     }
 
@@ -108,7 +108,7 @@ contract LibERC1155Test is Test {
     }
 
     function test_RevertWhen_MintToZeroAddress() public {
-        vm.expectRevert(abi.encodeWithSelector(LibERC1155.ERC1155InvalidReceiver.selector, address(0)));
+        vm.expectRevert(abi.encodeWithSelector(ERC1155.ERC1155InvalidReceiver.selector, address(0)));
         harness.mint(address(0), TOKEN_ID_1, 100);
     }
 
@@ -144,7 +144,7 @@ contract LibERC1155Test is Test {
         uint256[] memory amounts = new uint256[](1);
         amounts[0] = 100;
 
-        vm.expectRevert(abi.encodeWithSelector(LibERC1155.ERC1155InvalidReceiver.selector, address(0)));
+        vm.expectRevert(abi.encodeWithSelector(ERC1155.ERC1155InvalidReceiver.selector, address(0)));
         harness.mintBatch(address(0), ids, amounts);
     }
 
@@ -156,7 +156,7 @@ contract LibERC1155Test is Test {
         uint256[] memory amounts = new uint256[](1);
         amounts[0] = 100;
 
-        vm.expectRevert(abi.encodeWithSelector(LibERC1155.ERC1155InvalidArrayLength.selector, 2, 1));
+        vm.expectRevert(abi.encodeWithSelector(ERC1155.ERC1155InvalidArrayLength.selector, 2, 1));
         harness.mintBatch(alice, ids, amounts);
     }
 
@@ -183,7 +183,7 @@ contract LibERC1155Test is Test {
         ERC1155ReceiverMock receiver =
             new ERC1155ReceiverMock(0x00c0ffee, RECEIVER_BATCH_MAGIC_VALUE, ERC1155ReceiverMock.RevertType.None);
 
-        vm.expectRevert(abi.encodeWithSelector(LibERC1155.ERC1155InvalidReceiver.selector, address(receiver)));
+        vm.expectRevert(abi.encodeWithSelector(ERC1155.ERC1155InvalidReceiver.selector, address(receiver)));
         harness.mint(address(receiver), TOKEN_ID_1, 100);
     }
 
@@ -224,7 +224,7 @@ contract LibERC1155Test is Test {
         uint256[] memory amounts = new uint256[](1);
         amounts[0] = 100;
 
-        vm.expectRevert(abi.encodeWithSelector(LibERC1155.ERC1155InvalidReceiver.selector, address(receiver)));
+        vm.expectRevert(abi.encodeWithSelector(ERC1155.ERC1155InvalidReceiver.selector, address(receiver)));
         harness.mintBatch(address(receiver), ids, amounts);
     }
 
@@ -265,7 +265,7 @@ contract LibERC1155Test is Test {
     }
 
     function test_RevertWhen_BurnFromZeroAddress() public {
-        vm.expectRevert(abi.encodeWithSelector(LibERC1155.ERC1155InvalidSender.selector, address(0)));
+        vm.expectRevert(abi.encodeWithSelector(ERC1155.ERC1155InvalidSender.selector, address(0)));
         harness.burn(address(0), TOKEN_ID_1, 100);
     }
 
@@ -273,13 +273,13 @@ contract LibERC1155Test is Test {
         harness.mint(alice, TOKEN_ID_1, 100);
 
         vm.expectRevert(
-            abi.encodeWithSelector(LibERC1155.ERC1155InsufficientBalance.selector, alice, 100, 150, TOKEN_ID_1)
+            abi.encodeWithSelector(ERC1155.ERC1155InsufficientBalance.selector, alice, 100, 150, TOKEN_ID_1)
         );
         harness.burn(alice, TOKEN_ID_1, 150);
     }
 
     function test_RevertWhen_BurnZeroBalance() public {
-        vm.expectRevert(abi.encodeWithSelector(LibERC1155.ERC1155InsufficientBalance.selector, alice, 0, 1, TOKEN_ID_1));
+        vm.expectRevert(abi.encodeWithSelector(ERC1155.ERC1155InsufficientBalance.selector, alice, 0, 1, TOKEN_ID_1));
         harness.burn(alice, TOKEN_ID_1, 1);
     }
 
@@ -322,7 +322,7 @@ contract LibERC1155Test is Test {
         uint256[] memory amounts = new uint256[](1);
         amounts[0] = 100;
 
-        vm.expectRevert(abi.encodeWithSelector(LibERC1155.ERC1155InvalidSender.selector, address(0)));
+        vm.expectRevert(abi.encodeWithSelector(ERC1155.ERC1155InvalidSender.selector, address(0)));
         harness.burnBatch(address(0), ids, amounts);
     }
 
@@ -336,7 +336,7 @@ contract LibERC1155Test is Test {
 
         harness.mint(alice, TOKEN_ID_1, 100);
 
-        vm.expectRevert(abi.encodeWithSelector(LibERC1155.ERC1155InvalidArrayLength.selector, 2, 1));
+        vm.expectRevert(abi.encodeWithSelector(ERC1155.ERC1155InvalidArrayLength.selector, 2, 1));
         harness.burnBatch(alice, ids, amounts);
     }
 
@@ -355,9 +355,7 @@ contract LibERC1155Test is Test {
         burnAmounts[0] = 50;
         burnAmounts[1] = 100; // More than balance
 
-        vm.expectRevert(
-            abi.encodeWithSelector(LibERC1155.ERC1155InsufficientBalance.selector, alice, 50, 100, TOKEN_ID_2)
-        );
+        vm.expectRevert(abi.encodeWithSelector(ERC1155.ERC1155InsufficientBalance.selector, alice, 50, 100, TOKEN_ID_2));
         harness.burnBatch(alice, ids, burnAmounts);
     }
 
@@ -439,13 +437,13 @@ contract LibERC1155Test is Test {
         harness.mint(alice, TOKEN_ID_1, 100);
 
         vm.prank(alice);
-        vm.expectRevert(abi.encodeWithSelector(LibERC1155.ERC1155InvalidReceiver.selector, address(0)));
+        vm.expectRevert(abi.encodeWithSelector(ERC1155.ERC1155InvalidReceiver.selector, address(0)));
         harness.safeTransferFrom(alice, address(0), TOKEN_ID_1, 30);
     }
 
     function test_RevertWhen_SafeTransferFromFromZeroAddress() public {
         vm.prank(alice);
-        vm.expectRevert(abi.encodeWithSelector(LibERC1155.ERC1155InvalidSender.selector, address(0)));
+        vm.expectRevert(abi.encodeWithSelector(ERC1155.ERC1155InvalidSender.selector, address(0)));
         harness.safeTransferFrom(address(0), bob, TOKEN_ID_1, 30);
     }
 
@@ -453,7 +451,7 @@ contract LibERC1155Test is Test {
         harness.mint(alice, TOKEN_ID_1, 100);
 
         vm.prank(bob);
-        vm.expectRevert(abi.encodeWithSelector(LibERC1155.ERC1155MissingApprovalForAll.selector, bob, alice));
+        vm.expectRevert(abi.encodeWithSelector(ERC1155.ERC1155MissingApprovalForAll.selector, bob, alice));
         harness.safeTransferFrom(alice, charlie, TOKEN_ID_1, 30);
     }
 
@@ -462,14 +460,14 @@ contract LibERC1155Test is Test {
 
         vm.prank(alice);
         vm.expectRevert(
-            abi.encodeWithSelector(LibERC1155.ERC1155InsufficientBalance.selector, alice, 100, 150, TOKEN_ID_1)
+            abi.encodeWithSelector(ERC1155.ERC1155InsufficientBalance.selector, alice, 100, 150, TOKEN_ID_1)
         );
         harness.safeTransferFrom(alice, bob, TOKEN_ID_1, 150);
     }
 
     function test_RevertWhen_SafeTransferFromZeroBalance() public {
         vm.prank(alice);
-        vm.expectRevert(abi.encodeWithSelector(LibERC1155.ERC1155InsufficientBalance.selector, alice, 0, 1, TOKEN_ID_1));
+        vm.expectRevert(abi.encodeWithSelector(ERC1155.ERC1155InsufficientBalance.selector, alice, 0, 1, TOKEN_ID_1));
         harness.safeTransferFrom(alice, bob, TOKEN_ID_1, 1);
     }
 
@@ -557,7 +555,7 @@ contract LibERC1155Test is Test {
         harness.mint(alice, TOKEN_ID_1, 100);
 
         vm.prank(alice);
-        vm.expectRevert(abi.encodeWithSelector(LibERC1155.ERC1155InvalidReceiver.selector, address(0)));
+        vm.expectRevert(abi.encodeWithSelector(ERC1155.ERC1155InvalidReceiver.selector, address(0)));
         harness.safeBatchTransferFrom(alice, address(0), ids, amounts);
     }
 
@@ -568,7 +566,7 @@ contract LibERC1155Test is Test {
         amounts[0] = 30;
 
         vm.prank(alice);
-        vm.expectRevert(abi.encodeWithSelector(LibERC1155.ERC1155InvalidSender.selector, address(0)));
+        vm.expectRevert(abi.encodeWithSelector(ERC1155.ERC1155InvalidSender.selector, address(0)));
         harness.safeBatchTransferFrom(address(0), bob, ids, amounts);
     }
 
@@ -583,7 +581,7 @@ contract LibERC1155Test is Test {
         harness.mint(alice, TOKEN_ID_1, 100);
 
         vm.prank(alice);
-        vm.expectRevert(abi.encodeWithSelector(LibERC1155.ERC1155InvalidArrayLength.selector, 2, 1));
+        vm.expectRevert(abi.encodeWithSelector(ERC1155.ERC1155InvalidArrayLength.selector, 2, 1));
         harness.safeBatchTransferFrom(alice, bob, ids, amounts);
     }
 
@@ -596,7 +594,7 @@ contract LibERC1155Test is Test {
         harness.mint(alice, TOKEN_ID_1, 100);
 
         vm.prank(bob);
-        vm.expectRevert(abi.encodeWithSelector(LibERC1155.ERC1155MissingApprovalForAll.selector, bob, alice));
+        vm.expectRevert(abi.encodeWithSelector(ERC1155.ERC1155MissingApprovalForAll.selector, bob, alice));
         harness.safeBatchTransferFrom(alice, charlie, ids, amounts);
     }
 
@@ -616,9 +614,7 @@ contract LibERC1155Test is Test {
         transferAmounts[1] = 100; // More than balance
 
         vm.prank(alice);
-        vm.expectRevert(
-            abi.encodeWithSelector(LibERC1155.ERC1155InsufficientBalance.selector, alice, 50, 100, TOKEN_ID_2)
-        );
+        vm.expectRevert(abi.encodeWithSelector(ERC1155.ERC1155InsufficientBalance.selector, alice, 50, 100, TOKEN_ID_2));
         harness.safeBatchTransferFrom(alice, bob, ids, transferAmounts);
     }
 
@@ -804,7 +800,7 @@ contract LibERC1155Test is Test {
         harness.mint(alice, TOKEN_ID_1, 100);
 
         vm.prank(alice);
-        vm.expectRevert(abi.encodeWithSelector(LibERC1155.ERC1155InvalidReceiver.selector, address(receiver)));
+        vm.expectRevert(abi.encodeWithSelector(ERC1155.ERC1155InvalidReceiver.selector, address(receiver)));
         harness.safeTransferFrom(alice, address(receiver), TOKEN_ID_1, 50);
     }
 
@@ -828,7 +824,7 @@ contract LibERC1155Test is Test {
         harness.mint(alice, TOKEN_ID_1, 100);
 
         vm.prank(alice);
-        vm.expectRevert(abi.encodeWithSelector(LibERC1155.ERC1155InvalidReceiver.selector, address(receiver)));
+        vm.expectRevert(abi.encodeWithSelector(ERC1155.ERC1155InvalidReceiver.selector, address(receiver)));
         harness.safeTransferFrom(alice, address(receiver), TOKEN_ID_1, 50);
     }
 
@@ -873,7 +869,7 @@ contract LibERC1155Test is Test {
         harness.mint(alice, TOKEN_ID_1, 100);
 
         vm.prank(alice);
-        vm.expectRevert(abi.encodeWithSelector(LibERC1155.ERC1155InvalidReceiver.selector, address(receiver)));
+        vm.expectRevert(abi.encodeWithSelector(ERC1155.ERC1155InvalidReceiver.selector, address(receiver)));
         harness.safeBatchTransferFrom(alice, address(receiver), ids, amounts);
     }
 
@@ -893,7 +889,7 @@ contract LibERC1155Test is Test {
         harness.mint(alice, TOKEN_ID_1, 100);
 
         vm.prank(alice);
-        vm.expectRevert(abi.encodeWithSelector(LibERC1155.ERC1155InvalidReceiver.selector, address(receiver)));
+        vm.expectRevert(abi.encodeWithSelector(ERC1155.ERC1155InvalidReceiver.selector, address(receiver)));
         harness.safeBatchTransferFrom(alice, address(receiver), ids, amounts);
     }
 
@@ -1150,7 +1146,7 @@ contract LibERC1155Test is Test {
          * Bob can no longer transfer
          */
         vm.prank(bob);
-        vm.expectRevert(abi.encodeWithSelector(LibERC1155.ERC1155MissingApprovalForAll.selector, bob, alice));
+        vm.expectRevert(abi.encodeWithSelector(ERC1155.ERC1155MissingApprovalForAll.selector, bob, alice));
         harness.safeTransferFrom(alice, charlie, TOKEN_ID_1, 100);
     }
 }
