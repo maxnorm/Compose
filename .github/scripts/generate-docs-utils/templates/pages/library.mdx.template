@@ -9,7 +9,7 @@ import Callout from '@site/src/components/ui/Callout';
 
 ## Overview
 
-{{overview}}
+{{sanitizeMdx overview}}
 
 {{#if gitSource}}
 [View Source]({{gitSource}})
@@ -23,7 +23,7 @@ This library provides internal functions for use in your custom facets. Import i
 ## Storage
 
 {{#if storageInfo}}
-{{storageInfo}}
+{{sanitizeMdx storageInfo}}
 
 {{/if}}
 {{#if hasStateVariables}}
@@ -33,7 +33,7 @@ This library provides internal functions for use in your custom facets. Import i
 #### {{name}}
 
 {{#if description}}
-{{description}}
+{{sanitizeMdx description}}
 
 {{/if}}
 {{/each}}
@@ -46,7 +46,7 @@ This library provides internal functions for use in your custom facets. Import i
 ### {{name}}
 
 {{#if description}}
-{{description}}
+{{sanitizeMdx description}}
 
 {{/if}}
 {{#if signature}}
@@ -84,7 +84,7 @@ This library provides internal functions for use in your custom facets. Import i
 ### {{name}}
 
 {{#if description}}
-{{description}}
+{{sanitizeMdx description}}
 
 {{/if}}
 {{#if signature}}
@@ -110,7 +110,7 @@ This library provides internal functions for use in your custom facets. Import i
 ### {{name}}
 
 {{#if description}}
-{{description}}
+{{sanitizeMdx description}}
 
 {{/if}}
 {{#if signature}}
@@ -128,7 +128,7 @@ This library provides internal functions for use in your custom facets. Import i
 ### {{name}}
 
 {{#if description}}
-{{description}}
+{{sanitizeMdx description}}
 
 {{/if}}
 {{#if definition}}
@@ -151,7 +151,7 @@ This library provides internal functions for use in your custom facets. Import i
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-{{bestPractices}}
+{{sanitizeMdx bestPractices}}
 </Callout>
 
 {{/if}}
@@ -159,7 +159,7 @@ This library provides internal functions for use in your custom facets. Import i
 ## Integration Notes
 
 <Callout type="success" title="Shared Storage">
-{{integrationNotes}}
+{{sanitizeMdx integrationNotes}}
 </Callout>
 
 {{/if}}

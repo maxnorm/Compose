@@ -16,7 +16,7 @@ import Callout from '@site/src/components/ui/Callout';
 
 ## Overview
 
-{{overview}}
+{{sanitizeMdx overview}}
 
 {{#if gitSource}}
 [View Source]({{gitSource}})
@@ -24,7 +24,7 @@ import Callout from '@site/src/components/ui/Callout';
 {{/if}}
 {{#if keyFeatures}}
 <Callout type="info" title="Key Features">
-{{keyFeatures}}
+{{sanitizeMdx keyFeatures}}
 </Callout>
 
 {{/if}}
@@ -73,7 +73,7 @@ import Callout from '@site/src/components/ui/Callout';
 ### {{name}}
 
 {{#if description}}
-{{description}}
+{{sanitizeMdx description}}
 
 {{/if}}
 {{#if signature}}
@@ -99,7 +99,7 @@ import Callout from '@site/src/components/ui/Callout';
 ### {{name}}
 
 {{#if description}}
-{{description}}
+{{sanitizeMdx description}}
 
 {{/if}}
 {{#if signature}}
@@ -117,7 +117,7 @@ import Callout from '@site/src/components/ui/Callout';
 ### {{name}}
 
 {{#if description}}
-{{description}}
+{{sanitizeMdx description}}
 
 {{/if}}
 {{#if definition}}
@@ -140,7 +140,7 @@ import Callout from '@site/src/components/ui/Callout';
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-{{bestPractices}}
+{{sanitizeMdx bestPractices}}
 </Callout>
 
 {{/if}}
@@ -148,7 +148,7 @@ import Callout from '@site/src/components/ui/Callout';
 ## Security Considerations
 
 <Callout type="warning" title="Security">
-{{securityConsiderations}}
+{{sanitizeMdx securityConsiderations}}
 </Callout>
 
 {{/if}}
