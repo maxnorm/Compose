@@ -181,6 +181,16 @@ async function processAggregatedFiles(forgeDocFiles, solFilePath) {
     data.description = sourceDescription;
     data.subtitle = sourceDescription;
     data.overview = sourceDescription;
+  } else {
+    // If no source description found, use a generic one instead of first item's description
+    // The aggregateParsedItems sets description from first item, which might be wrong
+    const genericDescription = `Library providing internal functions for ${data.title}`;
+    if (!data.description || data.description.includes('Event emitted') || data.description.includes('Thrown when')) {
+      // Only override if it looks like it came from an item description
+      data.description = genericDescription;
+      data.subtitle = genericDescription;
+      data.overview = genericDescription;
+    }
   }
 
   // Use git source from parsed items if available

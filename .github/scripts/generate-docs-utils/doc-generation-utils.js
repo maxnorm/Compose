@@ -138,15 +138,35 @@ function extractLibraryDescriptionFromSource(solFilePath) {
   let commentBuffer = [];
   let title = '';
   let notice = '';
+  let foundFirstCodeElement = false;
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     const trimmed = line.trim();
 
+    // Skip SPDX and pragma lines
+    if (trimmed.startsWith('// SPDX') || trimmed.startsWith('pragma ')) {
+      continue;
+    }
+
     // Check if we've reached the first function/constant/error (end of file-level comments)
     if (trimmed && !trimmed.startsWith('//') && !trimmed.startsWith('/*') && !trimmed.startsWith('*') && 
         (trimmed.startsWith('function ') || trimmed.startsWith('error ') || trimmed.startsWith('event ') || 
          trimmed.startsWith('struct ') || trimmed.startsWith('enum ') || trimmed.match(/^\w+\s+constant/))) {
+      foundFirstCodeElement = true;
+      // If we're in a comment, finish processing it first
+      if (inComment) {
+        // Process the comment we were collecting
+        const commentText = commentBuffer.join(' ');
+        const titleMatch = commentText.match(/@title\s+(.+?)(?:\s+@|\s*\*\/|$)/);
+        if (titleMatch) {
+          title = titleMatch[1].trim();
+        }
+        const noticeMatch = commentText.match(/@notice\s+(.+?)(?:\s+@|\s*\*\/|$)/);
+        if (noticeMatch) {
+          notice = noticeMatch[1].trim();
+        }
+      }
       break;
     }
 

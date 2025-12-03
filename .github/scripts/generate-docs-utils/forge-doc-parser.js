@@ -438,8 +438,12 @@ function parseIndividualItemFile(content, filePath) {
     // Parse constants with ### heading format
     if (itemType === 'constants' && line.startsWith('### ')) {
       const constantName = line.replace('### ', '').trim();
-      // Clear description buffer for this constant
-      const currentConstantDesc = descriptionBuffer.join(' ').trim();
+      // Clear description buffer for this constant (only text before this heading)
+      // Filter out code block delimiters and empty lines
+      const currentConstantDesc = descriptionBuffer
+        .filter(l => l && !l.trim().startsWith('```') && l.trim() !== '')
+        .join(' ')
+        .trim();
       descriptionBuffer = [];
       
       // Look ahead for code block (within next 15 lines)
@@ -495,7 +499,13 @@ function parseIndividualItemFile(content, filePath) {
     }
 
     // Collect description (text before code block or after title)
-    if (!inCodeBlock && trimmedLine && !trimmedLine.startsWith('#') && !trimmedLine.startsWith('[') && !trimmedLine.startsWith('|')) {
+    // Skip code block delimiters, empty lines, and markdown table separators
+    if (!inCodeBlock && trimmedLine && 
+        !trimmedLine.startsWith('#') && 
+        !trimmedLine.startsWith('[') && 
+        !trimmedLine.startsWith('|') &&
+        !trimmedLine.startsWith('```') &&
+        trimmedLine !== '') {
       if (itemType !== 'constants' || !line.startsWith('###')) {
         descriptionBuffer.push(trimmedLine);
       }
@@ -651,7 +661,12 @@ function aggregateParsedItems(parsedItems, sourceFilePath) {
   }
 
   // Set default description if not provided
-  if (!data.description) {
+  // Don't use item descriptions as library description - they'll be overridden by source file parsing
+  if (!data.description || 
+      data.description.includes('Event emitted') || 
+      data.description.includes('Thrown when') ||
+      data.description.includes('function to') ||
+      data.description.length < 20) {
     data.description = `Documentation for ${data.title}`;
     data.subtitle = data.description;
     data.overview = data.description;
