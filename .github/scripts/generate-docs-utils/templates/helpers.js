@@ -83,7 +83,9 @@ function escapeMarkdownTable(str) {
   if (!str) return '';
   return str
     .replace(/\|/g, '\\|')
-    .replace(/\n/g, ' ');
+    .replace(/\n/g, ' ')
+    .replace(/\{/g, '&#123;')
+    .replace(/\}/g, '&#125;'); 
 }
 
 /**
