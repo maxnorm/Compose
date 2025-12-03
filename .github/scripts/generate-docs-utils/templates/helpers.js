@@ -28,7 +28,9 @@ function sanitizeForMdx(str) {
   if (!str) return '';
   return str
     .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
+    .replace(/>/g, '&gt;')
+    .replace(/\{/g, '&#123;')
+    .replace(/\}/g, '&#125;');
 }
 
 /**
