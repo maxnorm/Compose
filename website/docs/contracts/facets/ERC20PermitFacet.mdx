@@ -1,0 +1,287 @@
+---
+sidebar_position: 99
+title: "ERC20PermitFacet"
+description: "Contract documentation for ERC20PermitFacet"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+
+<DocHero
+  title="ERC20PermitFacet"
+  subtitle="Contract documentation for ERC20PermitFacet"
+  variant="gradient"
+  height="small"
+/>
+
+
+## Overview
+
+The ERC20PermitFacet provides EIP-2612 permit functionality, enabling token holders to approve spending by a third party via signature without requiring an on-chain transaction. This feature reduces gas costs and allows for seamless integrations with off-chain systems, enhancing user experience within diamond contracts.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/120348af74dbcdccde5d091d5c92f84ffed4753d/src/token/ERC20/ERC20Permit/ERC20PermitFacet.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Implements the EIP-2612 permit function.\n- Provides a DOMAIN_SEPARATOR to prevent replay attacks.\n- Tracks nonces to ensure signature authenticity and prevent reuse.
+</Callout>
+
+
+
+
+## Functions
+
+
+### getERC20Storage
+
+
+
+```solidity
+function getERC20Storage() internal pure returns (ERC20Storage storage s);
+```
+
+
+
+
+
+### getStorage
+
+
+
+```solidity
+function getStorage() internal pure returns (ERC20PermitStorage storage s);
+```
+
+
+
+
+
+### nonces
+
+
+Returns the current nonce for an owner. This value changes each time a permit is used.
+
+
+
+```solidity
+function nonces(address _owner) external view returns (uint256);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_owner` | `address` | The address of the owner. |
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `-` | `uint256` | The current nonce. |
+
+
+
+
+### DOMAIN_SEPARATOR
+
+
+Returns the domain separator used in the encoding of the signature for permit. This value is unique to a contract and chain ID combination to prevent replay attacks.
+
+
+
+```solidity
+function DOMAIN_SEPARATOR() external view returns (bytes32);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `-` | `bytes32` | The domain separator. |
+
+
+
+
+### permit
+
+
+Sets the allowance for a spender via a signature. This function implements EIP-2612 permit functionality.
+
+
+
+```solidity
+function permit(
+    address _owner,
+    address _spender,
+    uint256 _value,
+    uint256 _deadline,
+    uint8 _v,
+    bytes32 _r,
+    bytes32 _s
+) external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_owner` | `address` | The address of the token owner. |
+
+| `_spender` | `address` | The address of the spender. |
+
+| `_value` | `uint256` | The amount of tokens to approve. |
+
+| `_deadline` | `uint256` | The deadline for the permit (timestamp). |
+
+| `_v` | `uint8` | The recovery byte of the signature. |
+
+| `_r` | `bytes32` | The r value of the signature. |
+
+| `_s` | `bytes32` | The s value of the signature. |
+
+
+
+
+
+
+
+## Events
+
+
+### Approval
+
+
+Emitted when an approval is made for a spender by an owner.
+
+
+
+```solidity
+event Approval(address indexed _owner, address indexed _spender, uint256 _value);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `_owner` | `address` | The address granting the allowance. |
+
+| `_spender` | `address` | The address receiving the allowance. |
+
+| `_value` | `uint256` | The amount approved. |
+
+
+
+
+
+
+## Errors
+
+
+### ERC2612InvalidSignature
+
+
+Thrown when a permit signature is invalid or expired.
+
+
+
+```solidity
+error ERC2612InvalidSignature(
+    address _owner, address _spender, uint256 _value, uint256 _deadline, uint8 _v, bytes32 _r, bytes32 _s
+);
+```
+
+
+
+### ERC20InvalidSpender
+
+
+Thrown when the spender address is invalid (e.g., zero address).
+
+
+
+```solidity
+error ERC20InvalidSpender(address _spender);
+```
+
+
+
+
+
+## Structs
+
+
+### ERC20Storage
+
+
+
+```solidity
+struct ERC20Storage {
+    mapping(address owner =&gt; uint256 balance) balanceOf;
+    uint256 totalSupply;
+    mapping(address owner =&gt; mapping(address spender =&gt; uint256 allowance)) allowance;
+    uint8 decimals;
+    string name;
+}
+```
+
+
+
+### ERC20PermitStorage
+
+
+
+```solidity
+struct ERC20PermitStorage {
+    mapping(address owner =&gt; uint256) nonces;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;\n\nimport { Diamond } from &quot;path_to_diamond/Diamond.sol&quot;;\n\ncontract ExampleUsage {\n    function permitSpender(address diamondAddress, address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external {\n        // Interact with the ERC20PermitFacet of the diamond\n        Diamond(diamondAddress).facetCall(\n            abi.encodeWithSignature(\n                &quot;permit(address,address,uint256,uint256,uint8,bytes32,bytes32)&quot;,\n                owner,\n                spender,\n                value,\n                deadline,\n                v,\n                r,\n                s\n            )\n        );\n    }\n\n    function getNonce(address diamondAddress, address owner) external view returns (uint256) {\n        return uint256(Diamond(diamondAddress).facetCall(\n            abi.encodeWithSignature(&quot;nonces(address)&quot;, owner)\n        ));\n    }\n}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Use unique DOMAIN_SEPARATOR values for each contract and chain combination to prevent signature replay attacks.\n- Ensure signatures are created securely, following wallet or trusted provider practices.\n- Use external libraries like OpenZeppelin's ECDSA for signature verification to prevent implementation vulnerabilities.
+</Callout>
+
+
+
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Implement strict access control to sensitive asset management functions to prevent unauthorized actions. Validate all inputs to avoid maliciously crafted data. Prevent reentrancy by thoroughly auditing external calls and following reentrancy best practices.
+</Callout>
+
+
+
+
+

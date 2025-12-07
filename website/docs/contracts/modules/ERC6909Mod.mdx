@@ -1,0 +1,432 @@
+---
+sidebar_position: 99
+title: "ERC6909Mod"
+description: "LibERC6909 — ERC-6909 Library - Thrown when the sender has insufficient balance."
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+
+## Overview
+
+LibERC6909 — ERC-6909 Library - Thrown when the sender has insufficient balance.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/120348af74dbcdccde5d091d5c92f84ffed4753d/src/token/ERC6909/ERC6909/ERC6909Mod.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- All functions are `internal` for use in custom facets
+- Follows diamond storage pattern (EIP-8042)
+- Compatible with ERC-2535 diamonds
+- No external dependencies or `using` directives
+</Callout>
+
+
+
+<Callout type="info" title="Module Usage">
+This module provides internal functions for use in your custom facets. Import it to access shared logic and storage.
+</Callout>
+
+
+## Storage
+
+
+Storage position: `STORAGE_POSITION` - Used for diamond storage pattern.
+
+
+
+### State Variables
+
+
+#### STORAGE_POSITION
+
+
+
+
+
+
+
+## Functions
+
+
+### approve
+
+
+Approves an amount of an id to a spender. **Parameters**
+
+
+
+```solidity
+function approve(address _owner, address _spender, uint256 _id, uint256 _amount) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_owner` | `address` | The token owner. |
+
+| `_spender` | `address` | The address of the spender. |
+
+| `_id` | `uint256` | The id of the token. |
+
+| `_amount` | `uint256` | The amount of the token. |
+
+
+
+
+
+### burn
+
+
+Burns `_amount` of token id `_id` from `_from`. **Parameters**
+
+
+
+```solidity
+function burn(address _from, uint256 _id, uint256 _amount) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_from` | `address` | The address of the sender. |
+
+| `_id` | `uint256` | The id of the token. |
+
+| `_amount` | `uint256` | The amount of the token. |
+
+
+
+
+
+### getStorage
+
+
+Returns a pointer to the ERC-6909 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION. **Returns**
+
+
+
+```solidity
+function getStorage() pure returns (ERC6909Storage storage s);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `s` | `ERC6909Storage` | The ERC6909Storage struct in storage. |
+
+
+
+
+### mint
+
+
+Mints `_amount` of token id `_id` to `_to`. **Parameters**
+
+
+
+```solidity
+function mint(address _to, uint256 _id, uint256 _amount) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_to` | `address` | The address of the receiver. |
+
+| `_id` | `uint256` | The id of the token. |
+
+| `_amount` | `uint256` | The amount of the token. |
+
+
+
+
+
+### setOperator
+
+
+Sets or removes a spender as an operator for the caller. **Parameters**
+
+
+
+```solidity
+function setOperator(address _owner, address _spender, bool _approved) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_owner` | `address` | The address of the owner. |
+
+| `_spender` | `address` | The address of the spender. |
+
+| `_approved` | `bool` | The approval status. |
+
+
+
+
+
+### transfer
+
+
+Transfers `_amount` of token id `_id` from `_from` to `_to`. Allowance is not deducted if it is `type(uint256).max` Allowance is not deducted if `_by` is an operator for `_from`. **Parameters**
+
+
+
+```solidity
+function transfer(address _by, address _from, address _to, uint256 _id, uint256 _amount) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_by` | `address` | The address initiating the transfer. |
+
+| `_from` | `address` | The address of the sender. |
+
+| `_to` | `address` | The address of the receiver. |
+
+| `_id` | `uint256` | The id of the token. |
+
+| `_amount` | `uint256` | The amount of the token. |
+
+
+
+
+
+
+
+## Events
+
+
+### Approval
+
+
+Emitted when an approval occurs. **Parameters**
+
+
+
+```solidity
+event Approval(address indexed _owner, address indexed _spender, uint256 indexed _id, uint256 _amount);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `_owner` | `address` | The address granting the allowance. |
+
+| `_spender` | `address` | The address receiving the allowance. |
+
+| `_id` | `uint256` | The token ID. |
+
+| `_amount` | `uint256` | The number of tokens approved. |
+
+
+
+
+### OperatorSet
+
+
+Emitted when an operator is set. **Parameters**
+
+
+
+```solidity
+event OperatorSet(address indexed _owner, address indexed _spender, bool _approved);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `_owner` | `address` | The owner granting the operator status. |
+
+| `_spender` | `address` | The address receiving operator status. |
+
+| `_approved` | `bool` | True if the operator is approved, false otherwise. |
+
+
+
+
+### Transfer
+
+
+Emitted when a transfer occurs. **Parameters**
+
+
+
+```solidity
+event Transfer(
+address _caller, address indexed _sender, address indexed _receiver, uint256 indexed _id, uint256 _amount
+);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `_caller` | `address` | The caller who initiated the transfer. |
+
+| `_sender` | `address` | The address from which tokens are transferred. |
+
+| `_receiver` | `address` | The address to which tokens are transferred. |
+
+| `_id` | `uint256` | The token ID. |
+
+| `_amount` | `uint256` | The number of tokens transferred. |
+
+
+
+
+
+
+## Errors
+
+
+### ERC6909InsufficientAllowance
+
+
+Thrown when the spender has insufficient allowance. **Parameters**
+
+
+
+```solidity
+error ERC6909InsufficientAllowance(address _spender, uint256 _allowance, uint256 _needed, uint256 _id);
+```
+
+
+
+### ERC6909InsufficientBalance
+
+
+Thrown when the sender has insufficient balance. **Parameters**
+
+
+
+```solidity
+error ERC6909InsufficientBalance(address _sender, uint256 _balance, uint256 _needed, uint256 _id);
+```
+
+
+
+### ERC6909InvalidApprover
+
+
+Thrown when the approver address is invalid. **Parameters**
+
+
+
+```solidity
+error ERC6909InvalidApprover(address _approver);
+```
+
+
+
+### ERC6909InvalidReceiver
+
+
+Thrown when the receiver address is invalid. **Parameters**
+
+
+
+```solidity
+error ERC6909InvalidReceiver(address _receiver);
+```
+
+
+
+### ERC6909InvalidSender
+
+
+Thrown when the sender address is invalid. **Parameters**
+
+
+
+```solidity
+error ERC6909InvalidSender(address _sender);
+```
+
+
+
+### ERC6909InvalidSpender
+
+
+Thrown when the spender address is invalid. **Parameters**
+
+
+
+```solidity
+error ERC6909InvalidSpender(address _spender);
+```
+
+
+
+
+
+## Structs
+
+
+### ERC6909Storage
+
+
+**Note:** storage-location: erc8042:compose.erc6909
+
+
+
+```solidity
+struct ERC6909Storage {
+mapping(address owner =&gt; mapping(uint256 id =&gt; uint256 amount)) balanceOf;
+mapping(address owner =&gt; mapping(address spender =&gt; mapping(uint256 id =&gt; uint256 amount))) allowance;
+mapping(address owner =&gt; mapping(address spender =&gt; bool)) isOperator;
+}
+```
+
+
+
+
+
+
+
+
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+This module accesses shared diamond storage, so changes made through this module are immediately visible to facets using the same storage pattern. All functions are internal as per Compose conventions.
+</Callout>
+
+
+
+

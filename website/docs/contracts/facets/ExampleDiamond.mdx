@@ -1,0 +1,101 @@
+---
+sidebar_position: 99
+title: "ExampleDiamond"
+description: "Contract documentation for ExampleDiamond"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+
+<DocHero
+  title="ExampleDiamond"
+  subtitle="Contract documentation for ExampleDiamond"
+  variant="gradient"
+  height="small"
+/>
+
+
+## Overview
+
+Documentation for ExampleDiamond.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/120348af74dbcdccde5d091d5c92f84ffed4753d/src/diamond/example/ExampleDiamond.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Self-contained facet with no imports or inheritance
+- Only `external` and `internal` function visibility
+- Follows Compose readability-first conventions
+- Ready for diamond integration
+</Callout>
+
+
+
+
+## Functions
+
+
+### constructor
+
+
+Struct to hold facet address and its function selectors. struct FacetCut &#123; address facetAddress; FacetCutAction action; // Add=0, Replace=1, Remove=2 bytes4[] functionSelectors; &#125; Initializes the diamond contract with facets, owner and other data. Adds all provided facets to the diamond's function selector mapping and sets the contract owner. Each facet in the array will have its function selectors registered to enable delegatecall routing.
+
+
+
+```solidity
+constructor(DiamondMod.FacetCut[] memory _facets, address _diamondOwner) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_facets` | `DiamondMod.FacetCut[]` | Array of facet addresses and their corresponding function selectors to add to the diamond. |
+
+| `_diamondOwner` | `address` | Address that will be set as the owner of the diamond contract. |
+
+
+
+
+
+### fallback
+
+
+
+```solidity
+fallback() external payable;
+```
+
+
+
+
+
+### receive
+
+
+
+```solidity
+receive() external payable;
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

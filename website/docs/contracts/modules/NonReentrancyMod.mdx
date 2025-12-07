@@ -1,0 +1,116 @@
+---
+sidebar_position: 99
+title: "NonReentrancyMod"
+description: "LibNonReentrancy - Non-Reentrancy Library - Provides common non-reentrant functions for Solidity contracts."
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+
+## Overview
+
+LibNonReentrancy - Non-Reentrancy Library - Provides common non-reentrant functions for Solidity contracts.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/120348af74dbcdccde5d091d5c92f84ffed4753d/src/libraries/NonReentrancyMod.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- All functions are `internal` for use in custom facets
+- Follows diamond storage pattern (EIP-8042)
+- Compatible with ERC-2535 diamonds
+- No external dependencies or `using` directives
+</Callout>
+
+
+
+<Callout type="info" title="Module Usage">
+This module provides internal functions for use in your custom facets. Import it to access shared logic and storage.
+</Callout>
+
+
+## Storage
+
+
+
+### State Variables
+
+
+#### NON_REENTRANT_SLOT
+
+
+
+
+
+
+
+## Functions
+
+
+### enter
+
+
+How to use as a library in user facets How to use as a modifier in user facets This unlocks the entry into a function
+
+
+
+```solidity
+function enter() ;
+```
+
+
+
+
+
+### exit
+
+
+This locks the entry into a function
+
+
+
+```solidity
+function exit() ;
+```
+
+
+
+
+
+
+
+
+## Errors
+
+
+### Reentrancy
+
+
+Function selector - 0x43a0d067
+
+
+
+```solidity
+error Reentrancy();
+```
+
+
+
+
+
+
+
+
+
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+This module accesses shared diamond storage, so changes made through this module are immediately visible to facets using the same storage pattern. All functions are internal as per Compose conventions.
+</Callout>
+
+
+
+

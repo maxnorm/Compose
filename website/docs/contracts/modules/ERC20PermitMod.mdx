@@ -1,0 +1,264 @@
+---
+sidebar_position: 99
+title: "ERC20PermitMod"
+description: "LibERC20Permit — Library for ERC-2612 Permit Logic - Thrown when a permit signature is invalid or expired."
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+
+## Overview
+
+The ERC20PermitMod module provides essential library functions for implementing ERC-2612 permit logic, allowing token allowances to be set via cryptographic signatures rather than requiring an on-chain transaction. This streamlines user experience and reduces gas costs, making it an invaluable addition to diamond contract systems implementing ERC-20 tokens.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/120348af74dbcdccde5d091d5c92f84ffed4753d/src/token/ERC20/ERC20Permit/ERC20PermitMod.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Implements ERC-2612 permit logic for gasless token approvals\n- Provides cryptographic signature validation\n- Supports domain separation to prevent replay attacks
+</Callout>
+
+
+
+<Callout type="info" title="Module Usage">
+This module provides internal functions for use in your custom facets. Import it to access shared logic and storage.
+</Callout>
+
+
+## Storage
+
+
+Storage position: `ERC20_STORAGE_POSITION` - Used for diamond storage pattern.
+
+
+
+### State Variables
+
+
+#### ERC20_STORAGE_POSITION
+
+
+
+#### STORAGE_POSITION
+
+
+
+
+
+
+
+## Functions
+
+
+### DOMAIN_SEPARATOR
+
+
+Returns the domain separator used in the encoding of the signature for &#123;permit&#125;. This value is unique to a contract and chain ID combination to prevent replay attacks. **Returns**
+
+
+
+```solidity
+function DOMAIN_SEPARATOR() view returns (bytes32);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `-` | `bytes32` | The domain separator. |
+
+
+
+
+### getERC20Storage
+
+
+
+```solidity
+function getERC20Storage() pure returns (ERC20Storage storage s);
+```
+
+
+
+
+
+### getPermitStorage
+
+
+
+```solidity
+function getPermitStorage() pure returns (ERC20PermitStorage storage s);
+```
+
+
+
+
+
+### permit
+
+
+Validates a permit signature and sets allowance. Emits Approval event; must be emitted by the calling facet/contract. **Parameters**
+
+
+
+```solidity
+function permit(address _owner, address _spender, uint256 _value, uint256 _deadline, uint8 _v, bytes32 _r, bytes32 _s) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_owner` | `address` | Token owner. |
+
+| `_spender` | `address` | Token spender. |
+
+| `_value` | `uint256` | Allowance value. |
+
+| `_deadline` | `uint256` | Permit's time deadline. |
+
+
+
+
+
+
+
+## Events
+
+
+### Approval
+
+
+Emitted when an approval is made for a spender by an owner. **Parameters**
+
+
+
+```solidity
+event Approval(address indexed _owner, address indexed _spender, uint256 _value);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `_owner` | `address` | The address granting the allowance. |
+
+| `_spender` | `address` | The address receiving the allowance. |
+
+| `_value` | `uint256` | The amount approved. |
+
+
+
+
+
+
+## Errors
+
+
+### ERC20InvalidSpender
+
+
+Thrown when the spender address is invalid (e.g., zero address). **Parameters**
+
+
+
+```solidity
+error ERC20InvalidSpender(address _spender);
+```
+
+
+
+### ERC2612InvalidSignature
+
+
+Thrown when a permit signature is invalid or expired. **Parameters**
+
+
+
+```solidity
+error ERC2612InvalidSignature(
+address _owner, address _spender, uint256 _value, uint256 _deadline, uint8 _v, bytes32 _r, bytes32 _s
+);
+```
+
+
+
+
+
+## Structs
+
+
+### ERC20PermitStorage
+
+
+**Note:** storage-location: erc8042:compose.erc20.permit
+
+
+
+```solidity
+struct ERC20PermitStorage {
+mapping(address owner =&gt; uint256) nonces;
+}
+```
+
+
+
+### ERC20Storage
+
+
+**Note:** storage-location: erc8042:compose.erc20
+
+
+
+```solidity
+struct ERC20Storage {
+mapping(address owner =&gt; uint256 balance) balanceOf;
+uint256 totalSupply;
+mapping(address owner =&gt; mapping(address spender =&gt; uint256 allowance)) allowance;
+uint8 decimals;
+string name;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;\n\n/**\n * Example usage of ERC20PermitMod within a facet in a diamond contract.\n */\nimport { LibERC20Permit } from &quot;path_to_LibERC20Permit.sol&quot;;\n\ncontract ExampleFacet {\n    function usePermit(address _owner, address _spender, uint256 _value, uint256 _deadline, uint8 _v, bytes32 _r, bytes32 _s) external {\n        // Validate and set the allowance with a permit signature\n        LibERC20Permit.permit(_owner, _spender, _value, _deadline, _v, _r, _s);\n        \n        // Emit Approval event\n        emit Approval(_owner, _spender, _value);\n    }\n\n    event Approval(address indexed owner, address indexed spender, uint256 value);\n}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Always emit an `Approval` event after successfully processing a `permit`.\n- Use the `DOMAIN_SEPARATOR` function to verify chain-specific context and prevent permit replay attacks.\n- Maintain strict adherence to the ERC-2612 specification for all permit-related logic to ensure interoperability.
+</Callout>
+
+
+
+
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+This module integrates seamlessly with the diamond storage pattern by managing its own storage layout independent of other facets. All state changes, such as updated allowances via permit, are immediately visible and accessible across other facets of the diamond.
+</Callout>
+
+
+
+
