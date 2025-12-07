@@ -1,0 +1,197 @@
+---
+sidebar_position: 99
+title: "ERC721BurnFacet"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+
+<DocHero
+  title="ERC721BurnFacet"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+
+## Overview
+
+The ERC721BurnFacet provides functionality to burn ERC-721 tokens within a diamond contract framework. This facet enables token removal from circulation while maintaining proper enumeration tracking, ensuring compliance with ERC-721 standards.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/120348af74dbcdccde5d091d5c92f84ffed4753d/src/token/ERC721/ERC721/ERC721BurnFacet.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Burns tokens to remove them from circulation.\n- Accesses ERC-721 storage using inline assembly for direct and efficient manipulation.
+</Callout>
+
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns a pointer to the ERC-721 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+
+
+
+```solidity
+function getStorage() internal pure returns (ERC721Storage storage s);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `s` | `ERC721Storage` | The ERC721Storage struct in storage. |
+
+
+
+
+### burn
+
+
+Burns (destroys) a token, removing it from enumeration tracking.
+
+
+
+```solidity
+function burn(uint256 _tokenId) external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_tokenId` | `uint256` | The ID of the token to burn. |
+
+
+
+
+
+
+
+## Events
+
+
+### Transfer
+
+
+
+```solidity
+event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId);
+```
+
+
+
+
+### Approval
+
+
+
+```solidity
+event Approval(address indexed _owner, address indexed _to, uint256 indexed _tokenId);
+```
+
+
+
+
+### ApprovalForAll
+
+
+
+```solidity
+event ApprovalForAll(address indexed _owner, address indexed _operator, bool _approved);
+```
+
+
+
+
+
+
+## Errors
+
+
+### ERC721NonexistentToken
+
+
+
+```solidity
+error ERC721NonexistentToken(uint256 _tokenId);
+```
+
+
+
+### ERC721InsufficientApproval
+
+
+
+```solidity
+error ERC721InsufficientApproval(address _operator, uint256 _tokenId);
+```
+
+
+
+
+
+## Structs
+
+
+### ERC721Storage
+
+
+
+```solidity
+struct ERC721Storage {
+    mapping(uint256 tokenId =&gt; address owner) ownerOf;
+    mapping(address owner =&gt; uint256 balance) balanceOf;
+    mapping(address owner =&gt; mapping(address operator =&gt; bool approved)) isApprovedForAll;
+    mapping(uint256 tokenId =&gt; address approved) approved;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0; \n\ncontract Diamond { \n    address private erc721BurnFacet; \n\n    constructor(address _erc721BurnFacet) { \n        erc721BurnFacet = _erc721BurnFacet; \n    } \n\n    function burnToken(uint256 _tokenId) external { \n        // Forward the call to the ERC721BurnFacet \n        (bool success, ) = erc721BurnFacet.delegatecall( \n            abi.encodeWithSignature(&quot;burn(uint256)&quot;, _tokenId) \n        ); \n        require(success, &quot;Burn failed&quot;); \n    } \n}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Always validate token ownership before burning to prevent unauthorized burns.\n- Ensure the facet is properly registered and integrated into the diamond.\n- Test enumeration tracking thoroughly after token burns for accuracy.
+</Callout>
+
+
+
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Ensure burn functionality has strict access controls to prevent unauthorized or unintended token burns. Verify that the diamond contract is free of reentrancy vulnerabilities or other logical flaws that could compromise token enumeration integrity.
+</Callout>
+
+
+
+
+

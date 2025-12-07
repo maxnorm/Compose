@@ -1,0 +1,220 @@
+---
+sidebar_position: 99
+title: "ERC20BurnFacet"
+description: "Contract documentation for ERC20BurnFacet"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+
+<DocHero
+  title="ERC20BurnFacet"
+  subtitle="Contract documentation for ERC20BurnFacet"
+  variant="gradient"
+  height="small"
+/>
+
+
+## Overview
+
+The ERC20BurnFacet provides functions that allow tokens to be burned, reducing the total supply, either from the caller's balance or from another account (using the allowance mechanism). This facet is highly useful in diamond contracts for implementing burnable tokens while maintaining modularity and clarity.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/120348af74dbcdccde5d091d5c92f84ffed4753d/src/token/ERC20/ERC20/ERC20BurnFacet.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Allows token holders to burn their own balance.\n- Implements burnFrom functionality to burn tokens on behalf of others, respecting allowance limits.\n- Provides access to inspect core ERC20 storage.
+</Callout>
+
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns the ERC20 storage struct from the predefined diamond storage slot. Uses inline assembly to set the storage slot reference.
+
+
+
+```solidity
+function getStorage() internal pure returns (ERC20Storage storage s);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `s` | `ERC20Storage` | The ERC20 storage struct reference. |
+
+
+
+
+### burn
+
+
+Burns (destroys) a specific amount of tokens from the caller's balance. Emits a Transfer event to the zero address.
+
+
+
+```solidity
+function burn(uint256 _value) external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_value` | `uint256` | The amount of tokens to burn. |
+
+
+
+
+
+### burnFrom
+
+
+Burns tokens from another account, deducting from the caller's allowance. Emits a Transfer event to the zero address.
+
+
+
+```solidity
+function burnFrom(address _account, uint256 _value) external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_account` | `address` | The address whose tokens will be burned. |
+
+| `_value` | `uint256` | The amount of tokens to burn. |
+
+
+
+
+
+
+
+## Events
+
+
+### Transfer
+
+
+Emitted when tokens are transferred between two addresses.
+
+
+
+```solidity
+event Transfer(address indexed _from, address indexed _to, uint256 _value);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `_from` | `address` | Address sending the tokens. |
+
+| `_to` | `address` | Address receiving the tokens. |
+
+| `_value` | `uint256` | Amount of tokens transferred. |
+
+
+
+
+
+
+## Errors
+
+
+### ERC20InsufficientBalance
+
+
+Thrown when an account has insufficient balance for a transfer or burn.
+
+
+
+```solidity
+error ERC20InsufficientBalance(address _sender, uint256 _balance, uint256 _needed);
+```
+
+
+
+### ERC20InsufficientAllowance
+
+
+Thrown when a spender tries to use more than the approved allowance.
+
+
+
+```solidity
+error ERC20InsufficientAllowance(address _spender, uint256 _allowance, uint256 _needed);
+```
+
+
+
+
+
+## Structs
+
+
+### ERC20Storage
+
+
+
+```solidity
+struct ERC20Storage {
+    mapping(address owner =&gt; uint256 balance) balanceOf;
+    uint256 totalSupply;
+    mapping(address owner =&gt; mapping(address spender =&gt; uint256 allowance)) allowance;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;\n\ncontract Diamond {\n    address private _facetAddress;\n\n    constructor(address facetAddress) {\n        _facetAddress = facetAddress;\n    }\n\n    function burnTokens(uint256 _amount) external {\n        (bool success, ) = _facetAddress.delegatecall(\n            abi.encodeWithSignature(&quot;burn(uint256)&quot;, _amount)\n        );\n        require(success, &quot;Burn failed&quot;);\n    }\n\n    function burnTokensFrom(address _account, uint256 _amount) external {\n        (bool success, ) = _facetAddress.delegatecall(\n            abi.encodeWithSignature(&quot;burnFrom(address,uint256)&quot;, _account, _amount)\n        );\n        require(success, &quot;BurnFrom failed&quot;);\n    }\n}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Ensure all calls to burn and burnFrom are properly tested to prevent errors during real burns.\n- Use the getStorage function to inspect internal states for debugging and ensuring proper token accounting.\n- Regularly audit the facet alongside other storage-dependent facets to ensure storage slot consistency.
+</Callout>
+
+
+
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Ensure proper access control when using burnFrom to prevent unauthorized usage of allowances. Always validate storage slot integrity to ensure no unexpected data corruption across facets. Be cautious to safeguard against potential reentrancy attacks whenever calling external contracts during these functions.
+</Callout>
+
+
+
+
+

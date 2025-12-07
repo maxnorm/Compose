@@ -1,0 +1,381 @@
+---
+sidebar_position: 99
+title: "AccessControlMod"
+description: "Emitted when the admin role for a role is changed."
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+
+## Overview
+
+The AccessControlMod module provides a flexible and efficient mechanism to manage role-based access control within diamond contracts. It enables seamless role assignments, checks, and administrative role management, adhering to Compose's diamond storage pattern for consistent cross-facet role visibility.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/120348af74dbcdccde5d091d5c92f84ffed4753d/src/access/AccessControl/AccessControlMod.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Enables dynamic role assignments across facets.\n- Role verification via "hasRole" and "requireRole" simplifies access checks.\n- Supports hierarchical role management using "setRoleAdmin".
+</Callout>
+
+
+
+<Callout type="info" title="Module Usage">
+This module provides internal functions for use in your custom facets. Import it to access shared logic and storage.
+</Callout>
+
+
+## Storage
+
+
+Storage position: `STORAGE_POSITION` - Used for diamond storage pattern.
+
+
+
+### State Variables
+
+
+#### STORAGE_POSITION
+
+
+
+#### DEFAULT_ADMIN_ROLE
+
+
+
+
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns the storage for the AccessControl. **Returns**
+
+
+
+```solidity
+function getStorage() pure returns (AccessControlStorage storage _s);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_s` | `AccessControlStorage` | The storage for the AccessControl. |
+
+
+
+
+### grantRole
+
+
+function to grant a role to an account. **Parameters** **Returns**
+
+
+
+```solidity
+function grantRole(bytes32 _role, address _account) returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_role` | `bytes32` | The role to grant. |
+
+| `_account` | `address` | The account to grant the role to. |
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `-` | `bool` | True if the role was granted, false otherwise. |
+
+
+
+
+### hasRole
+
+
+function to check if an account has a role. **Parameters** **Returns**
+
+
+
+```solidity
+function hasRole(bytes32 _role, address _account) view returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_role` | `bytes32` | The role to check. |
+
+| `_account` | `address` | The account to check the role for. |
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `-` | `bool` | True if the account has the role, false otherwise. |
+
+
+
+
+### requireRole
+
+
+function to check if an account has a required role. **Note:** error: AccessControlUnauthorizedAccount If the account does not have the role. **Parameters**
+
+
+
+```solidity
+function requireRole(bytes32 _role, address _account) view;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_role` | `bytes32` | The role to assert. |
+
+| `_account` | `address` | The account to assert the role for. |
+
+
+
+
+
+### revokeRole
+
+
+function to revoke a role from an account. **Parameters** **Returns**
+
+
+
+```solidity
+function revokeRole(bytes32 _role, address _account) returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_role` | `bytes32` | The role to revoke. |
+
+| `_account` | `address` | The account to revoke the role from. |
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `-` | `bool` | True if the role was revoked, false otherwise. |
+
+
+
+
+### setRoleAdmin
+
+
+function to set the admin role for a role. **Parameters**
+
+
+
+```solidity
+function setRoleAdmin(bytes32 _role, bytes32 _adminRole) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_role` | `bytes32` | The role to set the admin for. |
+
+| `_adminRole` | `bytes32` | The admin role to set. |
+
+
+
+
+
+
+
+## Events
+
+
+### RoleAdminChanged
+
+
+Emitted when the admin role for a role is changed. **Parameters**
+
+
+
+```solidity
+event RoleAdminChanged(bytes32 indexed _role, bytes32 indexed _previousAdminRole, bytes32 indexed _newAdminRole);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `_role` | `bytes32` | The role that was changed. |
+
+| `_previousAdminRole` | `bytes32` | The previous admin role. |
+
+| `_newAdminRole` | `bytes32` | The new admin role. |
+
+
+
+
+### RoleGranted
+
+
+Emitted when a role is granted to an account. **Parameters**
+
+
+
+```solidity
+event RoleGranted(bytes32 indexed _role, address indexed _account, address indexed _sender);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `_role` | `bytes32` | The role that was granted. |
+
+| `_account` | `address` | The account that was granted the role. |
+
+| `_sender` | `address` | The sender that granted the role. |
+
+
+
+
+### RoleRevoked
+
+
+Emitted when a role is revoked from an account. **Parameters**
+
+
+
+```solidity
+event RoleRevoked(bytes32 indexed _role, address indexed _account, address indexed _sender);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `_role` | `bytes32` | The role that was revoked. |
+
+| `_account` | `address` | The account from which the role was revoked. |
+
+| `_sender` | `address` | The account that revoked the role. |
+
+
+
+
+
+
+## Errors
+
+
+### AccessControlUnauthorizedAccount
+
+
+Thrown when the account does not have a specific role. **Parameters**
+
+
+
+```solidity
+error AccessControlUnauthorizedAccount(address _account, bytes32 _role);
+```
+
+
+
+
+
+## Structs
+
+
+### AccessControlStorage
+
+
+
+```solidity
+struct AccessControlStorage {
+mapping(address account =&gt; mapping(bytes32 role =&gt; bool hasRole)) hasRole;
+mapping(bytes32 role =&gt; bytes32 adminRole) adminRole;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+contract AccessControlExample {\n    AccessControlMod private accessControl;\n\n    constructor(address _accessControlFacetAddress) {\n        accessControl = AccessControlMod(_accessControlFacetAddress);\n    }\n\n    function assignRole(bytes32 _role, address _account) external {\n        // Grant a role to an account.\n        accessControl.grantRole(_role, _account);\n    }\n\n    function checkRole(bytes32 _role, address _account) external view returns (bool) {\n        // Check if an account has a specific role.\n        return accessControl.hasRole(_role, _account);\n    }\n\n    function enforceRole(bytes32 _role, address _account) external view {\n        // Revert if the account does not have the required role.\n        accessControl.requireRole(_role, _account);\n    }\n}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Always use "requireRole" in functions where permission checks are essential to prevent unauthorized actions.\n- Organize roles logically and reduce unnecessary role creation to minimize complexity.\n- Use "setRoleAdmin" to establish clear administrative hierarchies for efficient role management.
+</Callout>
+
+
+
+
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+AccessControlMod leverages the diamond storage pattern, ensuring that role states and administrative hierarchies set by this module are directly accessible across all facets. Changes to roles or admin assignments propagate consistently throughout the diamond's shared storage.
+</Callout>
+
+
+
+

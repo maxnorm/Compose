@@ -1,0 +1,163 @@
+---
+sidebar_position: 99
+title: "RoyaltyFacet"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+
+<DocHero
+  title="RoyaltyFacet"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+
+## Overview
+
+The RoyaltyFacet provides a flexible and standard-compliant mechanism to manage and retrieve royalty information for tokens in line with the ERC-2981 standard. It supports both global and token-specific royalty settings, enabling creators to earn a percentage from secondary sales.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/120348af74dbcdccde5d091d5c92f84ffed4753d/src/token/Royalty/RoyaltyFacet.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Compliant with ERC-2981 for standard royalty management.\n- Supports both global and token-specific royalties.\n- Provides a mechanism to access royalty storage easily.
+</Callout>
+
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns a pointer to the royalty storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+
+
+
+```solidity
+function getStorage() internal pure returns (RoyaltyStorage storage s);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `s` | `RoyaltyStorage` | The RoyaltyStorage struct in storage. |
+
+
+
+
+### royaltyInfo
+
+
+Returns royalty information for a given token and sale price. Returns token-specific royalty if set, otherwise falls back to default royalty. Royalty amount is calculated as a percentage of the sale price using basis points. Implements the ERC-2981 royaltyInfo function.
+
+
+
+```solidity
+function royaltyInfo(uint256 _tokenId, uint256 _salePrice)
+    external
+    view
+    returns (address receiver, uint256 royaltyAmount);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_tokenId` | `uint256` | The NFT asset queried for royalty information. |
+
+| `_salePrice` | `uint256` | The sale price of the NFT asset specified by _tokenId. |
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `receiver` | `address` | The address designated to receive the royalty payment. |
+
+| `royaltyAmount` | `uint256` | The royalty payment amount for _salePrice. |
+
+
+
+
+
+
+
+
+## Structs
+
+
+### RoyaltyInfo
+
+
+
+```solidity
+struct RoyaltyInfo {
+    address receiver;
+    uint96 royaltyFraction;
+}
+```
+
+
+
+### RoyaltyStorage
+
+
+
+```solidity
+struct RoyaltyStorage {
+    RoyaltyInfo defaultRoyaltyInfo;
+    mapping(uint256 tokenId =&gt; RoyaltyInfo) tokenRoyaltyInfo;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+contract RoyaltyDiamond {\n    // Diamond storage setup\n    bytes32 internal constant DIAMOND_STORAGE_POSITION = keccak256(&quot;diamond.storage.position&quot;);\n    function royaltyInfo(uint256 _tokenId, uint256 _salePrice) external view returns (address, uint256) {\n        RoyaltyFacet rf = RoyaltyFacet(address(this));\n        return rf.royaltyInfo(_tokenId, _salePrice);\n    }\n}\n\ninterface RoyaltyFacet {\n    function royaltyInfo(uint256 _tokenId, uint256 _salePrice) external view returns (address, uint256);\n}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Ensure the STORAGE_POSITION constant uniquely corresponds to its correct storage slot.\n- Set a sensible fallback royalty percentage and update token-specific royalties explicitly when necessary.\n- Use clear basis point calculations to prevent errors in royalty amount computation.
+</Callout>
+
+
+
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Follow proper access control practices for modifying royalty information to prevent unauthorized changes. Ensure reentrancy protection if external calls are made (e.g., during royalty payments). Verify basis points calculation to avoid unexpected overflow or underflow errors.
+</Callout>
+
+
+
+
+

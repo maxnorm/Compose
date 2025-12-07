@@ -1,0 +1,392 @@
+---
+sidebar_position: 99
+title: "ERC20BridgeableMod"
+description: "LibERC20Bridgeable — ERC-7802 Library - Revert when a provided receiver is invalid(e.g,zero address) ."
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+
+## Overview
+
+The ERC20BridgeableMod module enhances ERC-20 token functionality in diamond contracts by enabling secure cross-chain operations such as minting and burning. It ensures only trusted bridges can perform these actions, maintaining robust access control and compliance with the diamond storage pattern.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/120348af74dbcdccde5d091d5c92f84ffed4753d/src/token/ERC20/ERC20Bridgeable/ERC20BridgeableMod.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Secure cross-chain mint and burn functionality.\n- Built-in access control enforcing the `trusted-bridge` role.\n- Efficient diamond storage compatibility, ensuring seamless operations with other facets.
+</Callout>
+
+
+
+<Callout type="info" title="Module Usage">
+This module provides internal functions for use in your custom facets. Import it to access shared logic and storage.
+</Callout>
+
+
+## Storage
+
+
+Storage position: `ERC20_STORAGE_POSITION` - Used for diamond storage pattern.
+
+
+
+### State Variables
+
+
+#### ERC20_STORAGE_POSITION
+
+
+
+#### ACCESS_STORAGE_POSITION
+
+
+
+
+
+
+
+## Functions
+
+
+### checkTokenBridge
+
+
+Internal check to check if the bridge (caller) is trusted. Reverts if caller is zero or not in the AccessControl `trusted-bridge` role. **Parameters**
+
+
+
+```solidity
+function checkTokenBridge(address _caller) view;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_caller` | `address` | The address to validate |
+
+
+
+
+
+### crosschainBurn
+
+
+Cross-chain burn — callable only by an address having the `trusted-bridge` role. **Parameters**
+
+
+
+```solidity
+function crosschainBurn(address _from, uint256 _value) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_from` | `address` | The account to burn tokens from. |
+
+| `_value` | `uint256` | The amount to burn. |
+
+
+
+
+
+### crosschainMint
+
+
+Cross-chain mint — callable only by an address having the `trusted-bridge` role. **Parameters**
+
+
+
+```solidity
+function crosschainMint(address _account, uint256 _value) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_account` | `address` | The account to mint tokens to. |
+
+| `_value` | `uint256` | The amount to mint. |
+
+
+
+
+
+### getAccessControlStorage
+
+
+helper to return AccessControlStorage at its diamond slot
+
+
+
+```solidity
+function getAccessControlStorage() pure returns (AccessControlStorage storage s);
+```
+
+
+
+
+
+### getERC20Storage
+
+
+Returns the ERC20 storage struct from the predefined diamond storage slot. Uses inline assembly to set the storage slot reference. **Returns**
+
+
+
+```solidity
+function getERC20Storage() pure returns (ERC20Storage storage s);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `s` | `ERC20Storage` | The ERC20 storage struct reference. |
+
+
+
+
+
+
+## Events
+
+
+### CrosschainBurn
+
+
+Emitted when a crosschain transfer burns tokens. **Parameters**
+
+
+
+```solidity
+event CrosschainBurn(address indexed _from, uint256 _amount, address indexed _sender);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `_from` | `address` | Address of the account tokens are being burned from. |
+
+| `_amount` | `uint256` | Amount of tokens burned. |
+
+| `_sender` | `address` | Address of the caller (msg.sender) who invoked crosschainBurn. |
+
+
+
+
+### CrosschainMint
+
+
+Emitted when tokens are minted via a cross-chain bridge. **Parameters**
+
+
+
+```solidity
+event CrosschainMint(address indexed _to, uint256 _amount, address indexed _sender);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `_to` | `address` | The recipient of minted tokens. |
+
+| `_amount` | `uint256` | The amount minted. |
+
+| `_sender` | `address` | The bridge account that triggered the mint (msg.sender). |
+
+
+
+
+### Transfer
+
+
+Emitted when tokens are transferred between two addresses. **Parameters**
+
+
+
+```solidity
+event Transfer(address indexed _from, address indexed _to, uint256 _value);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `_from` | `address` | Address sending the tokens. |
+
+| `_to` | `address` | Address receiving the tokens. |
+
+| `_value` | `uint256` | Amount of tokens transferred. |
+
+
+
+
+
+
+## Errors
+
+
+### AccessControlUnauthorizedAccount
+
+
+Thrown when the account does not have a specific role. **Parameters**
+
+
+
+```solidity
+error AccessControlUnauthorizedAccount(address _account, bytes32 _role);
+```
+
+
+
+### ERC20InsufficientBalance
+
+
+
+```solidity
+error ERC20InsufficientBalance(address _from, uint256 _accountBalance, uint256 _value);
+```
+
+
+
+### ERC20InvalidBridgeAccount
+
+
+Revert when caller is not a trusted bridge. **Parameters**
+
+
+
+```solidity
+error ERC20InvalidBridgeAccount(address _caller);
+```
+
+
+
+### ERC20InvalidCallerAddress
+
+
+Revert when caller address is invalid. **Parameters**
+
+
+
+```solidity
+error ERC20InvalidCallerAddress(address _caller);
+```
+
+
+
+### ERC20InvalidReciever
+
+
+/// @dev Uses ERC-8042 for storage location standardization and ERC-6093 for error conventions Revert when a provided receiver is invalid(e.g,zero address) . **Parameters**
+
+
+
+```solidity
+error ERC20InvalidReciever(address _receiver);
+```
+
+
+
+### ERC20InvalidSender
+
+
+Thrown when the sender address is invalid (e.g., zero address). **Parameters**
+
+
+
+```solidity
+error ERC20InvalidSender(address _sender);
+```
+
+
+
+
+
+## Structs
+
+
+### AccessControlStorage
+
+
+
+```solidity
+struct AccessControlStorage {
+mapping(address account =&gt; mapping(bytes32 role =&gt; bool hasRole)) hasRole;
+}
+```
+
+
+
+### ERC20Storage
+
+
+ERC-8042 compliant storage struct for ERC20 token data. **Note:** storage-location: erc8042:compose.erc20
+
+
+
+```solidity
+struct ERC20Storage {
+mapping(address owner =&gt; uint256 balance) balanceOf;
+uint256 totalSupply;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.17;\n\nimport {ERC20BridgeableMod} from &#39;./ERC20BridgeableMod.sol&#39;;\n\ncontract MyDiamond {\n    function performCrosschainMint(address _recipient, uint256 _amount) external {\n        ERC20BridgeableMod.crosschainMint(_recipient, _amount);\n    }\n\n    function performCrosschainBurn(address _holder, uint256 _amount) external {\n        ERC20BridgeableMod.crosschainBurn(_holder, _amount);\n    }\n\n    function verifyBridge(address _bridge) external view returns (bool) {\n        return ERC20BridgeableMod.checkTokenBridge(_bridge);\n    }\n}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Ensure that only addresses with the `trusted-bridge` role interact with cross-chain mint and burn functionalities.\n- Use the `checkTokenBridge` function to verify bridge validity before performing sensitive operations.\n- Test integration with other facets to confirm state updates are consistent and accessible across the diamond.
+</Callout>
+
+
+
+
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+The module utilizes the diamond storage pattern to store and retrieve both AccessControl and ERC20-related data. Any changes made through cross-chain operations are directly reflected in the shared storage, ensuring consistency and visibility across all related facets within the diamond contract.
+</Callout>
+
+
+
+

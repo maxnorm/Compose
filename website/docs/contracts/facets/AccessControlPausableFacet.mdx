@@ -1,0 +1,333 @@
+---
+sidebar_position: 99
+title: "AccessControlPausableFacet"
+description: "Contract documentation for AccessControlPausableFacet"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+
+<DocHero
+  title="AccessControlPausableFacet"
+  subtitle="Contract documentation for AccessControlPausableFacet"
+  variant="gradient"
+  height="small"
+/>
+
+
+## Overview
+
+The AccessControlPausableFacet provides fine-grained access control functionality with the ability to pause and unpause specific roles in a diamond contract. It ensures that administrators can temporarily disable roles to prevent misuse and re-enable them when needed, enhancing flexibility and security of the contract's operations.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/120348af74dbcdccde5d091d5c92f84ffed4753d/src/access/AccessControlPausable/AccessControlPausableFacet.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Supports pausing and unpausing roles dynamically.\n- Ensures only role administrators can perform role state changes.\n- Provides role-based condition validation to secure function execution.
+</Callout>
+
+
+
+
+## Functions
+
+
+### getAccessControlStorage
+
+
+Returns the storage for AccessControl.
+
+
+
+```solidity
+function getAccessControlStorage() internal pure returns (AccessControlStorage storage s);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `s` | `AccessControlStorage` | The AccessControl storage struct. |
+
+
+
+
+### getStorage
+
+
+Returns the storage for AccessControlPausable.
+
+
+
+```solidity
+function getStorage() internal pure returns (AccessControlPausableStorage storage s);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `s` | `AccessControlPausableStorage` | The AccessControlPausable storage struct. |
+
+
+
+
+### isRolePaused
+
+
+Returns if a role is paused.
+
+
+
+```solidity
+function isRolePaused(bytes32 _role) external view returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_role` | `bytes32` | The role to check. |
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `-` | `bool` | True if the role is paused, false otherwise. |
+
+
+
+
+### pauseRole
+
+
+Temporarily disables a role, preventing all accounts from using it. Only the admin of the role can pause it. Emits a RolePaused event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
+
+
+
+```solidity
+function pauseRole(bytes32 _role) external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_role` | `bytes32` | The role to pause. |
+
+
+
+
+
+### unpauseRole
+
+
+Re-enables a role that was previously paused. Only the admin of the role can unpause it. Emits a RoleUnpaused event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
+
+
+
+```solidity
+function unpauseRole(bytes32 _role) external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_role` | `bytes32` | The role to unpause. |
+
+
+
+
+
+### requireRoleNotPaused
+
+
+Checks if an account has a role and if the role is not paused. - error: AccessControlUnauthorizedAccount If the account does not have the role. - error: AccessControlRolePaused If the role is paused.
+
+
+
+```solidity
+function requireRoleNotPaused(bytes32 _role, address _account) external view;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_role` | `bytes32` | The role to check. |
+
+| `_account` | `address` | The account to check the role for. |
+
+
+
+
+
+
+
+## Events
+
+
+### RolePaused
+
+
+Event emitted when a role is paused.
+
+
+
+```solidity
+event RolePaused(bytes32 indexed _role, address indexed _account);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `_role` | `bytes32` | The role that was paused. |
+
+| `_account` | `address` | The account that paused the role. |
+
+
+
+
+### RoleUnpaused
+
+
+Event emitted when a role is unpaused.
+
+
+
+```solidity
+event RoleUnpaused(bytes32 indexed _role, address indexed _account);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `_role` | `bytes32` | The role that was unpaused. |
+
+| `_account` | `address` | The account that unpaused the role. |
+
+
+
+
+
+
+## Errors
+
+
+### AccessControlUnauthorizedAccount
+
+
+Thrown when the account does not have a specific role.
+
+
+
+```solidity
+error AccessControlUnauthorizedAccount(address _account, bytes32 _role);
+```
+
+
+
+### AccessControlRolePaused
+
+
+Thrown when a role is paused and an operation requiring that role is attempted.
+
+
+
+```solidity
+error AccessControlRolePaused(bytes32 _role);
+```
+
+
+
+
+
+## Structs
+
+
+### AccessControlStorage
+
+
+
+```solidity
+struct AccessControlStorage {
+    mapping(address account =&gt; mapping(bytes32 role =&gt; bool hasRole)) hasRole;
+    mapping(bytes32 role =&gt; bytes32 adminRole) adminRole;
+}
+```
+
+
+
+### AccessControlPausableStorage
+
+
+
+```solidity
+struct AccessControlPausableStorage {
+    mapping(bytes32 role =&gt; bool paused) pausedRoles;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.10;\n\nimport { IDiamondCut } from &quot;diamond/interfaces/IDiamondCut.sol&quot;;\n\ncontract ExampleDiamond {\n    function useAccessControlFacet() external {\n        address accessFacetAddress = 0x1234567890abcdef1234567890abcdef12345678; // Deployed AccessControlPausableFacet\n        IDiamondCut.FacetCut[] memory newFacet = new IDiamondCut.FacetCut[](1);\n\n        newFacet[0] = IDiamondCut.FacetCut({ \n            facetAddress: accessFacetAddress, \n            action: IDiamondCut.FacetCutAction.Add, \n            functionSelectors: generateAccessSelectors()\n        });\n\n        IDiamondCut(address(this)).diamondCut(newFacet, address(0), &quot;&quot;);\n    }\n\n    function generateAccessSelectors() private pure returns (bytes4[] memory selectors) {\n        selectors = new bytes4[](5);\n        selectors[0] = bytes4(keccak256(&quot;pauseRole(bytes32)&quot;));\n        selectors[1] = bytes4(keccak256(&quot;unpauseRole(bytes32)&quot;));\n        selectors[2] = bytes4(keccak256(&quot;isRolePaused(bytes32)&quot;));\n        selectors[3] = bytes4(keccak256(&quot;getAccessControlStorage()&quot;));\n        selectors[4] = bytes4(keccak256(&quot;requireRoleNotPaused(address,bytes32)&quot;));\n    }\n}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Use the `pauseRole` and `unpauseRole` functions cautiously to avoid unnecessary disruptions.\n- Always verify that role-based access control meets the expected administrative structure.\n- Combine pausing with comprehensive event logging for effective monitoring.
+</Callout>
+
+
+
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Ensure that only authorized administrators have access to the pause and unpause functionalities to prevent unauthorized disabling of roles. Always validate that reentrancy risks are mitigated, particularly when integrating with external calls or other facets. Utilize comprehensive event logging for role state changes to facilitate transparency and traceability.
+</Callout>
+
+
+
+
+

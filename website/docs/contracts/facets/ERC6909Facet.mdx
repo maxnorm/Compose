@@ -1,0 +1,459 @@
+---
+sidebar_position: 99
+title: "ERC6909Facet"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+
+<DocHero
+  title="ERC6909Facet"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+
+## Overview
+
+The ERC6909Facet implements core ERC-6909 token functionality, including balance inquiries, allowance management, and token transfers. This facet is designed to integrate seamlessly into diamond-based architectures as a self-contained unit, making token interactions modular and composable.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/120348af74dbcdccde5d091d5c92f84ffed4753d/src/token/ERC6909/ERC6909/ERC6909Facet.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Support for balance queries and approvals\n- Efficient inline assembly for storage access\n- Full compliance with ERC-6909 token standards
+</Callout>
+
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns a pointer to the ERC-6909 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+
+
+
+```solidity
+function getStorage() internal pure returns (ERC6909Storage storage s);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `s` | `ERC6909Storage` | The ERC6909Storage struct in storage. |
+
+
+
+
+### balanceOf
+
+
+Owner balance of an id.
+
+
+
+```solidity
+function balanceOf(address _owner, uint256 _id) external view returns (uint256);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_owner` | `address` | The address of the owner. |
+
+| `_id` | `uint256` | The id of the token. |
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `-` | `uint256` | The balance of the token. |
+
+
+
+
+### allowance
+
+
+Spender allowance of an id.
+
+
+
+```solidity
+function allowance(address _owner, address _spender, uint256 _id) external view returns (uint256);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_owner` | `address` | The address of the owner. |
+
+| `_spender` | `address` | The address of the spender. |
+
+| `_id` | `uint256` | The id of the token. |
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `-` | `uint256` | The allowance of the token. |
+
+
+
+
+### isOperator
+
+
+Checks if a spender is approved by an owner as an operator.
+
+
+
+```solidity
+function isOperator(address _owner, address _spender) external view returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_owner` | `address` | The address of the owner. |
+
+| `_spender` | `address` | The address of the spender. |
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `-` | `bool` | The approval status. |
+
+
+
+
+### transfer
+
+
+Transfers an amount of an id from the caller to a receiver.
+
+
+
+```solidity
+function transfer(address _receiver, uint256 _id, uint256 _amount) external returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_receiver` | `address` | The address of the receiver. |
+
+| `_id` | `uint256` | The id of the token. |
+
+| `_amount` | `uint256` | The amount of the token. |
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `-` | `bool` | Whether the transfer succeeded. |
+
+
+
+
+### transferFrom
+
+
+Transfers an amount of an id from a sender to a receiver.
+
+
+
+```solidity
+function transferFrom(address _sender, address _receiver, uint256 _id, uint256 _amount) external returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_sender` | `address` | The address of the sender. |
+
+| `_receiver` | `address` | The address of the receiver. |
+
+| `_id` | `uint256` | The id of the token. |
+
+| `_amount` | `uint256` | The amount of the token. |
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `-` | `bool` | Whether the transfer succeeded. |
+
+
+
+
+### approve
+
+
+Approves an amount of an id to a spender.
+
+
+
+```solidity
+function approve(address _spender, uint256 _id, uint256 _amount) external returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_spender` | `address` | The address of the spender. |
+
+| `_id` | `uint256` | The id of the token. |
+
+| `_amount` | `uint256` | The amount of the token. |
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `-` | `bool` | Whether the approval succeeded. |
+
+
+
+
+### setOperator
+
+
+Sets or removes a spender as an operator for the caller.
+
+
+
+```solidity
+function setOperator(address _spender, bool _approved) external returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_spender` | `address` | The address of the spender. |
+
+| `_approved` | `bool` | The approval status. |
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `-` | `bool` | Whether the operator update succeeded. |
+
+
+
+
+
+
+## Events
+
+
+### Transfer
+
+
+
+```solidity
+event Transfer(
+    address _caller, address indexed _sender, address indexed _receiver, uint256 indexed _id, uint256 _amount
+);
+```
+
+
+
+
+### OperatorSet
+
+
+
+```solidity
+event OperatorSet(address indexed _owner, address indexed _spender, bool _approved);
+```
+
+
+
+
+### Approval
+
+
+
+```solidity
+event Approval(address indexed _owner, address indexed _spender, uint256 indexed _id, uint256 _amount);
+```
+
+
+
+
+
+
+## Errors
+
+
+### ERC6909InsufficientBalance
+
+
+
+```solidity
+error ERC6909InsufficientBalance(address _sender, uint256 _balance, uint256 _needed, uint256 _id);
+```
+
+
+
+### ERC6909InsufficientAllowance
+
+
+
+```solidity
+error ERC6909InsufficientAllowance(address _spender, uint256 _allowance, uint256 _needed, uint256 _id);
+```
+
+
+
+### ERC6909InvalidReceiver
+
+
+
+```solidity
+error ERC6909InvalidReceiver(address _receiver);
+```
+
+
+
+### ERC6909InvalidSender
+
+
+
+```solidity
+error ERC6909InvalidSender(address _sender);
+```
+
+
+
+### ERC6909InvalidSpender
+
+
+
+```solidity
+error ERC6909InvalidSpender(address _spender);
+```
+
+
+
+
+
+## Structs
+
+
+### ERC6909Storage
+
+
+
+```solidity
+struct ERC6909Storage {
+    mapping(address owner =&gt; mapping(uint256 id =&gt; uint256 amount)) balanceOf;
+    mapping(address owner =&gt; mapping(address spender =&gt; mapping(uint256 id =&gt; uint256 amount))) allowance;
+    mapping(address owner =&gt; mapping(address spender =&gt; bool)) isOperator;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;\n\nimport { Diamond } from &quot;./Diamond.sol&quot;;\nimport { ERC6909Facet } from &quot;./ERC6909Facet.sol&quot;;\n\ncontract ERC6909Diamond is Diamond {\n    constructor() {\n        // Add ERC6909Facet to the diamond\n        addFacet(address(new ERC6909Facet()));\n    }\n}\n\ncontract TokenManager {\n    function transferToken(\n        address diamond,\n        uint256 id,\n        uint256 amount,\n        address to\n    ) external {\n        ERC6909Facet(diamond).transfer(id, amount, to);\n    }\n}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Ensure only authorized users can call transferFrom by implementing necessary access controls.\n- Regularly review and test `getStorage` to ensure proper storage slot integrity and avoid overlaps.\n- Implement event logging (e.g., `Transfer`, `Approval`) for observability and audit trails.
+</Callout>
+
+
+
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Properly manage access control for sensitive functions like `transferFrom`. Prevent reentrancy attacks by using checks-effects-interactions. Use internal methods cautiously and avoid exposing unnecessary functionality through proxy layers. Ensure robust testing for `getStorage` to avoid storage slot collisions.
+</Callout>
+
+
+
+
+

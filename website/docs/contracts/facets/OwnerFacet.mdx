@@ -1,0 +1,198 @@
+---
+sidebar_position: 99
+title: "OwnerFacet"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+
+<DocHero
+  title="OwnerFacet"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+
+## Overview
+
+The OwnerFacet provides ownership management functionality for diamond contracts, enabling secure and flexible access control through ownership transfer and renouncement. It is essential for facets requiring centralized administration while maintaining compatibility with the diamond storage pattern.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/120348af74dbcdccde5d091d5c92f84ffed4753d/src/access/Owner/OwnerFacet.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Facilitates secure ownership transfer and renouncement for diamond contracts.\n- Includes `getStorage` for simple retrieval and interaction with owner-related storage.\n- Implements centralized access control while adhering to the Compose framework's composability principles.
+</Callout>
+
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns a pointer to the owner storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+
+
+
+```solidity
+function getStorage() internal pure returns (OwnerStorage storage s);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `s` | `OwnerStorage` | The OwnerStorage struct in storage. |
+
+
+
+
+### owner
+
+
+Get the address of the owner
+
+
+
+```solidity
+function owner() external view returns (address);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `-` | `address` | The address of the owner. |
+
+
+
+
+### transferOwnership
+
+
+Set the address of the new owner of the contract Set _newOwner to address(0) to renounce any ownership.
+
+
+
+```solidity
+function transferOwnership(address _newOwner) external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_newOwner` | `address` | The address of the new owner of the contract |
+
+
+
+
+
+### renounceOwnership
+
+
+
+```solidity
+function renounceOwnership() external;
+```
+
+
+
+
+
+
+
+## Events
+
+
+### OwnershipTransferred
+
+
+
+```solidity
+event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+```
+
+
+
+
+
+
+## Errors
+
+
+### OwnerUnauthorizedAccount
+
+
+
+```solidity
+error OwnerUnauthorizedAccount();
+```
+
+
+
+
+
+## Structs
+
+
+### OwnerStorage
+
+
+
+```solidity
+struct OwnerStorage {
+    address owner;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;\n\ninterface IDiamond {\n    function facetAddress(bytes4 selector) external view returns (address);\n}\n\ncontract DiamondExample {\n    address public diamondAddress;\n\n    constructor(address _diamondAddress) {\n        diamondAddress = _diamondAddress;\n    }\n\n    function getOwner() external view returns (address) {\n        // Get facet address from diamond\n        address ownerFacet = IDiamond(diamondAddress).facetAddress(bytes4(keccak256(&quot;owner()&quot;)));\n        \n        require(ownerFacet != address(0), &quot;OwnerFacet not found&quot;);\n        \n        // Call owner function\n        (bool success, bytes memory data) = ownerFacet.staticcall(\n            abi.encodeWithSignature(&quot;owner()&quot;)\n        );\n        \n        require(success, &quot;Call to owner failed&quot;);\n        return abi.decode(data, (address));\n    }\n}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Ensure the OwnerFacet complies with the diamond storage pattern, especially when initializing or migrating diamond state.\n- Always check the new owner's address in `transferOwnership` to prevent unintentionally setting an invalid or incorrect owner.\n- Use authorization checks in facets relying on ownership to ensure only the owner can perform sensitive actions.
+</Callout>
+
+
+
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Proper access controls should be implemented on functions relying on ownership to prevent unauthorized access. Be cautious of reentrancy vulnerabilities when interacting with `transferOwnership` to avoid unexpected states. Always audit the integration and state compatibility when combining this facet with others in a diamond.
+</Callout>
+
+
+
+
+
