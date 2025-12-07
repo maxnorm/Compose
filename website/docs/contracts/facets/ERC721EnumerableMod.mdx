@@ -1,0 +1,298 @@
+---
+sidebar_position: 99
+title: "ERC721EnumerableMod"
+description: "ERC-721 Enumerable Library for Compose - Thrown when attempting to interact with a non-existent token."
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+
+<DocHero
+  title="ERC721EnumerableMod"
+  subtitle="ERC-721 Enumerable Library for Compose - Thrown when attempting to interact with a non-existent token."
+  variant="gradient"
+  height="small"
+/>
+
+
+## Overview
+
+The ERC721EnumerableMod facet enhances ERC-721 functionality within diamond proxies by adding enumeration capabilities, enabling efficient tracking of token ownership and balances. It provides essential operations such as minting, burning, and transferring tokens while maintaining accurate token enumeration data, making it suitable for complex dApp implementations requiring frequent token updates.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/7050baa250694d5e2445aa4c6b96c62c326cb1cb/src/token/ERC721/ERC721Enumerable/ERC721EnumerableMod.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Mint new ERC-721 tokens and add to enumeration.\n- Burn tokens, ensuring proper removal from enumeration state.\n- Transfer tokens securely, updating enumeration data in real time.
+</Callout>
+
+
+
+
+## Functions
+
+
+### burn
+
+
+Burns (destroys) an existing ERC-721 token, removing it from enumeration lists. Reverts if the token does not exist or if the sender is not authorized. **Parameters**
+
+
+
+```solidity
+function burn(uint256 _tokenId, address _sender) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_tokenId` | `uint256` | The ID of the token to burn. |
+
+| `_sender` | `address` | The address initiating the burn. |
+
+
+
+
+
+### getStorage
+
+
+Returns the ERC-721 enumerable storage struct from its predefined slot. Uses inline assembly to point to the correct diamond storage position. **Returns**
+
+
+
+```solidity
+function getStorage() pure returns (ERC721EnumerableStorage storage s);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `s` | `ERC721EnumerableStorage` | The storage reference for ERC-721 enumerable state variables. |
+
+
+
+
+### mint
+
+
+Mints a new ERC-721 token to the specified address, adding it to enumeration lists. Reverts if the receiver address is zero or if the token already exists. **Parameters**
+
+
+
+```solidity
+function mint(address _to, uint256 _tokenId) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_to` | `address` | The address that will own the newly minted token. |
+
+| `_tokenId` | `uint256` | The ID of the token to mint. |
+
+
+
+
+
+### transferFrom
+
+
+Transfers a token ID from one address to another, updating enumeration data. Validates ownership, approval, and receiver address before state updates. **Parameters**
+
+
+
+```solidity
+function transferFrom(address _from, address _to, uint256 _tokenId, address _sender) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_from` | `address` | The current owner of the token. |
+
+| `_to` | `address` | The address receiving the token. |
+
+| `_tokenId` | `uint256` | The ID of the token being transferred. |
+
+| `_sender` | `address` | The initiator of the transfer (may be owner or approved operator). |
+
+
+
+
+
+
+
+## Events
+
+
+### Transfer
+
+
+Emitted when ownership of a token changes, including minting and burning. **Parameters**
+
+
+
+```solidity
+event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `_from` | `address` | The address transferring the token, or zero for minting. |
+
+| `_to` | `address` | The address receiving the token, or zero for burning. |
+
+| `_tokenId` | `uint256` | The ID of the token being transferred. |
+
+
+
+
+
+
+## Errors
+
+
+### ERC721IncorrectOwner
+
+
+Thrown when the sender is not the owner of the token. **Parameters**
+
+
+
+```solidity
+error ERC721IncorrectOwner(address _sender, uint256 _tokenId, address _owner);
+```
+
+
+
+### ERC721InsufficientApproval
+
+
+Thrown when an operator lacks approval to manage a token. **Parameters**
+
+
+
+```solidity
+error ERC721InsufficientApproval(address _operator, uint256 _tokenId);
+```
+
+
+
+### ERC721InvalidReceiver
+
+
+Thrown when the receiver address is invalid. **Parameters**
+
+
+
+```solidity
+error ERC721InvalidReceiver(address _receiver);
+```
+
+
+
+### ERC721InvalidSender
+
+
+Thrown when the sender address is invalid. **Parameters**
+
+
+
+```solidity
+error ERC721InvalidSender(address _sender);
+```
+
+
+
+### ERC721NonexistentToken
+
+
+Thrown when attempting to interact with a non-existent token. **Parameters**
+
+
+
+```solidity
+error ERC721NonexistentToken(uint256 _tokenId);
+```
+
+
+
+
+
+## Structs
+
+
+### ERC721EnumerableStorage
+
+
+
+```solidity
+struct ERC721EnumerableStorage {
+mapping(uint256 tokenId =&gt; address owner) ownerOf;
+mapping(address owner =&gt; uint256[] ownerTokens) ownerTokens;
+mapping(uint256 tokenId =&gt; uint256 ownerTokensIndex) ownerTokensIndex;
+uint256[] allTokens;
+mapping(uint256 tokenId =&gt; uint256 allTokensIndex) allTokensIndex;
+mapping(address owner =&gt; mapping(address operator =&gt; bool approved)) isApprovedForAll;
+mapping(uint256 tokenId =&gt; address approved) approved;
+string name;
+string symbol;
+string baseURI;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+contract MyDiamond {\n    Diamond diamond;\n    constructor(address _diamond) {\n        diamond = Diamond(_diamond);\n    }\n\n    function mintToken(address to, uint256 tokenId) external {\n        // Using the ERC721EnumerableMod facet to mint a new token\n        diamond.facetCall(\&quot;ERC721EnumerableMod.mint\&quot;, to, tokenId);\n    }\n\n    function burnToken(uint256 tokenId) external {\n        // Using the ERC721EnumerableMod facet to burn a token\n        diamond.facetCall(\&quot;ERC721EnumerableMod.burn\&quot;, tokenId);\n    }\n\n    function transferToken(address from, address to, uint256 tokenId) external {\n        // Using the ERC721EnumerableMod facet to transfer a token\n        diamond.facetCall(\&quot;ERC721EnumerableMod.transferFrom\&quot;, from, to, tokenId);\n    }\n}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Ensure mint, burn, and transfer functions are properly restricted to authorized accounts.\n- Regularly validate the enumerated state to detect and recover from any corruption.\n- Avoid direct external interaction with storage by restricting access to critical state via the getStorage function.
+</Callout>
+
+
+
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Ensure that only authorized accounts (e.g., contract owner or approved operators) can call mint and burn functions to protect token enumeration integrity. Always validate ownership, approval, and recipient constraints in transferFrom. Avoid reentrancy vulnerabilities by following checks-effects-interactions pattern and locking mechanisms.
+</Callout>
+
+
+
+
+

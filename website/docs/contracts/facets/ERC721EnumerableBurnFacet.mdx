@@ -1,0 +1,198 @@
+---
+sidebar_position: 99
+title: "ERC721EnumerableBurnFacet"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+
+<DocHero
+  title="ERC721EnumerableBurnFacet"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+
+## Overview
+
+The ERC721EnumerableBurnFacet provides functionality to burn (destroy) ERC-721 tokens, updating and maintaining enumeration state for token tracking. This facet is useful in diamond contracts for managing ERC-721 lifecycle and ensures accurate token enumeration after a burn operation.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/7050baa250694d5e2445aa4c6b96c62c326cb1cb/src/token/ERC721/ERC721Enumerable/ERC721EnumerableBurnFacet.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Supports tracking of token enumeration state after burning\n- Getter for direct access to facet's storage\n- Facilitates token lifecycle management in composable diamond architectures
+</Callout>
+
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns the storage struct used by this facet.
+
+
+
+```solidity
+function getStorage() internal pure returns (ERC721EnumerableStorage storage s);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `s` | `ERC721EnumerableStorage` | The ERC721Enumerable storage struct. |
+
+
+
+
+### burn
+
+
+Burns (destroys) a token, removing it from enumeration tracking.
+
+
+
+```solidity
+function burn(uint256 _tokenId) external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_tokenId` | `uint256` | The ID of the token to burn. |
+
+
+
+
+
+
+
+## Events
+
+
+### Transfer
+
+
+Emitted when ownership of a token changes, including burning.
+
+
+
+```solidity
+event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `_from` | `address` | The address transferring the token (or owner when burning). |
+
+| `_to` | `address` | The address receiving the token (zero address when burning). |
+
+| `_tokenId` | `uint256` | The ID of the token being transferred. |
+
+
+
+
+
+
+## Errors
+
+
+### ERC721NonexistentToken
+
+
+Thrown when attempting to interact with a non-existent token.
+
+
+
+```solidity
+error ERC721NonexistentToken(uint256 _tokenId);
+```
+
+
+
+### ERC721InsufficientApproval
+
+
+Thrown when the caller lacks approval to operate on the token.
+
+
+
+```solidity
+error ERC721InsufficientApproval(address _operator, uint256 _tokenId);
+```
+
+
+
+
+
+## Structs
+
+
+### ERC721EnumerableStorage
+
+
+
+```solidity
+struct ERC721EnumerableStorage {
+    mapping(uint256 tokenId =&gt; address owner) ownerOf;
+    mapping(address owner =&gt; uint256[] ownerTokens) ownerTokens;
+    mapping(uint256 tokenId =&gt; uint256 ownerTokensIndex) ownerTokensIndex;
+    uint256[] allTokens;
+    mapping(uint256 tokenId =&gt; uint256 allTokensIndex) allTokensIndex;
+    mapping(address owner =&gt; mapping(address operator =&gt; bool approved)) isApprovedForAll;
+    mapping(uint256 tokenId =&gt; address approved) approved;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+contract TestDiamond {\n    function burnToken(address diamond, uint256 tokenId) external {\n        ERC721EnumerableBurnFacet burnFacet = ERC721EnumerableBurnFacet(diamond);\n        burnFacet.burn(tokenId);\n    }\n}\n\ninterface ERC721EnumerableBurnFacet {\n    function burn(uint256 _tokenId) external;\n    function getStorage() external view returns (bytes32 storageId);\n}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Validate that the caller is authorized (e.g., token owner or approved user) before calling the `burn` function.\n- Regularly verify that enumeration data is consistent after burning tokens.\n- Ensure clear separation of concerns to avoid interfering with other facets handling ERC-721 tokens.
+</Callout>
+
+
+
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Ensure proper access control to prevent unauthorized token burns. Validate ownership and approval status before invoking the burn function. Utilize reentrancy guards if interacting further with state changes post-burn.
+</Callout>
+
+
+
+
+

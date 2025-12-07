@@ -1,0 +1,365 @@
+---
+sidebar_position: 99
+title: "DiamondCutMod"
+description: "Documentation for DiamondCutMod"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+
+<DocHero
+  title="DiamondCutMod"
+  subtitle="Documentation for DiamondCutMod"
+  variant="gradient"
+  height="small"
+/>
+
+
+## Overview
+
+The DiamondCutMod facet provides the core functionality for managing facets within a diamond using the diamondCut function. It enables the addition, replacement, and removal of facet functions, facilitating on-chain module upgrades and extending contract functionality seamlessly. This facet is critical for maintaining flexible and upgradable diamond-based architectures.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/7050baa250694d5e2445aa4c6b96c62c326cb1cb/src/diamond/DiamondCutMod.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Modify diamond functionality dynamically by adding, replacing, or removing facet functions.\n- Supports executing additional actions during the diamondCut operation.\n- Provides direct access to the storage layout through getStorage.
+</Callout>
+
+
+
+
+## Functions
+
+
+### addFunctions
+
+
+
+```solidity
+function addFunctions(address _facet, bytes4[] calldata _functionSelectors) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_facet` | `address` |  |
+
+| `_functionSelectors` | `bytes4[] calldata` |  |
+
+
+
+
+
+### diamondCut
+
+
+Add/replace/remove any number of functions and optionally execute a function with delegatecall **Parameters**
+
+
+
+```solidity
+function diamondCut(FacetCut[] calldata _diamondCut, address _init, bytes calldata _calldata) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_diamondCut` | `FacetCut[]` | Contains the facet addresses and function selectors |
+
+| `_init` | `address` | The address of the contract or facet to execute _calldata |
+
+| `_calldata` | `bytes` | A function call, including function selector and arguments _calldata is executed with delegatecall on _init |
+
+
+
+
+
+### getStorage
+
+
+
+```solidity
+function getStorage() pure returns (DiamondStorage storage s);
+```
+
+
+
+
+
+### removeFunctions
+
+
+
+```solidity
+function removeFunctions(address _facet, bytes4[] calldata _functionSelectors) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_facet` | `address` |  |
+
+| `_functionSelectors` | `bytes4[] calldata` |  |
+
+
+
+
+
+### replaceFunctions
+
+
+
+```solidity
+function replaceFunctions(address _facet, bytes4[] calldata _functionSelectors) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_facet` | `address` |  |
+
+| `_functionSelectors` | `bytes4[] calldata` |  |
+
+
+
+
+
+
+
+## Events
+
+
+### DiamondCut
+
+
+
+```solidity
+event DiamondCut(FacetCut[] _diamondCut, address _init, bytes _calldata);
+```
+
+
+
+
+
+
+## Errors
+
+
+### CannotAddFunctionToDiamondThatAlreadyExists
+
+
+
+```solidity
+error CannotAddFunctionToDiamondThatAlreadyExists(bytes4 _selector);
+```
+
+
+
+### CannotRemoveFunctionThatDoesNotExist
+
+
+
+```solidity
+error CannotRemoveFunctionThatDoesNotExist(bytes4 _selector);
+```
+
+
+
+### CannotRemoveImmutableFunction
+
+
+
+```solidity
+error CannotRemoveImmutableFunction(bytes4 _selector);
+```
+
+
+
+### CannotReplaceFunctionThatDoesNotExists
+
+
+
+```solidity
+error CannotReplaceFunctionThatDoesNotExists(bytes4 _selector);
+```
+
+
+
+### CannotReplaceFunctionWithTheSameFunctionFromTheSameFacet
+
+
+
+```solidity
+error CannotReplaceFunctionWithTheSameFunctionFromTheSameFacet(bytes4 _selector);
+```
+
+
+
+### CannotReplaceImmutableFunction
+
+
+
+```solidity
+error CannotReplaceImmutableFunction(bytes4 _selector);
+```
+
+
+
+### IncorrectFacetCutAction
+
+
+
+```solidity
+error IncorrectFacetCutAction(uint8 _action);
+```
+
+
+
+### InitializationFunctionReverted
+
+
+
+```solidity
+error InitializationFunctionReverted(address _initializationContractAddress, bytes _calldata);
+```
+
+
+
+### NoBytecodeAtAddress
+
+
+
+```solidity
+error NoBytecodeAtAddress(address _contractAddress, string _message);
+```
+
+
+
+### NoSelectorsProvidedForFacet
+
+
+
+```solidity
+error NoSelectorsProvidedForFacet(address _facet);
+```
+
+
+
+### RemoveFacetAddressMustBeZeroAddress
+
+
+
+```solidity
+error RemoveFacetAddressMustBeZeroAddress(address _facet);
+```
+
+
+
+
+
+## Structs
+
+
+### FacetCutAction
+
+
+Add=0, Replace=1, Remove=2
+
+
+
+
+### DiamondStorage
+
+
+**Note:** storage-location: erc8042:compose.diamond
+
+
+
+```solidity
+struct DiamondStorage {
+mapping(bytes4 functionSelector =&gt; FacetAndPosition) facetAndPosition;
+/**
+ * Array of all function selectors that can be called in the diamond
+ */
+bytes4[] selectors;
+}
+```
+
+
+
+### FacetAndPosition
+
+
+
+```solidity
+struct FacetAndPosition {
+address facet;
+uint32 position;
+}
+```
+
+
+
+### FacetCut
+
+
+
+```solidity
+struct FacetCut {
+address facetAddress;
+FacetCutAction action;
+bytes4[] functionSelectors;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+contract ExampleDiamond {\n    address constant DIAMOND_CUT_MOD_FACET = 0x...; // Address of DiamondCutMod facet\n\n    function performDiamondCut() external {\n        IDiamondCutMod diamondCut = IDiamondCutMod(DIAMOND_CUT_MOD_FACET);\n\n        // Define function selectors and new implementation address\n        bytes4[] memory functionSelectors = new bytes4[](1);\n        functionSelectors[0] = bytes4(keccak256(&quot;newFunctionName()&quot;));\n        address implementation = address(0x123...);\n\n        // Add new functionality\n        IDiamondCutMod.FacetCut[] memory cuts = new IDiamondCutMod.FacetCut[](1);\n        cuts[0] = IDiamondCutMod.FacetCut({\n            facetAddress: implementation,\n            action: IDiamondCutMod.FacetCutAction.Add,\n            functionSelectors: functionSelectors\n        });\n        \n        diamondCut.diamondCut(cuts, address(0), new bytes(0));\n    }\n}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Ensure the diamondCut action aligns with the intended operation (add, replace, or remove).\n- Thoroughly test new or modified facets off-chain before performing an upgrade on the diamond.\n- Always maintain a backup of the current diamond state before performing disruptive upgrades.
+</Callout>
+
+
+
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Access to diamondCut and other management functions must be restricted to authorized accounts, typically the diamond owner or an admin role. Improper use can lead to unintended loss of functionality, state corruption, or security vulnerabilities. Ensure to validate any code being added or replaced and account for potential reentrancy concerns within the facets, especially when other facets call externally or interact with user-provided input.
+</Callout>
+
+
+
+
+

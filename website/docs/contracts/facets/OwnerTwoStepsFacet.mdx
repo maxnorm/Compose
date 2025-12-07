@@ -1,0 +1,307 @@
+---
+sidebar_position: 99
+title: "OwnerTwoStepsFacet"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+
+<DocHero
+  title="OwnerTwoStepsFacet"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+
+## Overview
+
+The OwnerTwoStepsFacet provides secure, two-step ownership transfer functionality within a diamond contract architecture. It ensures that ownership changes are intentional and verified, reducing the risk of accidental or malicious misconfiguration. This facet is essential for managing administrative control in a transparent and secure manner.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/7050baa250694d5e2445aa4c6b96c62c326cb1cb/src/access/OwnerTwoSteps/OwnerTwoStepsFacet.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Implements two-step ownership transfer with explicit acceptance.\n- Includes functionality to view current and pending owners.\n- Allows renouncing ownership for decentralized control.
+</Callout>
+
+
+
+
+## Functions
+
+
+### getOwnerStorage
+
+
+Returns a pointer to the Owner storage struct. Uses inline assembly to access the storage slot defined by OWNER_STORAGE_POSITION.
+
+
+
+```solidity
+function getOwnerStorage() internal pure returns (OwnerStorage storage s);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `s` | `OwnerStorage` | The OwnerStorage struct in storage. |
+
+
+
+
+### getPendingOwnerStorage
+
+
+Returns a pointer to the PendingOwner storage struct. Uses inline assembly to access the storage slot defined by PENDING_OWNER_STORAGE_POSITION.
+
+
+
+```solidity
+function getPendingOwnerStorage() internal pure returns (PendingOwnerStorage storage s);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `s` | `PendingOwnerStorage` | The PendingOwnerStorage struct in storage. |
+
+
+
+
+### owner
+
+
+Get the address of the owner
+
+
+
+```solidity
+function owner() external view returns (address);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `-` | `address` | The address of the owner. |
+
+
+
+
+### pendingOwner
+
+
+Get the address of the pending owner
+
+
+
+```solidity
+function pendingOwner() external view returns (address);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `-` | `address` | The address of the pending owner. |
+
+
+
+
+### transferOwnership
+
+
+Set the address of the new owner of the contract
+
+
+
+```solidity
+function transferOwnership(address _newOwner) external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_newOwner` | `address` | The address of the new owner of the contract |
+
+
+
+
+
+### acceptOwnership
+
+
+
+```solidity
+function acceptOwnership() external;
+```
+
+
+
+
+
+### renounceOwnership
+
+
+
+```solidity
+function renounceOwnership() external;
+```
+
+
+
+
+
+
+
+## Events
+
+
+### OwnershipTransferStarted
+
+
+
+```solidity
+event OwnershipTransferStarted(address indexed _previousOwner, address indexed _newOwner);
+```
+
+
+
+
+### OwnershipTransferred
+
+
+
+```solidity
+event OwnershipTransferred(address indexed _previousOwner, address indexed _newOwner);
+```
+
+
+
+
+
+
+## Errors
+
+
+### OwnerUnauthorizedAccount
+
+
+
+```solidity
+error OwnerUnauthorizedAccount();
+```
+
+
+
+
+
+## Structs
+
+
+### OwnerStorage
+
+
+
+```solidity
+struct OwnerStorage {
+    address owner;
+}
+```
+
+
+
+### PendingOwnerStorage
+
+
+
+```solidity
+struct PendingOwnerStorage {
+    address pendingOwner;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;
+
+import { Diamond } from &quot;./Diamond.sol&quot;;
+import { OwnerTwoStepsFacet } from &quot;./OwnerTwoStepsFacet.sol&quot;;
+
+contract Example {
+    Diamond public diamond;
+
+    constructor(address _diamondAddress) {
+        diamond = Diamond(_diamondAddress);
+    }
+
+    function setNewOwner(address _newOwner) external {
+        // Call transferOwnership to initiate two-step ownership transfer
+        OwnerTwoStepsFacet(diamond).transferOwnership(_newOwner);
+    }
+
+    function acceptNewOwnership() external {
+        // New owner calls acceptOwnership to complete ownership transfer
+        OwnerTwoStepsFacet(diamond).acceptOwnership();
+    }
+
+    function getCurrentOwner() external view returns (address) {
+        // Retrieve the current owner of the contract
+        return OwnerTwoStepsFacet(diamond).owner();
+    }
+}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Ensure the new owner explicitly accepts ownership to complete the transfer.\n- Call renounceOwnership only when administrative control is no longer needed or appropriate.\n- Use separate addresses for ownership and operational roles to minimize risks.
+</Callout>
+
+
+
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+- Verify the authenticity of the new owner's address before initiating a transfer.\n- Double-check that only authorized parties can call transferOwnership, acceptOwnership, or renounceOwnership functions.\n- Address any reentrancy risks by structuring the contract to follow checks-effects-interactions where applicable.
+</Callout>
+
+
+
+
+

@@ -1,0 +1,384 @@
+---
+sidebar_position: 99
+title: "AccessControlTemporalFacet"
+description: "Contract documentation for AccessControlTemporalFacet"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+
+<DocHero
+  title="AccessControlTemporalFacet"
+  subtitle="Contract documentation for AccessControlTemporalFacet"
+  variant="gradient"
+  height="small"
+/>
+
+
+## Overview
+
+The AccessControlTemporalFacet enables time-based role management in a diamond contract, allowing roles to be granted with specific expiration times. It ensures improved flexibility and fine-grained access control by verifying role validity based on time, while also adhering to the diamond storage and modular design principles.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/7050baa250694d5e2445aa4c6b96c62c326cb1cb/src/access/AccessControlTemporal/AccessControlTemporalFacet.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Allows time-bound roles by granting them with expiration timestamps.\n- Includes validation for expired roles, improving security.\n- Emits events on role changes for improved traceability.
+</Callout>
+
+
+
+
+## Functions
+
+
+### getAccessControlStorage
+
+
+Returns the storage for AccessControl.
+
+
+
+```solidity
+function getAccessControlStorage() internal pure returns (AccessControlStorage storage s);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `s` | `AccessControlStorage` | The AccessControl storage struct. |
+
+
+
+
+### getStorage
+
+
+Returns the storage for AccessControlTemporal.
+
+
+
+```solidity
+function getStorage() internal pure returns (AccessControlTemporalStorage storage s);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `s` | `AccessControlTemporalStorage` | The AccessControlTemporal storage struct. |
+
+
+
+
+### getRoleExpiry
+
+
+Returns the expiry timestamp for a role assignment.
+
+
+
+```solidity
+function getRoleExpiry(bytes32 _role, address _account) external view returns (uint256);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_role` | `bytes32` | The role to check. |
+
+| `_account` | `address` | The account to check. |
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `-` | `uint256` | The expiry timestamp, or 0 if no expiry is set. |
+
+
+
+
+### isRoleExpired
+
+
+Checks if a role assignment has expired.
+
+
+
+```solidity
+function isRoleExpired(bytes32 _role, address _account) external view returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_role` | `bytes32` | The role to check. |
+
+| `_account` | `address` | The account to check. |
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `-` | `bool` | True if the role has expired or doesn't exist, false if still valid. |
+
+
+
+
+### grantRoleWithExpiry
+
+
+Grants a role to an account with an expiry timestamp. Only the admin of the role can grant it with expiry. Emits a RoleGrantedWithExpiry event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
+
+
+
+```solidity
+function grantRoleWithExpiry(bytes32 _role, address _account, uint256 _expiresAt) external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_role` | `bytes32` | The role to grant. |
+
+| `_account` | `address` | The account to grant the role to. |
+
+| `_expiresAt` | `uint256` | The timestamp when the role should expire (must be in the future). |
+
+
+
+
+
+### revokeTemporalRole
+
+
+Revokes a temporal role from an account. Only the admin of the role can revoke it. Emits a TemporalRoleRevoked event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
+
+
+
+```solidity
+function revokeTemporalRole(bytes32 _role, address _account) external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_role` | `bytes32` | The role to revoke. |
+
+| `_account` | `address` | The account to revoke the role from. |
+
+
+
+
+
+### requireValidRole
+
+
+Checks if an account has a valid (non-expired) role. - error: AccessControlUnauthorizedAccount If the account does not have the role. - error: AccessControlRoleExpired If the role has expired.
+
+
+
+```solidity
+function requireValidRole(bytes32 _role, address _account) external view;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_role` | `bytes32` | The role to check. |
+
+| `_account` | `address` | The account to check the role for. |
+
+
+
+
+
+
+
+## Events
+
+
+### RoleGrantedWithExpiry
+
+
+Event emitted when a role is granted with an expiry timestamp.
+
+
+
+```solidity
+event RoleGrantedWithExpiry(
+    bytes32 indexed _role, address indexed _account, uint256 _expiresAt, address indexed _sender
+);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `_role` | `bytes32` | The role that was granted. |
+
+| `_account` | `address` | The account that was granted the role. |
+
+| `_expiresAt` | `uint256` | The timestamp when the role expires. |
+
+| `_sender` | `address` | The account that granted the role. |
+
+
+
+
+### TemporalRoleRevoked
+
+
+Event emitted when a temporal role is revoked.
+
+
+
+```solidity
+event TemporalRoleRevoked(bytes32 indexed _role, address indexed _account, address indexed _sender);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `_role` | `bytes32` | The role that was revoked. |
+
+| `_account` | `address` | The account from which the role was revoked. |
+
+| `_sender` | `address` | The account that revoked the role. |
+
+
+
+
+
+
+## Errors
+
+
+### AccessControlUnauthorizedAccount
+
+
+Thrown when the account does not have a specific role.
+
+
+
+```solidity
+error AccessControlUnauthorizedAccount(address _account, bytes32 _role);
+```
+
+
+
+### AccessControlRoleExpired
+
+
+Thrown when a role has expired.
+
+
+
+```solidity
+error AccessControlRoleExpired(bytes32 _role, address _account);
+```
+
+
+
+
+
+## Structs
+
+
+### AccessControlStorage
+
+
+
+```solidity
+struct AccessControlStorage {
+    mapping(address account =&gt; mapping(bytes32 role =&gt; bool hasRole)) hasRole;
+    mapping(bytes32 role =&gt; bytes32 adminRole) adminRole;
+}
+```
+
+
+
+### AccessControlTemporalStorage
+
+
+
+```solidity
+struct AccessControlTemporalStorage {
+    mapping(address account =&gt; mapping(bytes32 role =&gt; uint256 expiryTimestamp)) roleExpiry;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.19;\n\nimport {DiamondCutFacet} from &#39;./facets/DiamondCutFacet.sol&#39;;\nimport {AccessControlTemporalFacet} from &#39;./facets/AccessControlTemporalFacet.sol&#39;;\n\ncontract Diamond {\n    event RoleGrantedWithExpiry(bytes32 role, address account, uint256 expiry);\n    event TemporalRoleRevoked(bytes32 role, address account);\n\n    constructor(address diamondCutFacet, address accessControlTemporalFacet) {\n        // Add facets to the diamond\n        DiamondCutFacet(diamondCutFacet).diamondCut([\n            DiamondCutFacet.FacetCut({facetAddress: accessControlTemporalFacet, action: DiamondCutFacet.FacetCutAction.Add, functionSelectors: new bytes4[](0)})\n        ], address(0), &#39;&#39;);\n    }\n\n    function assignRole(address account, bytes32 role, uint256 expiry) external {\n        AccessControlTemporalFacet(address(this)).grantRoleWithExpiry(role, account, expiry);\n    }\n\n    function checkRole(address account, bytes32 role) external view returns (bool) {\n        return !AccessControlTemporalFacet(address(this)).isRoleExpired(role, account);\n    }\n}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Define a clear role hierarchy and ensure only authorized accounts can grant roles.\n- Regularly check and revoke expired roles to maintain clarity in access.\n- Use `requireValidRole` wherever role-dependent functionality is implemented to enforce role validity.
+</Callout>
+
+
+
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Ensure that the role admin only grants/revokes roles where necessary to prevent improper access. Always apply a reentrancy guard or checks-effects-interactions pattern if integrating this facet's role-reliant methods with external calls. Validate inputs, such as account and timestamp, to mitigate misuse or unintended behavior.
+</Callout>
+
+
+
+
+
