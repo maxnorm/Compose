@@ -1,0 +1,316 @@
+---
+sidebar_position: 99
+title: "ERC721Mod"
+description: "ERC-721 Library for Compose - Thrown when attempting to interact with a non-existent token."
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+
+<DocHero
+  title="ERC721Mod"
+  subtitle="ERC-721 Library for Compose - Thrown when attempting to interact with a non-existent token."
+  variant="gradient"
+  height="small"
+/>
+
+
+## Overview
+
+The ERC721Mod facet provides core functionality for managing ERC-721 tokens in a composable diamond contract architecture. It supports token minting, burning, metadata management, and secure transfer operations while adhering to the ERC-721 standard.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/7050baa250694d5e2445aa4c6b96c62c326cb1cb/src/token/ERC721/ERC721/ERC721Mod.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- ERC-721 compliant token minting and burning\n- Secure transfer operations with validation\n- Support for retrieving and managing diamond storage
+</Callout>
+
+
+
+
+## Functions
+
+
+### burn
+
+
+Burns (destroys) a specific ERC-721 token. Reverts if the token does not exist. Clears ownership and approval. **Parameters**
+
+
+
+```solidity
+function burn(uint256 _tokenId) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_tokenId` | `uint256` | The ID of the token to burn. |
+
+
+
+
+
+### getStorage
+
+
+Returns the ERC-721 storage struct from its predefined slot. Uses inline assembly to access diamond storage location. **Returns**
+
+
+
+```solidity
+function getStorage() pure returns (ERC721Storage storage s);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `s` | `ERC721Storage` | The storage reference for ERC-721 state variables. |
+
+
+
+
+### mint
+
+
+Mints a new ERC-721 token to the specified address. Reverts if the receiver address is zero or if the token already exists. **Parameters**
+
+
+
+```solidity
+function mint(address _to, uint256 _tokenId) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_to` | `address` | The address that will own the newly minted token. |
+
+| `_tokenId` | `uint256` | The ID of the token to mint. |
+
+
+
+
+
+### setMetadata
+
+
+
+```solidity
+function setMetadata(string memory _name, string memory _symbol, string memory _baseURI) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_name` | `string memory` |  |
+
+| `_symbol` | `string memory` |  |
+
+| `_baseURI` | `string memory` |  |
+
+
+
+
+
+### transferFrom
+
+
+Transfers ownership of a token ID from one address to another. Validates ownership, approval, and receiver address before updating state. **Parameters**
+
+
+
+```solidity
+function transferFrom(address _from, address _to, uint256 _tokenId) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_from` | `address` | The current owner of the token. |
+
+| `_to` | `address` | The address that will receive the token. |
+
+| `_tokenId` | `uint256` | The ID of the token being transferred. |
+
+
+
+
+
+
+
+## Events
+
+
+### Transfer
+
+
+Emitted when ownership of a token changes, including minting and burning. **Parameters**
+
+
+
+```solidity
+event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `_from` | `address` | The address transferring the token, or zero for minting. |
+
+| `_to` | `address` | The address receiving the token, or zero for burning. |
+
+| `_tokenId` | `uint256` | The ID of the token being transferred. |
+
+
+
+
+
+
+## Errors
+
+
+### ERC721IncorrectOwner
+
+
+Thrown when the sender is not the owner of the token. **Parameters**
+
+
+
+```solidity
+error ERC721IncorrectOwner(address _sender, uint256 _tokenId, address _owner);
+```
+
+
+
+### ERC721InsufficientApproval
+
+
+Thrown when an operator lacks sufficient approval to manage a token. **Parameters**
+
+
+
+```solidity
+error ERC721InsufficientApproval(address _operator, uint256 _tokenId);
+```
+
+
+
+### ERC721InvalidReceiver
+
+
+Thrown when the receiver address is invalid (e.g., zero address). **Parameters**
+
+
+
+```solidity
+error ERC721InvalidReceiver(address _receiver);
+```
+
+
+
+### ERC721InvalidSender
+
+
+Thrown when the sender address is invalid (e.g., zero address). **Parameters**
+
+
+
+```solidity
+error ERC721InvalidSender(address _sender);
+```
+
+
+
+### ERC721NonexistentToken
+
+
+Thrown when attempting to interact with a non-existent token. **Parameters**
+
+
+
+```solidity
+error ERC721NonexistentToken(uint256 _tokenId);
+```
+
+
+
+
+
+## Structs
+
+
+### ERC721Storage
+
+
+
+```solidity
+struct ERC721Storage {
+mapping(uint256 tokenId =&gt; address owner) ownerOf;
+mapping(address owner =&gt; uint256 balance) balanceOf;
+mapping(address owner =&gt; mapping(address operator =&gt; bool approved)) isApprovedForAll;
+mapping(uint256 tokenId =&gt; address approved) approved;
+string name;
+string symbol;
+string baseURI;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;\n\nimport {Diamond} from &quot;path_to_diamond/Diamond.sol&quot;;\nimport {ERC721Mod} from &quot;path_to_facets/ERC721Mod.sol&quot;;\n\ncontract MyDiamond {\n    Diamond public diamond;\n\n    constructor() {\n        diamond = new Diamond();\n        diamond.addFacet(address(new ERC721Mod()));\n    }\n\n    function mintTokenTo(address _to, uint256 _tokenId) external {\n        ERC721Mod(address(diamond)).mint(_to, _tokenId);\n    }\n\n    function burnToken(uint256 _tokenId) external {\n        ERC721Mod(address(diamond)).burn(_tokenId);\n    }\n\n    function transferToken(address _from, address _to, uint256 _tokenId) external {\n        ERC721Mod(address(diamond)).transferFrom(_from, _to, _tokenId);\n    }\n}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Ensure to validate and sanitize inputs before passing parameters to functions like `mint` or `transferFrom`.\n- Use `getStorage` to inspect and debug state when necessary, avoiding storage mismanagement.\n- Regularly audit metadata set through `setMetadata` or other storage changes to ensure contract integrity.
+</Callout>
+
+
+
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Implement strict access controls for minting and burning operations to prevent unauthorized actions. Ensure reentrancy guards are in place when performing state-changing operations like `transferFrom` or `burn`. Validate addresses and token IDs to prevent misuse or attacks.
+</Callout>
+
+
+
+
+

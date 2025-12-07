@@ -1,0 +1,136 @@
+---
+sidebar_position: 99
+title: "ERC165Mod"
+description: "LibERC165 — ERC-165 Standard Interface Detection Library - Provides internal functions and storage layout for ERC-165 interface detection."
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+
+<DocHero
+  title="ERC165Mod"
+  subtitle="LibERC165 — ERC-165 Standard Interface Detection Library - Provides internal functions and storage layout for ERC-165 interface detection."
+  variant="gradient"
+  height="small"
+/>
+
+
+## Overview
+
+The ERC165Mod facet implements the logic for the ERC-165 interface standard, enabling contracts within a diamond to register and signal supported interfaces. This utility is essential for ensuring compatibility and discoverability of supported features, making it a foundational component in compliant and extensible diamond contracts.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/7050baa250694d5e2445aa4c6b96c62c326cb1cb/src/interfaceDetection/ERC165/ERC165Mod.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Provides an efficient storage layout for ERC-165 support within a diamond.\n- Includes streamlined internal functions to register and query supported interfaces.
+</Callout>
+
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns a pointer to the ERC-165 storage struct. Uses inline assembly to bind the storage struct to the fixed storage position. **Returns**
+
+
+
+```solidity
+function getStorage() pure returns (ERC165Storage storage s);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `s` | `ERC165Storage` | The ERC-165 storage struct. |
+
+
+
+
+### registerInterface
+
+
+Register that a contract supports an interface Call this function during initialization to register supported interfaces. For example, in an ERC721 facet initialization, you would call: `LibERC165.registerInterface(type(IERC721).interfaceId)` **Parameters**
+
+
+
+```solidity
+function registerInterface(bytes4 _interfaceId) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_interfaceId` | `bytes4` | The interface ID to register |
+
+
+
+
+
+
+
+
+
+## Structs
+
+
+### ERC165Storage
+
+
+
+```solidity
+struct ERC165Storage {
+/*
+ * @notice Mapping of interface IDs to whether they are supported
+ */
+mapping(bytes4 =&gt; bool) supportedInterfaces;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+contract DiamondInitialization {\n    function init() external {\n        // Register ERC-165 interfaces\n        LibERC165.registerInterface(type(IERC165).interfaceId);\n        LibERC165.registerInterface(type(IERC721).interfaceId);\n    }\n}\n\ncontract Diamond {\n    fallback() external {\n        address facet = selectorToFacet[msg.sig];\n        require(facet != address(0), \&quot;No function found for selector\&quot;);\n\n        assembly {\n            calldatacopy(0, 0, calldatasize())\n            let result := delegatecall(gas(), facet, 0, calldatasize(), 0, 0)\n            returndatacopy(0, 0, returndatasize())\n            switch result\n                case 0 { revert(0, returndatasize()) }\n                default { return(0, returndatasize()) }\n        }\n    }\n}		
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Always call `registerInterface` during the initialization phase of the diamond or relevant facets.\n- Ensure all implemented interfaces use correct and unique `interfaceId` values to avoid registration inconsistencies.\n- Clearly document the registered interfaces to maintain clarity for developers and auditors.
+</Callout>
+
+
+
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Ensure that interface registration logic is only called during the initialization process or by a trusted entity. Improper usage may lead to incorrect interface signaling, potentially causing compatibility issues or security vulnerabilities. Perform thorough testing to confirm no unexpected interfaces are exposed.
+</Callout>
+
+
+
+
+

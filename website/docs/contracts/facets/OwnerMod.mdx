@@ -1,0 +1,238 @@
+---
+sidebar_position: 99
+title: "OwnerMod"
+description: "ERC-173 Contract Ownership - Provides internal functions and storage layout for owner management."
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+
+<DocHero
+  title="OwnerMod"
+  subtitle="ERC-173 Contract Ownership - Provides internal functions and storage layout for owner management."
+  variant="gradient"
+  height="small"
+/>
+
+
+## Overview
+
+The OwnerMod facet implements ERC-173 standard for contract ownership management within a diamond architecture. It includes functionality to retrieve, verify, and transfer ownership, enabling secure control over contract operations in a modular and composable way.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/7050baa250694d5e2445aa4c6b96c62c326cb1cb/src/access/Owner/OwnerMod.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Provides an ERC-173-compliant solution for contract ownership.\n- Includes utility functions to retrieve and enforce ownership requirements.\n- Enables the transfer and renouncement of ownership dynamically.
+</Callout>
+
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns a pointer to the ERC-173 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION. **Returns**
+
+
+
+```solidity
+function getStorage() pure returns (OwnerStorage storage s);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `s` | `OwnerStorage` | The OwnerStorage struct in storage. |
+
+
+
+
+### owner
+
+
+Get the address of the owner **Returns**
+
+
+
+```solidity
+function owner() view returns (address);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `-` | `address` | The address of the owner. |
+
+
+
+
+### requireOwner
+
+
+Reverts if the caller is not the owner.
+
+
+
+```solidity
+function requireOwner() view;
+```
+
+
+
+
+
+### setContractOwner
+
+
+
+```solidity
+function setContractOwner(address _initialOwner) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_initialOwner` | `address` |  |
+
+
+
+
+
+### transferOwnership
+
+
+Set the address of the new owner of the contract Set _newOwner to address(0) to renounce any ownership. **Parameters**
+
+
+
+```solidity
+function transferOwnership(address _newOwner) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_newOwner` | `address` | The address of the new owner of the contract |
+
+
+
+
+
+
+
+## Events
+
+
+### OwnershipTransferred
+
+
+This emits when ownership of a contract changes.
+
+
+
+```solidity
+event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+```
+
+
+
+
+
+
+## Errors
+
+
+### OwnerAlreadyRenounced
+
+
+
+```solidity
+error OwnerAlreadyRenounced();
+```
+
+
+
+### OwnerUnauthorizedAccount
+
+
+
+```solidity
+error OwnerUnauthorizedAccount();
+```
+
+
+
+
+
+## Structs
+
+
+### OwnerStorage
+
+
+**Note:** storage-location: erc8042:compose.owner
+
+
+
+```solidity
+struct OwnerStorage {
+address owner;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;\n\nimport {IDiamond} from &quot;./IDiamond.sol&quot;;\nimport {OwnerMod} from &quot;./OwnerMod.sol&quot;;\n\ncontract SampleDiamond {\n  function initialize(address _newOwner) external {\n    // Initializing the contract owner using OwnerMod\n    OwnerMod(address(this)).setContractOwner(_newOwner);\n  }\n  \n  function performOwnerAction() external {\n    // Ensure only the owner can perform this action\n    OwnerMod(address(this)).requireOwner();\n    // Action logic for contract owner\n  }\n  \n  function changeOwnership(address _newOwner) external {\n    // Transfer contract ownership\n    OwnerMod(address(this)).transferOwnership(_newOwner);\n  }\n}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Always call `requireOwner` in functions restricted to the contract owner to ensure proper access control.\n- Clearly document and test the behavior of `transferOwnership` when `_newOwner` is set to `address(0)`.\n- Use `getStorage` only internally or for auditing purposes to avoid exposing unnecessary implementation details.
+</Callout>
+
+
+
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+- Always restrict access to `transferOwnership` and `setContractOwner` to a trusted initializer or the current owner to prevent unauthorized modifications.\n- Be cautious when transferring ownership to `address(0)` as this effectively renounces control and renders the contract permissionless.\n- Ensure all functions requiring restricted access incorporate `requireOwner` or equivalent checks to prevent unauthorized use.
+</Callout>
+
+
+
+
+

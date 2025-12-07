@@ -1,0 +1,306 @@
+---
+sidebar_position: 99
+title: "OwnerTwoStepsMod"
+description: "ERC-173 Two-Step Contract Ownership Library - Provides two-step ownership transfer logic for facets or modular contracts."
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+
+<DocHero
+  title="OwnerTwoStepsMod"
+  subtitle="ERC-173 Two-Step Contract Ownership Library - Provides two-step ownership transfer logic for facets or modular contracts."
+  variant="gradient"
+  height="small"
+/>
+
+
+## Overview
+
+The OwnerTwoStepsMod facet implements ERC-173 compliant two-step ownership transfer functionality, allowing for secure and deliberate ownership transitions in diamond proxy contracts. It ensures clarity and control over ownership changes, which are critical for the secure management of modular and composable systems.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/7050baa250694d5e2445aa4c6b96c62c326cb1cb/src/access/OwnerTwoSteps/OwnerTwoStepsMod.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Implements two-step ownership transfer for secure transitions.\n- Supports ownership renouncement, enabling fully permissionless functionality if desired.
+</Callout>
+
+
+
+
+## Functions
+
+
+### acceptOwnership
+
+
+Finalizes ownership transfer; must be called by the pending owner.
+
+
+
+```solidity
+function acceptOwnership() ;
+```
+
+
+
+
+
+### getOwnerStorage
+
+
+Returns a pointer to the Owner storage struct. Uses inline assembly to access the storage slot defined by OWNER_STORAGE_POSITION. **Returns**
+
+
+
+```solidity
+function getOwnerStorage() pure returns (OwnerStorage storage s);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `s` | `OwnerStorage` | The OwnerStorage struct in storage. |
+
+
+
+
+### getPendingOwnerStorage
+
+
+Returns a pointer to the PendingOwner storage struct. Uses inline assembly to access the storage slot defined by PENDING_OWNER_STORAGE_POSITION. **Returns**
+
+
+
+```solidity
+function getPendingOwnerStorage() pure returns (PendingOwnerStorage storage s);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `s` | `PendingOwnerStorage` | The PendingOwnerStorage struct in storage. |
+
+
+
+
+### owner
+
+
+Returns the current owner.
+
+
+
+```solidity
+function owner() view returns (address);
+```
+
+
+
+
+
+### pendingOwner
+
+
+Returns the pending owner (if any).
+
+
+
+```solidity
+function pendingOwner() view returns (address);
+```
+
+
+
+
+
+### renounceOwnership
+
+
+Renounce ownership of the contract Sets the owner to address(0), disabling all functions restricted to the owner.
+
+
+
+```solidity
+function renounceOwnership() ;
+```
+
+
+
+
+
+### requireOwner
+
+
+Reverts if the caller is not the owner.
+
+
+
+```solidity
+function requireOwner() view;
+```
+
+
+
+
+
+### transferOwnership
+
+
+Initiates a two-step ownership transfer. **Parameters**
+
+
+
+```solidity
+function transferOwnership(address _newOwner) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_newOwner` | `address` | The address of the new owner of the contract |
+
+
+
+
+
+
+
+## Events
+
+
+### OwnershipTransferStarted
+
+
+Emitted when ownership transfer is initiated (pending owner set).
+
+
+
+```solidity
+event OwnershipTransferStarted(address indexed _previousOwner, address indexed _newOwner);
+```
+
+
+
+
+### OwnershipTransferred
+
+
+Emitted when ownership transfer is finalized.
+
+
+
+```solidity
+event OwnershipTransferred(address indexed _previousOwner, address indexed _newOwner);
+```
+
+
+
+
+
+
+## Errors
+
+
+### OwnerAlreadyRenounced
+
+
+
+```solidity
+error OwnerAlreadyRenounced();
+```
+
+
+
+### OwnerUnauthorizedAccount
+
+
+
+```solidity
+error OwnerUnauthorizedAccount();
+```
+
+
+
+
+
+## Structs
+
+
+### OwnerStorage
+
+
+**Note:** storage-location: erc8042:compose.owner
+
+
+
+```solidity
+struct OwnerStorage {
+address owner;
+}
+```
+
+
+
+### PendingOwnerStorage
+
+
+**Note:** storage-location: erc8042:compose.owner.pending
+
+
+
+```solidity
+struct PendingOwnerStorage {
+address pendingOwner;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;\n\ninterface IDiamondCut {\n    function diamondCut(bytes[] calldata _cut, address _init, bytes calldata _calldata) external;\n}\n\nimport &quot;./OwnerTwoStepsMod.sol&quot;;\n\ncontract DiamondExample {\n    address public diamondOwner;\n\n    constructor() {\n        diamondOwner = msg.sender;\n        // Initial facet setup\n        IDiamondCut(address(this)).diamondCut(new bytes[](0), address(this), abi.encodeWithSignature(&quot;transferOwnership(address)&quot;, msg.sender));\n    }\n\n    function initiateOwnershipTransfer(address _newOwner) external {\n        OwnerTwoStepsMod.transferOwnership(_newOwner);\n    }\n\n    function completeOwnershipTransfer() external {\n        OwnerTwoStepsMod.acceptOwnership();\n    }\n\n    function getCurrentOwner() external view returns (address) {\n        return OwnerTwoStepsMod.owner();\n    }\n}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Only call `transferOwnership` with a carefully intended new owner address.\n- Always complete the ownership transfer process promptly using `acceptOwnership`.\n- Periodically audit ownership-related functions to ensure no undesired transfers have occurred.
+</Callout>
+
+
+
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Ensure access to restricted functions is safeguarded using `requireOwner`. Use the two-step process carefully to avoid accidental loss of ownership. Be vigilant while renouncing ownership, as it cannot be undone and disables owner-restricted functions permanently.
+</Callout>
+
+
+
+
+
