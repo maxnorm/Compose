@@ -1,0 +1,265 @@
+---
+sidebar_position: 99
+title: "OwnerTwoStepsFacet"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+
+<DocHero
+  title="OwnerTwoStepsFacet"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+
+## Overview
+
+**Title:**
+
+ERC-173 Two-Step Contract Ownership
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/eabc77b81e461d751a5a8e003c3a9c2e818b9d3c/src/access/OwnerTwoSteps/OwnerTwoStepsFacet.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Self-contained facet with no imports or inheritance
+- Only `external` and `internal` function visibility
+- Follows Compose readability-first conventions
+- Ready for diamond integration
+</Callout>
+
+
+
+
+## Functions
+
+
+### getOwnerStorage
+
+
+Returns a pointer to the Owner storage struct. Uses inline assembly to access the storage slot defined by OWNER_STORAGE_POSITION.
+
+
+
+```solidity
+function getOwnerStorage() internal pure returns (OwnerStorage storage s);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `s` | `OwnerStorage` | The OwnerStorage struct in storage. |
+
+
+
+
+### getPendingOwnerStorage
+
+
+Returns a pointer to the PendingOwner storage struct. Uses inline assembly to access the storage slot defined by PENDING_OWNER_STORAGE_POSITION.
+
+
+
+```solidity
+function getPendingOwnerStorage() internal pure returns (PendingOwnerStorage storage s);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `s` | `PendingOwnerStorage` | The PendingOwnerStorage struct in storage. |
+
+
+
+
+### owner
+
+
+Get the address of the owner
+
+
+
+```solidity
+function owner() external view returns (address);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `-` | `address` | The address of the owner. |
+
+
+
+
+### pendingOwner
+
+
+Get the address of the pending owner
+
+
+
+```solidity
+function pendingOwner() external view returns (address);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `-` | `address` | The address of the pending owner. |
+
+
+
+
+### transferOwnership
+
+
+Set the address of the new owner of the contract
+
+
+
+```solidity
+function transferOwnership(address _newOwner) external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_newOwner` | `address` | The address of the new owner of the contract |
+
+
+
+
+
+### acceptOwnership
+
+
+
+```solidity
+function acceptOwnership() external;
+```
+
+
+
+
+
+### renounceOwnership
+
+
+
+```solidity
+function renounceOwnership() external;
+```
+
+
+
+
+
+
+
+## Events
+
+
+### OwnershipTransferStarted
+
+
+
+```solidity
+event OwnershipTransferStarted(address indexed _previousOwner, address indexed _newOwner);
+```
+
+
+
+
+### OwnershipTransferred
+
+
+
+```solidity
+event OwnershipTransferred(address indexed _previousOwner, address indexed _newOwner);
+```
+
+
+
+
+
+
+## Errors
+
+
+### OwnerUnauthorizedAccount
+
+
+
+```solidity
+error OwnerUnauthorizedAccount();
+```
+
+
+
+
+
+## Structs
+
+
+### OwnerStorage
+
+
+
+```solidity
+struct OwnerStorage {
+    address owner;
+}
+```
+
+
+
+### PendingOwnerStorage
+
+
+
+```solidity
+struct PendingOwnerStorage {
+    address pendingOwner;
+}
+```
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,198 @@
+---
+sidebar_position: 99
+title: "OwnerFacet"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+
+<DocHero
+  title="OwnerFacet"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+
+## Overview
+
+The OwnerFacet provides essential ownership management capabilities for diamond proxy contracts. It allows for setting, transferring, and renouncing ownership, enabling controlled access to critical functions in the diamond. This facet simplifies ownership logic while adhering to Compose's philosophy of clarity and composability.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/eabc77b81e461d751a5a8e003c3a9c2e818b9d3c/src/access/Owner/OwnerFacet.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Ownership retrieval and transfer\n- Allows ownership renunciation\n- Provides access control for diamond functionality
+</Callout>
+
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns a pointer to the owner storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+
+
+
+```solidity
+function getStorage() internal pure returns (OwnerStorage storage s);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `s` | `OwnerStorage` | The OwnerStorage struct in storage. |
+
+
+
+
+### owner
+
+
+Get the address of the owner
+
+
+
+```solidity
+function owner() external view returns (address);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `-` | `address` | The address of the owner. |
+
+
+
+
+### transferOwnership
+
+
+Set the address of the new owner of the contract Set _newOwner to address(0) to renounce any ownership.
+
+
+
+```solidity
+function transferOwnership(address _newOwner) external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_newOwner` | `address` | The address of the new owner of the contract |
+
+
+
+
+
+### renounceOwnership
+
+
+
+```solidity
+function renounceOwnership() external;
+```
+
+
+
+
+
+
+
+## Events
+
+
+### OwnershipTransferred
+
+
+
+```solidity
+event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+```
+
+
+
+
+
+
+## Errors
+
+
+### OwnerUnauthorizedAccount
+
+
+
+```solidity
+error OwnerUnauthorizedAccount();
+```
+
+
+
+
+
+## Structs
+
+
+### OwnerStorage
+
+
+
+```solidity
+struct OwnerStorage {
+    address owner;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;\n\nimport {IDiamondCut} from &quot;./interfaces/IDiamondCut.sol&quot;;\nimport {DiamondCutFacet} from &quot;./facets/DiamondCutFacet.sol&quot;;\nimport {OwnerFacet} from &quot;./facets/OwnerFacet.sol&quot;;\n\ncontract Diamond {\n    DiamondCutFacet internal immutable diamondCut;\n    OwnerFacet internal immutable ownerFacet;\n\n    constructor() {\n        // Deploy facets\n        diamondCut = new DiamondCutFacet();\n        ownerFacet = new OwnerFacet();\n\n        // Add facets to the diamond\n        IDiamondCut.FacetCut[] memory cut = new IDiamondCut.FacetCut[](2);\n        cut[0] = IDiamondCut.FacetCut({facetAddress: address(diamondCut), action: IDiamondCut.FacetCutAction.Add, functionSelectors: diamondCutFunctionSelectors});\n        cut[1] = IDiamondCut.FacetCut({facetAddress: address(ownerFacet), action: IDiamondCut.FacetCutAction.Add, functionSelectors: ownerFacetFunctionSelectors});\n\n        IDiamondCut(address(this)).diamondCut(cut, address(0), &quot;&quot;);\n    }\n\n    // Example: Call owner function from the OwnerFacet\n    function currentOwner() external view returns (address) {\n        return OwnerFacet(address(this)).owner();\n    }\n}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Ensure only the designated owner can call critical functions.\n- Use `transferOwnership` carefully to avoid unintentionally setting the owner to an unexpected address.\n- Document the limitations and responsibilities of owning a diamond to avoid misuse.
+</Callout>
+
+
+
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Make sure that `onlyOwner` checks are properly implemented in critical functions. Use `transferOwnership` with caution to prevent unintentional contract lockouts. Avoid reentrancy issues by ensuring no external calls are allowed within functions affecting ownership.
+</Callout>
+
+
+
+
+
