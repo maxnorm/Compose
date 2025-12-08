@@ -1,0 +1,258 @@
+---
+sidebar_position: 99
+title: "ERC721Mod"
+description: "ERC-721 Library for Compose - Thrown when attempting to interact with a non-existent token."
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+
+## Overview
+
+ERC-721 Library for Compose - Thrown when attempting to interact with a non-existent token.
+
+[View Source](https://github.com/maxnorm/Compose/blob/bd92d896acdf08abd003a5846f267d6de9578ab5/src/token/ERC721/ERC721/ERC721Mod.sol)
+
+<Callout type="info" title="Key Features">
+- All functions are &#x60;internal&#x60; for use in custom facets
+- Follows diamond storage pattern (EIP-8042)
+- Compatible with ERC-2535 diamonds
+- No external dependencies or &#x60;using&#x60; directives
+</Callout>
+
+<Callout type="info" title="Module Usage">
+This module provides internal functions for use in your custom facets. Import it to access shared logic and storage.
+</Callout>
+
+## Structs
+
+### ERC721Storage
+
+```solidity
+struct ERC721Storage {
+mapping(uint256 tokenId &#x3D;&gt; address owner) ownerOf;
+mapping(address owner &#x3D;&gt; uint256 balance) balanceOf;
+mapping(address owner &#x3D;&gt; mapping(address operator &#x3D;&gt; bool approved)) isApprovedForAll;
+mapping(uint256 tokenId &#x3D;&gt; address approved) approved;
+string name;
+string symbol;
+string baseURI;
+}
+```
+
+## Storage
+
+Storage position: &#x60;STORAGE_POSITION&#x60; - Used for diamond storage pattern.
+
+### State Variables
+
+<PropertyTable
+  properties={[
+    {
+      name: "STORAGE_POSITION",
+      type: "bytes32",
+      description: " (Value: `keccak256(&quot;compose.erc721&quot;)`)"
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Functions
+
+### burn
+
+Burns (destroys) a specific ERC-721 token. Reverts if the token does not exist. Clears ownership and approval. **Parameters**
+
+```solidity
+function burn(uint256 _tokenId) ;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_tokenId",
+      type: "uint256",
+      description: "The ID of the token to burn."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### getStorage
+
+Returns the ERC-721 storage struct from its predefined slot. Uses inline assembly to access diamond storage location. **Returns**
+
+```solidity
+function getStorage() pure returns (ERC721Storage storage s);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "s",
+      type: "ERC721Storage",
+      description: "The storage reference for ERC-721 state variables."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### mint
+
+Mints a new ERC-721 token to the specified address. Reverts if the receiver address is zero or if the token already exists. **Parameters**
+
+```solidity
+function mint(address _to, uint256 _tokenId) ;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_to",
+      type: "address",
+      description: "The address that will own the newly minted token."
+    },
+    {
+      name: "_tokenId",
+      type: "uint256",
+      description: "The ID of the token to mint."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### setMetadata
+
+```solidity
+function setMetadata(string memory _name, string memory _symbol, string memory _baseURI) ;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_name",
+      type: "string",
+      description: ""
+    },
+    {
+      name: "_symbol",
+      type: "string",
+      description: ""
+    },
+    {
+      name: "_baseURI",
+      type: "string",
+      description: ""
+    }
+  ]}
+  showRequired={false}
+/>
+
+### transferFrom
+
+Transfers ownership of a token ID from one address to another. Validates ownership, approval, and receiver address before updating state. **Parameters**
+
+```solidity
+function transferFrom(address _from, address _to, uint256 _tokenId) ;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_from",
+      type: "address",
+      description: "The current owner of the token."
+    },
+    {
+      name: "_to",
+      type: "address",
+      description: "The address that will receive the token."
+    },
+    {
+      name: "_tokenId",
+      type: "uint256",
+      description: "The ID of the token being transferred."
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Events
+
+### Transfer
+
+Emitted when ownership of a token changes, including minting and burning. **Parameters**
+
+```solidity
+event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_from",
+      type: "address",
+      description: "The address transferring the token, or zero for minting."
+    },
+    {
+      name: "_to",
+      type: "address",
+      description: "The address receiving the token, or zero for burning."
+    },
+    {
+      name: "_tokenId",
+      type: "uint256",
+      description: "The ID of the token being transferred."
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Errors
+
+### ERC721IncorrectOwner
+
+Thrown when the sender is not the owner of the token. **Parameters**
+
+```solidity
+error ERC721IncorrectOwner(address _sender, uint256 _tokenId, address _owner);
+```
+
+### ERC721InsufficientApproval
+
+Thrown when an operator lacks sufficient approval to manage a token. **Parameters**
+
+```solidity
+error ERC721InsufficientApproval(address _operator, uint256 _tokenId);
+```
+
+### ERC721InvalidReceiver
+
+Thrown when the receiver address is invalid (e.g., zero address). **Parameters**
+
+```solidity
+error ERC721InvalidReceiver(address _receiver);
+```
+
+### ERC721InvalidSender
+
+Thrown when the sender address is invalid (e.g., zero address). **Parameters**
+
+```solidity
+error ERC721InvalidSender(address _sender);
+```
+
+### ERC721NonexistentToken
+
+Thrown when attempting to interact with a non-existent token. **Parameters**
+
+```solidity
+error ERC721NonexistentToken(uint256 _tokenId);
+```
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+This module accesses shared diamond storage, so changes made through this module are immediately visible to facets using the same storage pattern. All functions are internal as per Compose conventions.
+</Callout>

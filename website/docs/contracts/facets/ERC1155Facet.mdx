@@ -1,0 +1,522 @@
+---
+sidebar_position: 99
+title: "ERC1155Facet"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+
+<DocHero
+  title="ERC1155Facet"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+**Title:**
+
+ERC-1155 Multi Token Standard
+
+[View Source](https://github.com/maxnorm/Compose/blob/bd92d896acdf08abd003a5846f267d6de9578ab5/src/token/ERC1155/ERC1155Facet.sol)
+
+<Callout type="info" title="Key Features">
+- Self-contained facet with no imports or inheritance
+- Only &#x60;external&#x60; and &#x60;internal&#x60; function visibility
+- Follows Compose readability-first conventions
+- Ready for diamond integration
+</Callout>
+
+## Structs
+
+### ERC1155Storage
+
+```solidity
+struct ERC1155Storage {
+    mapping(uint256 id &#x3D;&gt; mapping(address account &#x3D;&gt; uint256 balance)) balanceOf;
+    mapping(address account &#x3D;&gt; mapping(address operator &#x3D;&gt; bool)) isApprovedForAll;
+    string uri;
+    string baseURI;
+    mapping(uint256 tokenId &#x3D;&gt; string) tokenURIs;
+}
+```
+
+## Storage
+
+### State Variables
+
+<PropertyTable
+  properties={[
+    {
+      name: "STORAGE_POSITION",
+      type: "constant",
+      description: ""
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Functions
+
+### getStorage
+
+Returns the ERC-1155 storage struct from the predefined diamond storage slot. Uses inline assembly to set the storage slot reference.
+
+```solidity
+function getStorage() internal pure returns (ERC1155Storage storage s);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "s",
+      type: "ERC1155Storage",
+      description: "The ERC-1155 storage struct reference."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### uri
+
+Returns the URI for token type &#x60;_id&#x60;. If a token-specific URI is set in tokenURIs[_id], returns the concatenation of baseURI and tokenURIs[_id]. Note that baseURI is empty by default and must be set explicitly if concatenation is desired. If no token-specific URI is set, returns the default URI which applies to all token types. The default URI may contain the substring &#x60;&amp;#123;id&amp;#125;&#x60; which clients should replace with the actual token ID.
+
+```solidity
+function uri(uint256 _id) external view returns (string memory);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_id",
+      type: "uint256",
+      description: "The token ID to query."
+    }
+  ]}
+  showRequired={false}
+/>
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "string",
+      description: "The URI for the token type."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### balanceOf
+
+Returns the amount of tokens of token type &#x60;id&#x60; owned by &#x60;account&#x60;.
+
+```solidity
+function balanceOf(address _account, uint256 _id) external view returns (uint256);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_account",
+      type: "address",
+      description: "The address to query the balance of."
+    },
+    {
+      name: "_id",
+      type: "uint256",
+      description: "The token type to query."
+    }
+  ]}
+  showRequired={false}
+/>
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "uint256",
+      description: "The balance of the token type."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### balanceOfBatch
+
+Batched version of balanceOf.
+
+```solidity
+function balanceOfBatch(address[] calldata _accounts, uint256[] calldata _ids)
+    external
+    view
+    returns (uint256[] memory balances);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_accounts",
+      type: "address[]",
+      description: "The addresses to query the balances of."
+    },
+    {
+      name: "_ids",
+      type: "uint256[]",
+      description: "The token types to query."
+    }
+  ]}
+  showRequired={false}
+/>
+
+<PropertyTable
+  properties={[
+    {
+      name: "balances",
+      type: "uint256[]",
+      description: "The balances of the token types."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### setApprovalForAll
+
+Grants or revokes permission to &#x60;operator&#x60; to transfer the caller&#x27;s tokens. Emits an ApprovalForAll event.
+
+```solidity
+function setApprovalForAll(address _operator, bool _approved) external;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_operator",
+      type: "address",
+      description: "The address to grant/revoke approval to."
+    },
+    {
+      name: "_approved",
+      type: "bool",
+      description: "True to approve, false to revoke."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### isApprovedForAll
+
+Returns true if &#x60;operator&#x60; is approved to transfer &#x60;account&#x60;&#x27;s tokens.
+
+```solidity
+function isApprovedForAll(address _account, address _operator) external view returns (bool);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_account",
+      type: "address",
+      description: "The token owner."
+    },
+    {
+      name: "_operator",
+      type: "address",
+      description: "The operator to query."
+    }
+  ]}
+  showRequired={false}
+/>
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "bool",
+      description: "True if the operator is approved, false otherwise."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### safeTransferFrom
+
+Transfers &#x60;value&#x60; amount of token type &#x60;id&#x60; from &#x60;from&#x60; to &#x60;to&#x60;. Emits a TransferSingle event.
+
+```solidity
+function safeTransferFrom(address _from, address _to, uint256 _id, uint256 _value, bytes calldata _data) external;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_from",
+      type: "address",
+      description: "The address to transfer from."
+    },
+    {
+      name: "_to",
+      type: "address",
+      description: "The address to transfer to."
+    },
+    {
+      name: "_id",
+      type: "uint256",
+      description: "The token type to transfer."
+    },
+    {
+      name: "_value",
+      type: "uint256",
+      description: "The amount to transfer."
+    },
+    {
+      name: "_data",
+      type: "bytes",
+      description: "Additional data with no specified format."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### safeBatchTransferFrom
+
+Batched version of safeTransferFrom. Emits a TransferBatch event.
+
+```solidity
+function safeBatchTransferFrom(
+    address _from,
+    address _to,
+    uint256[] calldata _ids,
+    uint256[] calldata _values,
+    bytes calldata _data
+) external;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_from",
+      type: "address",
+      description: "The address to transfer from."
+    },
+    {
+      name: "_to",
+      type: "address",
+      description: "The address to transfer to."
+    },
+    {
+      name: "_ids",
+      type: "uint256[]",
+      description: "The token types to transfer."
+    },
+    {
+      name: "_values",
+      type: "uint256[]",
+      description: "The amounts to transfer."
+    },
+    {
+      name: "_data",
+      type: "bytes",
+      description: "Additional data with no specified format."
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Events
+
+### TransferSingle
+
+Emitted when &#x60;value&#x60; amount of tokens of type &#x60;id&#x60; are transferred from &#x60;from&#x60; to &#x60;to&#x60; by &#x60;operator&#x60;.
+
+```solidity
+event TransferSingle(
+    address indexed _operator, address indexed _from, address indexed _to, uint256 _id, uint256 _value
+);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_operator",
+      type: "address",
+      description: "The address which initiated the transfer."
+    },
+    {
+      name: "_from",
+      type: "address",
+      description: "The address which previously owned the token."
+    },
+    {
+      name: "_to",
+      type: "address",
+      description: "The address which now owns the token."
+    },
+    {
+      name: "_id",
+      type: "uint256",
+      description: "The token type being transferred."
+    },
+    {
+      name: "_value",
+      type: "uint256",
+      description: "The amount of tokens transferred."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### TransferBatch
+
+Equivalent to multiple TransferSingle events, where &#x60;operator&#x60;, &#x60;from&#x60; and &#x60;to&#x60; are the same for all transfers.
+
+```solidity
+event TransferBatch(
+    address indexed _operator, address indexed _from, address indexed _to, uint256[] _ids, uint256[] _values
+);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_operator",
+      type: "address",
+      description: "The address which initiated the batch transfer."
+    },
+    {
+      name: "_from",
+      type: "address",
+      description: "The address which previously owned the tokens."
+    },
+    {
+      name: "_to",
+      type: "address",
+      description: "The address which now owns the tokens."
+    },
+    {
+      name: "_ids",
+      type: "uint256[]",
+      description: "The token types being transferred."
+    },
+    {
+      name: "_values",
+      type: "uint256[]",
+      description: "The amounts of tokens transferred."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### ApprovalForAll
+
+Emitted when &#x60;account&#x60; grants or revokes permission to &#x60;operator&#x60; to transfer their tokens.
+
+```solidity
+event ApprovalForAll(address indexed _account, address indexed _operator, bool _approved);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_account",
+      type: "address",
+      description: "The token owner granting/revoking approval."
+    },
+    {
+      name: "_operator",
+      type: "address",
+      description: "The address being approved/revoked."
+    },
+    {
+      name: "_approved",
+      type: "bool",
+      description: "True if approval is granted, false if revoked."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### URI
+
+Emitted when the URI for token type &#x60;id&#x60; changes to &#x60;value&#x60;.
+
+```solidity
+event URI(string _value, uint256 indexed _id);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_value",
+      type: "string",
+      description: "The new URI for the token type."
+    },
+    {
+      name: "_id",
+      type: "uint256",
+      description: "The token type whose URI changed."
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Errors
+
+### ERC1155InsufficientBalance
+
+Error indicating insufficient balance for a transfer.
+
+```solidity
+error ERC1155InsufficientBalance(address _sender, uint256 _balance, uint256 _needed, uint256 _tokenId);
+```
+
+### ERC1155InvalidSender
+
+Error indicating the sender address is invalid.
+
+```solidity
+error ERC1155InvalidSender(address _sender);
+```
+
+### ERC1155InvalidReceiver
+
+Error indicating the receiver address is invalid.
+
+```solidity
+error ERC1155InvalidReceiver(address _receiver);
+```
+
+### ERC1155MissingApprovalForAll
+
+Error indicating missing approval for an operator.
+
+```solidity
+error ERC1155MissingApprovalForAll(address _operator, address _owner);
+```
+
+### ERC1155InvalidApprover
+
+Error indicating the approver address is invalid.
+
+```solidity
+error ERC1155InvalidApprover(address _approver);
+```
+
+### ERC1155InvalidOperator
+
+Error indicating the operator address is invalid.
+
+```solidity
+error ERC1155InvalidOperator(address _operator);
+```
+
+### ERC1155InvalidArrayLength
+
+Error indicating array length mismatch in batch operations.
+
+```solidity
+error ERC1155InvalidArrayLength(uint256 _idsLength, uint256 _valuesLength);
+```

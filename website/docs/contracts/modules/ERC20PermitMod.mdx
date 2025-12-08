@@ -1,0 +1,207 @@
+---
+sidebar_position: 99
+title: "ERC20PermitMod"
+description: "LibERC20Permit — Library for ERC-2612 Permit Logic - Thrown when a permit signature is invalid or expired."
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+
+## Overview
+
+ERC20PermitMod provides the necessary functionality to implement ERC-2612 permit logic within a diamond proxy structure. It enables token holders to approve spending via signatures, eliminating the need for on-chain transactions to set allowances.
+
+[View Source](https://github.com/maxnorm/Compose/blob/bd92d896acdf08abd003a5846f267d6de9578ab5/src/token/ERC20/ERC20Permit/ERC20PermitMod.sol)
+
+<Callout type="info" title="Key Features">
+- Implements ERC-2612 permit signature logic.\n- Prevents replay attacks with unique DOMAIN_SEPARATOR.\n- Simplifies allowance setting for ERC-20 tokens.
+</Callout>
+
+<Callout type="info" title="Module Usage">
+This module provides internal functions for use in your custom facets. Import it to access shared logic and storage.
+</Callout>
+
+## Structs
+
+### ERC20PermitStorage
+
+**Note:** storage-location: erc8042:compose.erc20.permit
+
+```solidity
+struct ERC20PermitStorage {
+mapping(address owner &#x3D;&gt; uint256) nonces;
+}
+```
+
+### ERC20Storage
+
+**Note:** storage-location: erc8042:compose.erc20
+
+```solidity
+struct ERC20Storage {
+mapping(address owner &#x3D;&gt; uint256 balance) balanceOf;
+uint256 totalSupply;
+mapping(address owner &#x3D;&gt; mapping(address spender &#x3D;&gt; uint256 allowance)) allowance;
+uint8 decimals;
+string name;
+}
+```
+
+## Storage
+
+Storage position: &#x60;ERC20_STORAGE_POSITION&#x60; - Used for diamond storage pattern.
+
+### State Variables
+
+<PropertyTable
+  properties={[
+    {
+      name: "ERC20_STORAGE_POSITION",
+      type: "bytes32",
+      description: " (Value: `keccak256(&quot;compose.erc20&quot;)`)"
+    },
+    {
+      name: "STORAGE_POSITION",
+      type: "bytes32",
+      description: " (Value: `keccak256(&quot;compose.erc20.permit&quot;)`)"
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Functions
+
+### DOMAIN_SEPARATOR
+
+Returns the domain separator used in the encoding of the signature for &amp;#123;permit&amp;#125;. This value is unique to a contract and chain ID combination to prevent replay attacks. **Returns**
+
+```solidity
+function DOMAIN_SEPARATOR() view returns (bytes32);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "bytes32",
+      description: "The domain separator."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### getERC20Storage
+
+```solidity
+function getERC20Storage() pure returns (ERC20Storage storage s);
+```
+
+### getPermitStorage
+
+```solidity
+function getPermitStorage() pure returns (ERC20PermitStorage storage s);
+```
+
+### permit
+
+Validates a permit signature and sets allowance. Emits Approval event; must be emitted by the calling facet/contract. **Parameters**
+
+```solidity
+function permit(address _owner, address _spender, uint256 _value, uint256 _deadline, uint8 _v, bytes32 _r, bytes32 _s) ;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_owner",
+      type: "address",
+      description: "Token owner."
+    },
+    {
+      name: "_spender",
+      type: "address",
+      description: "Token spender."
+    },
+    {
+      name: "_value",
+      type: "uint256",
+      description: "Allowance value."
+    },
+    {
+      name: "_deadline",
+      type: "uint256",
+      description: "Permit\&#x27;s time deadline."
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Events
+
+### Approval
+
+Emitted when an approval is made for a spender by an owner. **Parameters**
+
+```solidity
+event Approval(address indexed _owner, address indexed _spender, uint256 _value);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_owner",
+      type: "address",
+      description: "The address granting the allowance."
+    },
+    {
+      name: "_spender",
+      type: "address",
+      description: "The address receiving the allowance."
+    },
+    {
+      name: "_value",
+      type: "uint256",
+      description: "The amount approved."
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Errors
+
+### ERC20InvalidSpender
+
+Thrown when the spender address is invalid (e.g., zero address). **Parameters**
+
+```solidity
+error ERC20InvalidSpender(address _spender);
+```
+
+### ERC2612InvalidSignature
+
+Thrown when a permit signature is invalid or expired. **Parameters**
+
+```solidity
+error ERC2612InvalidSignature(
+address _owner, address _spender, uint256 _value, uint256 _deadline, uint8 _v, bytes32 _r, bytes32 _s
+);
+```
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;\n\nimport { ERC20PermitMod } from &#x27;./ERC20PermitMod.sol&#x27;;\n\ncontract ExampleFacet {\n    // Example of calling the permit function from the ERC20PermitMod\n    function usePermit(\n        address token,\n        address owner,\n        address spender,\n        uint256 value,\n        uint256 deadline,\n        uint8 v,\n        bytes32 r,\n        bytes32 s\n    ) external {\n        ERC20PermitMod.permit(token, owner, spender, value, deadline, v, r, s);\n    }\n\n    // Example demonstrating usage of DOMAIN_SEPARATOR\n    function getDomainSeparator() external view returns (bytes32) {\n        return ERC20PermitMod.DOMAIN_SEPARATOR();\n    }\n}
+```
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Ensure the contract emitting Approval events calls the &#x60;permit&#x60; function to maintain consistency.\n- Validate storage and logic integrity when working with DOMAIN_SEPARATOR in multi-chain setups.\n- Follow proper authentication and signature validation processes to avoid malicious permits.
+</Callout>
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+ERC20PermitMod relies on diamond storage patterns for state management, ensuring that any changes to allowances or signatures are immediately available to all facets accessing the shared state. Developers must ensure consistent state initialization and updates to maintain cross-facet compatibility.
+</Callout>

@@ -1,0 +1,400 @@
+---
+sidebar_position: 99
+title: "ERC6909Mod"
+description: "LibERC6909 — ERC-6909 Library - Thrown when the sender has insufficient balance."
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+
+## Overview
+
+LibERC6909 — ERC-6909 Library - Thrown when the sender has insufficient balance.
+
+[View Source](https://github.com/maxnorm/Compose/blob/bd92d896acdf08abd003a5846f267d6de9578ab5/src/token/ERC6909/ERC6909/ERC6909Mod.sol)
+
+<Callout type="info" title="Key Features">
+- All functions are &#x60;internal&#x60; for use in custom facets
+- Follows diamond storage pattern (EIP-8042)
+- Compatible with ERC-2535 diamonds
+- No external dependencies or &#x60;using&#x60; directives
+</Callout>
+
+<Callout type="info" title="Module Usage">
+This module provides internal functions for use in your custom facets. Import it to access shared logic and storage.
+</Callout>
+
+## Structs
+
+### ERC6909Storage
+
+**Note:** storage-location: erc8042:compose.erc6909
+
+```solidity
+struct ERC6909Storage {
+mapping(address owner &#x3D;&gt; mapping(uint256 id &#x3D;&gt; uint256 amount)) balanceOf;
+mapping(address owner &#x3D;&gt; mapping(address spender &#x3D;&gt; mapping(uint256 id &#x3D;&gt; uint256 amount))) allowance;
+mapping(address owner &#x3D;&gt; mapping(address spender &#x3D;&gt; bool)) isOperator;
+}
+```
+
+## Storage
+
+Storage position: &#x60;STORAGE_POSITION&#x60; - Used for diamond storage pattern.
+
+### State Variables
+
+<PropertyTable
+  properties={[
+    {
+      name: "STORAGE_POSITION",
+      type: "bytes32",
+      description: " (Value: `keccak256(&quot;compose.erc6909&quot;)`)"
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Functions
+
+### approve
+
+Approves an amount of an id to a spender. **Parameters**
+
+```solidity
+function approve(address _owner, address _spender, uint256 _id, uint256 _amount) ;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_owner",
+      type: "address",
+      description: "The token owner."
+    },
+    {
+      name: "_spender",
+      type: "address",
+      description: "The address of the spender."
+    },
+    {
+      name: "_id",
+      type: "uint256",
+      description: "The id of the token."
+    },
+    {
+      name: "_amount",
+      type: "uint256",
+      description: "The amount of the token."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### burn
+
+Burns &#x60;_amount&#x60; of token id &#x60;_id&#x60; from &#x60;_from&#x60;. **Parameters**
+
+```solidity
+function burn(address _from, uint256 _id, uint256 _amount) ;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_from",
+      type: "address",
+      description: "The address of the sender."
+    },
+    {
+      name: "_id",
+      type: "uint256",
+      description: "The id of the token."
+    },
+    {
+      name: "_amount",
+      type: "uint256",
+      description: "The amount of the token."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### getStorage
+
+Returns a pointer to the ERC-6909 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION. **Returns**
+
+```solidity
+function getStorage() pure returns (ERC6909Storage storage s);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "s",
+      type: "ERC6909Storage",
+      description: "The ERC6909Storage struct in storage."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### mint
+
+Mints &#x60;_amount&#x60; of token id &#x60;_id&#x60; to &#x60;_to&#x60;. **Parameters**
+
+```solidity
+function mint(address _to, uint256 _id, uint256 _amount) ;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_to",
+      type: "address",
+      description: "The address of the receiver."
+    },
+    {
+      name: "_id",
+      type: "uint256",
+      description: "The id of the token."
+    },
+    {
+      name: "_amount",
+      type: "uint256",
+      description: "The amount of the token."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### setOperator
+
+Sets or removes a spender as an operator for the caller. **Parameters**
+
+```solidity
+function setOperator(address _owner, address _spender, bool _approved) ;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_owner",
+      type: "address",
+      description: "The address of the owner."
+    },
+    {
+      name: "_spender",
+      type: "address",
+      description: "The address of the spender."
+    },
+    {
+      name: "_approved",
+      type: "bool",
+      description: "The approval status."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### transfer
+
+Transfers &#x60;_amount&#x60; of token id &#x60;_id&#x60; from &#x60;_from&#x60; to &#x60;_to&#x60;. Allowance is not deducted if it is &#x60;type(uint256).max&#x60; Allowance is not deducted if &#x60;_by&#x60; is an operator for &#x60;_from&#x60;. **Parameters**
+
+```solidity
+function transfer(address _by, address _from, address _to, uint256 _id, uint256 _amount) ;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_by",
+      type: "address",
+      description: "The address initiating the transfer."
+    },
+    {
+      name: "_from",
+      type: "address",
+      description: "The address of the sender."
+    },
+    {
+      name: "_to",
+      type: "address",
+      description: "The address of the receiver."
+    },
+    {
+      name: "_id",
+      type: "uint256",
+      description: "The id of the token."
+    },
+    {
+      name: "_amount",
+      type: "uint256",
+      description: "The amount of the token."
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Events
+
+### Approval
+
+Emitted when an approval occurs. **Parameters**
+
+```solidity
+event Approval(address indexed _owner, address indexed _spender, uint256 indexed _id, uint256 _amount);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_owner",
+      type: "address",
+      description: "The address granting the allowance."
+    },
+    {
+      name: "_spender",
+      type: "address",
+      description: "The address receiving the allowance."
+    },
+    {
+      name: "_id",
+      type: "uint256",
+      description: "The token ID."
+    },
+    {
+      name: "_amount",
+      type: "uint256",
+      description: "The number of tokens approved."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### OperatorSet
+
+Emitted when an operator is set. **Parameters**
+
+```solidity
+event OperatorSet(address indexed _owner, address indexed _spender, bool _approved);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_owner",
+      type: "address",
+      description: "The owner granting the operator status."
+    },
+    {
+      name: "_spender",
+      type: "address",
+      description: "The address receiving operator status."
+    },
+    {
+      name: "_approved",
+      type: "bool",
+      description: "True if the operator is approved, false otherwise."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### Transfer
+
+Emitted when a transfer occurs. **Parameters**
+
+```solidity
+event Transfer(
+address _caller, address indexed _sender, address indexed _receiver, uint256 indexed _id, uint256 _amount
+);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_caller",
+      type: "address",
+      description: "The caller who initiated the transfer."
+    },
+    {
+      name: "_sender",
+      type: "address",
+      description: "The address from which tokens are transferred."
+    },
+    {
+      name: "_receiver",
+      type: "address",
+      description: "The address to which tokens are transferred."
+    },
+    {
+      name: "_id",
+      type: "uint256",
+      description: "The token ID."
+    },
+    {
+      name: "_amount",
+      type: "uint256",
+      description: "The number of tokens transferred."
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Errors
+
+### ERC6909InsufficientAllowance
+
+Thrown when the spender has insufficient allowance. **Parameters**
+
+```solidity
+error ERC6909InsufficientAllowance(address _spender, uint256 _allowance, uint256 _needed, uint256 _id);
+```
+
+### ERC6909InsufficientBalance
+
+Thrown when the sender has insufficient balance. **Parameters**
+
+```solidity
+error ERC6909InsufficientBalance(address _sender, uint256 _balance, uint256 _needed, uint256 _id);
+```
+
+### ERC6909InvalidApprover
+
+Thrown when the approver address is invalid. **Parameters**
+
+```solidity
+error ERC6909InvalidApprover(address _approver);
+```
+
+### ERC6909InvalidReceiver
+
+Thrown when the receiver address is invalid. **Parameters**
+
+```solidity
+error ERC6909InvalidReceiver(address _receiver);
+```
+
+### ERC6909InvalidSender
+
+Thrown when the sender address is invalid. **Parameters**
+
+```solidity
+error ERC6909InvalidSender(address _sender);
+```
+
+### ERC6909InvalidSpender
+
+Thrown when the spender address is invalid. **Parameters**
+
+```solidity
+error ERC6909InvalidSpender(address _spender);
+```
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+This module accesses shared diamond storage, so changes made through this module are immediately visible to facets using the same storage pattern. All functions are internal as per Compose conventions.
+</Callout>

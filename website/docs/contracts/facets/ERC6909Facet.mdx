@@ -1,0 +1,403 @@
+---
+sidebar_position: 99
+title: "ERC6909Facet"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+
+<DocHero
+  title="ERC6909Facet"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+**Title:**
+
+ERC-6909 Minimal Multi-Token Interface
+
+[View Source](https://github.com/maxnorm/Compose/blob/bd92d896acdf08abd003a5846f267d6de9578ab5/src/token/ERC6909/ERC6909/ERC6909Facet.sol)
+
+<Callout type="info" title="Key Features">
+- Self-contained facet with no imports or inheritance
+- Only &#x60;external&#x60; and &#x60;internal&#x60; function visibility
+- Follows Compose readability-first conventions
+- Ready for diamond integration
+</Callout>
+
+## Structs
+
+### ERC6909Storage
+
+```solidity
+struct ERC6909Storage {
+    mapping(address owner &#x3D;&gt; mapping(uint256 id &#x3D;&gt; uint256 amount)) balanceOf;
+    mapping(address owner &#x3D;&gt; mapping(address spender &#x3D;&gt; mapping(uint256 id &#x3D;&gt; uint256 amount))) allowance;
+    mapping(address owner &#x3D;&gt; mapping(address spender &#x3D;&gt; bool)) isOperator;
+}
+```
+
+## Storage
+
+### State Variables
+
+<PropertyTable
+  properties={[
+    {
+      name: "STORAGE_POSITION",
+      type: "constant",
+      description: ""
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Functions
+
+### getStorage
+
+Returns a pointer to the ERC-6909 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+
+```solidity
+function getStorage() internal pure returns (ERC6909Storage storage s);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "s",
+      type: "ERC6909Storage",
+      description: "The ERC6909Storage struct in storage."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### balanceOf
+
+Owner balance of an id.
+
+```solidity
+function balanceOf(address _owner, uint256 _id) external view returns (uint256);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_owner",
+      type: "address",
+      description: "The address of the owner."
+    },
+    {
+      name: "_id",
+      type: "uint256",
+      description: "The id of the token."
+    }
+  ]}
+  showRequired={false}
+/>
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "uint256",
+      description: "The balance of the token."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### allowance
+
+Spender allowance of an id.
+
+```solidity
+function allowance(address _owner, address _spender, uint256 _id) external view returns (uint256);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_owner",
+      type: "address",
+      description: "The address of the owner."
+    },
+    {
+      name: "_spender",
+      type: "address",
+      description: "The address of the spender."
+    },
+    {
+      name: "_id",
+      type: "uint256",
+      description: "The id of the token."
+    }
+  ]}
+  showRequired={false}
+/>
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "uint256",
+      description: "The allowance of the token."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### isOperator
+
+Checks if a spender is approved by an owner as an operator.
+
+```solidity
+function isOperator(address _owner, address _spender) external view returns (bool);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_owner",
+      type: "address",
+      description: "The address of the owner."
+    },
+    {
+      name: "_spender",
+      type: "address",
+      description: "The address of the spender."
+    }
+  ]}
+  showRequired={false}
+/>
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "bool",
+      description: "The approval status."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### transfer
+
+Transfers an amount of an id from the caller to a receiver.
+
+```solidity
+function transfer(address _receiver, uint256 _id, uint256 _amount) external returns (bool);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_receiver",
+      type: "address",
+      description: "The address of the receiver."
+    },
+    {
+      name: "_id",
+      type: "uint256",
+      description: "The id of the token."
+    },
+    {
+      name: "_amount",
+      type: "uint256",
+      description: "The amount of the token."
+    }
+  ]}
+  showRequired={false}
+/>
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "bool",
+      description: "Whether the transfer succeeded."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### transferFrom
+
+Transfers an amount of an id from a sender to a receiver.
+
+```solidity
+function transferFrom(address _sender, address _receiver, uint256 _id, uint256 _amount) external returns (bool);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_sender",
+      type: "address",
+      description: "The address of the sender."
+    },
+    {
+      name: "_receiver",
+      type: "address",
+      description: "The address of the receiver."
+    },
+    {
+      name: "_id",
+      type: "uint256",
+      description: "The id of the token."
+    },
+    {
+      name: "_amount",
+      type: "uint256",
+      description: "The amount of the token."
+    }
+  ]}
+  showRequired={false}
+/>
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "bool",
+      description: "Whether the transfer succeeded."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### approve
+
+Approves an amount of an id to a spender.
+
+```solidity
+function approve(address _spender, uint256 _id, uint256 _amount) external returns (bool);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_spender",
+      type: "address",
+      description: "The address of the spender."
+    },
+    {
+      name: "_id",
+      type: "uint256",
+      description: "The id of the token."
+    },
+    {
+      name: "_amount",
+      type: "uint256",
+      description: "The amount of the token."
+    }
+  ]}
+  showRequired={false}
+/>
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "bool",
+      description: "Whether the approval succeeded."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### setOperator
+
+Sets or removes a spender as an operator for the caller.
+
+```solidity
+function setOperator(address _spender, bool _approved) external returns (bool);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_spender",
+      type: "address",
+      description: "The address of the spender."
+    },
+    {
+      name: "_approved",
+      type: "bool",
+      description: "The approval status."
+    }
+  ]}
+  showRequired={false}
+/>
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "bool",
+      description: "Whether the operator update succeeded."
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Events
+
+### Transfer
+
+```solidity
+event Transfer(
+    address _caller, address indexed _sender, address indexed _receiver, uint256 indexed _id, uint256 _amount
+);
+```
+
+### OperatorSet
+
+```solidity
+event OperatorSet(address indexed _owner, address indexed _spender, bool _approved);
+```
+
+### Approval
+
+```solidity
+event Approval(address indexed _owner, address indexed _spender, uint256 indexed _id, uint256 _amount);
+```
+
+## Errors
+
+### ERC6909InsufficientBalance
+
+```solidity
+error ERC6909InsufficientBalance(address _sender, uint256 _balance, uint256 _needed, uint256 _id);
+```
+
+### ERC6909InsufficientAllowance
+
+```solidity
+error ERC6909InsufficientAllowance(address _spender, uint256 _allowance, uint256 _needed, uint256 _id);
+```
+
+### ERC6909InvalidReceiver
+
+```solidity
+error ERC6909InvalidReceiver(address _receiver);
+```
+
+### ERC6909InvalidSender
+
+```solidity
+error ERC6909InvalidSender(address _sender);
+```
+
+### ERC6909InvalidSpender
+
+```solidity
+error ERC6909InvalidSpender(address _spender);
+```

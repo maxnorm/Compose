@@ -1,0 +1,178 @@
+---
+sidebar_position: 99
+title: "OwnerMod"
+description: "ERC-173 Contract Ownership - Provides internal functions and storage layout for owner management."
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+
+## Overview
+
+The OwnerMod module provides essential owner management functionality for contracts using the diamond pattern. It simplifies ownership control by offering internal methods to check, set, and transfer the owner&#x27;s address in compliance with the ERC-173 standard. This is useful for managing administrative permissions in a modular and composable way.
+
+[View Source](https://github.com/maxnorm/Compose/blob/bd92d896acdf08abd003a5846f267d6de9578ab5/src/access/Owner/OwnerMod.sol)
+
+<Callout type="info" title="Key Features">
+- Provides ERC-173 compliant ownership management.\n- Includes safeguards like requireOwner() for controlled access.\n- Fully supports modularity in the diamond storage pattern.
+</Callout>
+
+<Callout type="info" title="Module Usage">
+This module provides internal functions for use in your custom facets. Import it to access shared logic and storage.
+</Callout>
+
+## Structs
+
+### OwnerStorage
+
+**Note:** storage-location: erc8042:compose.owner
+
+```solidity
+struct OwnerStorage {
+address owner;
+}
+```
+
+## Storage
+
+Storage position: &#x60;STORAGE_POSITION&#x60; - Used for diamond storage pattern.
+
+### State Variables
+
+<PropertyTable
+  properties={[
+    {
+      name: "STORAGE_POSITION",
+      type: "bytes32",
+      description: " (Value: `keccak256(&quot;compose.owner&quot;)`)"
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Functions
+
+### getStorage
+
+Returns a pointer to the ERC-173 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION. **Returns**
+
+```solidity
+function getStorage() pure returns (OwnerStorage storage s);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "s",
+      type: "OwnerStorage",
+      description: "The OwnerStorage struct in storage."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### owner
+
+Get the address of the owner **Returns**
+
+```solidity
+function owner() view returns (address);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "address",
+      description: "The address of the owner."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### requireOwner
+
+Reverts if the caller is not the owner.
+
+```solidity
+function requireOwner() view;
+```
+
+### setContractOwner
+
+```solidity
+function setContractOwner(address _initialOwner) ;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_initialOwner",
+      type: "address",
+      description: ""
+    }
+  ]}
+  showRequired={false}
+/>
+
+### transferOwnership
+
+Set the address of the new owner of the contract Set _newOwner to address(0) to renounce any ownership. **Parameters**
+
+```solidity
+function transferOwnership(address _newOwner) ;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_newOwner",
+      type: "address",
+      description: "The address of the new owner of the contract"
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Events
+
+### OwnershipTransferred
+
+This emits when ownership of a contract changes.
+
+```solidity
+event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+```
+
+## Errors
+
+### OwnerAlreadyRenounced
+
+```solidity
+error OwnerAlreadyRenounced();
+```
+
+### OwnerUnauthorizedAccount
+
+```solidity
+error OwnerUnauthorizedAccount();
+```
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;\n\nimport {OwnerMod} from &quot;./OwnerMod.sol&quot;;\n\ncontract MyDiamondFacet {\n    function setNewOwner(address _newOwner) external {\n        OwnerMod.requireOwner();\n        OwnerMod.transferOwnership(_newOwner);\n    }\n\n    function getOwner() external view returns (address) {\n        return OwnerMod.owner();\n    }\n}
+```
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Always use requireOwner() to enforce administrative actions securely.\n- Ensure transferOwnership() properly handles renouncing by setting the owner to address(0).\n- Avoid directly modifying storage outside provided OwnerMod functions to prevent inconsistencies.
+</Callout>
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+OwnerMod utilizes the diamond storage pattern to store and manage the owner&#x27;s address in a dedicated storage slot. Any changes made using OwnerMod&#x27;s functions are immediately reflected and accessible to all other facets in the diamond.
+</Callout>

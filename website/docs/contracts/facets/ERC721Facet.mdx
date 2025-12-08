@@ -1,0 +1,515 @@
+---
+sidebar_position: 99
+title: "ERC721Facet"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+
+<DocHero
+  title="ERC721Facet"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+**Title:**
+
+ERC-721 Token
+
+[View Source](https://github.com/maxnorm/Compose/blob/bd92d896acdf08abd003a5846f267d6de9578ab5/src/token/ERC721/ERC721/ERC721Facet.sol)
+
+<Callout type="info" title="Key Features">
+- Self-contained facet with no imports or inheritance
+- Only &#x60;external&#x60; and &#x60;internal&#x60; function visibility
+- Follows Compose readability-first conventions
+- Ready for diamond integration
+</Callout>
+
+## Structs
+
+### ERC721Storage
+
+```solidity
+struct ERC721Storage {
+    mapping(uint256 tokenId &#x3D;&gt; address owner) ownerOf;
+    mapping(address owner &#x3D;&gt; uint256 balance) balanceOf;
+    mapping(address owner &#x3D;&gt; mapping(address operator &#x3D;&gt; bool approved)) isApprovedForAll;
+    mapping(uint256 tokenId &#x3D;&gt; address approved) approved;
+    string name;
+    string symbol;
+    string baseURI;
+}
+```
+
+## Storage
+
+### State Variables
+
+<PropertyTable
+  properties={[
+    {
+      name: "STORAGE_POSITION",
+      type: "constant",
+      description: ""
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Functions
+
+### getStorage
+
+Returns a pointer to the ERC-721 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+
+```solidity
+function getStorage() internal pure returns (ERC721Storage storage s);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "s",
+      type: "ERC721Storage",
+      description: "The ERC721Storage struct in storage."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### name
+
+Returns the token collection name.
+
+```solidity
+function name() external view returns (string memory);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "string",
+      description: "The name of the token collection."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### symbol
+
+Returns the token collection symbol.
+
+```solidity
+function symbol() external view returns (string memory);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "string",
+      description: "The symbol of the token collection."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### tokenURI
+
+Provide the metadata URI for a given token ID.
+
+```solidity
+function tokenURI(uint256 _tokenId) external view returns (string memory);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_tokenId",
+      type: "uint256",
+      description: "tokenID of the NFT to query the metadata from"
+    }
+  ]}
+  showRequired={false}
+/>
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "string",
+      description: "the URI providing the detailed metadata of the specified tokenID"
+    }
+  ]}
+  showRequired={false}
+/>
+
+### balanceOf
+
+Returns the number of tokens owned by a given address.
+
+```solidity
+function balanceOf(address _owner) external view returns (uint256);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_owner",
+      type: "address",
+      description: "The address to query the balance of."
+    }
+  ]}
+  showRequired={false}
+/>
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "uint256",
+      description: "The balance (number of tokens) owned by &#x60;_owner&#x60;."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### ownerOf
+
+Returns the owner of a given token ID.
+
+```solidity
+function ownerOf(uint256 _tokenId) public view returns (address);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_tokenId",
+      type: "uint256",
+      description: "The token ID to query."
+    }
+  ]}
+  showRequired={false}
+/>
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "address",
+      description: "The address of the token owner."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### getApproved
+
+Returns the approved address for a given token ID.
+
+```solidity
+function getApproved(uint256 _tokenId) external view returns (address);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_tokenId",
+      type: "uint256",
+      description: "The token ID to query the approval of."
+    }
+  ]}
+  showRequired={false}
+/>
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "address",
+      description: "The approved address for the token."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### isApprovedForAll
+
+Returns true if an operator is approved to manage all of an owner&#x27;s assets.
+
+```solidity
+function isApprovedForAll(address _owner, address _operator) external view returns (bool);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_owner",
+      type: "address",
+      description: "The token owner."
+    },
+    {
+      name: "_operator",
+      type: "address",
+      description: "The operator address."
+    }
+  ]}
+  showRequired={false}
+/>
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "bool",
+      description: "True if the operator is approved for all tokens of the owner."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### approve
+
+Approves another address to transfer the given token ID.
+
+```solidity
+function approve(address _to, uint256 _tokenId) external;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_to",
+      type: "address",
+      description: "The address to be approved."
+    },
+    {
+      name: "_tokenId",
+      type: "uint256",
+      description: "The token ID to approve."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### setApprovalForAll
+
+Approves or revokes permission for an operator to manage all caller&#x27;s assets.
+
+```solidity
+function setApprovalForAll(address _operator, bool _approved) external;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_operator",
+      type: "address",
+      description: "The operator address to set approval for."
+    },
+    {
+      name: "_approved",
+      type: "bool",
+      description: "True to approve, false to revoke."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### internalTransferFrom
+
+Internal function to transfer a token, checking for ownership and approval.
+
+```solidity
+function internalTransferFrom(address _from, address _to, uint256 _tokenId) internal;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_from",
+      type: "address",
+      description: "The current owner of the token."
+    },
+    {
+      name: "_to",
+      type: "address",
+      description: "The address to receive the token."
+    },
+    {
+      name: "_tokenId",
+      type: "uint256",
+      description: "The token ID to transfer."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### transferFrom
+
+Transfers a token from one address to another.
+
+```solidity
+function transferFrom(address _from, address _to, uint256 _tokenId) external;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_from",
+      type: "address",
+      description: "The current owner of the token."
+    },
+    {
+      name: "_to",
+      type: "address",
+      description: "The address to receive the token."
+    },
+    {
+      name: "_tokenId",
+      type: "uint256",
+      description: "The token ID to transfer."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### safeTransferFrom
+
+Safely transfers a token, checking if the receiver can handle ERC-721 tokens.
+
+```solidity
+function safeTransferFrom(address _from, address _to, uint256 _tokenId) external;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_from",
+      type: "address",
+      description: "The current owner of the token."
+    },
+    {
+      name: "_to",
+      type: "address",
+      description: "The address to receive the token."
+    },
+    {
+      name: "_tokenId",
+      type: "uint256",
+      description: "The token ID to transfer."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### safeTransferFrom
+
+Safely transfers a token with additional data.
+
+```solidity
+function safeTransferFrom(address _from, address _to, uint256 _tokenId, bytes calldata _data) external;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_from",
+      type: "address",
+      description: "The current owner of the token."
+    },
+    {
+      name: "_to",
+      type: "address",
+      description: "The address to receive the token."
+    },
+    {
+      name: "_tokenId",
+      type: "uint256",
+      description: "The token ID to transfer."
+    },
+    {
+      name: "_data",
+      type: "bytes",
+      description: "Additional data with no specified format."
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Events
+
+### Transfer
+
+```solidity
+event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId);
+```
+
+### Approval
+
+```solidity
+event Approval(address indexed _owner, address indexed _to, uint256 indexed _tokenId);
+```
+
+### ApprovalForAll
+
+```solidity
+event ApprovalForAll(address indexed _owner, address indexed _operator, bool _approved);
+```
+
+## Errors
+
+### ERC721InvalidOwner
+
+```solidity
+error ERC721InvalidOwner(address _owner);
+```
+
+### ERC721NonexistentToken
+
+```solidity
+error ERC721NonexistentToken(uint256 _tokenId);
+```
+
+### ERC721IncorrectOwner
+
+```solidity
+error ERC721IncorrectOwner(address _sender, uint256 _tokenId, address _owner);
+```
+
+### ERC721InvalidSender
+
+```solidity
+error ERC721InvalidSender(address _sender);
+```
+
+### ERC721InvalidReceiver
+
+```solidity
+error ERC721InvalidReceiver(address _receiver);
+```
+
+### ERC721InsufficientApproval
+
+```solidity
+error ERC721InsufficientApproval(address _operator, uint256 _tokenId);
+```
+
+### ERC721InvalidApprover
+
+```solidity
+error ERC721InvalidApprover(address _approver);
+```
+
+### ERC721InvalidOperator
+
+```solidity
+error ERC721InvalidOperator(address _operator);
+```

@@ -1,0 +1,448 @@
+---
+sidebar_position: 99
+title: "ERC20Facet"
+description: "Contract documentation for ERC20Facet"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+
+<DocHero
+  title="ERC20Facet"
+  subtitle="Contract documentation for ERC20Facet"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+The ERC20Facet provides a modular implementation of ERC-20 token functions compatible with the Compose diamond standard. It enables seamless addition of standard token functionality, such as balance tracking, transfers, and approvals, to a diamond proxy contract.
+
+[View Source](https://github.com/maxnorm/Compose/blob/bd92d896acdf08abd003a5846f267d6de9578ab5/src/token/ERC20/ERC20/ERC20Facet.sol)
+
+<Callout type="info" title="Key Features">
+- Provides full ERC-20 compliance within a Compose-compatible facet.\n- Supports standard token functions such as balances, approvals, and transfers.\n- Emits standard ERC-20 events (Approval, Transfer) for transparency and interoperability.
+</Callout>
+
+## Structs
+
+### ERC20Storage
+
+```solidity
+struct ERC20Storage {
+    mapping(address owner &#x3D;&gt; uint256 balance) balanceOf;
+    uint256 totalSupply;
+    mapping(address owner &#x3D;&gt; mapping(address spender &#x3D;&gt; uint256 allowance)) allowance;
+    uint8 decimals;
+    string name;
+    string symbol;
+}
+```
+
+## Storage
+
+### State Variables
+
+<PropertyTable
+  properties={[
+    {
+      name: "STORAGE_POSITION",
+      type: "constant",
+      description: ""
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Functions
+
+### getStorage
+
+Returns the ERC20 storage struct from the predefined diamond storage slot. Uses inline assembly to set the storage slot reference.
+
+```solidity
+function getStorage() internal pure returns (ERC20Storage storage s);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "s",
+      type: "ERC20Storage",
+      description: "The ERC20 storage struct reference."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### name
+
+Returns the name of the token.
+
+```solidity
+function name() external view returns (string memory);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "string",
+      description: "The token name."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### symbol
+
+Returns the symbol of the token.
+
+```solidity
+function symbol() external view returns (string memory);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "string",
+      description: "The token symbol."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### decimals
+
+Returns the number of decimals used for token precision.
+
+```solidity
+function decimals() external view returns (uint8);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "uint8",
+      description: "The number of decimals."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### totalSupply
+
+Returns the total supply of tokens.
+
+```solidity
+function totalSupply() external view returns (uint256);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "uint256",
+      description: "The total token supply."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### balanceOf
+
+Returns the balance of a specific account.
+
+```solidity
+function balanceOf(address _account) external view returns (uint256);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_account",
+      type: "address",
+      description: "The address of the account."
+    }
+  ]}
+  showRequired={false}
+/>
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "uint256",
+      description: "The account balance."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### allowance
+
+Returns the remaining number of tokens that a spender is allowed to spend on behalf of an owner.
+
+```solidity
+function allowance(address _owner, address _spender) external view returns (uint256);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_owner",
+      type: "address",
+      description: "The address of the token owner."
+    },
+    {
+      name: "_spender",
+      type: "address",
+      description: "The address of the spender."
+    }
+  ]}
+  showRequired={false}
+/>
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "uint256",
+      description: "The remaining allowance."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### approve
+
+Approves a spender to transfer up to a certain amount of tokens on behalf of the caller. Emits an Approval event.
+
+```solidity
+function approve(address _spender, uint256 _value) external returns (bool);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_spender",
+      type: "address",
+      description: "The address approved to spend tokens."
+    },
+    {
+      name: "_value",
+      type: "uint256",
+      description: "The number of tokens to approve."
+    }
+  ]}
+  showRequired={false}
+/>
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "bool",
+      description: "True if the approval was successful."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### transfer
+
+Transfers tokens to another address. Emits a Transfer event.
+
+```solidity
+function transfer(address _to, uint256 _value) external returns (bool);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_to",
+      type: "address",
+      description: "The address to receive the tokens."
+    },
+    {
+      name: "_value",
+      type: "uint256",
+      description: "The amount of tokens to transfer."
+    }
+  ]}
+  showRequired={false}
+/>
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "bool",
+      description: "True if the transfer was successful."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### transferFrom
+
+Transfers tokens on behalf of another account, provided sufficient allowance exists. Emits a Transfer event and decreases the spender&#x27;s allowance.
+
+```solidity
+function transferFrom(address _from, address _to, uint256 _value) external returns (bool);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_from",
+      type: "address",
+      description: "The address to transfer tokens from."
+    },
+    {
+      name: "_to",
+      type: "address",
+      description: "The address to transfer tokens to."
+    },
+    {
+      name: "_value",
+      type: "uint256",
+      description: "The amount of tokens to transfer."
+    }
+  ]}
+  showRequired={false}
+/>
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "bool",
+      description: "True if the transfer was successful."
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Events
+
+### Approval
+
+Emitted when an approval is made for a spender by an owner.
+
+```solidity
+event Approval(address indexed _owner, address indexed _spender, uint256 _value);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_owner",
+      type: "address",
+      description: "The address granting the allowance."
+    },
+    {
+      name: "_spender",
+      type: "address",
+      description: "The address receiving the allowance."
+    },
+    {
+      name: "_value",
+      type: "uint256",
+      description: "The amount approved."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### Transfer
+
+Emitted when tokens are transferred between two addresses.
+
+```solidity
+event Transfer(address indexed _from, address indexed _to, uint256 _value);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_from",
+      type: "address",
+      description: "Address sending the tokens."
+    },
+    {
+      name: "_to",
+      type: "address",
+      description: "Address receiving the tokens."
+    },
+    {
+      name: "_value",
+      type: "uint256",
+      description: "Amount of tokens transferred."
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Errors
+
+### ERC20InsufficientBalance
+
+Thrown when an account has insufficient balance for a transfer or burn.
+
+```solidity
+error ERC20InsufficientBalance(address _sender, uint256 _balance, uint256 _needed);
+```
+
+### ERC20InvalidSender
+
+Thrown when the sender address is invalid (e.g., zero address).
+
+```solidity
+error ERC20InvalidSender(address _sender);
+```
+
+### ERC20InvalidReceiver
+
+Thrown when the receiver address is invalid (e.g., zero address).
+
+```solidity
+error ERC20InvalidReceiver(address _receiver);
+```
+
+### ERC20InsufficientAllowance
+
+Thrown when a spender tries to use more than the approved allowance.
+
+```solidity
+error ERC20InsufficientAllowance(address _spender, uint256 _allowance, uint256 _needed);
+```
+
+### ERC20InvalidSpender
+
+Thrown when the spender address is invalid (e.g., zero address).
+
+```solidity
+error ERC20InvalidSpender(address _spender);
+```
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;\n\nimport { Diamond } from &quot;./Diamond.sol&quot;;\n\ncontract ExampleDiamond {\n    Diamond private diamond;\n\n    constructor(address _diamond) {\n        diamond &#x3D; Diamond(_diamond);\n    }\n\n    function executeTransfer(address _to, uint256 _amount) external {\n        ERC20Facet(diamond).transfer(_to, _amount);\n    }\n\n    function checkBalance(address _account) external view returns (uint256) {\n        return ERC20Facet(diamond).balanceOf(_account);\n    }\n}
+```
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Ensure &#x60;getStorage&#x60; references the correct diamond storage slot to avoid overwriting unrelated data.\n- Use only as a fully self-contained facet without modifying its code to prevent unintended results.\n- Avoid mixing this facet with competing or overlapping token implementations within the same diamond.
+</Callout>
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Access control mechanisms should be implemented to prevent unauthorized calls to functions like approve. Ensure reentrancy protections are in place for state-changing functions, such as transfer and transferFrom, to avoid potential attacks. Review all facets added to the diamond for potential conflicts or overlaps in token management.
+</Callout>

@@ -1,0 +1,213 @@
+---
+sidebar_position: 99
+title: "OwnerTwoStepsFacet"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+
+<DocHero
+  title="OwnerTwoStepsFacet"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+The OwnerTwoStepsFacet facilitates robust ownership management within a diamond proxy contract. It enables a two-step ownership transfer mechanism, ensuring deliberate transitions and minimizing the risk of accidental or unauthorized changes. This facet is essential for secure and transparent administrative control in decentralized applications.
+
+[View Source](https://github.com/maxnorm/Compose/blob/bd92d896acdf08abd003a5846f267d6de9578ab5/src/access/OwnerTwoSteps/OwnerTwoStepsFacet.sol)
+
+<Callout type="info" title="Key Features">
+- Two-step ownership transfer to enhance security.\n- Functions to retrieve both current and pending ownership details.
+</Callout>
+
+## Structs
+
+### OwnerStorage
+
+```solidity
+struct OwnerStorage {
+    address owner;
+}
+```
+
+### PendingOwnerStorage
+
+```solidity
+struct PendingOwnerStorage {
+    address pendingOwner;
+}
+```
+
+## Storage
+
+### State Variables
+
+<PropertyTable
+  properties={[
+    {
+      name: "OWNER_STORAGE_POSITION",
+      type: "constant",
+      description: ""
+    },
+    {
+      name: "PENDING_OWNER_STORAGE_POSITION",
+      type: "constant",
+      description: ""
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Functions
+
+### getOwnerStorage
+
+Returns a pointer to the Owner storage struct. Uses inline assembly to access the storage slot defined by OWNER_STORAGE_POSITION.
+
+```solidity
+function getOwnerStorage() internal pure returns (OwnerStorage storage s);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "s",
+      type: "OwnerStorage",
+      description: "The OwnerStorage struct in storage."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### getPendingOwnerStorage
+
+Returns a pointer to the PendingOwner storage struct. Uses inline assembly to access the storage slot defined by PENDING_OWNER_STORAGE_POSITION.
+
+```solidity
+function getPendingOwnerStorage() internal pure returns (PendingOwnerStorage storage s);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "s",
+      type: "PendingOwnerStorage",
+      description: "The PendingOwnerStorage struct in storage."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### owner
+
+Get the address of the owner
+
+```solidity
+function owner() external view returns (address);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "address",
+      description: "The address of the owner."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### pendingOwner
+
+Get the address of the pending owner
+
+```solidity
+function pendingOwner() external view returns (address);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "address",
+      description: "The address of the pending owner."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### transferOwnership
+
+Set the address of the new owner of the contract
+
+```solidity
+function transferOwnership(address _newOwner) external;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_newOwner",
+      type: "address",
+      description: "The address of the new owner of the contract"
+    }
+  ]}
+  showRequired={false}
+/>
+
+### acceptOwnership
+
+```solidity
+function acceptOwnership() external;
+```
+
+### renounceOwnership
+
+```solidity
+function renounceOwnership() external;
+```
+
+## Events
+
+### OwnershipTransferStarted
+
+```solidity
+event OwnershipTransferStarted(address indexed _previousOwner, address indexed _newOwner);
+```
+
+### OwnershipTransferred
+
+```solidity
+event OwnershipTransferred(address indexed _previousOwner, address indexed _newOwner);
+```
+
+## Errors
+
+### OwnerUnauthorizedAccount
+
+```solidity
+error OwnerUnauthorizedAccount();
+```
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;\n\nimport { IDiamondCut } from &quot;./IDiamondCut.sol&quot;;\n\ncontract ExampleDiamond {\n    address private constant OWNER_FACET_ADDRESS &#x3D; 0x123...;\n\n    function transferOwnership(address _newOwner) external {\n        (bool success, ) &#x3D; OWNER_FACET_ADDRESS.delegatecall(\n            abi.encodeWithSignature(&quot;transferOwnership(address)&quot;, _newOwner)\n        );\n        require(success, &quot;Transfer ownership failed&quot;);\n    }\n\n    function acceptOwnership() external {\n        (bool success, ) &#x3D; OWNER_FACET_ADDRESS.delegatecall(\n            abi.encodeWithSignature(&quot;acceptOwnership()&quot;)\n        );\n        require(success, &quot;Accept ownership failed&quot;);\n    }\n\n    function owner() external returns (address) {\n        (bool success, bytes memory result) &#x3D; OWNER_FACET_ADDRESS.delegatecall(\n            abi.encodeWithSignature(&quot;owner()&quot;)\n        );\n        require(success, &quot;Query owner failed&quot;);\n        return abi.decode(result, (address));\n    }\n}
+```
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Ensure the correct implementation of diamond storage positions to avoid conflicts with other facets.\n- Implement ownership-related functions with strict access control to preserve administrative integrity.\n- Regularly test the ownership transfer and acceptance process in isolated environments to confirm accuracy and reliability.
+</Callout>
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Always validate the new owner address in &#x60;transferOwnership&#x60; to avoid setting invalid or unintended addresses. Require explicit calls by the pending owner for &#x60;acceptOwnership&#x60; to finalize transfers securely. Ensure no state collisions in storage when integrating with other facets.
+</Callout>
