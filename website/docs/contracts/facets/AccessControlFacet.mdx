@@ -1,0 +1,436 @@
+---
+sidebar_position: 99
+title: "AccessControlFacet"
+description: "Contract documentation for AccessControlFacet"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+
+<DocHero
+  title="AccessControlFacet"
+  subtitle="Contract documentation for AccessControlFacet"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+The AccessControlFacet provides role-based access management functionality for diamond contracts. It allows defining roles, assigning them to accounts, managing role hierarchies, and controlling access to specific features or functions. This facet is critical for implementing flexible and granular access control within composable diamond contracts.
+
+[View Source](https://github.com/maxnorm/Compose/blob/bd92d896acdf08abd003a5846f267d6de9578ab5/src/access/AccessControl/AccessControlFacet.sol)
+
+<Callout type="info" title="Key Features">
+- Role-based access control with hierarchical role management.\n- Batch operations for efficient role assignments or revocations.\n- Explicit and consistent error handling for unauthorized access.
+</Callout>
+
+## Structs
+
+### AccessControlStorage
+
+```solidity
+struct AccessControlStorage {
+    mapping(address account &#x3D;&gt; mapping(bytes32 role &#x3D;&gt; bool hasRole)) hasRole;
+    mapping(bytes32 role &#x3D;&gt; bytes32 adminRole) adminRole;
+}
+```
+
+## Storage
+
+### State Variables
+
+<PropertyTable
+  properties={[
+    {
+      name: "STORAGE_POSITION",
+      type: "constant",
+      description: ""
+    },
+    {
+      name: "DEFAULT_ADMIN_ROLE",
+      type: "constant",
+      description: ""
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Functions
+
+### getStorage
+
+Returns the storage for the AccessControl.
+
+```solidity
+function getStorage() internal pure returns (AccessControlStorage storage s);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "s",
+      type: "AccessControlStorage",
+      description: "The storage for the AccessControl."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### hasRole
+
+Returns if an account has a role.
+
+```solidity
+function hasRole(bytes32 _role, address _account) external view returns (bool);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role to check."
+    },
+    {
+      name: "_account",
+      type: "address",
+      description: "The account to check the role for."
+    }
+  ]}
+  showRequired={false}
+/>
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "bool",
+      description: "True if the account has the role, false otherwise."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### requireRole
+
+Checks if an account has a required role. error: AccessControlUnauthorizedAccount If the account does not have the role.
+
+```solidity
+function requireRole(bytes32 _role, address _account) external view;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role to check."
+    },
+    {
+      name: "_account",
+      type: "address",
+      description: "The account to check the role for."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### getRoleAdmin
+
+Returns the admin role for a role.
+
+```solidity
+function getRoleAdmin(bytes32 _role) external view returns (bytes32);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role to get the admin for."
+    }
+  ]}
+  showRequired={false}
+/>
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "bytes32",
+      description: "The admin role for the role."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### setRoleAdmin
+
+Sets the admin role for a role. Emits a RoleAdminChanged event. error: AccessControlUnauthorizedAccount If the caller is not the current admin of the role.
+
+```solidity
+function setRoleAdmin(bytes32 _role, bytes32 _adminRole) external;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role to set the admin for."
+    },
+    {
+      name: "_adminRole",
+      type: "bytes32",
+      description: "The new admin role to set."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### grantRole
+
+Grants a role to an account. Emits a RoleGranted event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
+
+```solidity
+function grantRole(bytes32 _role, address _account) external;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role to grant."
+    },
+    {
+      name: "_account",
+      type: "address",
+      description: "The account to grant the role to."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### revokeRole
+
+Revokes a role from an account. Emits a RoleRevoked event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
+
+```solidity
+function revokeRole(bytes32 _role, address _account) external;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role to revoke."
+    },
+    {
+      name: "_account",
+      type: "address",
+      description: "The account to revoke the role from."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### grantRoleBatch
+
+Grants a role to multiple accounts in a single transaction. Emits a RoleGranted event for each newly granted account. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
+
+```solidity
+function grantRoleBatch(bytes32 _role, address[] calldata _accounts) external;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role to grant."
+    },
+    {
+      name: "_accounts",
+      type: "address[]",
+      description: "The accounts to grant the role to."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### revokeRoleBatch
+
+Revokes a role from multiple accounts in a single transaction. Emits a RoleRevoked event for each account the role is revoked from. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
+
+```solidity
+function revokeRoleBatch(bytes32 _role, address[] calldata _accounts) external;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role to revoke."
+    },
+    {
+      name: "_accounts",
+      type: "address[]",
+      description: "The accounts to revoke the role from."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### renounceRole
+
+Renounces a role from the caller. Emits a RoleRevoked event. error: AccessControlUnauthorizedSender If the caller is not the account to renounce the role from.
+
+```solidity
+function renounceRole(bytes32 _role, address _account) external;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role to renounce."
+    },
+    {
+      name: "_account",
+      type: "address",
+      description: "The account to renounce the role from."
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Events
+
+### RoleAdminChanged
+
+Emitted when the admin role for a role is changed.
+
+```solidity
+event RoleAdminChanged(bytes32 indexed _role, bytes32 indexed _previousAdminRole, bytes32 indexed _newAdminRole);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role that was changed."
+    },
+    {
+      name: "_previousAdminRole",
+      type: "bytes32",
+      description: "The previous admin role."
+    },
+    {
+      name: "_newAdminRole",
+      type: "bytes32",
+      description: "The new admin role."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### RoleGranted
+
+Emitted when a role is granted to an account.
+
+```solidity
+event RoleGranted(bytes32 indexed _role, address indexed _account, address indexed _sender);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role that was granted."
+    },
+    {
+      name: "_account",
+      type: "address",
+      description: "The account that was granted the role."
+    },
+    {
+      name: "_sender",
+      type: "address",
+      description: "The sender that granted the role."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### RoleRevoked
+
+Emitted when a role is revoked from an account.
+
+```solidity
+event RoleRevoked(bytes32 indexed _role, address indexed _account, address indexed _sender);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role that was revoked."
+    },
+    {
+      name: "_account",
+      type: "address",
+      description: "The account from which the role was revoked."
+    },
+    {
+      name: "_sender",
+      type: "address",
+      description: "The account that revoked the role."
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Errors
+
+### AccessControlUnauthorizedAccount
+
+Thrown when the account does not have a specific role.
+
+```solidity
+error AccessControlUnauthorizedAccount(address _account, bytes32 _role);
+```
+
+### AccessControlUnauthorizedSender
+
+Thrown when the sender is not the account to renounce the role from.
+
+```solidity
+error AccessControlUnauthorizedSender(address _sender, address _account);
+```
+
+## Usage Example
+
+```solidity
+contract MyDiamond {\n    AccessControlFacet private accessControl;\n\n    constructor(address _accessControlFacetAddress) {\n        accessControl &#x3D; AccessControlFacet(_accessControlFacetAddress);\n    }\n\n    function setupRoles() external {\n        bytes32 adminRole &#x3D; keccak256(&#x27;ADMIN_ROLE&#x27;);\n        bytes32 userRole &#x3D; keccak256(&#x27;USER_ROLE&#x27;);\n\n        // Grant ADMIN_ROLE to the contract deployer\n        accessControl.grantRole(adminRole, msg.sender);\n        \n        // Set ADMIN_ROLE as the admin for USER_ROLE\n        accessControl.setRoleAdmin(userRole, adminRole);\n    }\n\n    function protectedFunction() external {\n        accessControl.requireRole(keccak256(&#x27;USER_ROLE&#x27;), msg.sender);\n        // Protected functionality\n    }\n}
+```
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Always define roles as constant &#x60;bytes32&#x60; values to avoid typos and ensure consistency.\n- Assign administrator roles with caution and to trusted accounts only.\n- Regularly review and update roles and access policies to reflect changes in your system&#x27;s requirements.
+</Callout>
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Ensure that the admin roles are assigned only to trusted and verified accounts to prevent abuse of administrative privileges. Avoid reentrancy vulnerabilities by using appropriate checks-effects-interactions patterns in functions that involve access control checks followed by external calls. Caller-address-dependent functions should validate inputs and refrain from exposing sensitive operations to reentrancy attacks.
+</Callout>

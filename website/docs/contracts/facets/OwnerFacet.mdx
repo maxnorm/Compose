@@ -1,0 +1,137 @@
+---
+sidebar_position: 99
+title: "OwnerFacet"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+
+<DocHero
+  title="OwnerFacet"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+**Title:**
+
+ERC-173 Contract Ownership
+
+[View Source](https://github.com/maxnorm/Compose/blob/bd92d896acdf08abd003a5846f267d6de9578ab5/src/access/Owner/OwnerFacet.sol)
+
+<Callout type="info" title="Key Features">
+- Self-contained facet with no imports or inheritance
+- Only &#x60;external&#x60; and &#x60;internal&#x60; function visibility
+- Follows Compose readability-first conventions
+- Ready for diamond integration
+</Callout>
+
+## Structs
+
+### OwnerStorage
+
+```solidity
+struct OwnerStorage {
+    address owner;
+}
+```
+
+## Storage
+
+### State Variables
+
+<PropertyTable
+  properties={[
+    {
+      name: "STORAGE_POSITION",
+      type: "constant",
+      description: ""
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Functions
+
+### getStorage
+
+Returns a pointer to the owner storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+
+```solidity
+function getStorage() internal pure returns (OwnerStorage storage s);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "s",
+      type: "OwnerStorage",
+      description: "The OwnerStorage struct in storage."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### owner
+
+Get the address of the owner
+
+```solidity
+function owner() external view returns (address);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "address",
+      description: "The address of the owner."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### transferOwnership
+
+Set the address of the new owner of the contract Set _newOwner to address(0) to renounce any ownership.
+
+```solidity
+function transferOwnership(address _newOwner) external;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_newOwner",
+      type: "address",
+      description: "The address of the new owner of the contract"
+    }
+  ]}
+  showRequired={false}
+/>
+
+### renounceOwnership
+
+```solidity
+function renounceOwnership() external;
+```
+
+## Events
+
+### OwnershipTransferred
+
+```solidity
+event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+```
+
+## Errors
+
+### OwnerUnauthorizedAccount
+
+```solidity
+error OwnerUnauthorizedAccount();
+```

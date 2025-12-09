@@ -1,0 +1,133 @@
+---
+sidebar_position: 99
+title: "ERC721BurnFacet"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+
+<DocHero
+  title="ERC721BurnFacet"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+**Title:**
+
+ERC-721 Token
+
+[View Source](https://github.com/maxnorm/Compose/blob/bd92d896acdf08abd003a5846f267d6de9578ab5/src/token/ERC721/ERC721/ERC721BurnFacet.sol)
+
+<Callout type="info" title="Key Features">
+- Self-contained facet with no imports or inheritance
+- Only &#x60;external&#x60; and &#x60;internal&#x60; function visibility
+- Follows Compose readability-first conventions
+- Ready for diamond integration
+</Callout>
+
+## Structs
+
+### ERC721Storage
+
+```solidity
+struct ERC721Storage {
+    mapping(uint256 tokenId &#x3D;&gt; address owner) ownerOf;
+    mapping(address owner &#x3D;&gt; uint256 balance) balanceOf;
+    mapping(address owner &#x3D;&gt; mapping(address operator &#x3D;&gt; bool approved)) isApprovedForAll;
+    mapping(uint256 tokenId &#x3D;&gt; address approved) approved;
+}
+```
+
+## Storage
+
+### State Variables
+
+<PropertyTable
+  properties={[
+    {
+      name: "STORAGE_POSITION",
+      type: "constant",
+      description: ""
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Functions
+
+### getStorage
+
+Returns a pointer to the ERC-721 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+
+```solidity
+function getStorage() internal pure returns (ERC721Storage storage s);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "s",
+      type: "ERC721Storage",
+      description: "The ERC721Storage struct in storage."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### burn
+
+Burns (destroys) a token, removing it from enumeration tracking.
+
+```solidity
+function burn(uint256 _tokenId) external;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_tokenId",
+      type: "uint256",
+      description: "The ID of the token to burn."
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Events
+
+### Transfer
+
+```solidity
+event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId);
+```
+
+### Approval
+
+```solidity
+event Approval(address indexed _owner, address indexed _to, uint256 indexed _tokenId);
+```
+
+### ApprovalForAll
+
+```solidity
+event ApprovalForAll(address indexed _owner, address indexed _operator, bool _approved);
+```
+
+## Errors
+
+### ERC721NonexistentToken
+
+```solidity
+error ERC721NonexistentToken(uint256 _tokenId);
+```
+
+### ERC721InsufficientApproval
+
+```solidity
+error ERC721InsufficientApproval(address _operator, uint256 _tokenId);
+```

@@ -1,0 +1,479 @@
+---
+sidebar_position: 99
+title: "ERC1155Mod"
+description: "ERC-1155 Token Receiver Interface - Handles the receipt of a single ERC-1155 token type."
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+
+## Overview
+
+ERC-1155 Token Receiver Interface - Handles the receipt of a single ERC-1155 token type.
+
+[View Source](https://github.com/maxnorm/Compose/blob/bd92d896acdf08abd003a5846f267d6de9578ab5/src/token/ERC1155/ERC1155Mod.sol)
+
+<Callout type="info" title="Key Features">
+- All functions are &#x60;internal&#x60; for use in custom facets
+- Follows diamond storage pattern (EIP-8042)
+- Compatible with ERC-2535 diamonds
+- No external dependencies or &#x60;using&#x60; directives
+</Callout>
+
+<Callout type="info" title="Module Usage">
+This module provides internal functions for use in your custom facets. Import it to access shared logic and storage.
+</Callout>
+
+## Structs
+
+### ERC1155Storage
+
+ERC-8042 compliant storage struct for ERC-1155 token data. **Note:** storage-location: erc8042:compose.erc1155
+
+```solidity
+struct ERC1155Storage {
+mapping(uint256 id &#x3D;&gt; mapping(address account &#x3D;&gt; uint256 balance)) balanceOf;
+mapping(address account &#x3D;&gt; mapping(address operator &#x3D;&gt; bool)) isApprovedForAll;
+string uri;
+string baseURI;
+mapping(uint256 tokenId &#x3D;&gt; string) tokenURIs;
+}
+```
+
+## Storage
+
+Storage position: &#x60;STORAGE_POSITION&#x60; - Used for diamond storage pattern.
+
+### State Variables
+
+<PropertyTable
+  properties={[
+    {
+      name: "STORAGE_POSITION",
+      type: "bytes32",
+      description: " (Value: `keccak256(&quot;compose.erc1155&quot;)`)"
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Functions
+
+### burn
+
+Burns a single token type from an address. Decreases the balance and emits a TransferSingle event. Reverts if the account has insufficient balance. **Parameters**
+
+```solidity
+function burn(address _from, uint256 _id, uint256 _value) ;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_from",
+      type: "address",
+      description: "The address whose tokens will be burned."
+    },
+    {
+      name: "_id",
+      type: "uint256",
+      description: "The token type to burn."
+    },
+    {
+      name: "_value",
+      type: "uint256",
+      description: "The amount of tokens to burn."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### burnBatch
+
+Burns multiple token types from an address in a single transaction. Decreases balances for each token type and emits a TransferBatch event. Reverts if the account has insufficient balance for any token type. **Parameters**
+
+```solidity
+function burnBatch(address _from, uint256[] memory _ids, uint256[] memory _values) ;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_from",
+      type: "address",
+      description: "The address whose tokens will be burned."
+    },
+    {
+      name: "_ids",
+      type: "uint256[]",
+      description: "The token types to burn."
+    },
+    {
+      name: "_values",
+      type: "uint256[]",
+      description: "The amounts of tokens to burn for each type."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### getStorage
+
+Returns the ERC-1155 storage struct from the predefined diamond storage slot. Uses inline assembly to set the storage slot reference. **Returns**
+
+```solidity
+function getStorage() pure returns (ERC1155Storage storage s);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "s",
+      type: "ERC1155Storage",
+      description: "The ERC-1155 storage struct reference."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### mint
+
+Mints a single token type to an address. Increases the balance and emits a TransferSingle event. Performs receiver validation if recipient is a contract. **Parameters**
+
+```solidity
+function mint(address _to, uint256 _id, uint256 _value, bytes memory _data) ;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_to",
+      type: "address",
+      description: "The address that will receive the tokens."
+    },
+    {
+      name: "_id",
+      type: "uint256",
+      description: "The token type to mint."
+    },
+    {
+      name: "_value",
+      type: "uint256",
+      description: "The amount of tokens to mint."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### mintBatch
+
+Mints multiple token types to an address in a single transaction. Increases balances for each token type and emits a TransferBatch event. Performs receiver validation if recipient is a contract. **Parameters**
+
+```solidity
+function mintBatch(address _to, uint256[] memory _ids, uint256[] memory _values, bytes memory _data) ;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_to",
+      type: "address",
+      description: "The address that will receive the tokens."
+    },
+    {
+      name: "_ids",
+      type: "uint256[]",
+      description: "The token types to mint."
+    },
+    {
+      name: "_values",
+      type: "uint256[]",
+      description: "The amounts of tokens to mint for each type."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### safeBatchTransferFrom
+
+Safely transfers multiple token types from one address to another in a single transaction. Validates ownership, approval, and receiver address before updating balances for each token type. Performs ERC1155Receiver validation if recipient is a contract (safe transfer). Complies with EIP-1155 safe transfer requirements. **Parameters**
+
+```solidity
+function safeBatchTransferFrom(
+address _from,
+address _to,
+uint256[] memory _ids,
+uint256[] memory _values,
+address _operator
+) ;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_from",
+      type: "address",
+      description: "The address to transfer from."
+    },
+    {
+      name: "_to",
+      type: "address",
+      description: "The address to transfer to."
+    },
+    {
+      name: "_ids",
+      type: "uint256[]",
+      description: "The token types to transfer."
+    },
+    {
+      name: "_values",
+      type: "uint256[]",
+      description: "The amounts of tokens to transfer for each type."
+    },
+    {
+      name: "_operator",
+      type: "address",
+      description: "The address initiating the transfer (may be owner or approved operator)."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### safeTransferFrom
+
+Safely transfers a single token type from one address to another. Validates ownership, approval, and receiver address before updating balances. Performs ERC1155Receiver validation if recipient is a contract (safe transfer). Complies with EIP-1155 safe transfer requirements. **Parameters**
+
+```solidity
+function safeTransferFrom(address _from, address _to, uint256 _id, uint256 _value, address _operator) ;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_from",
+      type: "address",
+      description: "The address to transfer from."
+    },
+    {
+      name: "_to",
+      type: "address",
+      description: "The address to transfer to."
+    },
+    {
+      name: "_id",
+      type: "uint256",
+      description: "The token type to transfer."
+    },
+    {
+      name: "_value",
+      type: "uint256",
+      description: "The amount of tokens to transfer."
+    },
+    {
+      name: "_operator",
+      type: "address",
+      description: "The address initiating the transfer (may be owner or approved operator)."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### setBaseURI
+
+Sets the base URI prefix for token-specific URIs. The base URI is concatenated with token-specific URIs set via setTokenURI. Does not affect the default URI used when no token-specific URI is set. **Parameters**
+
+```solidity
+function setBaseURI(string memory _baseURI) ;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_baseURI",
+      type: "string",
+      description: "The base URI string to prepend to token-specific URIs."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### setTokenURI
+
+Sets the token-specific URI for a given token ID. Sets tokenURIs[_tokenId] to the provided string and emits a URI event with the full computed URI. The emitted URI is the concatenation of baseURI and the token-specific URI. **Parameters**
+
+```solidity
+function setTokenURI(uint256 _tokenId, string memory _tokenURI) ;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_tokenId",
+      type: "uint256",
+      description: "The token ID to set the URI for."
+    },
+    {
+      name: "_tokenURI",
+      type: "string",
+      description: "The token-specific URI string to be concatenated with baseURI."
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Events
+
+### TransferBatch
+
+Emitted when multiple token types are transferred. **Parameters**
+
+```solidity
+event TransferBatch(
+address indexed _operator, address indexed _from, address indexed _to, uint256[] _ids, uint256[] _values
+);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_operator",
+      type: "address",
+      description: "The address which initiated the batch transfer."
+    },
+    {
+      name: "_from",
+      type: "address",
+      description: "The address which previously owned the tokens."
+    },
+    {
+      name: "_to",
+      type: "address",
+      description: "The address which now owns the tokens."
+    },
+    {
+      name: "_ids",
+      type: "uint256[]",
+      description: "The token types being transferred."
+    },
+    {
+      name: "_values",
+      type: "uint256[]",
+      description: "The amounts of tokens transferred."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### TransferSingle
+
+Emitted when a single token type is transferred. **Parameters**
+
+```solidity
+event TransferSingle(
+address indexed _operator, address indexed _from, address indexed _to, uint256 _id, uint256 _value
+);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_operator",
+      type: "address",
+      description: "The address which initiated the transfer."
+    },
+    {
+      name: "_from",
+      type: "address",
+      description: "The address which previously owned the token."
+    },
+    {
+      name: "_to",
+      type: "address",
+      description: "The address which now owns the token."
+    },
+    {
+      name: "_id",
+      type: "uint256",
+      description: "The token type being transferred."
+    },
+    {
+      name: "_value",
+      type: "uint256",
+      description: "The amount of tokens transferred."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### URI
+
+Emitted when the URI for token type &#x60;_id&#x60; changes to &#x60;_value&#x60;. **Parameters**
+
+```solidity
+event URI(string _value, uint256 indexed _id);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_value",
+      type: "string",
+      description: "The new URI for the token type."
+    },
+    {
+      name: "_id",
+      type: "uint256",
+      description: "The token type whose URI changed."
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Errors
+
+### ERC1155InsufficientBalance
+
+**Title:** LibERC1155 — ERC-1155 Library Provides internal functions and storage layout for ERC-1155 multi-token logic. Thrown when insufficient balance for a transfer or burn operation. Uses ERC-8042 for storage location standardization and ERC-6093 for error conventions. This library is intended to be used by custom facets to integrate with ERC-1155 functionality. **Parameters**
+
+```solidity
+error ERC1155InsufficientBalance(address _sender, uint256 _balance, uint256 _needed, uint256 _tokenId);
+```
+
+### ERC1155InvalidArrayLength
+
+Thrown when array lengths don&#x27;t match in batch operations. **Parameters**
+
+```solidity
+error ERC1155InvalidArrayLength(uint256 _idsLength, uint256 _valuesLength);
+```
+
+### ERC1155InvalidReceiver
+
+Thrown when the receiver address is invalid. **Parameters**
+
+```solidity
+error ERC1155InvalidReceiver(address _receiver);
+```
+
+### ERC1155InvalidSender
+
+Thrown when the sender address is invalid. **Parameters**
+
+```solidity
+error ERC1155InvalidSender(address _sender);
+```
+
+### ERC1155MissingApprovalForAll
+
+Thrown when missing approval for an operator. **Parameters**
+
+```solidity
+error ERC1155MissingApprovalForAll(address _operator, address _owner);
+```
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+This module accesses shared diamond storage, so changes made through this module are immediately visible to facets using the same storage pattern. All functions are internal as per Compose conventions.
+</Callout>

@@ -1,0 +1,347 @@
+---
+sidebar_position: 99
+title: "AccessControlMod"
+description: "Emitted when the admin role for a role is changed."
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+
+## Overview
+
+AccessControlMod is a modular facet enabling fine-grained role-based access control in diamond proxies. It provides functionality to assign, revoke, and verify roles while maintaining a clear admin hierarchy, ensuring secure and flexible permissions management.
+
+[View Source](https://github.com/maxnorm/Compose/blob/bd92d896acdf08abd003a5846f267d6de9578ab5/src/access/AccessControl/AccessControlMod.sol)
+
+<Callout type="info" title="Key Features">
+- Fine-grained role-based permissions management\n- Flexible assignment of admin and user roles\n- Seamless integration with the diamond proxy pattern
+</Callout>
+
+<Callout type="info" title="Module Usage">
+This module provides internal functions for use in your custom facets. Import it to access shared logic and storage.
+</Callout>
+
+## Structs
+
+### AccessControlStorage
+
+```solidity
+struct AccessControlStorage {
+mapping(address account &#x3D;&gt; mapping(bytes32 role &#x3D;&gt; bool hasRole)) hasRole;
+mapping(bytes32 role &#x3D;&gt; bytes32 adminRole) adminRole;
+}
+```
+
+## Storage
+
+Storage position: &#x60;STORAGE_POSITION&#x60; - Used for diamond storage pattern.
+
+### State Variables
+
+<PropertyTable
+  properties={[
+    {
+      name: "STORAGE_POSITION",
+      type: "bytes32",
+      description: " (Value: `keccak256(&quot;compose.accesscontrol&quot;)`)"
+    },
+    {
+      name: "DEFAULT_ADMIN_ROLE",
+      type: "bytes32",
+      description: " (Value: `0x00`)"
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Functions
+
+### getStorage
+
+Returns the storage for the AccessControl. **Returns**
+
+```solidity
+function getStorage() pure returns (AccessControlStorage storage _s);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_s",
+      type: "AccessControlStorage",
+      description: "The storage for the AccessControl."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### grantRole
+
+function to grant a role to an account. **Parameters** **Returns**
+
+```solidity
+function grantRole(bytes32 _role, address _account) returns (bool);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role to grant."
+    },
+    {
+      name: "_account",
+      type: "address",
+      description: "The account to grant the role to."
+    }
+  ]}
+  showRequired={false}
+/>
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "bool",
+      description: "True if the role was granted, false otherwise."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### hasRole
+
+function to check if an account has a role. **Parameters** **Returns**
+
+```solidity
+function hasRole(bytes32 _role, address _account) view returns (bool);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role to check."
+    },
+    {
+      name: "_account",
+      type: "address",
+      description: "The account to check the role for."
+    }
+  ]}
+  showRequired={false}
+/>
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "bool",
+      description: "True if the account has the role, false otherwise."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### requireRole
+
+function to check if an account has a required role. **Note:** error: AccessControlUnauthorizedAccount If the account does not have the role. **Parameters**
+
+```solidity
+function requireRole(bytes32 _role, address _account) view;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role to assert."
+    },
+    {
+      name: "_account",
+      type: "address",
+      description: "The account to assert the role for."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### revokeRole
+
+function to revoke a role from an account. **Parameters** **Returns**
+
+```solidity
+function revokeRole(bytes32 _role, address _account) returns (bool);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role to revoke."
+    },
+    {
+      name: "_account",
+      type: "address",
+      description: "The account to revoke the role from."
+    }
+  ]}
+  showRequired={false}
+/>
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "bool",
+      description: "True if the role was revoked, false otherwise."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### setRoleAdmin
+
+function to set the admin role for a role. **Parameters**
+
+```solidity
+function setRoleAdmin(bytes32 _role, bytes32 _adminRole) ;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role to set the admin for."
+    },
+    {
+      name: "_adminRole",
+      type: "bytes32",
+      description: "The admin role to set."
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Events
+
+### RoleAdminChanged
+
+Emitted when the admin role for a role is changed. **Parameters**
+
+```solidity
+event RoleAdminChanged(bytes32 indexed _role, bytes32 indexed _previousAdminRole, bytes32 indexed _newAdminRole);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role that was changed."
+    },
+    {
+      name: "_previousAdminRole",
+      type: "bytes32",
+      description: "The previous admin role."
+    },
+    {
+      name: "_newAdminRole",
+      type: "bytes32",
+      description: "The new admin role."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### RoleGranted
+
+Emitted when a role is granted to an account. **Parameters**
+
+```solidity
+event RoleGranted(bytes32 indexed _role, address indexed _account, address indexed _sender);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role that was granted."
+    },
+    {
+      name: "_account",
+      type: "address",
+      description: "The account that was granted the role."
+    },
+    {
+      name: "_sender",
+      type: "address",
+      description: "The sender that granted the role."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### RoleRevoked
+
+Emitted when a role is revoked from an account. **Parameters**
+
+```solidity
+event RoleRevoked(bytes32 indexed _role, address indexed _account, address indexed _sender);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role that was revoked."
+    },
+    {
+      name: "_account",
+      type: "address",
+      description: "The account from which the role was revoked."
+    },
+    {
+      name: "_sender",
+      type: "address",
+      description: "The account that revoked the role."
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Errors
+
+### AccessControlUnauthorizedAccount
+
+Thrown when the account does not have a specific role. **Parameters**
+
+```solidity
+error AccessControlUnauthorizedAccount(address _account, bytes32 _role);
+```
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;\n\nimport {AccessControlMod} from &#x27;./AccessControlMod.sol&#x27;;\n\ncontract MyDiamond {\n    AccessControlMod private accessControl;\n\n    constructor(address _accessControl) {\n        accessControl &#x3D; AccessControlMod(_accessControl);\n    }\n\n    function setupRoles(address admin, address user) external {\n        accessControl.grantRole(keccak256(&#x27;ADMIN_ROLE&#x27;), admin);\n        accessControl.grantRole(keccak256(&#x27;USER_ROLE&#x27;), user);\n    }\n\n    function checkRole(address account, bytes32 role) external view returns (bool) {\n        return accessControl.hasRole(role, account);\n    }\n\n    function removeRole(address account, bytes32 role) external {\n        accessControl.revokeRole(role, account);\n    }\n}
+```
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Use clear and descriptive role identifiers, such as keccak256 hashes of role names (e.g., keccak256(&#x27;ADMIN_ROLE&#x27;)).\n- Verify correct role assignments through testing to prevent gaps in access control.\n- Limit role-setting access (e.g., only allow ADMIN role to grant or revoke other roles when necessary).
+</Callout>
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+AccessControlMod leverages diamond storage patterns ensuring all changes to roles are persistent and accessible across all facets. Modifying roles or admin relationships through AccessControlMod is immediately visible to other facets using the same storage framework.
+</Callout>

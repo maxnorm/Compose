@@ -1,0 +1,169 @@
+---
+sidebar_position: 99
+title: "ERC20BurnFacet"
+description: "Contract documentation for ERC20BurnFacet"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+
+<DocHero
+  title="ERC20BurnFacet"
+  subtitle="Contract documentation for ERC20BurnFacet"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+Documentation for ERC20BurnFacet.
+
+[View Source](https://github.com/maxnorm/Compose/blob/bd92d896acdf08abd003a5846f267d6de9578ab5/src/token/ERC20/ERC20/ERC20BurnFacet.sol)
+
+<Callout type="info" title="Key Features">
+- Self-contained facet with no imports or inheritance
+- Only &#x60;external&#x60; and &#x60;internal&#x60; function visibility
+- Follows Compose readability-first conventions
+- Ready for diamond integration
+</Callout>
+
+## Structs
+
+### ERC20Storage
+
+```solidity
+struct ERC20Storage {
+    mapping(address owner &#x3D;&gt; uint256 balance) balanceOf;
+    uint256 totalSupply;
+    mapping(address owner &#x3D;&gt; mapping(address spender &#x3D;&gt; uint256 allowance)) allowance;
+}
+```
+
+## Storage
+
+### State Variables
+
+<PropertyTable
+  properties={[
+    {
+      name: "STORAGE_POSITION",
+      type: "constant",
+      description: ""
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Functions
+
+### getStorage
+
+Returns the ERC20 storage struct from the predefined diamond storage slot. Uses inline assembly to set the storage slot reference.
+
+```solidity
+function getStorage() internal pure returns (ERC20Storage storage s);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "s",
+      type: "ERC20Storage",
+      description: "The ERC20 storage struct reference."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### burn
+
+Burns (destroys) a specific amount of tokens from the caller&#x27;s balance. Emits a Transfer event to the zero address.
+
+```solidity
+function burn(uint256 _value) external;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_value",
+      type: "uint256",
+      description: "The amount of tokens to burn."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### burnFrom
+
+Burns tokens from another account, deducting from the caller&#x27;s allowance. Emits a Transfer event to the zero address.
+
+```solidity
+function burnFrom(address _account, uint256 _value) external;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_account",
+      type: "address",
+      description: "The address whose tokens will be burned."
+    },
+    {
+      name: "_value",
+      type: "uint256",
+      description: "The amount of tokens to burn."
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Events
+
+### Transfer
+
+Emitted when tokens are transferred between two addresses.
+
+```solidity
+event Transfer(address indexed _from, address indexed _to, uint256 _value);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_from",
+      type: "address",
+      description: "Address sending the tokens."
+    },
+    {
+      name: "_to",
+      type: "address",
+      description: "Address receiving the tokens."
+    },
+    {
+      name: "_value",
+      type: "uint256",
+      description: "Amount of tokens transferred."
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Errors
+
+### ERC20InsufficientBalance
+
+Thrown when an account has insufficient balance for a transfer or burn.
+
+```solidity
+error ERC20InsufficientBalance(address _sender, uint256 _balance, uint256 _needed);
+```
+
+### ERC20InsufficientAllowance
+
+Thrown when a spender tries to use more than the approved allowance.
+
+```solidity
+error ERC20InsufficientAllowance(address _spender, uint256 _allowance, uint256 _needed);
+```

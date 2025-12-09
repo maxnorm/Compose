@@ -1,0 +1,397 @@
+---
+sidebar_position: 99
+title: "AccessControlTemporalMod"
+description: "Event emitted when a role is granted with an expiry timestamp."
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+
+## Overview
+
+The AccessControlTemporalMod module facilitates role-based access control with time-bound permissions in diamond contracts. It ensures roles are granted with expiry timestamps and provides methods to validate, revoke, or query these temporal roles.
+
+[View Source](https://github.com/maxnorm/Compose/blob/bd92d896acdf08abd003a5846f267d6de9578ab5/src/access/AccessControlTemporal/AccessControlTemporalMod.sol)
+
+<Callout type="info" title="Key Features">
+- Time-bound role assignments with expiry timestamps\n- Validation and revocation of expired roles\n- Compatibility with diamond storage pattern for seamless integration
+</Callout>
+
+<Callout type="info" title="Module Usage">
+This module provides internal functions for use in your custom facets. Import it to access shared logic and storage.
+</Callout>
+
+## Structs
+
+### AccessControlStorage
+
+```solidity
+struct AccessControlStorage {
+mapping(address account &#x3D;&gt; mapping(bytes32 role &#x3D;&gt; bool hasRole)) hasRole;
+mapping(bytes32 role &#x3D;&gt; bytes32 adminRole) adminRole;
+}
+```
+
+### AccessControlTemporalStorage
+
+```solidity
+struct AccessControlTemporalStorage {
+mapping(address account &#x3D;&gt; mapping(bytes32 role &#x3D;&gt; uint256 expiryTimestamp)) roleExpiry;
+}
+```
+
+## Storage
+
+Storage position: &#x60;ACCESS_CONTROL_STORAGE_POSITION&#x60; - Used for diamond storage pattern.
+
+### State Variables
+
+<PropertyTable
+  properties={[
+    {
+      name: "ACCESS_CONTROL_STORAGE_POSITION",
+      type: "bytes32",
+      description: " (Value: `keccak256(&quot;compose.accesscontrol&quot;)`)"
+    },
+    {
+      name: "TEMPORAL_STORAGE_POSITION",
+      type: "bytes32",
+      description: " (Value: `keccak256(&quot;compose.accesscontrol.temporal&quot;)`)"
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Functions
+
+### getAccessControlStorage
+
+Returns the storage for AccessControl. **Returns**
+
+```solidity
+function getAccessControlStorage() pure returns (AccessControlStorage storage s);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "s",
+      type: "AccessControlStorage",
+      description: "The AccessControl storage struct."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### getRoleExpiry
+
+function to get the expiry timestamp for a role assignment. **Parameters** **Returns**
+
+```solidity
+function getRoleExpiry(bytes32 _role, address _account) view returns (uint256);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role to check."
+    },
+    {
+      name: "_account",
+      type: "address",
+      description: "The account to check."
+    }
+  ]}
+  showRequired={false}
+/>
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "uint256",
+      description: "The expiry timestamp, or 0 if no expiry is set."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### getStorage
+
+Returns the storage for AccessControlTemporal. **Returns**
+
+```solidity
+function getStorage() pure returns (AccessControlTemporalStorage storage s);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "s",
+      type: "AccessControlTemporalStorage",
+      description: "The AccessControlTemporal storage struct."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### grantRoleWithExpiry
+
+function to grant a role with an expiry timestamp. **Parameters** **Returns**
+
+```solidity
+function grantRoleWithExpiry(bytes32 _role, address _account, uint256 _expiresAt) returns (bool);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role to grant."
+    },
+    {
+      name: "_account",
+      type: "address",
+      description: "The account to grant the role to."
+    },
+    {
+      name: "_expiresAt",
+      type: "uint256",
+      description: "The timestamp when the role should expire."
+    }
+  ]}
+  showRequired={false}
+/>
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "bool",
+      description: "True if the role was granted, false otherwise."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### isRoleExpired
+
+function to check if a role assignment has expired. **Parameters** **Returns**
+
+```solidity
+function isRoleExpired(bytes32 _role, address _account) view returns (bool);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role to check."
+    },
+    {
+      name: "_account",
+      type: "address",
+      description: "The account to check."
+    }
+  ]}
+  showRequired={false}
+/>
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "bool",
+      description: "True if the role has expired or doesn\&#x27;t exist, false if still valid."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### requireValidRole
+
+function to check if an account has a valid (non-expired) role. **Notes:** - error: AccessControlUnauthorizedAccount If the account does not have the role. - error: AccessControlRoleExpired If the role has expired. **Parameters**
+
+```solidity
+function requireValidRole(bytes32 _role, address _account) view;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role to check."
+    },
+    {
+      name: "_account",
+      type: "address",
+      description: "The account to check the role for."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### revokeTemporalRole
+
+function to revoke a temporal role. **Parameters** **Returns**
+
+```solidity
+function revokeTemporalRole(bytes32 _role, address _account) returns (bool);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role to revoke."
+    },
+    {
+      name: "_account",
+      type: "address",
+      description: "The account to revoke the role from."
+    }
+  ]}
+  showRequired={false}
+/>
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "bool",
+      description: "True if the role was revoked, false otherwise."
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Events
+
+### RoleGrantedWithExpiry
+
+Event emitted when a role is granted with an expiry timestamp. **Parameters**
+
+```solidity
+event RoleGrantedWithExpiry(
+bytes32 indexed _role, address indexed _account, uint256 _expiresAt, address indexed _sender
+);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role that was granted."
+    },
+    {
+      name: "_account",
+      type: "address",
+      description: "The account that was granted the role."
+    },
+    {
+      name: "_expiresAt",
+      type: "uint256",
+      description: "The timestamp when the role expires."
+    },
+    {
+      name: "_sender",
+      type: "address",
+      description: "The account that granted the role."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### TemporalRoleRevoked
+
+Event emitted when a temporal role is revoked. **Parameters**
+
+```solidity
+event TemporalRoleRevoked(bytes32 indexed _role, address indexed _account, address indexed _sender);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role that was revoked."
+    },
+    {
+      name: "_account",
+      type: "address",
+      description: "The account from which the role was revoked."
+    },
+    {
+      name: "_sender",
+      type: "address",
+      description: "The account that revoked the role."
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Errors
+
+### AccessControlRoleExpired
+
+Thrown when a role has expired. **Parameters**
+
+```solidity
+error AccessControlRoleExpired(bytes32 _role, address _account);
+```
+
+### AccessControlUnauthorizedAccount
+
+Thrown when the account does not have a specific role. **Parameters**
+
+```solidity
+error AccessControlUnauthorizedAccount(address _account, bytes32 _role);
+```
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;
+
+import {AccessControlTemporalMod} from &quot;./AccessControlTemporalMod.sol&quot;;
+
+contract Example {
+    AccessControlTemporalMod private accessControl;
+
+    /**
+     * @notice Example constructor initializing the access control module.
+     */
+    constructor() {
+        accessControl &#x3D; new AccessControlTemporalMod();
+    }
+
+    function assignRole(address _account, bytes32 _role, uint256 _expiry) external {
+        accessControl.grantRoleWithExpiry(_role, _account, _expiry);
+    }
+
+    function checkRole(address _account, bytes32 _role) external view returns (bool) {
+        return !accessControl.isRoleExpired(_role, _account);
+    }
+}
+```
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Set an appropriate expiry duration for roles to minimize misuse after roles are no longer needed\n- Regularly check and revoke any expired roles using relevant methods\n- Handle errors like AccessControlUnauthorizedAccount and AccessControlRoleExpired gracefully
+</Callout>
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+This module uses the diamond storage pattern to manage access control data, ensuring that updates made through it are shared across all facets in the diamond contract. Changes in role assignments or expirations are instantly visible to other facets using the shared storage.
+</Callout>

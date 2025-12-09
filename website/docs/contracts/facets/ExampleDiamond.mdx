@@ -1,0 +1,67 @@
+---
+sidebar_position: 99
+title: "ExampleDiamond"
+description: "Contract documentation for ExampleDiamond"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+
+<DocHero
+  title="ExampleDiamond"
+  subtitle="Contract documentation for ExampleDiamond"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+Documentation for ExampleDiamond.
+
+[View Source](https://github.com/maxnorm/Compose/blob/bd92d896acdf08abd003a5846f267d6de9578ab5/src/diamond/example/ExampleDiamond.sol)
+
+<Callout type="info" title="Key Features">
+- Self-contained facet with no imports or inheritance
+- Only &#x60;external&#x60; and &#x60;internal&#x60; function visibility
+- Follows Compose readability-first conventions
+- Ready for diamond integration
+</Callout>
+
+## Functions
+
+### constructor
+
+Struct to hold facet address and its function selectors. struct FacetCut &amp;#123; address facetAddress; FacetCutAction action; // Add&#x3D;0, Replace&#x3D;1, Remove&#x3D;2 bytes4[] functionSelectors; &amp;#125; Initializes the diamond contract with facets, owner and other data. Adds all provided facets to the diamond&#x27;s function selector mapping and sets the contract owner. Each facet in the array will have its function selectors registered to enable delegatecall routing.
+
+```solidity
+constructor(DiamondMod.FacetCut[] memory _facets, address _diamondOwner) ;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_facets",
+      type: "DiamondMod.FacetCut[]",
+      description: "Array of facet addresses and their corresponding function selectors to add to the diamond."
+    },
+    {
+      name: "_diamondOwner",
+      type: "address",
+      description: "Address that will be set as the owner of the diamond contract."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### fallback
+
+```solidity
+fallback() external payable;
+```
+
+### receive
+
+```solidity
+receive() external payable;
+```

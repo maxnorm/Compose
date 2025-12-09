@@ -1,0 +1,135 @@
+---
+sidebar_position: 99
+title: "RoyaltyFacet"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+
+<DocHero
+  title="RoyaltyFacet"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+**Title:**
+
+Royalty Facet - ERC-2981 NFT Royalty Standard Implementation
+
+[View Source](https://github.com/maxnorm/Compose/blob/bd92d896acdf08abd003a5846f267d6de9578ab5/src/token/Royalty/RoyaltyFacet.sol)
+
+<Callout type="info" title="Key Features">
+- Self-contained facet with no imports or inheritance
+- Only &#x60;external&#x60; and &#x60;internal&#x60; function visibility
+- Follows Compose readability-first conventions
+- Ready for diamond integration
+</Callout>
+
+## Structs
+
+### RoyaltyInfo
+
+```solidity
+struct RoyaltyInfo {
+    address receiver;
+    uint96 royaltyFraction;
+}
+```
+
+### RoyaltyStorage
+
+```solidity
+struct RoyaltyStorage {
+    RoyaltyInfo defaultRoyaltyInfo;
+    mapping(uint256 tokenId &#x3D;&gt; RoyaltyInfo) tokenRoyaltyInfo;
+}
+```
+
+## Storage
+
+### State Variables
+
+<PropertyTable
+  properties={[
+    {
+      name: "STORAGE_POSITION",
+      type: "constant",
+      description: ""
+    },
+    {
+      name: "FEE_DENOMINATOR",
+      type: "constant",
+      description: ""
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Functions
+
+### getStorage
+
+Returns a pointer to the royalty storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+
+```solidity
+function getStorage() internal pure returns (RoyaltyStorage storage s);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "s",
+      type: "RoyaltyStorage",
+      description: "The RoyaltyStorage struct in storage."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### royaltyInfo
+
+Returns royalty information for a given token and sale price. Returns token-specific royalty if set, otherwise falls back to default royalty. Royalty amount is calculated as a percentage of the sale price using basis points. Implements the ERC-2981 royaltyInfo function.
+
+```solidity
+function royaltyInfo(uint256 _tokenId, uint256 _salePrice)
+    external
+    view
+    returns (address receiver, uint256 royaltyAmount);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_tokenId",
+      type: "uint256",
+      description: "The NFT asset queried for royalty information."
+    },
+    {
+      name: "_salePrice",
+      type: "uint256",
+      description: "The sale price of the NFT asset specified by _tokenId."
+    }
+  ]}
+  showRequired={false}
+/>
+
+<PropertyTable
+  properties={[
+    {
+      name: "receiver",
+      type: "address",
+      description: "The address designated to receive the royalty payment."
+    },
+    {
+      name: "royaltyAmount",
+      type: "uint256",
+      description: "The royalty payment amount for _salePrice."
+    }
+  ]}
+  showRequired={false}
+/>

@@ -1,0 +1,151 @@
+---
+sidebar_position: 99
+title: "ERC721EnumerableBurnFacet"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+
+<DocHero
+  title="ERC721EnumerableBurnFacet"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+## Overview
+
+**Title:**
+
+ERC-721 Enumerable Burn Facet
+
+[View Source](https://github.com/maxnorm/Compose/blob/bd92d896acdf08abd003a5846f267d6de9578ab5/src/token/ERC721/ERC721Enumerable/ERC721EnumerableBurnFacet.sol)
+
+<Callout type="info" title="Key Features">
+- Self-contained facet with no imports or inheritance
+- Only &#x60;external&#x60; and &#x60;internal&#x60; function visibility
+- Follows Compose readability-first conventions
+- Ready for diamond integration
+</Callout>
+
+## Structs
+
+### ERC721EnumerableStorage
+
+```solidity
+struct ERC721EnumerableStorage {
+    mapping(uint256 tokenId &#x3D;&gt; address owner) ownerOf;
+    mapping(address owner &#x3D;&gt; uint256[] ownerTokens) ownerTokens;
+    mapping(uint256 tokenId &#x3D;&gt; uint256 ownerTokensIndex) ownerTokensIndex;
+    uint256[] allTokens;
+    mapping(uint256 tokenId &#x3D;&gt; uint256 allTokensIndex) allTokensIndex;
+    mapping(address owner &#x3D;&gt; mapping(address operator &#x3D;&gt; bool approved)) isApprovedForAll;
+    mapping(uint256 tokenId &#x3D;&gt; address approved) approved;
+}
+```
+
+## Storage
+
+### State Variables
+
+<PropertyTable
+  properties={[
+    {
+      name: "STORAGE_POSITION",
+      type: "constant",
+      description: ""
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Functions
+
+### getStorage
+
+Returns the storage struct used by this facet.
+
+```solidity
+function getStorage() internal pure returns (ERC721EnumerableStorage storage s);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "s",
+      type: "ERC721EnumerableStorage",
+      description: "The ERC721Enumerable storage struct."
+    }
+  ]}
+  showRequired={false}
+/>
+
+### burn
+
+Burns (destroys) a token, removing it from enumeration tracking.
+
+```solidity
+function burn(uint256 _tokenId) external;
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_tokenId",
+      type: "uint256",
+      description: "The ID of the token to burn."
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Events
+
+### Transfer
+
+Emitted when ownership of a token changes, including burning.
+
+```solidity
+event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId);
+```
+
+<PropertyTable
+  properties={[
+    {
+      name: "_from",
+      type: "address",
+      description: "The address transferring the token (or owner when burning)."
+    },
+    {
+      name: "_to",
+      type: "address",
+      description: "The address receiving the token (zero address when burning)."
+    },
+    {
+      name: "_tokenId",
+      type: "uint256",
+      description: "The ID of the token being transferred."
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Errors
+
+### ERC721NonexistentToken
+
+Thrown when attempting to interact with a non-existent token.
+
+```solidity
+error ERC721NonexistentToken(uint256 _tokenId);
+```
+
+### ERC721InsufficientApproval
+
+Thrown when the caller lacks approval to operate on the token.
+
+```solidity
+error ERC721InsufficientApproval(address _operator, uint256 _tokenId);
+```
