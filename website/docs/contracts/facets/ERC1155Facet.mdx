@@ -1,0 +1,543 @@
+---
+sidebar_position: 99
+title: "ERC1155Facet"
+description: "**Title:**"
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+
+<DocHero
+  title="ERC1155Facet"
+  subtitle="**Title:**"
+  variant="gradient"
+  height="small"
+/>
+
+
+## Overview
+
+**Title:**
+
+ERC-1155 Multi Token Standard
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/eabc77b81e461d751a5a8e003c3a9c2e818b9d3c/src/token/ERC1155/ERC1155Facet.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Self-contained facet with no imports or inheritance
+- Only `external` and `internal` function visibility
+- Follows Compose readability-first conventions
+- Ready for diamond integration
+</Callout>
+
+
+
+
+## Functions
+
+
+### getStorage
+
+
+Returns the ERC-1155 storage struct from the predefined diamond storage slot. Uses inline assembly to set the storage slot reference.
+
+
+
+```solidity
+function getStorage() internal pure returns (ERC1155Storage storage s);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `s` | `ERC1155Storage` | The ERC-1155 storage struct reference. |
+
+
+
+
+### uri
+
+
+Returns the URI for token type `_id`. If a token-specific URI is set in tokenURIs[_id], returns the concatenation of baseURI and tokenURIs[_id]. Note that baseURI is empty by default and must be set explicitly if concatenation is desired. If no token-specific URI is set, returns the default URI which applies to all token types. The default URI may contain the substring `&#123;id&#125;` which clients should replace with the actual token ID.
+
+
+
+```solidity
+function uri(uint256 _id) external view returns (string memory);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_id` | `uint256` | The token ID to query. |
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `-` | `string` | The URI for the token type. |
+
+
+
+
+### balanceOf
+
+
+Returns the amount of tokens of token type `id` owned by `account`.
+
+
+
+```solidity
+function balanceOf(address _account, uint256 _id) external view returns (uint256);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_account` | `address` | The address to query the balance of. |
+
+| `_id` | `uint256` | The token type to query. |
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `-` | `uint256` | The balance of the token type. |
+
+
+
+
+### balanceOfBatch
+
+
+Batched version of balanceOf.
+
+
+
+```solidity
+function balanceOfBatch(address[] calldata _accounts, uint256[] calldata _ids)
+    external
+    view
+    returns (uint256[] memory balances);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_accounts` | `address[]` | The addresses to query the balances of. |
+
+| `_ids` | `uint256[]` | The token types to query. |
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `balances` | `uint256[]` | The balances of the token types. |
+
+
+
+
+### setApprovalForAll
+
+
+Grants or revokes permission to `operator` to transfer the caller's tokens. Emits an ApprovalForAll event.
+
+
+
+```solidity
+function setApprovalForAll(address _operator, bool _approved) external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_operator` | `address` | The address to grant/revoke approval to. |
+
+| `_approved` | `bool` | True to approve, false to revoke. |
+
+
+
+
+
+### isApprovedForAll
+
+
+Returns true if `operator` is approved to transfer `account`'s tokens.
+
+
+
+```solidity
+function isApprovedForAll(address _account, address _operator) external view returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_account` | `address` | The token owner. |
+
+| `_operator` | `address` | The operator to query. |
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `-` | `bool` | True if the operator is approved, false otherwise. |
+
+
+
+
+### safeTransferFrom
+
+
+Transfers `value` amount of token type `id` from `from` to `to`. Emits a TransferSingle event.
+
+
+
+```solidity
+function safeTransferFrom(address _from, address _to, uint256 _id, uint256 _value, bytes calldata _data) external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_from` | `address` | The address to transfer from. |
+
+| `_to` | `address` | The address to transfer to. |
+
+| `_id` | `uint256` | The token type to transfer. |
+
+| `_value` | `uint256` | The amount to transfer. |
+
+| `_data` | `bytes` | Additional data with no specified format. |
+
+
+
+
+
+### safeBatchTransferFrom
+
+
+Batched version of safeTransferFrom. Emits a TransferBatch event.
+
+
+
+```solidity
+function safeBatchTransferFrom(
+    address _from,
+    address _to,
+    uint256[] calldata _ids,
+    uint256[] calldata _values,
+    bytes calldata _data
+) external;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_from` | `address` | The address to transfer from. |
+
+| `_to` | `address` | The address to transfer to. |
+
+| `_ids` | `uint256[]` | The token types to transfer. |
+
+| `_values` | `uint256[]` | The amounts to transfer. |
+
+| `_data` | `bytes` | Additional data with no specified format. |
+
+
+
+
+
+
+
+## Events
+
+
+### TransferSingle
+
+
+Emitted when `value` amount of tokens of type `id` are transferred from `from` to `to` by `operator`.
+
+
+
+```solidity
+event TransferSingle(
+    address indexed _operator, address indexed _from, address indexed _to, uint256 _id, uint256 _value
+);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `_operator` | `address` | The address which initiated the transfer. |
+
+| `_from` | `address` | The address which previously owned the token. |
+
+| `_to` | `address` | The address which now owns the token. |
+
+| `_id` | `uint256` | The token type being transferred. |
+
+| `_value` | `uint256` | The amount of tokens transferred. |
+
+
+
+
+### TransferBatch
+
+
+Equivalent to multiple TransferSingle events, where `operator`, `from` and `to` are the same for all transfers.
+
+
+
+```solidity
+event TransferBatch(
+    address indexed _operator, address indexed _from, address indexed _to, uint256[] _ids, uint256[] _values
+);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `_operator` | `address` | The address which initiated the batch transfer. |
+
+| `_from` | `address` | The address which previously owned the tokens. |
+
+| `_to` | `address` | The address which now owns the tokens. |
+
+| `_ids` | `uint256[]` | The token types being transferred. |
+
+| `_values` | `uint256[]` | The amounts of tokens transferred. |
+
+
+
+
+### ApprovalForAll
+
+
+Emitted when `account` grants or revokes permission to `operator` to transfer their tokens.
+
+
+
+```solidity
+event ApprovalForAll(address indexed _account, address indexed _operator, bool _approved);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `_account` | `address` | The token owner granting/revoking approval. |
+
+| `_operator` | `address` | The address being approved/revoked. |
+
+| `_approved` | `bool` | True if approval is granted, false if revoked. |
+
+
+
+
+### URI
+
+
+Emitted when the URI for token type `id` changes to `value`.
+
+
+
+```solidity
+event URI(string _value, uint256 indexed _id);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `_value` | `string` | The new URI for the token type. |
+
+| `_id` | `uint256` | The token type whose URI changed. |
+
+
+
+
+
+
+## Errors
+
+
+### ERC1155InsufficientBalance
+
+
+Error indicating insufficient balance for a transfer.
+
+
+
+```solidity
+error ERC1155InsufficientBalance(address _sender, uint256 _balance, uint256 _needed, uint256 _tokenId);
+```
+
+
+
+### ERC1155InvalidSender
+
+
+Error indicating the sender address is invalid.
+
+
+
+```solidity
+error ERC1155InvalidSender(address _sender);
+```
+
+
+
+### ERC1155InvalidReceiver
+
+
+Error indicating the receiver address is invalid.
+
+
+
+```solidity
+error ERC1155InvalidReceiver(address _receiver);
+```
+
+
+
+### ERC1155MissingApprovalForAll
+
+
+Error indicating missing approval for an operator.
+
+
+
+```solidity
+error ERC1155MissingApprovalForAll(address _operator, address _owner);
+```
+
+
+
+### ERC1155InvalidApprover
+
+
+Error indicating the approver address is invalid.
+
+
+
+```solidity
+error ERC1155InvalidApprover(address _approver);
+```
+
+
+
+### ERC1155InvalidOperator
+
+
+Error indicating the operator address is invalid.
+
+
+
+```solidity
+error ERC1155InvalidOperator(address _operator);
+```
+
+
+
+### ERC1155InvalidArrayLength
+
+
+Error indicating array length mismatch in batch operations.
+
+
+
+```solidity
+error ERC1155InvalidArrayLength(uint256 _idsLength, uint256 _valuesLength);
+```
+
+
+
+
+
+## Structs
+
+
+### ERC1155Storage
+
+
+
+```solidity
+struct ERC1155Storage {
+    mapping(uint256 id =&gt; mapping(address account =&gt; uint256 balance)) balanceOf;
+    mapping(address account =&gt; mapping(address operator =&gt; bool)) isApprovedForAll;
+    string uri;
+    string baseURI;
+    mapping(uint256 tokenId =&gt; string) tokenURIs;
+}
+```
+
+
+
+
+
+
+
+
+
+
+

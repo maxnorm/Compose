@@ -1,0 +1,313 @@
+---
+sidebar_position: 99
+title: "OwnerTwoStepsMod"
+description: "ERC-173 Two-Step Contract Ownership Library - Provides two-step ownership transfer logic for facets or modular contracts."
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+
+## Overview
+
+ERC-173 Two-Step Contract Ownership Library - Provides two-step ownership transfer logic for facets or modular contracts.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/eabc77b81e461d751a5a8e003c3a9c2e818b9d3c/src/access/OwnerTwoSteps/OwnerTwoStepsMod.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- All functions are `internal` for use in custom facets
+- Follows diamond storage pattern (EIP-8042)
+- Compatible with ERC-2535 diamonds
+- No external dependencies or `using` directives
+</Callout>
+
+
+
+<Callout type="info" title="Module Usage">
+This module provides internal functions for use in your custom facets. Import it to access shared logic and storage.
+</Callout>
+
+
+## Storage
+
+
+Storage position: `OWNER_STORAGE_POSITION` - Used for diamond storage pattern.
+
+
+
+### State Variables
+
+
+#### OWNER_STORAGE_POSITION
+
+
+
+#### PENDING_OWNER_STORAGE_POSITION
+
+
+
+
+
+
+
+## Functions
+
+
+### acceptOwnership
+
+
+Finalizes ownership transfer; must be called by the pending owner.
+
+
+
+```solidity
+function acceptOwnership() ;
+```
+
+
+
+
+
+### getOwnerStorage
+
+
+Returns a pointer to the Owner storage struct. Uses inline assembly to access the storage slot defined by OWNER_STORAGE_POSITION. **Returns**
+
+
+
+```solidity
+function getOwnerStorage() pure returns (OwnerStorage storage s);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `s` | `OwnerStorage` | The OwnerStorage struct in storage. |
+
+
+
+
+### getPendingOwnerStorage
+
+
+Returns a pointer to the PendingOwner storage struct. Uses inline assembly to access the storage slot defined by PENDING_OWNER_STORAGE_POSITION. **Returns**
+
+
+
+```solidity
+function getPendingOwnerStorage() pure returns (PendingOwnerStorage storage s);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `s` | `PendingOwnerStorage` | The PendingOwnerStorage struct in storage. |
+
+
+
+
+### owner
+
+
+Returns the current owner.
+
+
+
+```solidity
+function owner() view returns (address);
+```
+
+
+
+
+
+### pendingOwner
+
+
+Returns the pending owner (if any).
+
+
+
+```solidity
+function pendingOwner() view returns (address);
+```
+
+
+
+
+
+### renounceOwnership
+
+
+Renounce ownership of the contract Sets the owner to address(0), disabling all functions restricted to the owner.
+
+
+
+```solidity
+function renounceOwnership() ;
+```
+
+
+
+
+
+### requireOwner
+
+
+Reverts if the caller is not the owner.
+
+
+
+```solidity
+function requireOwner() view;
+```
+
+
+
+
+
+### transferOwnership
+
+
+Initiates a two-step ownership transfer. **Parameters**
+
+
+
+```solidity
+function transferOwnership(address _newOwner) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_newOwner` | `address` | The address of the new owner of the contract |
+
+
+
+
+
+
+
+## Events
+
+
+### OwnershipTransferStarted
+
+
+Emitted when ownership transfer is initiated (pending owner set).
+
+
+
+```solidity
+event OwnershipTransferStarted(address indexed _previousOwner, address indexed _newOwner);
+```
+
+
+
+
+### OwnershipTransferred
+
+
+Emitted when ownership transfer is finalized.
+
+
+
+```solidity
+event OwnershipTransferred(address indexed _previousOwner, address indexed _newOwner);
+```
+
+
+
+
+
+
+## Errors
+
+
+### OwnerAlreadyRenounced
+
+
+
+```solidity
+error OwnerAlreadyRenounced();
+```
+
+
+
+### OwnerUnauthorizedAccount
+
+
+
+```solidity
+error OwnerUnauthorizedAccount();
+```
+
+
+
+
+
+## Structs
+
+
+### OwnerStorage
+
+
+**Note:** storage-location: erc8042:compose.owner
+
+
+
+```solidity
+struct OwnerStorage {
+address owner;
+}
+```
+
+
+
+### PendingOwnerStorage
+
+
+**Note:** storage-location: erc8042:compose.owner.pending
+
+
+
+```solidity
+struct PendingOwnerStorage {
+address pendingOwner;
+}
+```
+
+
+
+
+
+
+
+
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+This module accesses shared diamond storage, so changes made through this module are immediately visible to facets using the same storage pattern. All functions are internal as per Compose conventions.
+</Callout>
+
+
+
+

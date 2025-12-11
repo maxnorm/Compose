@@ -1,0 +1,383 @@
+---
+sidebar_position: 99
+title: "ERC20Mod"
+description: "LibERC20 — ERC-20 Library - Thrown when a sender attempts to transfer or burn more tokens than their balance."
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+
+## Overview
+
+This ERC20Mod module provides foundational ERC-20 token functionalities for diamond contracts, including minting, burning, transferring, and managing allowances. It adheres to the diamond storage pattern, ensuring seamless integration and state consistency across facets.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/eabc77b81e461d751a5a8e003c3a9c2e818b9d3c/src/token/ERC20/ERC20/ERC20Mod.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Seamless minting, burning, transferring, and allowance management\n- Compatibility with the diamond standard and reusable across multiple facets\n- Storage integrity ensured via the diamond storage pattern
+</Callout>
+
+
+
+<Callout type="info" title="Module Usage">
+This module provides internal functions for use in your custom facets. Import it to access shared logic and storage.
+</Callout>
+
+
+## Storage
+
+
+Storage position: `STORAGE_POSITION` - Used for diamond storage pattern.
+
+
+
+### State Variables
+
+
+#### STORAGE_POSITION
+
+
+
+
+
+
+
+## Functions
+
+
+### approve
+
+
+Approves a spender to transfer tokens on behalf of the caller. Sets the allowance for the spender. **Parameters**
+
+
+
+```solidity
+function approve(address _spender, uint256 _value) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_spender` | `address` | The address to approve for spending. |
+
+| `_value` | `uint256` | The amount of tokens to approve. |
+
+
+
+
+
+### burn
+
+
+Burns tokens from a specified address. Decreases both total supply and the sender's balance. **Parameters**
+
+
+
+```solidity
+function burn(address _account, uint256 _value) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_account` | `address` | The address whose tokens will be burned. |
+
+| `_value` | `uint256` | The number of tokens to burn. |
+
+
+
+
+
+### getStorage
+
+
+Returns a pointer to the ERC-20 storage struct. Uses inline assembly to bind the storage struct to the fixed storage position. **Returns**
+
+
+
+```solidity
+function getStorage() pure returns (ERC20Storage storage s);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `s` | `ERC20Storage` | The ERC-20 storage struct. |
+
+
+
+
+### mint
+
+
+Mints new tokens to a specified address. Increases both total supply and the recipient's balance. **Parameters**
+
+
+
+```solidity
+function mint(address _account, uint256 _value) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_account` | `address` | The address receiving the newly minted tokens. |
+
+| `_value` | `uint256` | The number of tokens to mint. |
+
+
+
+
+
+### transfer
+
+
+Transfers tokens from the caller to another address. Updates balances directly without allowance mechanism. **Parameters**
+
+
+
+```solidity
+function transfer(address _to, uint256 _value) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_to` | `address` | The address to send tokens to. |
+
+| `_value` | `uint256` | The number of tokens to transfer. |
+
+
+
+
+
+### transferFrom
+
+
+Transfers tokens from one address to another using an allowance. Deducts the spender's allowance and updates balances. **Parameters**
+
+
+
+```solidity
+function transferFrom(address _from, address _to, uint256 _value) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_from` | `address` | The address to send tokens from. |
+
+| `_to` | `address` | The address to send tokens to. |
+
+| `_value` | `uint256` | The number of tokens to transfer. |
+
+
+
+
+
+
+
+## Events
+
+
+### Approval
+
+
+Emitted when an approval is made for a spender by an owner. **Parameters**
+
+
+
+```solidity
+event Approval(address indexed _owner, address indexed _spender, uint256 _value);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `_owner` | `address` | The address granting the allowance. |
+
+| `_spender` | `address` | The address receiving the allowance. |
+
+| `_value` | `uint256` | The amount approved. |
+
+
+
+
+### Transfer
+
+
+Emitted when tokens are transferred between addresses. **Parameters**
+
+
+
+```solidity
+event Transfer(address indexed _from, address indexed _to, uint256 _value);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `_from` | `address` | The address tokens are transferred from. |
+
+| `_to` | `address` | The address tokens are transferred to. |
+
+| `_value` | `uint256` | The amount of tokens transferred. |
+
+
+
+
+
+
+## Errors
+
+
+### ERC20InsufficientAllowance
+
+
+Thrown when a spender tries to spend more than their allowance. **Parameters**
+
+
+
+```solidity
+error ERC20InsufficientAllowance(address _spender, uint256 _allowance, uint256 _needed);
+```
+
+
+
+### ERC20InsufficientBalance
+
+
+Thrown when a sender attempts to transfer or burn more tokens than their balance. **Parameters**
+
+
+
+```solidity
+error ERC20InsufficientBalance(address _sender, uint256 _balance, uint256 _needed);
+```
+
+
+
+### ERC20InvalidReceiver
+
+
+Thrown when the receiver address is invalid (e.g., zero address). **Parameters**
+
+
+
+```solidity
+error ERC20InvalidReceiver(address _receiver);
+```
+
+
+
+### ERC20InvalidSender
+
+
+Thrown when the sender address is invalid (e.g., zero address). **Parameters**
+
+
+
+```solidity
+error ERC20InvalidSender(address _sender);
+```
+
+
+
+### ERC20InvalidSpender
+
+
+Thrown when the spender address is invalid (e.g., zero address). **Parameters**
+
+
+
+```solidity
+error ERC20InvalidSpender(address _spender);
+```
+
+
+
+
+
+## Structs
+
+
+### ERC20Storage
+
+
+
+```solidity
+struct ERC20Storage {
+mapping(address owner =&gt; uint256 balance) balanceOf;
+uint256 totalSupply;
+mapping(address owner =&gt; mapping(address spender =&gt; uint256 allowance)) allowance;
+uint8 decimals;
+string name;
+string symbol;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;\n\nimport { ERC20Mod } from &#39;./ERC20Mod.sol&#39;;\n\ncontract TokenFacet {\n    function exampleMint(address _to, uint256 _amount) external {\n        ERC20Mod.mint(_to, _amount);\n    }\n\n    function exampleTransfer(address _to, uint256 _amount) external {\n        ERC20Mod.transfer(_to, _amount);\n    }\n\n    function exampleApprove(address _spender, uint256 _amount) external {\n        ERC20Mod.approve(_spender, _amount);\n    }\n}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Always ensure to call `getStorage` first to interact with the shared ERC-20 state within diamond facets.\n- Minimize external dependencies within your ERC-20 related facets to maintain modularity and readability.\n- Enforce access controls on mint and burn operations if required to prevent unintended actions.
+</Callout>
+
+
+
+
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+This module uses the diamond storage pattern, which ensures that all state changes are reflected consistently and are immediately visible to other facets. By leveraging `getStorage`, all ERC-20 related operations interact with a shared and centralized storage slot, preserving data integrity and enabling modular composability.
+</Callout>
+
+
+
+

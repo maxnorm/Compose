@@ -1,0 +1,351 @@
+---
+sidebar_position: 99
+title: "AccessControlPausableMod"
+description: "Event emitted when a role is paused."
+---
+
+import DocHero from '@site/src/components/docs/DocHero';
+import Callout from '@site/src/components/ui/Callout';
+
+
+## Overview
+
+The AccessControlPausableMod facet introduces role-based access control with an added capability to pause or unpause roles. It enhances the security and flexibility of diamond contracts by allowing temporary suspension of permissions associated with specific roles.
+
+
+[View Source](https://github.com/maxnorm/Compose/blob/eabc77b81e461d751a5a8e003c3a9c2e818b9d3c/src/access/AccessControlPausable/AccessControlPausableMod.sol)
+
+
+
+<Callout type="info" title="Key Features">
+- Allows roles to be paused or unpaused.\n- Supports role status checking.\n- Seamless integration with diamond storage-based access control.
+</Callout>
+
+
+
+<Callout type="info" title="Module Usage">
+This module provides internal functions for use in your custom facets. Import it to access shared logic and storage.
+</Callout>
+
+
+## Storage
+
+
+Storage position: `ACCESS_CONTROL_STORAGE_POSITION` - Used for diamond storage pattern.
+
+
+
+### State Variables
+
+
+#### ACCESS_CONTROL_STORAGE_POSITION
+
+
+
+#### PAUSABLE_STORAGE_POSITION
+
+
+
+
+
+
+
+## Functions
+
+
+### getAccessControlStorage
+
+
+Returns the storage for AccessControl. **Returns**
+
+
+
+```solidity
+function getAccessControlStorage() pure returns (AccessControlStorage storage s);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `s` | `AccessControlStorage` | The AccessControl storage struct. |
+
+
+
+
+### getStorage
+
+
+Returns the storage for AccessControlPausable. **Returns**
+
+
+
+```solidity
+function getStorage() pure returns (AccessControlPausableStorage storage s);
+```
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `s` | `AccessControlPausableStorage` | The AccessControlPausable storage struct. |
+
+
+
+
+### isRolePaused
+
+
+function to check if a role is paused. **Parameters** **Returns**
+
+
+
+```solidity
+function isRolePaused(bytes32 _role) view returns (bool);
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_role` | `bytes32` | The role to check. |
+
+
+
+
+**Returns**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `-` | `bool` | True if the role is paused, false otherwise. |
+
+
+
+
+### pauseRole
+
+
+function to pause a role. **Parameters**
+
+
+
+```solidity
+function pauseRole(bytes32 _role) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_role` | `bytes32` | The role to pause. |
+
+
+
+
+
+### requireRoleNotPaused
+
+
+function to check if an account has a role and if the role is not paused. **Notes:** - error: AccessControlUnauthorizedAccount If the account does not have the role. - error: AccessControlRolePaused If the role is paused. **Parameters**
+
+
+
+```solidity
+function requireRoleNotPaused(bytes32 _role, address _account) view;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_role` | `bytes32` | The role to check. |
+
+| `_account` | `address` | The account to check the role for. |
+
+
+
+
+
+### unpauseRole
+
+
+function to unpause a role. **Parameters**
+
+
+
+```solidity
+function unpauseRole(bytes32 _role) ;
+```
+
+
+
+**Parameters**
+
+| Name | Type | Description |
+|------|------|-------------|
+
+| `_role` | `bytes32` | The role to unpause. |
+
+
+
+
+
+
+
+## Events
+
+
+### RolePaused
+
+
+Event emitted when a role is paused. **Parameters**
+
+
+
+```solidity
+event RolePaused(bytes32 indexed _role, address indexed _account);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `_role` | `bytes32` | The role that was paused. |
+
+| `_account` | `address` | The account that paused the role. |
+
+
+
+
+### RoleUnpaused
+
+
+Event emitted when a role is unpaused. **Parameters**
+
+
+
+```solidity
+event RoleUnpaused(bytes32 indexed _role, address indexed _account);
+```
+
+
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+
+| `_role` | `bytes32` | The role that was unpaused. |
+
+| `_account` | `address` | The account that unpaused the role. |
+
+
+
+
+
+
+## Errors
+
+
+### AccessControlRolePaused
+
+
+Thrown when a role is paused and an operation requiring that role is attempted. **Parameters**
+
+
+
+```solidity
+error AccessControlRolePaused(bytes32 _role);
+```
+
+
+
+### AccessControlUnauthorizedAccount
+
+
+Thrown when the account does not have a specific role. **Parameters**
+
+
+
+```solidity
+error AccessControlUnauthorizedAccount(address _account, bytes32 _role);
+```
+
+
+
+
+
+## Structs
+
+
+### AccessControlPausableStorage
+
+
+
+```solidity
+struct AccessControlPausableStorage {
+mapping(bytes32 role =&gt; bool paused) pausedRoles;
+}
+```
+
+
+
+### AccessControlStorage
+
+
+
+```solidity
+struct AccessControlStorage {
+mapping(address account =&gt; mapping(bytes32 role =&gt; bool hasRole)) hasRole;
+mapping(bytes32 role =&gt; bytes32 adminRole) adminRole;
+}
+```
+
+
+
+
+
+## Usage Example
+
+```solidity
+pragma solidity ^0.8.0;\n\ninterface IAccessControlPausableMod {\n    function pauseRole(bytes32 _role) external;\n    function unpauseRole(bytes32 _role) external;\n    function isRolePaused(bytes32 _role) external view returns (bool);\n}\n\ncontract ExampleUsage {\n    IAccessControlPausableMod accessControl;\n\n    constructor(address _facetAddress) {\n        accessControl = IAccessControlPausableMod(_facetAddress);\n    }\n\n    function toggleRole(bytes32 _role, bool _pause) external {\n        if (_pause) {\n            accessControl.pauseRole(_role);\n        } else {\n            accessControl.unpauseRole(_role);\n        }\n    }\n\n    function checkRoleStatus(bytes32 _role) external view returns (bool) {\n        return accessControl.isRolePaused(_role);\n    }\n}
+```
+
+
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Ensure meaningful role identifiers to maintain clarity during role management.\n- Avoid pausing essential roles required for core operations unless absolutely necessary.\n- Regularly audit paused roles to maintain operational continuity.
+</Callout>
+
+
+
+
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+This module leverages the diamond storage pattern to store access control and pausable role states. Changes made through this module are directly reflected in the shared diamond proxy storage, making them accessible across all integrated facets. Ensure proper role management to maintain system integrity.
+</Callout>
+
+
+
+
