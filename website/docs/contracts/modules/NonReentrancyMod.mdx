@@ -1,0 +1,135 @@
+---
+sidebar_position: 99
+title: "NonReentrancyMod"
+description: "LibNonReentrancy - Non-Reentrancy Library - Provides common non-reentrant functions for Solidity contracts."
+gitSource: "https://github.com/maxnorm/Compose/blob/117a9e586e335bd5662e5aba533c315582d9ef9b/src/libraries/NonReentrancyMod.sol"
+---
+
+import DocSubtitle  from '@site/src/components/docs/DocSubtitle';
+import Badge from '@site/src/components/ui/Badge';
+import Callout from '@site/src/components/ui/Callout';
+import CalloutBox from '@site/src/components/ui/CalloutBox';
+import Accordion, { AccordionGroup } from '@site/src/components/ui/Accordion';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+import ExpandableCode from '@site/src/components/code/ExpandableCode';
+import CodeShowcase from '@site/src/components/code/CodeShowcase';
+import RelatedDocs from '@site/src/components/docs/RelatedDocs';
+import WasThisHelpful from '@site/src/components/docs/WasThisHelpful';
+import LastUpdated from '@site/src/components/docs/LastUpdated';
+import ReadingTime from '@site/src/components/docs/ReadingTime';
+import GradientText from '@site/src/components/ui/GradientText';
+import GradientButton from '@site/src/components/ui/GradientButton';
+
+<DocSubtitle>
+LibNonReentrancy - Non-Reentrancy Library - Provides common non-reentrant functions for Solidity contracts.
+</DocSubtitle>
+
+<Callout type="info" title="Key Features">
+- Simple and reusable library for non-reentrancy protection.
+- Lightweight and gas-efficient approach compared to higher-level mechanisms.
+- Composable with any diamond facet to enhance security practices.
+</Callout>
+
+<Callout type="info" title="Module Usage">
+This module provides internal functions for use in your custom facets. Import it to access shared logic and storage.
+</Callout>
+
+## Overview
+
+The NonReentrancyMod module provides reusable non-reentrancy protections for Compose diamonds. It simplifies integration of entry and exit checks to prevent reentrant calls during sensitive operations, enhancing contract safety and reliability.
+
+---
+
+## Storage
+
+---
+### State Variables
+
+<PropertyTable
+  properties={[
+    {
+      name: "NON_REENTRANT_SLOT",
+      type: "bytes32",
+      description: " (Value: `keccak256(&quot;compose.nonreentrant&quot;)`)"
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Functions
+
+### enter
+
+How to use as a library in user facets How to use as a modifier in user facets This unlocks the entry into a function
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function enter() ;`}
+</ExpandableCode>
+
+---
+### exit
+
+This locks the entry into a function
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function exit() ;`}
+</ExpandableCode>
+
+## Errors
+
+<AccordionGroup>
+  <Accordion title="Reentrancy" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Function selector - 0x43a0d067
+    </div>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error Reentrancy();
+      </ExpandableCode>
+    </div>
+  </Accordion>
+</AccordionGroup>
+
+## Usage Example
+
+<ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
+{`pragma solidity ^0.8.30;
+
+// ExampleFacet.sol
+import "./NonReentrancyMod.sol";
+
+contract ExampleFacet {
+    /**
+     * @dev Example of protecting a function using non-reentrancy module.
+     */
+    function securedFunction() external {
+        NonReentrancyMod.enter();
+
+        // Function logic here
+
+        NonReentrancyMod.exit();
+    }
+}`}
+</ExpandableCode>
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Always pair &#x60;enter&#x60; with &#x60;exit&#x60; to avoid locking functionality permanently.
+- Use the module as part of operations susceptible to reentrancy-driven exploits (e.g., external calls).
+- Audit facets to ensure no reentrant path bypasses the &#x60;enter&#x60; check.
+</Callout>
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+NonReentrancyMod operates by using a storage slot unique within the diamond to track reentrancy status. It ensures compatibility across facets by leveraging diamond storage conventions. Changes set by one facet (via &#x60;enter&#x60; or &#x60;exit&#x60;) are immediately visible and enforceable by all other facets using the same library.
+</Callout>
+
+<div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
+  <WasThisHelpful pageId="NonReentrancyMod" />
+</div>
+
+<LastUpdated date="2025-12-15T21:00:26.661Z" />

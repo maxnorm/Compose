@@ -1,0 +1,235 @@
+---
+sidebar_position: 99
+title: "OwnerFacet"
+description: "**Title:**"
+gitSource: "https://github.com/maxnorm/Compose/blob/117a9e586e335bd5662e5aba533c315582d9ef9b/src/access/Owner/OwnerFacet.sol"
+---
+
+import DocSubtitle  from '@site/src/components/docs/DocSubtitle';
+import Badge from '@site/src/components/ui/Badge';
+import Callout from '@site/src/components/ui/Callout';
+import CalloutBox from '@site/src/components/ui/CalloutBox';
+import Accordion, { AccordionGroup } from '@site/src/components/ui/Accordion';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+import ExpandableCode from '@site/src/components/code/ExpandableCode';
+import CodeShowcase from '@site/src/components/code/CodeShowcase';
+import RelatedDocs from '@site/src/components/docs/RelatedDocs';
+import WasThisHelpful from '@site/src/components/docs/WasThisHelpful';
+import LastUpdated from '@site/src/components/docs/LastUpdated';
+import ReadingTime from '@site/src/components/docs/ReadingTime';
+import GradientText from '@site/src/components/ui/GradientText';
+import GradientButton from '@site/src/components/ui/GradientButton';
+
+<DocSubtitle>
+**Title:**
+</DocSubtitle>
+
+<Callout type="info" title="Key Features">
+- Provides clear owner functionality, reducing invasive logic in other facets.
+- Implements diamond storage pattern, isolating owner state effectively.
+- Supports modular addition, removal, and updates using diamond cut.
+</Callout>
+
+## Overview
+
+The OwnerFacet provides ownership management for a diamond, enabling the retrieval of the current owner, ownership transfers, and renunciation. It adheres to the diamond storage pattern for state isolation and global accessibility.
+
+---
+
+## Storage
+
+### OwnerStorage
+
+<ExpandableCode language="solidity" maxLines={15} title="Definition">
+{`struct OwnerStorage {
+    address owner;
+}`}
+</ExpandableCode>
+
+---
+### State Variables
+
+<PropertyTable
+  properties={[
+    {
+      name: "STORAGE_POSITION",
+      type: "constant",
+      description: ""
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Functions
+
+### getStorage
+
+Returns a pointer to the owner storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function getStorage() internal pure returns (OwnerStorage storage s);`}
+</ExpandableCode>
+
+**Returns:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "s",
+      type: "OwnerStorage",
+      description: "The OwnerStorage struct in storage."
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### owner
+
+Get the address of the owner
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function owner() external view returns (address);`}
+</ExpandableCode>
+
+**Returns:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "address",
+      description: "The address of the owner."
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### transferOwnership
+
+Set the address of the new owner of the contract Set _newOwner to address(0) to renounce any ownership.
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function transferOwnership(address _newOwner) external;`}
+</ExpandableCode>
+
+**Parameters:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "_newOwner",
+      type: "address",
+      description: "The address of the new owner of the contract"
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### renounceOwnership
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function renounceOwnership() external;`}
+</ExpandableCode>
+
+## Events
+
+<AccordionGroup>
+  <Accordion title="OwnershipTransferred" defaultOpen={false}>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+{`event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);`}
+      </ExpandableCode>
+    </div>
+
+  </Accordion>
+</AccordionGroup>
+
+## Errors
+
+<AccordionGroup>
+  <Accordion title="OwnerUnauthorizedAccount" defaultOpen={false}>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error OwnerUnauthorizedAccount();
+      </ExpandableCode>
+    </div>
+  </Accordion>
+</AccordionGroup>
+
+## Usage Example
+
+<ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
+{`pragma solidity ^0.8.30;
+
+interface IDiamondCut {
+    // Define the diamond cut function to add facets
+    function diamondCut(
+        FacetCut[] calldata _diamondCut,
+        address _init,
+        bytes calldata _calldata
+    ) external;
+
+    enum FacetCutAction { Add, Replace, Remove }
+
+    struct FacetCut {
+        address facetAddress;
+        FacetCutAction action;
+        bytes4[] functionSelectors;
+    }
+}
+
+contract Example {
+    function addOwnerFacet(address diamondAddress, address ownerFacetAddress) external {
+        IDiamondCut.FacetCut[] memory diamondCut = new IDiamondCut.FacetCut[](1);
+        diamondCut[0] = IDiamondCut.FacetCut({
+            facetAddress: ownerFacetAddress,
+            action: IDiamondCut.FacetCutAction.Add,
+            functionSelectors: new bytes4[](4)
+        });
+        diamondCut[0].functionSelectors[0] = OwnerFacet.getStorage.selector;
+        diamondCut[0].functionSelectors[1] = OwnerFacet.owner.selector;
+        diamondCut[0].functionSelectors[2] = OwnerFacet.transferOwnership.selector;
+        diamondCut[0].functionSelectors[3] = OwnerFacet.renounceOwnership.selector;
+
+        IDiamondCut(diamondAddress).diamondCut(diamondCut, address(0), "");
+    }
+
+    function useOwnerFacet(address ownerFacetAddress) external view returns (address) {
+        return OwnerFacet(ownerFacetAddress).owner();
+    }
+}
+
+interface OwnerFacet {
+    function getStorage() external view returns (bytes32 storagePointer);
+    function owner() external view returns (address);
+    function transferOwnership(address _newOwner) external;
+    function renounceOwnership() external;
+}`}
+</ExpandableCode>
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Use getStorage to access owner storage only within the OwnerFacet or test-specific code.
+- Extend initialization to explicitly set the diamond’s initial owner during deployment.
+- On upgrades, verify selectors consistently match the facet’s functions to maintain ABI compatibility.
+</Callout>
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Restrict transferOwnership to only callable by the current owner. Validate inputs in transferOwnership to guard against logical vulnerabilities. Prevent storage misalignment when upgrading or interacting with other facets applying diamond storage.
+</Callout>
+
+<div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
+  <WasThisHelpful pageId="OwnerFacet" />
+</div>
+
+<LastUpdated date="2025-12-15T20:55:29.387Z" />

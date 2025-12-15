@@ -1,0 +1,403 @@
+---
+sidebar_position: 99
+title: "DiamondCutFacet"
+description: "Add&#x3D;0, Replace&#x3D;1, Remove&#x3D;2"
+gitSource: "https://github.com/maxnorm/Compose/blob/117a9e586e335bd5662e5aba533c315582d9ef9b/src/diamond/DiamondCutFacet.sol"
+---
+
+import DocSubtitle  from '@site/src/components/docs/DocSubtitle';
+import Badge from '@site/src/components/ui/Badge';
+import Callout from '@site/src/components/ui/Callout';
+import CalloutBox from '@site/src/components/ui/CalloutBox';
+import Accordion, { AccordionGroup } from '@site/src/components/ui/Accordion';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+import ExpandableCode from '@site/src/components/code/ExpandableCode';
+import CodeShowcase from '@site/src/components/code/CodeShowcase';
+import RelatedDocs from '@site/src/components/docs/RelatedDocs';
+import WasThisHelpful from '@site/src/components/docs/WasThisHelpful';
+import LastUpdated from '@site/src/components/docs/LastUpdated';
+import ReadingTime from '@site/src/components/docs/ReadingTime';
+import GradientText from '@site/src/components/ui/GradientText';
+import GradientButton from '@site/src/components/ui/GradientButton';
+
+<DocSubtitle>
+Add&#x3D;0, Replace&#x3D;1, Remove&#x3D;2
+</DocSubtitle>
+
+<Callout type="info" title="Key Features">
+- Implements &quot;diamondCut&quot; to manage function selectors dynamically.
+- Supports adding, replacing, and removing multiple functions in a single operation.
+- Enables optional delegatecall execution during upgrades.
+</Callout>
+
+## Overview
+
+The DiamondCutFacet implements core functionality to add, replace, or remove functions in a diamond using the &quot;diamondCut&quot; process. This ensures dynamic extensibility and modular upgrades for a diamond proxy while retaining strict control over contract storage layout and function execution.
+
+---
+
+## Storage
+
+### OwnerStorage
+
+<ExpandableCode language="solidity" maxLines={15} title="Definition">
+{`struct OwnerStorage {
+    address owner;
+}`}
+</ExpandableCode>
+
+---
+### FacetAndPosition
+
+<ExpandableCode language="solidity" maxLines={15} title="Definition">
+{`struct FacetAndPosition {
+    address facet;
+    uint32 position;
+}`}
+</ExpandableCode>
+
+---
+### DiamondStorage
+
+<ExpandableCode language="solidity" maxLines={15} title="Definition">
+{`struct DiamondStorage {
+    mapping(bytes4 functionSelector => FacetAndPosition) facetAndPosition;
+    /**
+     * Array of all function selectors that can be called in the diamond
+     */
+    bytes4[] selectors;
+}`}
+</ExpandableCode>
+
+---
+### FacetCut
+
+<ExpandableCode language="solidity" maxLines={15} title="Definition">
+{`struct FacetCut {
+    address facetAddress;
+    FacetCutAction action;
+    bytes4[] functionSelectors;
+}`}
+</ExpandableCode>
+
+---
+### State Variables
+
+<PropertyTable
+  properties={[
+    {
+      name: "OWNER_STORAGE_POSITION",
+      type: "constant",
+      description: ""
+    },
+    {
+      name: "DIAMOND_STORAGE_POSITION",
+      type: "constant",
+      description: ""
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Functions
+
+### getOwnerStorage
+
+Returns a pointer to the owner storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function getOwnerStorage() internal pure returns (OwnerStorage storage s);`}
+</ExpandableCode>
+
+**Returns:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "s",
+      type: "OwnerStorage",
+      description: "The OwnerStorage struct in storage."
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### getDiamondStorage
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function getDiamondStorage() internal pure returns (DiamondStorage storage s);`}
+</ExpandableCode>
+
+---
+### addFunctions
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function addFunctions(address _facet, bytes4[] calldata _functionSelectors) internal;`}
+</ExpandableCode>
+
+**Parameters:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "_facet",
+      type: "address",
+      description: ""
+    },
+    {
+      name: "_functionSelectors",
+      type: "bytes4[] calldata",
+      description: ""
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### replaceFunctions
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function replaceFunctions(address _facet, bytes4[] calldata _functionSelectors) internal;`}
+</ExpandableCode>
+
+**Parameters:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "_facet",
+      type: "address",
+      description: ""
+    },
+    {
+      name: "_functionSelectors",
+      type: "bytes4[] calldata",
+      description: ""
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### removeFunctions
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function removeFunctions(address _facet, bytes4[] calldata _functionSelectors) internal;`}
+</ExpandableCode>
+
+**Parameters:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "_facet",
+      type: "address",
+      description: ""
+    },
+    {
+      name: "_functionSelectors",
+      type: "bytes4[] calldata",
+      description: ""
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### diamondCut
+
+Add/replace/remove any number of functions and optionally execute a function with delegatecall
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function diamondCut(FacetCut[] calldata _diamondCut, address _init, bytes calldata _calldata) external;`}
+</ExpandableCode>
+
+**Parameters:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "_diamondCut",
+      type: "FacetCut[]",
+      description: "Contains the facet addresses and function selectors"
+    },
+    {
+      name: "_init",
+      type: "address",
+      description: "The address of the contract or facet to execute _calldata"
+    },
+    {
+      name: "_calldata",
+      type: "bytes",
+      description: "A function call, including function selector and arguments _calldata is executed with delegatecall on _init"
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Events
+
+<AccordionGroup>
+  <Accordion title="DiamondCut" defaultOpen={false}>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+{`event DiamondCut(FacetCut[] _diamondCut, address _init, bytes _calldata);`}
+      </ExpandableCode>
+    </div>
+
+  </Accordion>
+</AccordionGroup>
+
+## Errors
+
+<AccordionGroup>
+  <Accordion title="OwnerUnauthorizedAccount" defaultOpen={false}>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error OwnerUnauthorizedAccount();
+      </ExpandableCode>
+    </div>
+  </Accordion>
+  <Accordion title="NoSelectorsProvidedForFacet" defaultOpen={false}>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error NoSelectorsProvidedForFacet(address _facet);
+      </ExpandableCode>
+    </div>
+  </Accordion>
+  <Accordion title="NoBytecodeAtAddress" defaultOpen={false}>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error NoBytecodeAtAddress(address _contractAddress, string _message);
+      </ExpandableCode>
+    </div>
+  </Accordion>
+  <Accordion title="RemoveFacetAddressMustBeZeroAddress" defaultOpen={false}>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error RemoveFacetAddressMustBeZeroAddress(address _facet);
+      </ExpandableCode>
+    </div>
+  </Accordion>
+  <Accordion title="IncorrectFacetCutAction" defaultOpen={false}>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error IncorrectFacetCutAction(uint8 _action);
+      </ExpandableCode>
+    </div>
+  </Accordion>
+  <Accordion title="CannotAddFunctionToDiamondThatAlreadyExists" defaultOpen={false}>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error CannotAddFunctionToDiamondThatAlreadyExists(bytes4 _selector);
+      </ExpandableCode>
+    </div>
+  </Accordion>
+  <Accordion title="CannotReplaceImmutableFunction" defaultOpen={false}>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error CannotReplaceImmutableFunction(bytes4 _selector);
+      </ExpandableCode>
+    </div>
+  </Accordion>
+  <Accordion title="CannotReplaceFunctionWithTheSameFunctionFromTheSameFacet" defaultOpen={false}>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error CannotReplaceFunctionWithTheSameFunctionFromTheSameFacet(bytes4 _selector);
+      </ExpandableCode>
+    </div>
+  </Accordion>
+  <Accordion title="CannotReplaceFunctionThatDoesNotExists" defaultOpen={false}>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error CannotReplaceFunctionThatDoesNotExists(bytes4 _selector);
+      </ExpandableCode>
+    </div>
+  </Accordion>
+  <Accordion title="CannotRemoveFunctionThatDoesNotExist" defaultOpen={false}>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error CannotRemoveFunctionThatDoesNotExist(bytes4 _selector);
+      </ExpandableCode>
+    </div>
+  </Accordion>
+  <Accordion title="CannotRemoveImmutableFunction" defaultOpen={false}>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error CannotRemoveImmutableFunction(bytes4 _selector);
+      </ExpandableCode>
+    </div>
+  </Accordion>
+  <Accordion title="InitializationFunctionReverted" defaultOpen={false}>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error InitializationFunctionReverted(address _initializationContractAddress, bytes _calldata);
+      </ExpandableCode>
+    </div>
+  </Accordion>
+</AccordionGroup>
+
+## Usage Example
+
+<ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
+{`pragma solidity ^0.8.30;
+
+contract DiamondExample {
+    DiamondCutFacet private diamondCutFacet;
+
+    constructor(address _diamondCutFacet) {
+        diamondCutFacet = DiamondCutFacet(_diamondCutFacet);
+    }
+
+    function performDiamondCut(address[] calldata _facetAddresses, bytes4[][] calldata _functionSelectors, uint8[] calldata _actionTypes) external {
+        diamondCutFacet.diamondCut(_facetAddresses, _functionSelectors, _actionTypes, address(0), "");
+    }
+}`}
+</ExpandableCode>
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Always initialize or update relevant storage explicitly after adding or replacing functions.
+- Use a predefined mapping for function selectors and their associated actions to maintain clarity and prevent conflicts.
+- Perform in-depth testing when using &#x60;diamondCut&#x60; to ensure all added/replaced functions integrate correctly within the diamond.
+</Callout>
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Ensure only the owner or an authorized entity can invoke &#x60;diamondCut&#x60; to prevent unauthorized alterations. Validate input data such as action types, facet addresses, and function selectors to avoid unintentional overwrites or removals. Verify invariants and potential reentrancy risks when executing delegatecall during a diamondCut operation.
+</Callout>
+
+<div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
+  <WasThisHelpful pageId="DiamondCutFacet" />
+</div>
+
+<LastUpdated date="2025-12-15T21:00:11.146Z" />
