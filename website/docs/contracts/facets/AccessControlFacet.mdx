@@ -1,0 +1,553 @@
+---
+sidebar_position: 99
+title: "AccessControlFacet"
+description: "Contract documentation for AccessControlFacet"
+gitSource: "https://github.com/maxnorm/Compose/blob/326d9e4b8d8f7ef437a77f59f91bb1619c2d1a6c/src/access/AccessControl/AccessControlFacet.sol"
+---
+
+import DocSubtitle  from '@site/src/components/docs/DocSubtitle';
+import Badge from '@site/src/components/ui/Badge';
+import Callout from '@site/src/components/ui/Callout';
+import CalloutBox from '@site/src/components/ui/CalloutBox';
+import Accordion, { AccordionGroup } from '@site/src/components/ui/Accordion';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+import ExpandableCode from '@site/src/components/code/ExpandableCode';
+import CodeShowcase from '@site/src/components/code/CodeShowcase';
+import RelatedDocs from '@site/src/components/docs/RelatedDocs';
+import WasThisHelpful from '@site/src/components/docs/WasThisHelpful';
+import LastUpdated from '@site/src/components/docs/LastUpdated';
+import ReadingTime from '@site/src/components/docs/ReadingTime';
+import GradientText from '@site/src/components/ui/GradientText';
+import GradientButton from '@site/src/components/ui/GradientButton';
+
+<DocSubtitle>
+Contract documentation for AccessControlFacet
+</DocSubtitle>
+
+<Callout type="info" title="Key Features">
+- Role-based permissioning with hierarchical admin roles for governance.
+- Batch operations for granting and revoking roles, improving gas efficiency.
+- Fine-grained access control with safeguards like &#x60;requireRole&#x60; for conditional execution.
+</Callout>
+
+## Overview
+
+The AccessControlFacet provides fine-grained role-based access control mechanisms within a Compose diamond proxy. It supports role management, including assignment, revocation, hierarchical admin role permissions, and batch operations, enabling modular and secure permissioning for decentralized applications.
+
+---
+
+## Storage
+
+### AccessControlStorage
+
+<ExpandableCode language="solidity" maxLines={15} title="Definition">
+{`struct AccessControlStorage {
+    mapping(address account => mapping(bytes32 role => bool hasRole)) hasRole;
+    mapping(bytes32 role => bytes32 adminRole) adminRole;
+}`}
+</ExpandableCode>
+
+---
+### State Variables
+
+<PropertyTable
+  properties={[
+    {
+      name: "STORAGE_POSITION",
+      type: "constant",
+      description: ""
+    },
+    {
+      name: "DEFAULT_ADMIN_ROLE",
+      type: "constant",
+      description: ""
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Functions
+
+### getStorage
+
+Returns the storage for the AccessControl.
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function getStorage() internal pure returns (AccessControlStorage storage s);`}
+</ExpandableCode>
+
+**Returns:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "s",
+      type: "AccessControlStorage",
+      description: "The storage for the AccessControl."
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### hasRole
+
+Returns if an account has a role.
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function hasRole(bytes32 _role, address _account) external view returns (bool);`}
+</ExpandableCode>
+
+**Parameters:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role to check."
+    },
+    {
+      name: "_account",
+      type: "address",
+      description: "The account to check the role for."
+    }
+  ]}
+  showRequired={false}
+/>
+
+**Returns:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "bool",
+      description: "True if the account has the role, false otherwise."
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### requireRole
+
+Checks if an account has a required role. error: AccessControlUnauthorizedAccount If the account does not have the role.
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function requireRole(bytes32 _role, address _account) external view;`}
+</ExpandableCode>
+
+**Parameters:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role to check."
+    },
+    {
+      name: "_account",
+      type: "address",
+      description: "The account to check the role for."
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### getRoleAdmin
+
+Returns the admin role for a role.
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function getRoleAdmin(bytes32 _role) external view returns (bytes32);`}
+</ExpandableCode>
+
+**Parameters:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role to get the admin for."
+    }
+  ]}
+  showRequired={false}
+/>
+
+**Returns:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "bytes32",
+      description: "The admin role for the role."
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### setRoleAdmin
+
+Sets the admin role for a role. Emits a RoleAdminChanged event. error: AccessControlUnauthorizedAccount If the caller is not the current admin of the role.
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function setRoleAdmin(bytes32 _role, bytes32 _adminRole) external;`}
+</ExpandableCode>
+
+**Parameters:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role to set the admin for."
+    },
+    {
+      name: "_adminRole",
+      type: "bytes32",
+      description: "The new admin role to set."
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### grantRole
+
+Grants a role to an account. Emits a RoleGranted event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function grantRole(bytes32 _role, address _account) external;`}
+</ExpandableCode>
+
+**Parameters:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role to grant."
+    },
+    {
+      name: "_account",
+      type: "address",
+      description: "The account to grant the role to."
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### revokeRole
+
+Revokes a role from an account. Emits a RoleRevoked event. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function revokeRole(bytes32 _role, address _account) external;`}
+</ExpandableCode>
+
+**Parameters:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role to revoke."
+    },
+    {
+      name: "_account",
+      type: "address",
+      description: "The account to revoke the role from."
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### grantRoleBatch
+
+Grants a role to multiple accounts in a single transaction. Emits a RoleGranted event for each newly granted account. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function grantRoleBatch(bytes32 _role, address[] calldata _accounts) external;`}
+</ExpandableCode>
+
+**Parameters:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role to grant."
+    },
+    {
+      name: "_accounts",
+      type: "address[]",
+      description: "The accounts to grant the role to."
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### revokeRoleBatch
+
+Revokes a role from multiple accounts in a single transaction. Emits a RoleRevoked event for each account the role is revoked from. error: AccessControlUnauthorizedAccount If the caller is not the admin of the role.
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function revokeRoleBatch(bytes32 _role, address[] calldata _accounts) external;`}
+</ExpandableCode>
+
+**Parameters:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role to revoke."
+    },
+    {
+      name: "_accounts",
+      type: "address[]",
+      description: "The accounts to revoke the role from."
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### renounceRole
+
+Renounces a role from the caller. Emits a RoleRevoked event. error: AccessControlUnauthorizedSender If the caller is not the account to renounce the role from.
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function renounceRole(bytes32 _role, address _account) external;`}
+</ExpandableCode>
+
+**Parameters:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role to renounce."
+    },
+    {
+      name: "_account",
+      type: "address",
+      description: "The account to renounce the role from."
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Events
+
+<AccordionGroup>
+  <Accordion title="RoleAdminChanged" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Emitted when the admin role for a role is changed.
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+{`event RoleAdminChanged(bytes32 indexed _role, bytes32 indexed _previousAdminRole, bytes32 indexed _newAdminRole);`}
+      </ExpandableCode>
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Parameters:</strong>
+      <PropertyTable
+        properties={[
+          {
+            name: "_role",
+            type: "bytes32",
+            description: "The role that was changed."
+          },
+          {
+            name: "_previousAdminRole",
+            type: "bytes32",
+            description: "The previous admin role."
+          },
+          {
+            name: "_newAdminRole",
+            type: "bytes32",
+            description: "The new admin role."
+          }
+        ]}
+        showRequired={false}
+      />
+    </div>
+  </Accordion>
+  <Accordion title="RoleGranted" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Emitted when a role is granted to an account.
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+{`event RoleGranted(bytes32 indexed _role, address indexed _account, address indexed _sender);`}
+      </ExpandableCode>
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Parameters:</strong>
+      <PropertyTable
+        properties={[
+          {
+            name: "_role",
+            type: "bytes32",
+            description: "The role that was granted."
+          },
+          {
+            name: "_account",
+            type: "address",
+            description: "The account that was granted the role."
+          },
+          {
+            name: "_sender",
+            type: "address",
+            description: "The sender that granted the role."
+          }
+        ]}
+        showRequired={false}
+      />
+    </div>
+  </Accordion>
+  <Accordion title="RoleRevoked" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Emitted when a role is revoked from an account.
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+{`event RoleRevoked(bytes32 indexed _role, address indexed _account, address indexed _sender);`}
+      </ExpandableCode>
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Parameters:</strong>
+      <PropertyTable
+        properties={[
+          {
+            name: "_role",
+            type: "bytes32",
+            description: "The role that was revoked."
+          },
+          {
+            name: "_account",
+            type: "address",
+            description: "The account from which the role was revoked."
+          },
+          {
+            name: "_sender",
+            type: "address",
+            description: "The account that revoked the role."
+          }
+        ]}
+        showRequired={false}
+      />
+    </div>
+  </Accordion>
+</AccordionGroup>
+
+## Errors
+
+<AccordionGroup>
+  <Accordion title="AccessControlUnauthorizedAccount" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Thrown when the account does not have a specific role.
+    </div>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error AccessControlUnauthorizedAccount(address _account, bytes32 _role);
+      </ExpandableCode>
+    </div>
+  </Accordion>
+  <Accordion title="AccessControlUnauthorizedSender" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Thrown when the sender is not the account to renounce the role from.
+    </div>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error AccessControlUnauthorizedSender(address _sender, address _account);
+      </ExpandableCode>
+    </div>
+  </Accordion>
+</AccordionGroup>
+
+## Usage Example
+
+<ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
+{`pragma solidity ^0.8.30;
+
+interface IAccessControlFacet {
+    function grantRole(bytes32 role, address account) external;
+    function revokeRole(bytes32 role, address account) external;
+    function hasRole(bytes32 role, address account) external view returns (bool);
+}
+
+contract MyContract {
+    address diamondAddress;
+
+    // Replace with actual role identifiers
+    bytes32 constant ROLE_ADMIN = keccak256("ROLE_ADMIN");
+    bytes32 constant ROLE_USER = keccak256("ROLE_USER");
+
+    constructor(address _diamondAddress) {
+        diamondAddress = _diamondAddress;
+    }
+
+    function setupRoles(address admin, address user) external {
+        IAccessControlFacet(diamondAddress).grantRole(ROLE_ADMIN, admin);
+        IAccessControlFacet(diamondAddress).grantRole(ROLE_USER, user);
+    }
+
+    function removeUserRole(address user) external {
+        IAccessControlFacet(diamondAddress).revokeRole(ROLE_USER, user);
+    }
+
+    function checkUserRole(address user) external view returns (bool) {
+        return IAccessControlFacet(diamondAddress).hasRole(ROLE_USER, user);
+    }
+}`}
+</ExpandableCode>
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Always initialize roles and the role hierarchy (assigning admin roles) properly during deployment or initialization.
+- Restrict access to role management functions using a clear and secure role hierarchy.
+- Test role assumptions under various edge cases, especially for batch operations, to ensure no unintended permission escalation.
+</Callout>
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Ensure role management functions, like &#x60;grantRole&#x60; and &#x60;setRoleAdmin&#x60;, are restricted to appropriate admin roles using robust access checks. Validate all role identifiers and account inputs to mitigate typos or attacks. Be cautious with the &#x60;grantRoleBatch&#x60; and &#x60;revokeRoleBatch&#x60; functions to prevent over-permissioning or accidental revocation due to incorrect arrays. Avoid circular admin role dependencies to prevent breaking the permission hierarchy.
+</Callout>
+
+<div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
+  <WasThisHelpful pageId="AccessControlFacet" />
+</div>
+
+<LastUpdated date="2025-12-15T21:46:30.980Z" />

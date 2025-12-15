@@ -1,0 +1,139 @@
+---
+sidebar_position: 99
+title: "NonReentrancyMod"
+description: "LibNonReentrancy - Non-Reentrancy Library - Provides common non-reentrant functions for Solidity contracts."
+gitSource: "https://github.com/maxnorm/Compose/blob/326d9e4b8d8f7ef437a77f59f91bb1619c2d1a6c/src/libraries/NonReentrancyMod.sol"
+---
+
+import DocSubtitle  from '@site/src/components/docs/DocSubtitle';
+import Badge from '@site/src/components/ui/Badge';
+import Callout from '@site/src/components/ui/Callout';
+import CalloutBox from '@site/src/components/ui/CalloutBox';
+import Accordion, { AccordionGroup } from '@site/src/components/ui/Accordion';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+import ExpandableCode from '@site/src/components/code/ExpandableCode';
+import CodeShowcase from '@site/src/components/code/CodeShowcase';
+import RelatedDocs from '@site/src/components/docs/RelatedDocs';
+import WasThisHelpful from '@site/src/components/docs/WasThisHelpful';
+import LastUpdated from '@site/src/components/docs/LastUpdated';
+import ReadingTime from '@site/src/components/docs/ReadingTime';
+import GradientText from '@site/src/components/ui/GradientText';
+import GradientButton from '@site/src/components/ui/GradientButton';
+
+<DocSubtitle>
+LibNonReentrancy - Non-Reentrancy Library - Provides common non-reentrant functions for Solidity contracts.
+</DocSubtitle>
+
+<Callout type="info" title="Key Features">
+- Simple and composable library for enforcing non-reentrancy in facets.
+- Maintains storage hygiene using deterministic keys while avoiding direct visibility in library code.
+- Provides low-level primitives for fine-grained access control without interdependencies.
+</Callout>
+
+<Callout type="info" title="Module Usage">
+This module provides internal functions for use in your custom facets. Import it to access shared logic and storage.
+</Callout>
+
+## Overview
+
+The NonReentrancyMod is a library providing non-reentrant utility functions, &#x60;enter&#x60; and &#x60;exit&#x60;, for facets in a Compose diamond. It ensures reentrant calls to critical functions are mitigated, preserving state integrity and contract security.
+
+---
+
+## Storage
+
+---
+### State Variables
+
+<PropertyTable
+  properties={[
+    {
+      name: "NON_REENTRANT_SLOT",
+      type: "bytes32",
+      description: " (Value: `keccak256(&quot;compose.nonreentrant&quot;)`)"
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Functions
+
+### enter
+
+How to use as a library in user facets How to use as a modifier in user facets This unlocks the entry into a function
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function enter() ;`}
+</ExpandableCode>
+
+---
+### exit
+
+This locks the entry into a function
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function exit() ;`}
+</ExpandableCode>
+
+## Errors
+
+<AccordionGroup>
+  <Accordion title="Reentrancy" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Function selector - 0x43a0d067
+    </div>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error Reentrancy();
+      </ExpandableCode>
+    </div>
+  </Accordion>
+</AccordionGroup>
+
+## Usage Example
+
+<ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
+{`pragma solidity ^0.8.30;
+
+import {LibNonReentrancy} from "NonReentrancyMod.sol";
+
+contract ExampleFacet {
+    /**
+     * Facet-level storage key for non-reentrancy.
+     */
+    bytes32 private constant NON_REENTRANCY_KEY = keccak256("exampleFacet.nonReentrancy");
+
+    /**
+     * Example function using non-reentrancy guard.
+     */
+    function guardedFunction() external {
+        LibNonReentrancy.enter(NON_REENTRANCY_KEY);
+        // Perform critical operations here...
+
+        // Ensure proper exit from the non-reentrancy guard.
+        LibNonReentrancy.exit(NON_REENTRANCY_KEY);
+    }
+}`}
+</ExpandableCode>
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Always pair &#x60;enter&#x60; and &#x60;exit&#x60; within the same function to prevent deadlocks.
+- Use a unique storage key for each facet or function requiring non-reentrancy.
+- Avoid implementing long-running or unbounded loops inside guarded sections.
+</Callout>
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+NonReentrancyMod interacts with diamond storage by applying non-reentrancy guards tied to a specific storage key. Each facet or function requiring the guard must define its unique key to avoid cross-interference. Changes to the reentrancy state within a facet are isolated and do not affect other facets, provided unique keys are used. Ensure &#x60;enter&#x60; and &#x60;exit&#x60; calls are correctly balanced within the same functional scope to maintain consistent state and avoid contract locking.
+</Callout>
+
+<div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
+  <WasThisHelpful pageId="NonReentrancyMod" />
+</div>
+
+<LastUpdated date="2025-12-15T21:50:56.585Z" />
