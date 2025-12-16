@@ -1,0 +1,149 @@
+---
+sidebar_position: 99
+title: "ExampleDiamond"
+description: "Contract documentation for ExampleDiamond"
+gitSource: "https://github.com/maxnorm/Compose/blob/56196d950dad5f803c271d96961275928a79b519/src/diamond/example/ExampleDiamond.sol"
+---
+
+import DocSubtitle  from '@site/src/components/docs/DocSubtitle';
+import Badge from '@site/src/components/ui/Badge';
+import Callout from '@site/src/components/ui/Callout';
+import CalloutBox from '@site/src/components/ui/CalloutBox';
+import Accordion, { AccordionGroup } from '@site/src/components/ui/Accordion';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+import ExpandableCode from '@site/src/components/code/ExpandableCode';
+import CodeShowcase from '@site/src/components/code/CodeShowcase';
+import RelatedDocs from '@site/src/components/docs/RelatedDocs';
+import WasThisHelpful from '@site/src/components/docs/WasThisHelpful';
+import LastUpdated from '@site/src/components/docs/LastUpdated';
+import ReadingTime from '@site/src/components/docs/ReadingTime';
+import GradientText from '@site/src/components/ui/GradientText';
+import GradientButton from '@site/src/components/ui/GradientButton';
+
+<DocSubtitle>
+Contract documentation for ExampleDiamond
+</DocSubtitle>
+
+<Callout type="info" title="Key Features">
+- Modular initialization of diamond with customizable facets and selectors.
+- Support for dynamic management of function selectors through specific actions (Add, Replace, Remove).
+- Enables seamless integration and updates of business logic without contract redeployment.
+</Callout>
+
+## Overview
+
+The ExampleDiamond facet initializes a diamond proxy with specified facets, enabling efficient and flexible function routing via delegate calls. It facilitates dynamic module composition by managing facet addresses and their associated function selectors, ensuring robust diamond configuration.
+
+---
+
+## Storage
+
+## Functions
+
+### constructor
+
+Struct to hold facet address and its function selectors. struct FacetCut &amp;#123; address facetAddress; FacetCutAction action; // Add&#x3D;0, Replace&#x3D;1, Remove&#x3D;2 bytes4[] functionSelectors; &amp;#125; Initializes the diamond contract with facets, owner and other data. Adds all provided facets to the diamond&#x27;s function selector mapping and sets the contract owner. Each facet in the array will have its function selectors registered to enable delegatecall routing.
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`constructor(DiamondMod.FacetCut[] memory _facets, address _diamondOwner) ;`}
+</ExpandableCode>
+
+**Parameters:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "_facets",
+      type: "DiamondMod.FacetCut[]",
+      description: "Array of facet addresses and their corresponding function selectors to add to the diamond."
+    },
+    {
+      name: "_diamondOwner",
+      type: "address",
+      description: "Address that will be set as the owner of the diamond contract."
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### fallback
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`fallback() external payable;`}
+</ExpandableCode>
+
+---
+### receive
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`receive() external payable;`}
+</ExpandableCode>
+
+## Usage Example
+
+<ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
+{`pragma solidity ^0.8.30;
+
+contract ExampleDiamond {
+    struct FacetCut {
+        address facetAddress;
+        FacetCutAction action;
+        bytes4[] functionSelectors;
+    }
+
+    enum FacetCutAction {
+        Add,
+        Replace,
+        Remove
+    }
+
+    constructor(FacetCut[] memory _facetCuts, address _owner) {
+        // Initialize diamond facets
+        for (uint256 i = 0; i < _facetCuts.length; i++) {
+            FacetCut memory facetCut = _facetCuts[i];
+            // Logic to add, replace, or remove function selectors
+        }
+        // Set the diamond owner
+        require(_owner != address(0), "Owner cannot be zero address");
+        // Logic to assign the owner
+    }
+
+    fallback() external payable {
+        // Delegatecall routing logic
+    }
+
+    receive() external payable {
+        // Accept Ether payments logic
+    }
+}
+
+// Example usage
+FacetCut[] memory cuts = new FacetCut[](1);
+cuts[0] = FacetCut({
+    facetAddress: facetAddress,
+    action: FacetCutAction.Add,
+    functionSelectors: functionSelectors
+});
+ExampleDiamond diamond = new ExampleDiamond(cuts, owner);`}
+</ExpandableCode>
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Ensure all facets are trusted and verified before adding them to the diamond.
+- Use explicit checks for owner or admin access during initialization and sensitive function calls.
+- Maintain a complete registry of function selectors to prevent conflicts during facet updates.
+</Callout>
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Ensure stringent access control on initialization to avoid unauthorized modifications. Validate the integrity and correctness of each facet&#x27;s logic and selectors against potential state conflicts. Avoid exposing unnecessary fallback function behavior to reduce attack surface.
+</Callout>
+
+<div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
+  <WasThisHelpful pageId="ExampleDiamond" />
+</div>
+
+<LastUpdated date="2025-12-16T00:47:48.753Z" />

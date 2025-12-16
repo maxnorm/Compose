@@ -1,0 +1,189 @@
+---
+sidebar_position: 99
+title: "RoyaltyFacet"
+description: "**Title:**"
+gitSource: "https://github.com/maxnorm/Compose/blob/56196d950dad5f803c271d96961275928a79b519/src/token/Royalty/RoyaltyFacet.sol"
+---
+
+import DocSubtitle  from '@site/src/components/docs/DocSubtitle';
+import Badge from '@site/src/components/ui/Badge';
+import Callout from '@site/src/components/ui/Callout';
+import CalloutBox from '@site/src/components/ui/CalloutBox';
+import Accordion, { AccordionGroup } from '@site/src/components/ui/Accordion';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+import ExpandableCode from '@site/src/components/code/ExpandableCode';
+import CodeShowcase from '@site/src/components/code/CodeShowcase';
+import RelatedDocs from '@site/src/components/docs/RelatedDocs';
+import WasThisHelpful from '@site/src/components/docs/WasThisHelpful';
+import LastUpdated from '@site/src/components/docs/LastUpdated';
+import ReadingTime from '@site/src/components/docs/ReadingTime';
+import GradientText from '@site/src/components/ui/GradientText';
+import GradientButton from '@site/src/components/ui/GradientButton';
+
+<DocSubtitle>
+**Title:**
+</DocSubtitle>
+
+<Callout type="info" title="Key Features">
+- Provides standardized ERC-2981 compliant royalty information, enabling integration with NFT marketplaces.
+- Supports both token-specific and default fallback royalty structures for maximum flexibility.
+</Callout>
+
+## Overview
+
+The RoyaltyFacet enables ERC-2981 compliant royalty management within a diamond proxy. It supports querying royalty information both per-token and globally via fallback, providing a standardized interface for marketplace integrations.
+
+---
+
+## Storage
+
+### RoyaltyInfo
+
+<ExpandableCode language="solidity" maxLines={15} title="Definition">
+{`struct RoyaltyInfo {
+    address receiver;
+    uint96 royaltyFraction;
+}`}
+</ExpandableCode>
+
+---
+### RoyaltyStorage
+
+<ExpandableCode language="solidity" maxLines={15} title="Definition">
+{`struct RoyaltyStorage {
+    RoyaltyInfo defaultRoyaltyInfo;
+    mapping(uint256 tokenId => RoyaltyInfo) tokenRoyaltyInfo;
+}`}
+</ExpandableCode>
+
+---
+### State Variables
+
+<PropertyTable
+  properties={[
+    {
+      name: "STORAGE_POSITION",
+      type: "constant",
+      description: ""
+    },
+    {
+      name: "FEE_DENOMINATOR",
+      type: "constant",
+      description: ""
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Functions
+
+### getStorage
+
+Returns a pointer to the royalty storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function getStorage() internal pure returns (RoyaltyStorage storage s);`}
+</ExpandableCode>
+
+**Returns:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "s",
+      type: "RoyaltyStorage",
+      description: "The RoyaltyStorage struct in storage."
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### royaltyInfo
+
+Returns royalty information for a given token and sale price. Returns token-specific royalty if set, otherwise falls back to default royalty. Royalty amount is calculated as a percentage of the sale price using basis points. Implements the ERC-2981 royaltyInfo function.
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function royaltyInfo(uint256 _tokenId, uint256 _salePrice)
+    external
+    view
+    returns (address receiver, uint256 royaltyAmount);`}
+</ExpandableCode>
+
+**Parameters:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "_tokenId",
+      type: "uint256",
+      description: "The NFT asset queried for royalty information."
+    },
+    {
+      name: "_salePrice",
+      type: "uint256",
+      description: "The sale price of the NFT asset specified by _tokenId."
+    }
+  ]}
+  showRequired={false}
+/>
+
+**Returns:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "receiver",
+      type: "address",
+      description: "The address designated to receive the royalty payment."
+    },
+    {
+      name: "royaltyAmount",
+      type: "uint256",
+      description: "The royalty payment amount for _salePrice."
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Usage Example
+
+<ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
+{`pragma solidity ^0.8.30;
+
+/** Imports necessary for diamond initialization */
+import { RoyaltyFacet } from './RoyaltyFacet.sol';
+
+contract DiamondDeployer {
+    function deployDiamond() external {
+        // Initialize diamond with RoyaltyFacet
+        Diamond diamond = new Diamond();
+
+        // Add RoyaltyFacet to the diamond
+        diamond.addFacet(address(new RoyaltyFacet()), \'getStorage()\', \'royaltyInfo(uint256,uint256)\');
+
+        // Example usage of royaltyInfo via the diamond
+        (address receiver, uint256 royaltyAmount) = RoyaltyFacet(address(diamond)).royaltyInfo(123, 10000);
+    }
+}`}
+</ExpandableCode>
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Always initialize default royalty values where applicable to ensure consistent behavior across tokens.
+- Store royalty percentages in basis points to avoid floating-point inaccuracies.
+- Thoroughly validate new royalty rules during diamond upgrades to ensure backward compatibility.
+</Callout>
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Carefully validate input values in royaltyInfo to ensure basis points do not exceed 10,000 (100%). Protect getStorage with internal visibility to avoid misuse of storage pointers. Ensure that any external marketplace code invoking royaltyInfo appropriately handles the returned values.
+</Callout>
+
+<div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
+  <WasThisHelpful pageId="RoyaltyFacet" />
+</div>
+
+<LastUpdated date="2025-12-16T00:47:12.710Z" />

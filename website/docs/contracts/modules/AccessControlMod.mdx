@@ -1,0 +1,448 @@
+---
+sidebar_position: 99
+title: "AccessControlMod"
+description: "Emitted when the admin role for a role is changed."
+gitSource: "https://github.com/maxnorm/Compose/blob/56196d950dad5f803c271d96961275928a79b519/src/access/AccessControl/AccessControlMod.sol"
+---
+
+import DocSubtitle  from '@site/src/components/docs/DocSubtitle';
+import Badge from '@site/src/components/ui/Badge';
+import Callout from '@site/src/components/ui/Callout';
+import CalloutBox from '@site/src/components/ui/CalloutBox';
+import Accordion, { AccordionGroup } from '@site/src/components/ui/Accordion';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+import ExpandableCode from '@site/src/components/code/ExpandableCode';
+import CodeShowcase from '@site/src/components/code/CodeShowcase';
+import RelatedDocs from '@site/src/components/docs/RelatedDocs';
+import WasThisHelpful from '@site/src/components/docs/WasThisHelpful';
+import LastUpdated from '@site/src/components/docs/LastUpdated';
+import ReadingTime from '@site/src/components/docs/ReadingTime';
+import GradientText from '@site/src/components/ui/GradientText';
+import GradientButton from '@site/src/components/ui/GradientButton';
+
+<DocSubtitle>
+Emitted when the admin role for a role is changed.
+</DocSubtitle>
+
+<Callout type="info" title="Key Features">
+- Supports role-based access control for diamonds with minimal gas overhead.
+- Provides storage reuse with a single source of truth for roles across facets.
+- Role-based permissions can be dynamically updated with &#x60;grantRole&#x60; and &#x60;revokeRole&#x60; commands.
+</Callout>
+
+<Callout type="info" title="Module Usage">
+This module provides internal functions for use in your custom facets. Import it to access shared logic and storage.
+</Callout>
+
+## Overview
+
+The AccessControlMod provides role-based access control functionality for Compose diamonds. It facilitates permission management by allowing facets to grant, revoke, and check roles efficiently while leveraging diamond storage for consistent state access. This ensures composability, safety, and role hierarchy configuration.
+
+---
+
+## Storage
+
+### AccessControlStorage
+
+<ExpandableCode language="solidity" maxLines={15} title="Definition">
+{`struct AccessControlStorage {
+mapping(address account => mapping(bytes32 role => bool hasRole)) hasRole;
+mapping(bytes32 role => bytes32 adminRole) adminRole;
+}`}
+</ExpandableCode>
+
+Storage position: &#x60;STORAGE_POSITION&#x60; - Used for diamond storage pattern.
+---
+### State Variables
+
+<PropertyTable
+  properties={[
+    {
+      name: "STORAGE_POSITION",
+      type: "bytes32",
+      description: " (Value: `keccak256(&quot;compose.accesscontrol&quot;)`)"
+    },
+    {
+      name: "DEFAULT_ADMIN_ROLE",
+      type: "bytes32",
+      description: " (Value: `0x00`)"
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Functions
+
+### getStorage
+
+Returns the storage for the AccessControl. **Returns**
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function getStorage() pure returns (AccessControlStorage storage _s);`}
+</ExpandableCode>
+
+**Returns:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "_s",
+      type: "AccessControlStorage",
+      description: "The storage for the AccessControl."
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### grantRole
+
+function to grant a role to an account. **Parameters** **Returns**
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function grantRole(bytes32 _role, address _account) returns (bool);`}
+</ExpandableCode>
+
+**Parameters:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role to grant."
+    },
+    {
+      name: "_account",
+      type: "address",
+      description: "The account to grant the role to."
+    }
+  ]}
+  showRequired={false}
+/>
+
+**Returns:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "bool",
+      description: "True if the role was granted, false otherwise."
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### hasRole
+
+function to check if an account has a role. **Parameters** **Returns**
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function hasRole(bytes32 _role, address _account) view returns (bool);`}
+</ExpandableCode>
+
+**Parameters:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role to check."
+    },
+    {
+      name: "_account",
+      type: "address",
+      description: "The account to check the role for."
+    }
+  ]}
+  showRequired={false}
+/>
+
+**Returns:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "bool",
+      description: "True if the account has the role, false otherwise."
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### requireRole
+
+function to check if an account has a required role. **Note:** error: AccessControlUnauthorizedAccount If the account does not have the role. **Parameters**
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function requireRole(bytes32 _role, address _account) view;`}
+</ExpandableCode>
+
+**Parameters:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role to assert."
+    },
+    {
+      name: "_account",
+      type: "address",
+      description: "The account to assert the role for."
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### revokeRole
+
+function to revoke a role from an account. **Parameters** **Returns**
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function revokeRole(bytes32 _role, address _account) returns (bool);`}
+</ExpandableCode>
+
+**Parameters:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role to revoke."
+    },
+    {
+      name: "_account",
+      type: "address",
+      description: "The account to revoke the role from."
+    }
+  ]}
+  showRequired={false}
+/>
+
+**Returns:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "bool",
+      description: "True if the role was revoked, false otherwise."
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### setRoleAdmin
+
+function to set the admin role for a role. **Parameters**
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function setRoleAdmin(bytes32 _role, bytes32 _adminRole) ;`}
+</ExpandableCode>
+
+**Parameters:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role to set the admin for."
+    },
+    {
+      name: "_adminRole",
+      type: "bytes32",
+      description: "The admin role to set."
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Events
+
+<AccordionGroup>
+  <Accordion title="RoleAdminChanged" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Emitted when the admin role for a role is changed. **Parameters**
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+{`event RoleAdminChanged(bytes32 indexed _role, bytes32 indexed _previousAdminRole, bytes32 indexed _newAdminRole);`}
+      </ExpandableCode>
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Parameters:</strong>
+      <PropertyTable
+        properties={[
+          {
+            name: "_role",
+            type: "bytes32",
+            description: "The role that was changed."
+          },
+          {
+            name: "_previousAdminRole",
+            type: "bytes32",
+            description: "The previous admin role."
+          },
+          {
+            name: "_newAdminRole",
+            type: "bytes32",
+            description: "The new admin role."
+          }
+        ]}
+        showRequired={false}
+      />
+    </div>
+  </Accordion>
+  <Accordion title="RoleGranted" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Emitted when a role is granted to an account. **Parameters**
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+{`event RoleGranted(bytes32 indexed _role, address indexed _account, address indexed _sender);`}
+      </ExpandableCode>
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Parameters:</strong>
+      <PropertyTable
+        properties={[
+          {
+            name: "_role",
+            type: "bytes32",
+            description: "The role that was granted."
+          },
+          {
+            name: "_account",
+            type: "address",
+            description: "The account that was granted the role."
+          },
+          {
+            name: "_sender",
+            type: "address",
+            description: "The sender that granted the role."
+          }
+        ]}
+        showRequired={false}
+      />
+    </div>
+  </Accordion>
+  <Accordion title="RoleRevoked" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Emitted when a role is revoked from an account. **Parameters**
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+{`event RoleRevoked(bytes32 indexed _role, address indexed _account, address indexed _sender);`}
+      </ExpandableCode>
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Parameters:</strong>
+      <PropertyTable
+        properties={[
+          {
+            name: "_role",
+            type: "bytes32",
+            description: "The role that was revoked."
+          },
+          {
+            name: "_account",
+            type: "address",
+            description: "The account from which the role was revoked."
+          },
+          {
+            name: "_sender",
+            type: "address",
+            description: "The account that revoked the role."
+          }
+        ]}
+        showRequired={false}
+      />
+    </div>
+  </Accordion>
+</AccordionGroup>
+
+## Errors
+
+<AccordionGroup>
+  <Accordion title="AccessControlUnauthorizedAccount" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Thrown when the account does not have a specific role. **Parameters**
+    </div>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error AccessControlUnauthorizedAccount(address _account, bytes32 _role);
+      </ExpandableCode>
+    </div>
+  </Accordion>
+</AccordionGroup>
+
+## Usage Example
+
+<ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
+{`pragma solidity ^0.8.30;
+
+contract MyFacet {
+    function checkAndGrantRole(bytes32 _role, address _account) external {
+        // Ensure the caller has the role admin permissions
+        AccessControlMod.requireRole(_role, msg.sender);
+
+        // Grant the specified role to the provided account
+        AccessControlMod.grantRole(_role, _account);
+    }
+
+    function isAccountAuthorized(bytes32 _role, address _account) external view returns (bool) {
+        // Check if the account possesses the specified role
+        return AccessControlMod.hasRole(_role, _account);
+    }
+
+    function updateRoleAdmin(bytes32 _role, bytes32 _newAdmin) external {
+        // Ensure the caller is the current admin of the role
+        AccessControlMod.requireRole(_role, msg.sender);
+
+        // Set a new admin for the role
+        AccessControlMod.setRoleAdmin(_role, _newAdmin);
+    }
+}`}
+</ExpandableCode>
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Use &#x60;requireRole&#x60; to enforce access control in facets before performing sensitive operations.
+- Regularly audit role assignments and hierarchy via &#x60;getStorage&#x60; outputs to ensure accurate setup.
+- Carefully update role admins only when necessary to prevent accidental access escalation.
+</Callout>
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+AccessControlMod integrates with diamond storage to maintain a shared state accessible by all facets. Changes to roles or admins instantly propagate to other facets using the same storage slot. When updating role admins, ensure all dependent facets are designed to respect the new hierarchy. Improper usage or manipulation of roles may inadvertently break system-wide permissions.
+</Callout>
+
+<div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
+  <WasThisHelpful pageId="AccessControlMod" />
+</div>
+
+<LastUpdated date="2025-12-16T00:44:08.853Z" />
