@@ -1,0 +1,292 @@
+---
+sidebar_position: 99
+title: "OwnerTwoStepsFacet"
+description: "**Title:**"
+gitSource: "https://github.com/maxnorm/Compose/blob/7cec432f52f2cad53f4d546df90deb49e6a66d41/src/access/OwnerTwoSteps/OwnerTwoStepsFacet.sol"
+---
+
+import DocSubtitle  from '@site/src/components/docs/DocSubtitle';
+import Badge from '@site/src/components/ui/Badge';
+import Callout from '@site/src/components/ui/Callout';
+import CalloutBox from '@site/src/components/ui/CalloutBox';
+import Accordion, { AccordionGroup } from '@site/src/components/ui/Accordion';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+import ExpandableCode from '@site/src/components/code/ExpandableCode';
+import CodeShowcase from '@site/src/components/code/CodeShowcase';
+import RelatedDocs from '@site/src/components/docs/RelatedDocs';
+import WasThisHelpful from '@site/src/components/docs/WasThisHelpful';
+import LastUpdated from '@site/src/components/docs/LastUpdated';
+import ReadingTime from '@site/src/components/docs/ReadingTime';
+import GradientText from '@site/src/components/ui/GradientText';
+import GradientButton from '@site/src/components/ui/GradientButton';
+
+<DocSubtitle>
+**Title:**
+</DocSubtitle>
+
+<Callout type="info" title="Key Features">
+- Implements a secure two-step ownership transfer process.
+- Provides functions to view current and pending ownership.
+- Allows for explicit acceptance of ownership by the new owner.
+- Supports renouncing ownership to a zero address.
+</Callout>
+
+## Overview
+
+The OwnerTwoStepsFacet provides a robust, two-step ownership transfer mechanism for a Compose diamond. It ensures that ownership changes are deliberate by requiring both the current owner to initiate a transfer and the new owner to explicitly accept it, enhancing security and preventing accidental ownership changes.
+
+---
+
+## Storage
+
+### OwnerStorage
+
+<ExpandableCode language="solidity" maxLines={15} title="Definition">
+{`struct OwnerStorage {
+    address owner;
+}`}
+</ExpandableCode>
+
+---
+### PendingOwnerStorage
+
+<ExpandableCode language="solidity" maxLines={15} title="Definition">
+{`struct PendingOwnerStorage {
+    address pendingOwner;
+}`}
+</ExpandableCode>
+
+---
+### State Variables
+
+<PropertyTable
+  properties={[
+    {
+      name: "OWNER_STORAGE_POSITION",
+      type: "constant",
+      description: ""
+    },
+    {
+      name: "PENDING_OWNER_STORAGE_POSITION",
+      type: "constant",
+      description: ""
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Functions
+
+### getOwnerStorage
+
+Returns a pointer to the Owner storage struct. Uses inline assembly to access the storage slot defined by OWNER_STORAGE_POSITION.
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function getOwnerStorage() internal pure returns (OwnerStorage storage s);`}
+</ExpandableCode>
+
+**Returns:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "s",
+      type: "OwnerStorage",
+      description: "The OwnerStorage struct in storage."
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### getPendingOwnerStorage
+
+Returns a pointer to the PendingOwner storage struct. Uses inline assembly to access the storage slot defined by PENDING_OWNER_STORAGE_POSITION.
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function getPendingOwnerStorage() internal pure returns (PendingOwnerStorage storage s);`}
+</ExpandableCode>
+
+**Returns:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "s",
+      type: "PendingOwnerStorage",
+      description: "The PendingOwnerStorage struct in storage."
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### owner
+
+Get the address of the owner
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function owner() external view returns (address);`}
+</ExpandableCode>
+
+**Returns:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "address",
+      description: "The address of the owner."
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### pendingOwner
+
+Get the address of the pending owner
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function pendingOwner() external view returns (address);`}
+</ExpandableCode>
+
+**Returns:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "address",
+      description: "The address of the pending owner."
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### transferOwnership
+
+Set the address of the new owner of the contract
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function transferOwnership(address _newOwner) external;`}
+</ExpandableCode>
+
+**Parameters:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "_newOwner",
+      type: "address",
+      description: "The address of the new owner of the contract"
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### acceptOwnership
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function acceptOwnership() external;`}
+</ExpandableCode>
+
+---
+### renounceOwnership
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function renounceOwnership() external;`}
+</ExpandableCode>
+
+## Events
+
+<AccordionGroup>
+  <Accordion title="OwnershipTransferStarted" defaultOpen={false}>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+{`event OwnershipTransferStarted(address indexed _previousOwner, address indexed _newOwner);`}
+      </ExpandableCode>
+    </div>
+
+  </Accordion>
+  <Accordion title="OwnershipTransferred" defaultOpen={false}>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+{`event OwnershipTransferred(address indexed _previousOwner, address indexed _newOwner);`}
+      </ExpandableCode>
+    </div>
+
+  </Accordion>
+</AccordionGroup>
+
+## Errors
+
+<AccordionGroup>
+  <Accordion title="OwnerUnauthorizedAccount" defaultOpen={false}>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error OwnerUnauthorizedAccount();
+      </ExpandableCode>
+    </div>
+  </Accordion>
+</AccordionGroup>
+
+## Usage Example
+
+<ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
+{`pragma solidity ^0.8.30;
+
+import {IOwnerTwoStepsFacet} from "./interfaces/IOwnerTwoStepsFacet.sol";
+
+contract OwnerExample {
+    IOwnerTwoStepsFacet public ownerFacet;
+
+    constructor(address _diamondAddress) {
+        ownerFacet = IOwnerTwoStepsFacet(_diamondAddress);
+    }
+
+    function exampleTransfer() external {
+        address newOwner = 0x1234567890123456789012345678901234567890;
+        // Assuming the caller is the current owner
+        ownerFacet.transferOwnership(newOwner);
+    }
+
+    function exampleAccept() external {
+        // Assuming the caller is the pending owner
+        ownerFacet.acceptOwnership();
+    }
+
+    function exampleRenounce() external {
+        // Assuming the caller is the current owner
+        ownerFacet.renounceOwnership();
+    }
+}`}
+</ExpandableCode>
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Ensure the &#x60;transferOwnership&#x60; function is only callable by the current owner, and &#x60;acceptOwnership&#x60; is only callable by the pending owner. This is typically handled by an access control facet.
+- Store the owner and pending owner addresses in separate storage slots to prevent unintended data corruption or overwrites.
+- Initialize the owner to the deployer address during the diamond deployment process.
+</Callout>
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Access control is critical: &#x60;transferOwnership&#x60; must be restricted to the current owner, and &#x60;acceptOwnership&#x60; to the pending owner. Failure to implement proper access control could lead to unauthorized ownership changes. &#x60;renounceOwnership&#x60; permanently relinquishes ownership, so it should be used with caution.
+</Callout>
+
+<div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
+  <WasThisHelpful pageId="OwnerTwoStepsFacet" />
+</div>
+
+<LastUpdated date="2025-12-19T19:08:43.741Z" />

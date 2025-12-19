@@ -1,0 +1,366 @@
+---
+sidebar_position: 99
+title: "ERC721EnumerableMod"
+description: "ERC-721 Enumerable Library for Compose - Thrown when attempting to interact with a non-existent token."
+gitSource: "https://github.com/maxnorm/Compose/blob/7cec432f52f2cad53f4d546df90deb49e6a66d41/src/token/ERC721/ERC721Enumerable/ERC721EnumerableMod.sol"
+---
+
+import DocSubtitle  from '@site/src/components/docs/DocSubtitle';
+import Badge from '@site/src/components/ui/Badge';
+import Callout from '@site/src/components/ui/Callout';
+import CalloutBox from '@site/src/components/ui/CalloutBox';
+import Accordion, { AccordionGroup } from '@site/src/components/ui/Accordion';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+import ExpandableCode from '@site/src/components/code/ExpandableCode';
+import CodeShowcase from '@site/src/components/code/CodeShowcase';
+import RelatedDocs from '@site/src/components/docs/RelatedDocs';
+import WasThisHelpful from '@site/src/components/docs/WasThisHelpful';
+import LastUpdated from '@site/src/components/docs/LastUpdated';
+import ReadingTime from '@site/src/components/docs/ReadingTime';
+import GradientText from '@site/src/components/ui/GradientText';
+import GradientButton from '@site/src/components/ui/GradientButton';
+
+<DocSubtitle>
+ERC-721 Enumerable Library for Compose - Thrown when attempting to interact with a non-existent token.
+</DocSubtitle>
+
+<Callout type="info" title="Key Features">
+- Manages the addition and removal of tokens from internal enumeration lists during mint, transfer, and burn operations.
+- Provides functions to mint new tokens and transfer existing ones while preserving enumerable state integrity.
+- Includes a &#x60;getStorage&#x60; function to retrieve the ERC-721 enumerable storage struct, allowing for direct inspection of enumeration data if necessary.
+</Callout>
+
+<Callout type="info" title="Module Usage">
+This module provides internal functions for use in your custom facets. Import it to access shared logic and storage.
+</Callout>
+
+## Overview
+
+The ERC721EnumerableMod provides essential functions for managing ERC-721 tokens within a Compose diamond, specifically handling enumeration of owned tokens. It ensures that minted, transferred, and burned tokens are correctly reflected in the token tracking lists, maintaining the integrity of the enumerable state.
+
+---
+
+## Storage
+
+### ERC721EnumerableStorage
+
+<ExpandableCode language="solidity" maxLines={15} title="Definition">
+{`struct ERC721EnumerableStorage {
+mapping(uint256 tokenId => address owner) ownerOf;
+mapping(address owner => uint256[] ownerTokens) ownerTokens;
+mapping(uint256 tokenId => uint256 ownerTokensIndex) ownerTokensIndex;
+uint256[] allTokens;
+mapping(uint256 tokenId => uint256 allTokensIndex) allTokensIndex;
+mapping(address owner => mapping(address operator => bool approved)) isApprovedForAll;
+mapping(uint256 tokenId => address approved) approved;
+string name;
+string symbol;
+string baseURI;
+}`}
+</ExpandableCode>
+
+Storage position: &#x60;STORAGE_POSITION&#x60; - Used for diamond storage pattern.
+---
+### State Variables
+
+<PropertyTable
+  properties={[
+    {
+      name: "STORAGE_POSITION",
+      type: "bytes32",
+      description: " (Value: `keccak256(&quot;compose.erc721.enumerable&quot;)`)"
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Functions
+
+### burn
+
+Burns (destroys) an existing ERC-721 token, removing it from enumeration lists. Reverts if the token does not exist or if the sender is not authorized. **Parameters**
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function burn(uint256 _tokenId, address _sender) ;`}
+</ExpandableCode>
+
+**Parameters:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "_tokenId",
+      type: "uint256",
+      description: "The ID of the token to burn."
+    },
+    {
+      name: "_sender",
+      type: "address",
+      description: "The address initiating the burn."
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### getStorage
+
+Returns the ERC-721 enumerable storage struct from its predefined slot. Uses inline assembly to point to the correct diamond storage position. **Returns**
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function getStorage() pure returns (ERC721EnumerableStorage storage s);`}
+</ExpandableCode>
+
+**Returns:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "s",
+      type: "ERC721EnumerableStorage",
+      description: "The storage reference for ERC-721 enumerable state variables."
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### mint
+
+Mints a new ERC-721 token to the specified address, adding it to enumeration lists. Reverts if the receiver address is zero or if the token already exists. **Parameters**
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function mint(address _to, uint256 _tokenId) ;`}
+</ExpandableCode>
+
+**Parameters:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "_to",
+      type: "address",
+      description: "The address that will own the newly minted token."
+    },
+    {
+      name: "_tokenId",
+      type: "uint256",
+      description: "The ID of the token to mint."
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### transferFrom
+
+Transfers a token ID from one address to another, updating enumeration data. Validates ownership, approval, and receiver address before state updates. **Parameters**
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function transferFrom(address _from, address _to, uint256 _tokenId, address _sender) ;`}
+</ExpandableCode>
+
+**Parameters:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "_from",
+      type: "address",
+      description: "The current owner of the token."
+    },
+    {
+      name: "_to",
+      type: "address",
+      description: "The address receiving the token."
+    },
+    {
+      name: "_tokenId",
+      type: "uint256",
+      description: "The ID of the token being transferred."
+    },
+    {
+      name: "_sender",
+      type: "address",
+      description: "The initiator of the transfer (may be owner or approved operator)."
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Events
+
+<AccordionGroup>
+  <Accordion title="Transfer" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Emitted when ownership of a token changes, including minting and burning. **Parameters**
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+{`event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId);`}
+      </ExpandableCode>
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Parameters:</strong>
+      <PropertyTable
+        properties={[
+          {
+            name: "_from",
+            type: "address",
+            description: "The address transferring the token, or zero for minting."
+          },
+          {
+            name: "_to",
+            type: "address",
+            description: "The address receiving the token, or zero for burning."
+          },
+          {
+            name: "_tokenId",
+            type: "uint256",
+            description: "The ID of the token being transferred."
+          }
+        ]}
+        showRequired={false}
+      />
+    </div>
+  </Accordion>
+</AccordionGroup>
+
+## Errors
+
+<AccordionGroup>
+  <Accordion title="ERC721IncorrectOwner" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Thrown when the sender is not the owner of the token. **Parameters**
+    </div>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error ERC721IncorrectOwner(address _sender, uint256 _tokenId, address _owner);
+      </ExpandableCode>
+    </div>
+  </Accordion>
+  <Accordion title="ERC721InsufficientApproval" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Thrown when an operator lacks approval to manage a token. **Parameters**
+    </div>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error ERC721InsufficientApproval(address _operator, uint256 _tokenId);
+      </ExpandableCode>
+    </div>
+  </Accordion>
+  <Accordion title="ERC721InvalidReceiver" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Thrown when the receiver address is invalid. **Parameters**
+    </div>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error ERC721InvalidReceiver(address _receiver);
+      </ExpandableCode>
+    </div>
+  </Accordion>
+  <Accordion title="ERC721InvalidSender" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Thrown when the sender address is invalid. **Parameters**
+    </div>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error ERC721InvalidSender(address _sender);
+      </ExpandableCode>
+    </div>
+  </Accordion>
+  <Accordion title="ERC721NonexistentToken" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Thrown when attempting to interact with a non-existent token. **Parameters**
+    </div>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error ERC721NonexistentToken(uint256 _tokenId);
+      </ExpandableCode>
+    </div>
+  </Accordion>
+</AccordionGroup>
+
+## Usage Example
+
+<ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
+{`pragma solidity ^0.8.30;
+
+import {IERC721EnumerableMod} from "@compose/modules/erc721/interfaces/IERC721EnumerableMod.sol";
+import {IERC721Storage} from "@compose/modules/erc721/storage/IERC721Storage.sol";
+
+contract MyNFTSalesFacet {
+    IERC721EnumerableMod private immutable _erc721EnumerableMod;
+    IERC721Storage private immutable _erc721Storage;
+
+    constructor(address _diamondAddress) {
+        // Assuming the module is registered and accessible via the diamond proxy
+        _erc721EnumerableMod = IERC721EnumerableMod(_diamondAddress);
+        _erc721Storage = IERC721Storage(_diamondAddress);
+    }
+
+    /**
+     * @notice Mints a new token and adds it to the enumerable lists.
+     * @param _to The address to mint the token to.
+     * @param _tokenId The ID of the token to mint.
+     */
+    function mintNewToken(address _to, uint256 _tokenId) external {
+        // Call the mint function provided by the ERC721EnumerableMod
+        _erc721EnumerableMod.mint(_to, _tokenId);
+    }
+
+    /**
+     * @notice Transfers a token, updating enumerable lists.
+     * @param _from The address to transfer from.
+     * @param _to The address to transfer to.
+     * @param _tokenId The ID of the token to transfer.
+     */
+    function transferToken(address _from, address _to, uint256 _tokenId) external {
+        // Call the transferFrom function provided by the ERC721EnumerableMod
+        _erc721EnumerableMod.transferFrom(_from, _to, _tokenId);
+    }
+
+    /**
+     * @notice Burns a token, removing it from enumerable lists.
+     * @param _tokenId The ID of the token to burn.
+     */
+    function burnToken(uint256 _tokenId) external {
+        // Call the burn function provided by the ERC721EnumerableMod
+        _erc721EnumerableMod.burn(_tokenId);
+    }
+}
+`}
+</ExpandableCode>
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Ensure the &#x60;_erc721EnumerableMod&#x60; is correctly initialized with the diamond proxy address. Access control for minting, transferring, and burning should be handled by the calling facet, not within the module itself, promoting composability.
+- Always check for the existence of tokens before attempting to burn or transfer them. The module handles these checks internally, but facets should be aware of potential reverts.
+- Be mindful of gas costs associated with enumerable operations. Maintaining large token lists can increase transaction complexity.
+</Callout>
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+The ERC721EnumerableMod interacts directly with the ERC-721 storage slot defined by the diamond&#x27;s storage pattern. Functions like &#x60;mint&#x60;, &#x60;transferFrom&#x60;, and &#x60;burn&#x60; modify this storage to update the internal tracking of tokens. Facets calling these module functions do not need to directly manipulate the storage; the module handles all state changes related to token enumeration. The order of storage within the ERC-721 struct is critical for the module&#x27;s operation; never reorder or remove fields from the beginning or middle of the struct.
+</Callout>
+
+<div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
+  <WasThisHelpful pageId="ERC721EnumerableMod" />
+</div>
+
+<LastUpdated date="2025-12-19T19:10:11.988Z" />
