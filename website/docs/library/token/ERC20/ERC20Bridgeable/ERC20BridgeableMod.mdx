@@ -1,8 +1,8 @@
 ---
 sidebar_position: 99
 title: "ERC20BridgeableMod"
-description: "Manages cross-chain ERC20 token transfers and minting."
-gitSource: "https://github.com/maxnorm/Compose/blob/2dfa9eb69851162421010a7e56bd0fa891a9311a/src/token/ERC20/ERC20Bridgeable/ERC20BridgeableMod.sol"
+description: "Manages cross-chain ERC20 token bridging operations."
+gitSource: "https://github.com/maxnorm/Compose/blob/7e2dd824639f424be644c4ebbb3ca2508167329f/src/token/ERC20/ERC20Bridgeable/ERC20BridgeableMod.sol"
 ---
 
 import DocSubtitle  from '@site/src/components/docs/DocSubtitle';
@@ -21,13 +21,13 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Manages cross-chain ERC20 token transfers and minting.
+Manages cross-chain ERC20 token bridging operations.
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Enables secure cross-chain minting and burning of ERC20 tokens.
-- Enforces access control, restricting operations to addresses with the `trusted-bridge` role.
-- Provides helper functions to access internal storage for auditing and debugging.
+- Restricts minting and burning operations to addresses holding the `trusted-bridge` role.
+- Provides internal checks for validating bridge accounts and recipient/sender addresses.
+- Leverages diamond storage for managing bridge-related state and access control configurations.
 </Callout>
 
 <Callout type="info" title="Module Usage">
@@ -36,7 +36,7 @@ This module provides internal functions for use in your custom facets. Import it
 
 ## Overview
 
-The ERC20Bridgeable module enables secure cross-chain operations for ERC20 tokens. It provides functions for minting and burning tokens on behalf of other chains, with strict access control to ensure only trusted bridge operators can perform these actions. This module is crucial for maintaining the integrity of token balances across distributed ledger environments.
+The ERC20BridgeableMod provides essential functionality for cross-chain ERC20 token transfers. It ensures that only authorized bridge accounts can perform minting and burning operations across different chains, enhancing security and control for bridged assets. This module integrates seamlessly with Compose diamonds by leveraging the diamond storage pattern for robust state management.
 
 ---
 
@@ -380,19 +380,36 @@ error ERC20InvalidSender(address _sender);
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity ^0.8.30;
 
-import {IERC20BridgeableFacet} from "@compose/contracts/src/facets/ERC20Bridgeable/IERC20BridgeableFacet.sol";
+import {IERC20BridgeableMod} from "@compose-protocol/diamond-contracts/contracts/modules/ERC20Bridgeable/IERC20BridgeableMod.sol";
+import {AccessControlErrors} from "@compose-protocol/diamond-contracts/contracts/modules/AccessControl/AccessControl.sol";
 
-contract MyFacet {
-    IERC20BridgeableFacet internal constant ERC20_BRIDGEABLE = IERC20BridgeableFacet(address(this));
+contract MyBridgeFacet {
+    IERC20BridgeableMod public immutable erc20BridgeableMod;
 
-    function exampleCrosschainBurn(address _token, address _to, uint256 _amount) external {
-        // Ensure the caller has the 'trusted-bridge' role before calling
-        ERC20_BRIDGEABLE.crosschainBurn(_token, _to, _amount);
+    constructor(address _diamondAddress) {
+        erc20BridgeableMod = IERC20BridgeableMod(_diamondAddress);
     }
 
-    function exampleCrosschainMint(address _token, address _to, uint256 _amount) external {
-        // Ensure the caller has the 'trusted-bridge' role before calling
-        ERC20_BRIDGEABLE.crosschainMint(_token, _to, _amount);
+    /**
+     * @notice Burns an ERC20 token on the current chain for cross-chain transfer.
+     * @param _token Address of the ERC20 token to burn.
+     * @param _to The recipient address on the destination chain.
+     * @param _amount The amount of tokens to burn.
+     */
+    function burnForCrosschain(address _token, address _to, uint256 _amount) external {
+        // Assume caller is a trusted bridge address, enforced by the module.
+        erc20BridgeableMod.crosschainBurn(_token, _to, _amount);
+    }
+
+    /**
+     * @notice Mints an ERC20 token on the current chain as part of a cross-chain transfer.
+     * @param _token Address of the ERC20 token to mint.
+     * @param _to The recipient address on the destination chain.
+     * @param _amount The amount of tokens to mint.
+     */
+    function mintFromCrosschain(address _token, address _to, uint256 _amount) external {
+        // Assume caller is a trusted bridge address, enforced by the module.
+        erc20BridgeableMod.crosschainMint(_token, _to, _amount);
     }
 }`}
 </ExpandableCode>
@@ -400,19 +417,19 @@ contract MyFacet {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Ensure the `trusted-bridge` role is correctly configured in the AccessControl facet before using cross-chain functions.
-- Handle potential `ERC20InsufficientBalance`, `ERC20InvalidReciever`, or `ERC20InvalidSender` errors gracefully.
-- Verify that the token address provided to `crosschainBurn` and `crosschainMint` is a valid ERC20 token contract.
+- Ensure that only addresses with the `trusted-bridge` role can call `crosschainBurn` and `crosschainMint` functions. The module enforces this internally.
+- Handle `ERC20InvalidBridgeAccount`, `ERC20InvalidCallerAddress`, `ERC20InvalidReciever`, and `ERC20InvalidSender` errors appropriately to manage invalid bridge operations.
+- Verify that the `_token` address passed to bridging functions is a valid ERC20 token contract.
 </Callout>
 
 ## Integration Notes
 
 <Callout type="success" title="Shared Storage">
-This module interacts with the diamond's storage using predefined slots for ERC20 and AccessControl data. The `getERC20Storage` and `getAccessControlStorage` functions provide access to these structs. The `checkTokenBridge` internal function relies on the `trusted-bridge` role managed by the AccessControl facet. Any changes to the diamond's storage layout that affect these slots may break this module's functionality.
+This module interacts with the diamond's storage for AccessControl and ERC20 state. The `getAccessControlStorage` and `getERC20Storage` functions provide direct access to these storage structs via inline assembly. Callers must ensure they are interacting with a deployed diamond that has these modules correctly initialized. The module relies on the `trusted-bridge` role defined within the AccessControl facet. Changes to the `trusted-bridge` role will directly impact the operability of cross-chain functions.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
   <WasThisHelpful pageId="ERC20BridgeableMod" />
 </div>
 
-<LastUpdated date="2025-12-21T21:44:21.287Z" />
+<LastUpdated date="2025-12-21T21:54:14.096Z" />

@@ -1,8 +1,8 @@
 ---
 sidebar_position: 99
 title: "ERC20PermitFacet"
-description: "Manages ERC-20 token approvals with EIP-2612 permit functionality."
-gitSource: "https://github.com/maxnorm/Compose/blob/2dfa9eb69851162421010a7e56bd0fa891a9311a/src/token/ERC20/ERC20Permit/ERC20PermitFacet.sol"
+description: "Manages ERC-20 token allowances via EIP-2612 permit signatures."
+gitSource: "https://github.com/maxnorm/Compose/blob/7e2dd824639f424be644c4ebbb3ca2508167329f/src/token/ERC20/ERC20Permit/ERC20PermitFacet.sol"
 ---
 
 import DocSubtitle  from '@site/src/components/docs/DocSubtitle';
@@ -21,18 +21,18 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Manages ERC-20 token approvals with EIP-2612 permit functionality.
+Manages ERC-20 token allowances via EIP-2612 permit signatures.
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
 - Implements EIP-2612 permit functionality for ERC-20 tokens.
-- Provides `nonces`, `DOMAIN_SEPARATOR`, and `permit` functions for signature verification and allowance setting.
-- Enhances gas efficiency by allowing off-chain signature generation for approvals.
+- Provides `nonces` and `DOMAIN_SEPARATOR` to support signature generation.
+- Enables gas-less approvals by allowing off-chain signature verification.
 </Callout>
 
 ## Overview
 
-The ERC20PermitFacet enables EIP-2612 compliant token approvals, allowing users to grant allowances to spenders via signed messages. This enhances gas efficiency by enabling off-chain signing of approvals, reducing the need for direct on-chain transactions for this purpose.
+The ERC20PermitFacet enables EIP-2612 compliant off-chain approvals for ERC-20 tokens within a Compose diamond. It allows token owners to grant allowances to spenders using signed messages, bypassing on-chain transactions for approval. This enhances user experience by reducing gas costs and improving flexibility.
 
 ---
 
@@ -286,40 +286,63 @@ error ERC20InvalidSpender(address _spender);
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity ^0.8.30;
 
-import {IERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol";
-import {DiamondLoupeFacet} from "@diamond-labs/diamond-runtime/facets/DiamondLoupeFacet.sol";
+import {IERC20Permit } from "@openzeppelin/contracts/token/ERC20/extensions/draft-IERC20Permit.sol";
+import { ERC20PermitFacet } from "./ERC20PermitFacet.sol";
 
-contract Consumer {
-    address constant DIAMOND_ADDRESS = 0x1234567890abcdef1234567890abcdef1234567890;
+contract MyDiamond {
+    // Assume diamond deployment and facet registration are handled elsewhere
 
-    // Assuming ERC20PermitFacet is added to the diamond
-    // and its selector is known.
-    function consumePermit(address tokenAddress, address spender, uint256 amount, uint256 deadline, bytes calldata signature) external {
-        // Get the ERC20PermitFacet interface
-        IERC20Permit permitFacet = IERC20Permit(DIAMOND_ADDRESS);
+    ERC20PermitFacet private erc20PermitFacet;
 
-        // Call the permit function on the diamond
-        // Note: The actual diamond implementation will route this to the ERC20PermitFacet.
-        permitFacet.permit(tokenAddress, msg.sender, spender, amount, deadline, signature);
+    function setERC20PermitFacet(address _facetAddress) external {
+        erc20PermitFacet = ERC20PermitFacet(_facetAddress);
     }
-}`}
+
+    // Example: Using permit to approve a spender
+    function approveWithPermit(address tokenAddress, address spender, uint256 amount, uint256 deadline, bytes calldata signature) external {
+        // Ensure the ERC20PermitFacet is correctly initialized and has the permit function
+        // In a real scenario, you might use a Diamond Loupe facet to get function selectors
+
+        // Call the permit function via the diamond proxy
+        // Note: The actual call would be routed by the diamond proxy to the registered facet
+        // This example directly calls the facet for demonstration purposes.
+        erc20PermitFacet.permit(tokenAddress, msg.sender, spender, amount, deadline, signature);
+    }
+}
+
+// Example of generating a permit signature (off-chain)
+// require(block.timestamp <= deadline);
+// bytes32 domainSeparator = erc20PermitFacet.DOMAIN_SEPARATOR();
+// uint256 nonce = erc20PermitFacet.nonces(owner);
+// bytes32 digest = keccak256(
+//     abi.encode(
+//         keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"),
+//         owner,
+//         spender,
+//         amount,
+//         nonce,
+//         deadline
+//     )
+// );
+// signature = vm.sign(ownerPrivateKey, digest);`}
 </ExpandableCode>
 
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Integrate the ERC20PermitFacet into your diamond to leverage EIP-2612 permit functionality for gas-efficient approvals.
-- Ensure the `permit` function is correctly called with a valid EIP-712 compliant signature, including the correct domain separator and nonce.
+- Initialize the `ERC20PermitFacet` with the correct ERC-20 token contract address during diamond deployment or upgrade.
+- Ensure the `deadline` provided in the `permit` call is valid and has not passed.
+- Securely manage the private keys used for signing permit messages off-chain.
 </Callout>
 
 ## Security Considerations
 
 <Callout type="warning" title="Security">
-The `permit` function is susceptible to signature replay attacks if the `DOMAIN_SEPARATOR` is not unique per chain and contract, or if nonces are not properly managed. Ensure that the nonce for each owner is incremented after each successful permit usage. The `ERC2612InvalidSignature` and `ERC20InvalidSpender` errors are emitted on invalid signatures or incorrect spender addresses, respectively.
+The `permit` function relies on the signature's validity, which is checked against the owner's nonce and the domain separator. Ensure the `deadline` parameter is strictly enforced to prevent stale permits. The function itself does not have reentrancy risks as it does not make external calls. Access control is implicitly managed by the signature verification; only the `owner` can permit an allowance.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
   <WasThisHelpful pageId="ERC20PermitFacet" />
 </div>
 
-<LastUpdated date="2025-12-21T21:44:04.958Z" />
+<LastUpdated date="2025-12-21T21:53:58.488Z" />

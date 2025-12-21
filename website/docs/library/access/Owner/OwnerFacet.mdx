@@ -1,8 +1,8 @@
 ---
 sidebar_position: 99
 title: "OwnerFacet"
-description: "Owner facet for Compose diamonds"
-gitSource: "https://github.com/maxnorm/Compose/blob/2dfa9eb69851162421010a7e56bd0fa891a9311a/src/access/Owner/OwnerFacet.sol"
+description: "Manages diamond ownership and transfer."
+gitSource: "https://github.com/maxnorm/Compose/blob/7e2dd824639f424be644c4ebbb3ca2508167329f/src/access/Owner/OwnerFacet.sol"
 ---
 
 import DocSubtitle  from '@site/src/components/docs/DocSubtitle';
@@ -21,19 +21,18 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Owner facet for Compose diamonds
+Manages diamond ownership and transfer.
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Self-contained facet with no imports or inheritance
-- Only `external` and `internal` function visibility
-- Follows Compose readability-first conventions
-- Ready for diamond integration
+- Provides standard ERC-173 ownership pattern.
+- Allows for programmatic ownership transfer and renouncement.
+- Exposes storage slot for direct access via `getStorage` (advanced usage).
 </Callout>
 
 ## Overview
 
-Owner facet for Compose diamonds
+The OwnerFacet provides essential functions for managing the ownership of a Compose diamond. It allows for retrieving the current owner, transferring ownership to a new address, and renouncing ownership entirely. This facet is crucial for controlling administrative functions and upgradeability within the diamond.
 
 ---
 
@@ -163,8 +162,50 @@ error OwnerUnauthorizedAccount();
   </Accordion>
 </AccordionGroup>
 
+## Usage Example
+
+<ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
+{`pragma solidity ^0.8.30;
+
+import {IOwnerFacet} from "@compose/diamond/facets/Owner/IOwnerFacet.sol";
+
+contract OwnerCaller {
+    IOwnerFacet immutable ownerFacet;
+
+    constructor(address diamondAddress) {
+        ownerFacet = IOwnerFacet(diamondAddress);
+    }
+
+    function getOwner() external view returns (address) {
+        return ownerFacet.owner();
+    }
+
+    function transferDiamondOwnership(address _newOwner) external {
+        ownerFacet.transferOwnership(_newOwner);
+    }
+
+    function renounceDiamondOwnership() external {
+        ownerFacet.renounceOwnership();
+    }
+}`}
+</ExpandableCode>
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Ensure the OwnerFacet is initialized with the correct owner during diamond deployment.
+- Access administrative functions guarded by ownership checks judiciously, preferably through dedicated facets that call these owner-related functions.
+- Consider the implications of renouncing ownership, as it makes administrative control irreversible.
+</Callout>
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Ownership is a critical administrative privilege. Ensure that `transferOwnership` and `renounceOwnership` are only callable by the current owner. The `owner` function is view-only and safe. Input validation for `_newOwner` in `transferOwnership` should prevent zero addresses unless explicitly for renouncement. No reentrancy concerns as functions do not make external calls or modify state in a way that allows reentrancy.
+</Callout>
+
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
   <WasThisHelpful pageId="OwnerFacet" />
 </div>
 
-<LastUpdated date="2025-12-21T21:43:44.793Z" />
+<LastUpdated date="2025-12-21T21:53:36.229Z" />

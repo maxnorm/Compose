@@ -1,8 +1,8 @@
 ---
 sidebar_position: 99
 title: "OwnerTwoStepsMod"
-description: "Manages contract ownership with a two-step transfer process."
-gitSource: "https://github.com/maxnorm/Compose/blob/2dfa9eb69851162421010a7e56bd0fa891a9311a/src/access/OwnerTwoSteps/OwnerTwoStepsMod.sol"
+description: "Two-step contract ownership transfer and management."
+gitSource: "https://github.com/maxnorm/Compose/blob/7e2dd824639f424be644c4ebbb3ca2508167329f/src/access/OwnerTwoSteps/OwnerTwoStepsMod.sol"
 ---
 
 import DocSubtitle  from '@site/src/components/docs/DocSubtitle';
@@ -21,13 +21,14 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Manages contract ownership with a two-step transfer process.
+Two-step contract ownership transfer and management.
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Enforces a two-step ownership transfer process for enhanced security.
-- Provides explicit functions to check current and pending ownership status.
-- Includes a permissionless `renounceOwnership` function to permanently relinquish control.
+- Secure two-step ownership transfer process.
+- Functions to view current and pending owners.
+- `requireOwner()` modifier for access control.
+- `renounceOwnership()` to relinquish ownership.
 </Callout>
 
 <Callout type="info" title="Module Usage">
@@ -36,7 +37,7 @@ This module provides internal functions for use in your custom facets. Import it
 
 ## Overview
 
-This module implements a secure two-step ownership transfer mechanism. It prevents accidental ownership loss by requiring a pending owner to explicitly accept the transfer, enhancing contract safety and upgradeability.
+This module implements a secure two-step ownership transfer mechanism, preventing accidental ownership loss. It adheres to standard ownership patterns, providing functions to manage current and pending owners, and enforce ownership restrictions.
 
 ---
 
@@ -253,33 +254,37 @@ error OwnerUnauthorizedAccount();
 {`pragma solidity ^0.8.30;
 
 import {IOwnerTwoSteps} from "./interfaces/IOwnerTwoSteps.sol";
+import {OwnerTwoStepsMod} from "./OwnerTwoStepsMod.sol";
 
-contract MyDiamondFacet {
-    IOwnerTwoSteps internal ownerFacet;
+contract MyFacet {
+    IOwnerTwoSteps immutable ownerFacet;
 
-    constructor(address _ownerFacetAddress) {
-        ownerFacet = IOwnerTwoSteps(_ownerFacetAddress);
+    constructor(address _diamondAddress) {
+        // Assuming OwnerTwoStepsMod is deployed and its facet address is known
+        // This is a placeholder address, actual implementation would fetch facet address
+        address ownerFacetAddress = address(0x1234567890abcdef1234567890abcdef1234567890);
+        ownerFacet = IOwnerTwoSteps(ownerFacetAddress);
     }
 
-    function handleOwnershipTransfer() external {
-        address currentOwner = ownerFacet.owner();
-        address pending = ownerFacet.pendingOwner();
-
-        // If there's a pending owner, the current owner can accept it.
-        // Otherwise, initiate a new transfer.
-        if (pending != address(0)) {
-            // Assume the current owner is calling to accept.
-            ownerFacet.acceptOwnership();
-        } else {
-            // Transfer ownership to a new address.
-            address newOwner = address(1); // Replace with actual new owner address
-            ownerFacet.transferOwnership(newOwner);
-        }
+    function changeOwner(address _newOwner) external {
+        ownerFacet.transferOwnership(_newOwner);
     }
 
-    function protectAdminAction() external {
+    function acceptNewOwner() external {
+        ownerFacet.acceptOwnership();
+    }
+
+    function getCurrentOwner() external view returns (address) {
+        return ownerFacet.owner();
+    }
+
+    function getPendingOwner() external view returns (address) {
+        return ownerFacet.pendingOwner();
+    }
+
+    function protectMyFunction() external {
         ownerFacet.requireOwner();
-        // ... admin-specific logic ...
+        // ... owner-only logic ...
     }
 }`}
 </ExpandableCode>
@@ -287,19 +292,19 @@ contract MyDiamondFacet {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Use `transferOwnership` to initiate transfers and `acceptOwnership` to finalize them to prevent accidental ownership changes.
-- Implement `requireOwner` checks before critical administrative functions to enforce access control.
-- Be aware that `renounceOwnership` permanently removes ownership, disabling all owner-restricted functions.
+- Always use `transferOwnership` followed by `acceptOwnership` to change ownership, ensuring security against accidental renunciations or transfers to incorrect addresses.
+- Implement `requireOwner()` checks within your facets for any sensitive operations that should only be executable by the contract owner.
+- Be aware of the owner address when deploying or upgrading facets; ensure ownership is correctly transferred to the intended party.
 </Callout>
 
 ## Integration Notes
 
 <Callout type="success" title="Shared Storage">
-The `OwnerTwoStepsMod` utilizes dedicated storage slots for `OwnerStorage` and `PendingOwnerStorage`. Facets can interact with these storage variables via the provided `getOwnerStorage` and `getPendingOwnerStorage` functions, which use inline assembly to access the correct storage locations. Any facet can call these functions to read ownership information. Ownership checks are performed by calling `requireOwner` on the `OwnerTwoStepsMod` facet.
+This module utilizes distinct storage slots for owner and pending owner addresses, defined by `OWNER_STORAGE_POSITION` and `PENDING_OWNER_STORAGE_POSITION`. Facets interacting with ownership should use the provided getter functions (`owner()`, `pendingOwner()`) or directly access these storage slots via inline assembly if necessary. Ensure these storage positions do not conflict with other facets. Changes to owner or pending owner are immediately visible through the respective getter functions.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
   <WasThisHelpful pageId="OwnerTwoStepsMod" />
 </div>
 
-<LastUpdated date="2025-12-21T21:43:25.251Z" />
+<LastUpdated date="2025-12-21T21:53:17.319Z" />
