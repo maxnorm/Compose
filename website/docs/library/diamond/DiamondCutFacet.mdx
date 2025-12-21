@@ -1,8 +1,8 @@
 ---
 sidebar_position: 99
 title: "DiamondCutFacet"
-description: "Manage diamond facets and functions within a diamond proxy."
-gitSource: "https://github.com/maxnorm/Compose/blob/2dfa9eb69851162421010a7e56bd0fa891a9311a/src/diamond/DiamondCutFacet.sol"
+description: "Manages diamond upgrades and facet installations."
+gitSource: "https://github.com/maxnorm/Compose/blob/7e2dd824639f424be644c4ebbb3ca2508167329f/src/diamond/DiamondCutFacet.sol"
 ---
 
 import DocSubtitle  from '@site/src/components/docs/DocSubtitle';
@@ -21,18 +21,19 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Manage diamond facets and functions within a diamond proxy.
+Manages diamond upgrades and facet installations.
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Supports adding, replacing, and removing functions and entire facets.
-- Allows optional execution of an initialization function during a cut operation.
-- Provides access to diamond storage and owner information through dedicated functions.
+- Supports adding, replacing, and removing facets.
+- Enables atomic initialization of new facets during upgrades.
+- Provides functions to inspect diamond storage and owner.
+- Enforces owner-only access for critical cut operations.
 </Callout>
 
 ## Overview
 
-The DiamondCutFacet provides essential functionality for managing the diamond proxy's facets and functions. It allows for adding, replacing, and removing functions, as well as executing arbitrary code during the cut operation. This facet is crucial for upgrading and extending the diamond's capabilities.
+The DiamondCutFacet provides the essential functionality for upgrading and modifying a diamond proxy. It allows for the addition, replacement, and removal of facets, enabling dynamic updates to the diamond's capabilities. This facet is crucial for the composability and evolvability of Compose diamonds.
 
 ---
 
@@ -368,29 +369,25 @@ error InitializationFunctionReverted(address _initializationContractAddress, byt
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity ^0.8.30;
 
-import {IDiamondCut} from "@compose-protocol/diamond-contracts/contracts/interfaces/IDiamondCut.sol";
+import {IDiamondCut} from "@compose/diamond-contracts/contracts/facets/DiamondCutFacet.sol";
 
-contract DiamondCutConsumer {
-    IDiamondCut public diamondCutFacet;
+contract Deployer {
+    address immutable diamondProxy;
 
-    constructor(address _diamondCutFacetAddress) {
-        diamondCutFacet = IDiamondCut(_diamondCutFacetAddress);
+    constructor(address _diamondProxy) {
+        diamondProxy = _diamondProxy;
     }
 
-    function addMyFacet(address _facetAddress, bytes4[] memory _functionSelectors) external {
-        // Assume DiamondLoupeFacet is already deployed and its selectors are known
-        // Assume MyFacet is deployed at _facetAddress
-        diamondCutFacet.diamondCut([(_facetAddress, IDiamondCut.FacetCutAction.Add, _functionSelectors)], address(0), "");
+    function upgradeDiamond(bytes[] memory facetCuts, address init, bytes memory initCalldata) external {
+        IDiamondCut(diamondProxy).diamondCut(facetCuts, init, initCalldata);
     }
 
-    function replaceMyFacet(address _newFacetAddress, bytes4[] memory _functionSelectors) external {
-        // Assume MyFacet is deployed at _newFacetAddress
-        diamondCutFacet.diamondCut([(_newFacetAddress, IDiamondCut.FacetCutAction.Replace, _functionSelectors)], address(0), "");
-    }
-
-    function removeMyFacet(bytes4[] memory _functionSelectors) external {
-        // Remove functions associated with a facet
-        diamondCutFacet.diamondCut([], address(0), ""); // Placeholder for actual function removal logic
+    function addMyFacet(address facetAddress, bytes4[] memory selectors) external {
+        bytes[] memory facetCuts = new bytes[](1);
+        // Assuming facetAddress and selectors are properly encoded for diamondCut
+        // Placeholder for actual encoding logic
+        facetCuts[0] = abi.encode(facetAddress, selectors);
+        IDiamondCut(diamondProxy).diamondCut(facetCuts, address(0), "");
     }
 }`}
 </ExpandableCode>
@@ -398,19 +395,19 @@ contract DiamondCutConsumer {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Use `diamondCut` to atomically add, replace, or remove functions and facets. This ensures consistency and prevents partial upgrades.
-- Always provide selectors when adding or replacing facets to ensure the diamond can route calls correctly.
-- For upgrades, carefully manage the `InitializationFunctionReverted` error to ensure new facet initializers execute successfully.
+- Ensure the caller has the necessary ownership or permissions to execute `diamondCut`.
+- Carefully validate facet addresses and selector ranges before performing cuts to prevent unintended changes.
+- Use the `init` and `initCalldata` parameters for atomic initialization of new facets during an upgrade.
 </Callout>
 
 ## Security Considerations
 
 <Callout type="warning" title="Security">
-Access control is paramount; only authorized addresses (typically the diamond owner) should be able to call `diamondCut` to prevent unauthorized modifications to the diamond's functionality. Ensure that facet addresses provided are valid and that selectors do not conflict with existing functions, especially immutable ones. Reentrancy is mitigated by the atomic nature of the `diamondCut` operation.
+The `diamondCut` function is highly sensitive and should only be callable by authorized addresses (typically the diamond owner). Incorrectly specifying facet addresses or selectors can lead to denial of service or loss of functionality. Reentrancy is not a direct concern within `diamondCut` itself, but any `init` function executed via `delegatecall` must be carefully audited for reentrancy vulnerabilities.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
   <WasThisHelpful pageId="DiamondCutFacet" />
 </div>
 
-<LastUpdated date="2025-12-21T21:45:34.002Z" />
+<LastUpdated date="2025-12-21T21:55:29.333Z" />

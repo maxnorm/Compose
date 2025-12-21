@@ -1,8 +1,8 @@
 ---
 sidebar_position: 99
 title: "RoyaltyMod"
-description: "Manages ERC-2981 royalties for tokens and defaults."
-gitSource: "https://github.com/maxnorm/Compose/blob/2dfa9eb69851162421010a7e56bd0fa891a9311a/src/token/Royalty/RoyaltyMod.sol"
+description: "Manage ERC-2981 royalties for tokens and defaults."
+gitSource: "https://github.com/maxnorm/Compose/blob/7e2dd824639f424be644c4ebbb3ca2508167329f/src/token/Royalty/RoyaltyMod.sol"
 ---
 
 import DocSubtitle  from '@site/src/components/docs/DocSubtitle';
@@ -21,13 +21,14 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Manages ERC-2981 royalties for tokens and defaults.
+Manage ERC-2981 royalties for tokens and defaults.
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Supports both default and token-specific royalty configurations.
-- Implements ERC-2981 `royaltyInfo` function logic, including fallback to defaults.
-- Provides functions to set, delete, and reset royalty information.
+- Implements ERC-2981 standard for on-chain royalties.
+- Supports both default royalties and token-specific overrides.
+- Provides functions for setting, deleting, and querying royalty information.
+- Utilizes diamond storage access for efficient state management.
 </Callout>
 
 <Callout type="info" title="Module Usage">
@@ -36,7 +37,7 @@ This module provides internal functions for use in your custom facets. Import it
 
 ## Overview
 
-This module provides robust ERC-2981 royalty enforcement by managing both default and token-specific royalty configurations. It allows setting, retrieving, and deleting royalty information, ensuring compliance with the standard and enabling revenue sharing for NFTs.
+This module provides the core logic for implementing the ERC-2981 royalty standard. It allows setting and querying default royalties applicable to all tokens, as well as token-specific royalties that override the defaults. This composable approach enables diamonds to efficiently manage royalty distributions.
 
 ---
 
@@ -299,26 +300,33 @@ error ERC2981InvalidTokenRoyaltyReceiver(uint256 _tokenId, address _receiver);
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity ^0.8.30;
 
-import {IRoyaltyMod} from "@compose/diamond-contracts/contracts/modules/royalty/IRoyaltyMod.sol";
-import {IERC2981} from "@openzeppelin/contracts/interfaces/IERC2981.sol";
+import {IRoyaltyMod} from "../modules/royalty/IRoyaltyMod.sol";
 
-contract MyFacet is IRoyaltyMod {
-    address immutable _diamondAddress;
+contract RoyaltyFacet {
+    // Assume IRoyaltyMod is correctly interfaced with the diamond proxy
+    IRoyaltyMod internal royaltyMod;
 
-    constructor(address diamondAddress) {
-        _diamondAddress = diamondAddress;
+    // Initialization would set royaltyMod to the diamond's RoyaltyMod facet address
+
+    /**
+     * @notice Sets a specific royalty for a token.
+     * @param _tokenId The ID of the token.
+     * @param _receiver The address to receive the royalty payment.
+     * @param _feeBasisPoints The royalty fee in basis points (e.g., 100 for 1%).
+     */
+    function setTokenRoyalty(uint256 _tokenId, address _receiver, uint16 _feeBasisPoints) external {
+        royaltyMod.setTokenRoyalty(_tokenId, _receiver, _feeBasisPoints);
     }
 
-    function _getRoyaltyMod() internal view returns (IRoyaltyMod) {
-        return IRoyaltyMod(_diamondAddress);
-    }
-
-    function exampleSetRoyalty(uint256 tokenId, address receiver, uint16 basisPoints) external {
-        _getRoyaltyMod().setTokenRoyalty(tokenId, receiver, basisPoints);
-    }
-
-    function exampleRoyaltyInfo(uint256 tokenId, uint256 salePrice) external view returns (address receiver, uint16 basisPoints) {
-        return _getRoyaltyMod().royaltyInfo(tokenId, salePrice);
+    /**
+     * @notice Gets royalty information for a token.
+     * @param _tokenId The ID of the token.
+     * @param _salePrice The sale price of the token.
+     * @return receiver The address receiving the royalty.
+     * @return feeAmount The royalty amount.
+     */
+    function royaltyInfo(uint256 _tokenId, uint256 _salePrice) external view returns (address receiver, uint256 feeAmount) {
+        return royaltyMod.royaltyInfo(_tokenId, _salePrice);
     }
 }`}
 </ExpandableCode>
@@ -326,19 +334,19 @@ contract MyFacet is IRoyaltyMod {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Use `setDefaultRoyalty` for global royalty settings and `setTokenRoyalty` for specific exceptions.
-- Validate receiver addresses and basis points before setting royalties to prevent errors.
-- Be aware that `resetTokenRoyalty` will revert token-specific settings to the default.
+- Always validate `_receiver` and `_feeBasisPoints` before setting royalties to prevent invalid configurations.
+- Use `resetTokenRoyalty` to revert to default royalties for a token, ensuring predictable state changes.
+- Be aware that `royaltyInfo` will first check for token-specific royalties before falling back to default royalties.
 </Callout>
 
 ## Integration Notes
 
 <Callout type="success" title="Shared Storage">
-The RoyaltyMod utilizes a predefined storage slot to store its royalty configuration. The `getStorage` function provides direct access to this storage struct. Facets interacting with royalty logic should call the functions defined in `IRoyaltyMod` to ensure proper interaction with the diamond's storage and maintain consistency.
+The RoyaltyMod stores royalty configurations in a predefined storage slot within the diamond. The `getStorage` function provides direct access to this storage struct. Facets interacting with this module should use the `IRoyaltyMod` interface. Token-specific royalties are stored using a mapping within the main royalty storage struct, keyed by `tokenId`. Default royalties are also stored within this struct. Changes to default royalties affect all tokens that do not have specific royalty configurations set.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
   <WasThisHelpful pageId="RoyaltyMod" />
 </div>
 
-<LastUpdated date="2025-12-21T21:45:13.132Z" />
+<LastUpdated date="2025-12-21T21:55:05.773Z" />

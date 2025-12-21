@@ -1,8 +1,8 @@
 ---
 sidebar_position: 99
 title: "NonReentrancyMod"
-description: "Prevent reentrant calls within facets."
-gitSource: "https://github.com/maxnorm/Compose/blob/2dfa9eb69851162421010a7e56bd0fa891a9311a/src/libraries/NonReentrancyMod.sol"
+description: "Enforce non-reentrant execution within diamond functions."
+gitSource: "https://github.com/maxnorm/Compose/blob/7e2dd824639f424be644c4ebbb3ca2508167329f/src/libraries/NonReentrancyMod.sol"
 ---
 
 import DocSubtitle  from '@site/src/components/docs/DocSubtitle';
@@ -21,13 +21,13 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Prevent reentrant calls within facets.
+Enforce non-reentrant execution within diamond functions.
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Provides `enter()` and `exit()` functions to manage reentrancy locks.
-- Utilizes a dedicated storage slot for reentrancy state, ensuring isolation.
-- Guards against reentrancy attacks by preventing recursive calls within protected functions.
+- Prevents recursive or reentrant function calls within a single transaction.
+- Provides explicit `enter` and `exit` functions for clear control flow.
+- Utilizes a custom `Reentrancy` error for gas-efficient error reporting.
 </Callout>
 
 <Callout type="info" title="Module Usage">
@@ -36,7 +36,7 @@ This module provides internal functions for use in your custom facets. Import it
 
 ## Overview
 
-The NonReentrancyMod provides essential functionality to prevent reentrant function calls within your diamond facets. By implementing checks before and after critical operations, it ensures the integrity of state transitions and guards against common reentrancy attacks.
+The NonReentrancyMod provides essential guards to prevent reentrant calls within your diamond's facets. By using its `enter` and `exit` functions, you can safely manage state transitions and ensure that a function completes its execution without being interrupted by itself or another function within the same transaction context. This is crucial for maintaining data integrity and preventing unexpected behavior in complex interactions.
 
 ---
 
@@ -96,21 +96,22 @@ error Reentrancy();
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity ^0.8.30;
 
-import {LibNonReentrancy} from "./libraries/LibNonReentrancy.sol";
+import {NonReentrancyMod} from "@compose/modules/NonReentrancyMod.sol";
 
 contract MyFacet {
-    using LibNonReentrancy for LibNonReentrancy.NonReentrancyStorage;
+    // Assume NonReentrancyMod is deployed and its address is accessible
+    address internal constant NON_REENTRANCY_MOD_ADDRESS = address(0x123);
 
-    LibNonReentrancy.NonReentrancyStorage private _nonReentrancyStorage;
+    function vulnerableFunction() external {
+        NonReentrancyMod.enter(NON_REENTRANCY_MOD_ADDRESS);
 
-    function doSomethingImportant() external {
-        // Acquire reentrancy lock
-        _nonReentrancyStorage.enter();
+        // ... perform critical operations ...
 
-        // ... perform state-changing operations ...
+        NonReentrancyMod.exit(NON_REENTRANCY_MOD_ADDRESS);
+    }
 
-        // Release reentrancy lock
-        _nonReentrancyStorage.exit();
+    function anotherFunction() external {
+        // This function can be called by vulnerableFunction if reentrancy is not prevented
     }
 }`}
 </ExpandableCode>
@@ -118,19 +119,19 @@ contract MyFacet {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Always call `enter()` at the beginning of a function that should not be reentrant.
-- Always call `exit()` at the end of such a function, ensuring it is called even if an error occurs within the protected block.
-- Use the `Reentrancy` custom error for clear and gas-efficient error handling.
+- Always call `NonReentrancyMod.enter()` at the beginning of a function and `NonReentrancyMod.exit()` at the end. Ensure `exit` is called even if an error occurs using `try/catch` or other error handling mechanisms.
+- Use the `Reentrancy` custom error to revert when reentrant calls are detected, providing clear feedback to the caller.
+- Integrate the non-reentrancy checks as early as possible in your transaction flow to prevent potential exploits.
 </Callout>
 
 ## Integration Notes
 
 <Callout type="success" title="Shared Storage">
-The `LibNonReentrancy` library manages its state within a `NonReentrancyStorage` struct. This struct should be declared and initialized in the facet that utilizes the library. The `enter` and `exit` functions operate on this storage, ensuring that reentrancy protection is specific to the facet's instance of the storage. The library itself does not introduce new diamond storage slots; it relies on the facet to manage its own storage.
+The NonReentrancyMod operates by managing a reentrancy guard state. When `enter` is called, it checks and sets a flag. If the flag is already set, it reverts with the `Reentrancy` error. `exit` clears this flag. Facets interacting with this module must ensure they call `enter` and `exit` in the correct order and handle potential reverts gracefully. The module's state is managed independently and does not directly interact with diamond storage structs.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
   <WasThisHelpful pageId="NonReentrancyMod" />
 </div>
 
-<LastUpdated date="2025-12-21T21:45:40.876Z" />
+<LastUpdated date="2025-12-21T21:55:37.933Z" />

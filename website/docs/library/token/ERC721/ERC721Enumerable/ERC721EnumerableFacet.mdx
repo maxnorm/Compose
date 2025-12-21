@@ -1,8 +1,8 @@
 ---
 sidebar_position: 99
 title: "ERC721EnumerableFacet"
-description: "Enumerable ERC-721 token management and querying."
-gitSource: "https://github.com/maxnorm/Compose/blob/2dfa9eb69851162421010a7e56bd0fa891a9311a/src/token/ERC721/ERC721Enumerable/ERC721EnumerableFacet.sol"
+description: "Enumerable ERC-721 token functionality for diamonds."
+gitSource: "https://github.com/maxnorm/Compose/blob/7e2dd824639f424be644c4ebbb3ca2508167329f/src/token/ERC721/ERC721Enumerable/ERC721EnumerableFacet.sol"
 ---
 
 import DocSubtitle  from '@site/src/components/docs/DocSubtitle';
@@ -21,18 +21,18 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Enumerable ERC-721 token management and querying.
+Enumerable ERC-721 token functionality for diamonds.
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Full ERC-721 functionality with enumeration.
-- `tokenOfOwnerByIndex` enables querying tokens by owner and index.
-- Supports `safeTransferFrom` for secure token transfers to contract recipients.
+- Full ERC-721 enumerable implementation.
+- Efficient querying of token metadata, supply, and ownership.
+- Supports standard ERC-721 transfer and approval functions.
 </Callout>
 
 ## Overview
 
-This facet provides comprehensive ERC-721 compliant functionality, including token enumeration capabilities. It allows querying token names, symbols, URIs, total supply, individual token ownership, balances, and approvals. The `tokenOfOwnerByIndex` function is key for iterating through a user's tokens.
+This facet provides the complete ERC-721 enumerable extension, enabling efficient querying of token supply, ownership, and balances. It integrates seamlessly into a Compose diamond, offering a robust standard for non-fungible token management.
 
 ---
 
@@ -690,30 +690,29 @@ error ERC721OutOfBoundsIndex(address _owner, uint256 _index);
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity ^0.8.30;
 
-import {IERC721EnumerableFacet} from "@compose-protocol/diamond/contracts/facets/ERC721/IERC721EnumerableFacet.sol";
+import {IERC721EnumerableFacet} from "@compose-protocol/diamond/facets/ERC721/IERC721EnumerableFacet.sol";
 
-contract ERC721EnumerableConsumer {
-    IERC721EnumerableFacet immutable erc721Facet;
+contract MyDiamondConsumer {
+    address immutable diamondAddress;
 
     constructor(address _diamondAddress) {
-        erc721Facet = IERC721EnumerableFacet(_diamondAddress);
+        diamondAddress = _diamondAddress;
     }
 
-    function getTokenSupply() external view returns (uint256) {
-        return erc721Facet.totalSupply();
+    function getTotalSupply() external view returns (uint256) {
+        // Selector for totalSupply function
+        bytes4 selector = IERC721EnumerableFacet.totalSupply.selector;
+        (bool success, bytes memory data) = diamondAddress.staticcall(abi.encodeWithSelector(selector));
+        require(success, "Call failed");
+        return abi.decode(data, (uint256));
     }
 
-    function getTokenOwner(uint256 _tokenId) external view returns (address) {
-        return erc721Facet.ownerOf(_tokenId);
-    }
-
-    function getTokensOwned(address _owner) external view returns (uint256[] memory) {
-        uint256 count = erc721Facet.balanceOf(_owner);
-        uint256[] memory tokenIds = new uint256[](count);
-        for (uint256 i = 0; i < count; i++) {
-            tokenIds[i] = erc721Facet.tokenOfOwnerByIndex(_owner, i);
-        }
-        return tokenIds;
+    function getOwnerOfToken(uint256 _tokenId) external view returns (address) {
+        // Selector for ownerOf function
+        bytes4 selector = IERC721EnumerableFacet.ownerOf.selector;
+        (bool success, bytes memory data) = diamondAddress.staticcall(abi.encodeWithSelector(selector, _tokenId));
+        require(success, "Call failed");
+        return abi.decode(data, (address));
     }
 }`}
 </ExpandableCode>
@@ -721,19 +720,19 @@ contract ERC721EnumerableConsumer {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Use `tokenOfOwnerByIndex` carefully for large token balances, as it requires multiple calls and can be gas-intensive.
-- Ensure proper access control is implemented at the diamond level for functions like `approve` and `transferFrom`.
-- When upgrading the diamond, ensure the storage layout of this facet remains compatible.
+- Initialize the facet with a unique storage slot to prevent state collisions.
+- Use the `internalTransferFrom` function only within trusted internal contract logic to maintain ownership integrity.
+- Ensure the diamond's access control mechanisms correctly gate administrative functions like approvals.
 </Callout>
 
 ## Security Considerations
 
 <Callout type="warning" title="Security">
-The `internalTransferFrom` function is intended for internal use by the facet itself and should not be directly exposed. Ensure that external calls to `transferFrom` and `safeTransferFrom` are properly validated for sender and receiver permissions. `approve` and `setApprovalForAll` require caller authorization. Reentrancy is mitigated by standard ERC721 patterns and the diamond proxy architecture.
+Access control for `approve` and `setApprovalForAll` must be handled by the diamond's meta-contract. Ensure `internalTransferFrom` is not exposed externally. Input validation for token IDs and addresses is crucial to prevent errors and potential exploits. Be mindful of gas costs for enumerable operations on very large token supplies.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
   <WasThisHelpful pageId="ERC721EnumerableFacet" />
 </div>
 
-<LastUpdated date="2025-12-21T21:44:53.497Z" />
+<LastUpdated date="2025-12-21T21:54:45.113Z" />

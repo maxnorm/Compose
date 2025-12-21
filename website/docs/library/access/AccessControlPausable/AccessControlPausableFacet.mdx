@@ -1,8 +1,8 @@
 ---
 sidebar_position: 99
 title: "AccessControlPausableFacet"
-description: "Access Control Pausable facet for Compose diamonds"
-gitSource: "https://github.com/maxnorm/Compose/blob/2dfa9eb69851162421010a7e56bd0fa891a9311a/src/access/AccessControlPausable/AccessControlPausableFacet.sol"
+description: "Manage role pausing and access control within a diamond."
+gitSource: "https://github.com/maxnorm/Compose/blob/7e2dd824639f424be644c4ebbb3ca2508167329f/src/access/AccessControlPausable/AccessControlPausableFacet.sol"
 ---
 
 import DocSubtitle  from '@site/src/components/docs/DocSubtitle';
@@ -21,19 +21,18 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Access Control Pausable facet for Compose diamonds
+Manage role pausing and access control within a diamond.
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Self-contained facet with no imports or inheritance
-- Only `external` and `internal` function visibility
-- Follows Compose readability-first conventions
-- Ready for diamond integration
+- Role-specific pausing: Temporarily disable specific roles without affecting others.
+- Admin-controlled operations: Pausing and unpausing are restricted to the role's administrator.
+- Integrated checks: `requireRoleNotPaused` provides a convenient way to enforce pause states.
 </Callout>
 
 ## Overview
 
-Access Control Pausable facet for Compose diamonds
+This facet provides granular control over role permissions by allowing specific roles to be temporarily paused. It integrates with Compose's access control system, enabling administrators to halt operations for a role without revoking permissions entirely. This enhances operational flexibility and security during critical events or upgrades.
 
 ---
 
@@ -322,8 +321,58 @@ error AccessControlRolePaused(bytes32 _role);
   </Accordion>
 </AccordionGroup>
 
+## Usage Example
+
+<ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
+{`pragma solidity ^0.8.30;
+
+import {DiamondLoupeFacet} from "@compose-protocol/diamond-contracts/core/facets/DiamondLoupeFacet.sol";
+import {AccessControlPausableFacet} from "@compose-protocol/diamond-contracts/core/facets/AccessControlPausableFacet.sol";
+
+contract MyDiamond is DiamondLoupeFacet {
+    // Facet addresses would be set during diamond deployment
+    address public accessControlPausableFacetAddress;
+
+    constructor(address _accessControlPausableFacetAddress) {
+        accessControlPausableFacetAddress = _accessControlPausableFacetAddress;
+    }
+
+    function pauseMyRole() external {
+        AccessControlPausableFacet(accessControlPausableFacetAddress).pauseRole(bytes32("MY_ROLE"));
+    }
+
+    function unpauseMyRole() external {
+        AccessControlPausableFacet(accessControlPausableFacetAddress).unpauseRole(bytes32("MY_ROLE"));
+    }
+
+    function isMyRolePaused() external view returns (bool) {
+        return AccessControlPausableFacet(accessControlPausableFacetAddress).isRolePaused(bytes32("MY_ROLE"));
+    }
+
+    // Function that requires the role not to be paused
+    function performMyRoleAction() external {
+        AccessControlPausableFacet(accessControlPausableFacetAddress).requireRoleNotPaused(msg.sender, bytes32("MY_ROLE"));
+        // Actual role-dependent logic here
+    }
+}`}
+</ExpandableCode>
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Ensure the `AccessControlPausableFacet` is deployed as part of your diamond and its address is correctly registered.
+- Use `requireRoleNotPaused` within functions that depend on a role's active status to enforce pausing logic.
+- Only the designated admin for a role should have the authority to pause or unpause it.
+</Callout>
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Access to `pauseRole` and `unpauseRole` is restricted to the role's admin. The `requireRoleNotPaused` function reverts if the caller does not possess the specified role or if the role is currently paused, preventing unauthorized actions or actions during a paused state. Ensure role administration is handled securely.
+</Callout>
+
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
   <WasThisHelpful pageId="AccessControlPausableFacet" />
 </div>
 
-<LastUpdated date="2025-12-21T21:43:34.621Z" />
+<LastUpdated date="2025-12-21T21:53:25.455Z" />

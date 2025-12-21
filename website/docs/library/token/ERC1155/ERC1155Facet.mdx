@@ -1,8 +1,8 @@
 ---
 sidebar_position: 99
 title: "ERC1155Facet"
-description: "Manage ERC-1155 fungible and non-fungible tokens."
-gitSource: "https://github.com/maxnorm/Compose/blob/2dfa9eb69851162421010a7e56bd0fa891a9311a/src/token/ERC1155/ERC1155Facet.sol"
+description: "Manages ERC-1155 multi-token standards."
+gitSource: "https://github.com/maxnorm/Compose/blob/7e2dd824639f424be644c4ebbb3ca2508167329f/src/token/ERC1155/ERC1155Facet.sol"
 ---
 
 import DocSubtitle  from '@site/src/components/docs/DocSubtitle';
@@ -21,19 +21,18 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Manage ERC-1155 fungible and non-fungible tokens.
+Manages ERC-1155 multi-token standards.
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Supports both fungible and non-fungible ERC-1155 tokens.
-- Provides standard `balanceOf`, `balanceOfBatch`, `safeTransferFrom`, and `safeBatchTransferFrom` functions.
-- Includes `setApprovalForAll` and `isApprovedForAll` for operator permissions.
-- Allows for dynamic token URIs using a base URI and individual token URI overrides.
+- Supports both fungible and non-fungible tokens under the ERC-1155 standard.
+- Provides batched operations for `balanceOf` and `transferFrom` for efficiency.
+- Includes `setApprovalForAll` and `isApprovedForAll` for granular operator permissions.
 </Callout>
 
 ## Overview
 
-The ERC1155Facet enables a Compose diamond to manage ERC-1155 compliant tokens. It provides standard functions for token transfers, batch transfers, balance checks, and operator approvals, facilitating the creation and management of multi-token standards within a single diamond.
+The ERC1155Facet implements the ERC-1155 multi-token standard, allowing a diamond to manage fungible and non-fungible tokens within a unified framework. It provides essential functions for token transfers, balance checks, and operator approvals, enabling complex token economies.
 
 ---
 
@@ -624,29 +623,45 @@ error ERC1155InvalidArrayLength(uint256 _idsLength, uint256 _valuesLength);
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity ^0.8.30;
 
-import {IERC1155Facet} from "@compose-protocol/diamond-contracts/contracts/facets/erc1155/IERC1155Facet.sol";
-import {ERC1155Facet} from "@compose-protocol/diamond-contracts/contracts/facets/erc1155/ERC1155Facet.sol";
+import {IERC1155, IERC1155Receiver} from "@openzeppelin/contracts/token/<bos>/IERC1155.sol";
+import {IDiamondCut} from "../diamond/IDiamondCut.sol";
+import {DiamondLoupeFacet} from "../diamond/DiamondLoupeFacet.sol";
+import {ERC1155Facet} from "./ERC1155Facet.sol";
 
-contract MyDiamond is IERC1155Facet {
-    // ... other facets and diamond setup ...
+contract DeployDiamond is IDiamondCut {
+    // ... deployment logic ...
 
-    function supportsInterface(bytes4 _interfaceId) external view virtual override returns (bool) {
-        // ... other interface checks ...
-        if (_interfaceId == type(IERC1155Facet).interfaceId) {
-            return true;
-        }
-        return false;
+    function _diamondCut() internal pure override {
+        // ... other facets ...
+        addFunctionSelectors(ERC1155Facet.getSelector(), ERC1155Facet.contractInterface);
     }
 
-    // Example: Transferring tokens
-    function transferERC1155(address _to, uint256 _id, uint256 _value) external {
-        // Assume caller is approved or owner
-        safeTransferFrom(_to, msg.sender, _id, _value, "");
+    function testERC1155() external {
+        address diamond = address(this); // Assume diamond is deployed
+        ERC1155Facet erc1155 = ERC1155Facet(diamond);
+
+        // Example: Get balance of an account for a token ID
+        uint256 balance = erc1155.balanceOf(msg.sender, 1);
+
+        // Example: Transfer tokens
+        erc1155.safeTransferFrom(msg.sender, address(1), 1, 10, "");
     }
 
-    // Example: Checking balance
-    function getERC1155Balance(address _account, uint256 _id) external view returns (uint256) {
-        return balanceOf(_account, _id);
+    // Helper to get function selectors (implementation depends on your diamond structure)
+    function getSelector(address facet, bytes4 selector) internal pure returns (bytes4) {
+        return selector;
+    }
+
+    function addFunctionSelectors(bytes4[] memory _selectors, address _facet) internal pure {
+        // Placeholder for actual diamond cut logic
+    }
+
+    function contractInterface() internal pure returns (address) {
+        return address(0); // Placeholder
+    }
+
+    function getSelector(bytes4 _selector) internal pure returns (bytes4) {
+        return _selector;
     }
 }
 `}
@@ -655,19 +670,19 @@ contract MyDiamond is IERC1155Facet {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Initialize the `ERC1155Facet` with `baseURI` and `tokenURIs` as needed during diamond deployment.
-- Ensure appropriate access control is implemented on functions that modify token balances or approvals, if required by your diamond's logic.
-- Store the `ERC1155Facet` contract address in the diamond's facet registry.
+- Initialize the `baseURI` and `tokenURIs` using appropriate diamond upgrade mechanisms if dynamic URIs are required.
+- Ensure that any external contracts interacting with this facet implement the `IERC1155Receiver` interface for safe transfers.
+- Carefully manage token IDs and their associated URIs to maintain discoverability and client-side rendering.
 </Callout>
 
 ## Security Considerations
 
 <Callout type="warning" title="Security">
-The `ERC1155Facet` itself does not enforce ownership or complex access controls beyond what is standard for ERC-1155. Ensure that the diamond's upgradeability mechanism and any custom logic interacting with this facet correctly manage permissions and prevent unauthorized token transfers or approvals. Input validation for token IDs and amounts is handled by the facet to prevent basic errors.
+This facet adheres to the ERC-1155 standard. Ensure proper access control is implemented at the diamond level for functions that modify state (e.g., minting, burning, or setting approvals). Implementations of `safeTransferFrom` and `safeBatchTransferFrom` rely on the receiver contract to implement `onERC1155Received` or `onERC1155BatchReceived` for reentrancy protection; ensure receiver contracts are audited.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
   <WasThisHelpful pageId="ERC1155Facet" />
 </div>
 
-<LastUpdated date="2025-12-21T21:44:33.932Z" />
+<LastUpdated date="2025-12-21T21:54:26.027Z" />
