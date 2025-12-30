@@ -1,7 +1,7 @@
 ---
 sidebar_position: 3
 title: "ERC20BurnFacet"
-description: "ERC-20Burn facet for Compose diamonds"
+description: "Burns ERC-20 tokens from caller or another account"
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/token/ERC20/ERC20/ERC20BurnFacet.sol"
 ---
 
@@ -21,19 +21,19 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-ERC-20Burn facet for Compose diamonds
+Burns ERC-20 tokens from caller or another account
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Self-contained facet with no imports or inheritance
-- Only `external` and `internal` function visibility
-- Follows Compose readability-first conventions
-- Ready for diamond integration
+- Exposes external functions for diamond routing.
+- Enables burning tokens from caller or a specified account.
+- Emits `Transfer` event on successful burns.
+- Self-contained with no external dependencies.
 </Callout>
 
 ## Overview
 
-ERC-20Burn facet for Compose diamonds
+This facet implements ERC-20 token burning functionality within a diamond. It exposes `burn` and `burnFrom` functions, routing calls through the diamond proxy and accessing shared token storage. Developers add this facet to enable token destruction while maintaining upgradeability and composability.
 
 ---
 
@@ -182,6 +182,20 @@ error ERC20InsufficientAllowance(address _spender, uint256 _allowance, uint256 _
   </Accordion>
 </AccordionGroup>
 
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Initialize the ERC20 storage struct when deploying the diamond.
+- Ensure the caller has sufficient balance for `burn` or allowance for `burnFrom`.
+- Verify the `Transfer` event is emitted with the zero address as the recipient.
+</Callout>
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+The `burn` function requires the caller to have sufficient token balance. The `burnFrom` function requires the caller to have sufficient allowance from the specified account. Both functions revert if these conditions are not met, preventing insufficient balance or allowance issues. Follow standard Solidity security practices for input validation and access control if additional layers are implemented.
+</Callout>
+
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
   <RelatedDocs
     items={[
@@ -211,4 +225,4 @@ error ERC20InsufficientAllowance(address _spender, uint256 _allowance, uint256 _
   <WasThisHelpful pageId="ERC20BurnFacet" />
 </div>
 
-<LastUpdated date="2025-12-30T15:54:44.873Z" />
+<LastUpdated date="2025-12-30T17:19:41.218Z" />

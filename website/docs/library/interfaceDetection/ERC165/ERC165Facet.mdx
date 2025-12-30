@@ -1,7 +1,7 @@
 ---
 sidebar_position: 410
 title: "ERC165Facet"
-description: "Supports ERC-165 interface detection for Compose diamonds."
+description: "Implements ERC-165 interface detection for diamonds"
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/interfaceDetection/ERC165/ERC165Facet.sol"
 ---
 
@@ -21,18 +21,19 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Supports ERC-165 interface detection for Compose diamonds.
+Implements ERC-165 interface detection for diamonds
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Implements EIP-165 standard for interface detection.
-- Allows querying diamond capabilities via `supportsInterface` function.
-- Facilitates interoperability with other EIP-165 compliant contracts.
+- Implements the ERC-165 standard for interface detection.
+- Exposes the `supportsInterface` external view function.
+- Uses internal assembly for direct storage access.
+- Self-contained with no external dependencies or inheritance.
 </Callout>
 
 ## Overview
 
-The ERC165Facet enables diamonds to declare support for specific interfaces as per EIP-165. It provides a standardized way for external contracts to query the diamond's capabilities, enhancing interoperability within the Compose ecosystem.
+This facet provides ERC-165 interface detection capabilities for a diamond proxy. It exposes the `supportsInterface` function, allowing external contracts to query if the diamond implements specific interfaces. The facet uses internal assembly to access its dedicated storage slot, ensuring efficient and isolated state management.
 
 ---
 
@@ -98,40 +99,18 @@ Query if a contract implements an interface This function checks if the diamond 
   showRequired={false}
 />
 
-## Usage Example
-
-<ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
-{`pragma solidity ^0.8.30;
-
-import {IDiamondCut} from "@compose/diamond/IDiamondCut.sol";
-import {ERC165Facet} from "@compose/interfaceDetection/ERC165/ERC165Facet.sol";
-
-diamond interface IDiamond {}
-
-contract MyDiamond is IDiamond {
-    constructor(address _diamondAdmin, address[] memory _facetAddresses, IDiamondCut.FacetCut[] memory _facetCuts) {
-        // ... deployment logic ...
-    }
-
-    // Example of calling supportsInterface from another facet or contract
-    function checkERC165Support(address _diamondAddress, bytes4 _interfaceId) external view returns (bool) {
-        ERC165Facet erc165Facet = ERC165Facet(_diamondAddress);
-        return erc165Facet.supportsInterface(_interfaceId);
-    }
-}`}
-</ExpandableCode>
-
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Ensure the ERC165Facet is correctly initialized during diamond deployment.
-- Implement the `supportsInterface` function within your custom facets if they introduce new interfaces.
+- Ensure the `ERC165Facet` is added to the diamond during initialization.
+- Calls to `supportsInterface` should be routed through the diamond proxy.
+- Verify the `STORAGE_POSITION` for `ERC165Storage` does not conflict with other facets.
 </Callout>
 
 ## Security Considerations
 
 <Callout type="warning" title="Security">
-The `supportsInterface` function is `view` and does not modify state, making it safe from reentrancy. Access control is handled by the diamond proxy itself; this facet assumes it is called through a valid proxy.
+The `supportsInterface` function is a view function and does not modify state, reducing reentrancy risks. Input validation is inherent to the `bytes4` type. Ensure that the diamond's access control mechanisms are properly configured if this facet were to be extended with state-changing functions in the future. Follow standard Solidity security practices.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -151,4 +130,4 @@ The `supportsInterface` function is `view` and does not modify state, making it 
   <WasThisHelpful pageId="ERC165Facet" />
 </div>
 
-<LastUpdated date="2025-12-30T15:55:59.396Z" />
+<LastUpdated date="2025-12-30T17:20:46.761Z" />

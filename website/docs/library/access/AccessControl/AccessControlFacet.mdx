@@ -1,7 +1,7 @@
 ---
 sidebar_position: 2
 title: "AccessControlFacet"
-description: "Manages role-based access control within a diamond."
+description: "Manages roles and permissions within a diamond"
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/access/AccessControl/AccessControlFacet.sol"
 ---
 
@@ -21,18 +21,19 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Manages role-based access control within a diamond.
+Manages roles and permissions within a diamond
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Role-based access control for granular permission management.
-- Support for batch granting and revoking roles.
-- Extensible with other access control facets like `AccessControlPausableFacet`.
+- Exposes external functions for role management and permission checks.
+- Integrates seamlessly with the diamond storage pattern.
+- Supports batch granting and revoking of roles for efficiency.
+- Compatible with ERC-2535 diamond standard.
 </Callout>
 
 ## Overview
 
-The AccessControlFacet provides a robust role-based access control (RBAC) system for Compose diamonds. It allows for granular permission management by defining roles and assigning them to accounts. This facet is crucial for securing sensitive functions and orchestrating complex interactions by enforcing role requirements.
+This facet implements role-based access control for Compose diamonds. It provides functions to grant, revoke, and manage roles and their administrative roles. Developers integrate this facet to enforce permissions on diamond functions, ensuring only authorized accounts can perform sensitive operations.
 
 ---
 
@@ -472,54 +473,18 @@ error AccessControlUnauthorizedSender(address _sender, address _account);
   </Accordion>
 </AccordionGroup>
 
-## Usage Example
-
-<ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
-{`pragma solidity ^0.8.30;
-
-import {DiamondInit} from "@compose/diamond/DiamondInit.sol";
-import {DiamondCut} from "@compose/diamond/DiamondCut.sol";
-import {AccessControlFacet} from "@compose/access/AccessControl/AccessControlFacet.sol";
-import {Diamond} from "@compose/diamond/Diamond.sol";
-
-contract DeployDiamondWithAccessControl is DiamondInit {
-    // Define roles
-    bytes32 constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
-    bytes32 constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
-
-    function deploy() external {
-        // ... diamond deployment logic ...
-
-        // Initialize AccessControlFacet
-        AccessControlFacet accessControlFacet = AccessControlFacet(diamondAddress);
-        accessControlFacet.grantRole(ADMIN_ROLE, msg.sender); // Grant admin role to deployer
-        accessControlFacet.grantRole(OPERATOR_ROLE, address(this)); // Grant operator role to diamond itself
-
-        // ... other facet initializations ...
-    }
-
-    // Example of calling a protected function using requireRole
-    function executeProtectedAction() external {
-        AccessControlFacet accessControlFacet = AccessControlFacet(diamondAddress);
-        accessControlFacet.requireRole(OPERATOR_ROLE, msg.sender);
-
-        // ... protected action logic ...
-    }
-}`}
-</ExpandableCode>
-
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Initialize roles and grant them to appropriate accounts during diamond deployment.
-- Use `grantRoleBatch` and `revokeRoleBatch` for efficient mass role management.
-- Define clear hierarchies for roles using `setRoleAdmin` to manage administrative privileges.
+- Initialize roles and grant administrative privileges during diamond deployment.
+- Use `grantRole` and `revokeRole` to manage account permissions for specific roles.
+- Enforce role checks within other facets using `requireRole` before executing sensitive operations.
 </Callout>
 
 ## Security Considerations
 
 <Callout type="warning" title="Security">
-Ensure that role administration is properly secured. The `setRoleAdmin`, `grantRole`, and `revokeRole` functions require the caller to be the admin of the role. Reentrancy is mitigated as role modifications are atomic. Input validation is handled internally by the facet to prevent invalid role or account assignments.
+All state-changing functions (`setRoleAdmin`, `grantRole`, `revokeRole`, `grantRoleBatch`, `revokeRoleBatch`, `renounceRole`) require the caller to possess the administrative role for the target role. `renounceRole` can only be called by the account itself. Use `requireRole` to validate permissions before executing critical operations.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -563,4 +528,4 @@ Ensure that role administration is properly secured. The `setRoleAdmin`, `grantR
   <WasThisHelpful pageId="AccessControlFacet" />
 </div>
 
-<LastUpdated date="2025-12-30T15:54:26.223Z" />
+<LastUpdated date="2025-12-30T17:19:22.609Z" />

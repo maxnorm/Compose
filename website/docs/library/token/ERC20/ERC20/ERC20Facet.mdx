@@ -1,7 +1,7 @@
 ---
 sidebar_position: 2
 title: "ERC20Facet"
-description: "ERC-20 facet for Compose diamonds"
+description: "Implements ERC-20 token functionality within a diamond."
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/token/ERC20/ERC20/ERC20Facet.sol"
 ---
 
@@ -21,19 +21,19 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-ERC-20 facet for Compose diamonds
+Implements ERC-20 token functionality within a diamond.
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Self-contained facet with no imports or inheritance
-- Only `external` and `internal` function visibility
-- Follows Compose readability-first conventions
-- Ready for diamond integration
+- Exposes external functions for standard ERC-20 operations.
+- Leverages the diamond storage pattern for state management.
+- Self-contained, adhering to Compose facet design principles.
+- Enables upgradeability of token logic without changing the diamond address.
 </Callout>
 
 ## Overview
 
-ERC-20 facet for Compose diamonds
+This facet implements core ERC-20 token functionality, including transfers, approvals, and balance queries, as external functions within a diamond. It routes these calls through the diamond proxy and accesses shared storage. Developers add this facet to expose standard token operations while preserving the diamond's upgradeability and modularity.
 
 ---
 
@@ -496,6 +496,20 @@ error ERC20InvalidSpender(address _spender);
   </Accordion>
 </AccordionGroup>
 
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Initialize token name, symbol, and decimals during diamond setup.
+- Enforce access control on functions that change token supply if necessary.
+- Verify storage compatibility when upgrading the ERC20Facet to prevent state corruption.
+</Callout>
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+The `transfer` and `transferFrom` functions implement checks-effects-interactions pattern to mitigate reentrancy. Input validation is performed for recipient addresses and allowance checks. Errors are explicitly defined for insufficient balance, allowance, and invalid addresses. Follow standard Solidity security practices for all external calls.
+</Callout>
+
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
   <RelatedDocs
     items={[
@@ -513,4 +527,4 @@ error ERC20InvalidSpender(address _spender);
   <WasThisHelpful pageId="ERC20Facet" />
 </div>
 
-<LastUpdated date="2025-12-30T15:54:39.818Z" />
+<LastUpdated date="2025-12-30T17:19:34.525Z" />

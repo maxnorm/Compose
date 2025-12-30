@@ -1,7 +1,7 @@
 ---
 sidebar_position: 1
 title: "AccessControlTemporalMod"
-description: "Manages role assignments with expiry for diamond access control."
+description: "Manages time-bound role assignments for accounts"
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/access/AccessControlTemporal/AccessControlTemporalMod.sol"
 ---
 
@@ -21,13 +21,14 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Manages role assignments with expiry for diamond access control.
+Manages time-bound role assignments for accounts
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Grants roles with a specific expiration timestamp.
-- Automatically enforces role validity, reverting if expired.
-- Explicitly revokes temporal roles before their expiry.
+- Grants roles with explicit expiry timestamps.
+- Provides functions to check role expiry and revoke temporal roles.
+- Uses diamond storage pattern for shared state management.
+- Functions are `internal` for facet composition.
 </Callout>
 
 <Callout type="info" title="Module Usage">
@@ -36,7 +37,7 @@ This module provides internal functions for use in your custom facets. Import it
 
 ## Overview
 
-This module introduces time-bound role assignments, enabling temporary permissions for accounts. By integrating with the diamond's access control, it enhances security by automatically revoking expired roles, reducing the need for manual cleanup and preventing stale permissions from being exploited.
+This module manages time-bound role assignments, allowing roles to automatically expire. Facets can grant roles with specific expiry timestamps and check their validity. This enhances security by ensuring temporary access eventually ceases without manual revocation.
 
 ---
 
@@ -428,43 +429,18 @@ error AccessControlUnauthorizedAccount(address _account, bytes32 _role);
   </Accordion>
 </AccordionGroup>
 
-## Usage Example
-
-<ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
-{`pragma solidity ^0.8.30;
-
-import {IAccessControlTemporal} from "@compose/access/AccessControlTemporal/IAccessControlTemporal.sol";
-import {AccessControlTemporalMod} from "@compose/access/AccessControlTemporal/AccessControlTemporalMod.sol";
-
-contract MyFacet {
-    IAccessControlTemporal internal constant accessControlTemporal = IAccessControlTemporal(AccessControlTemporalMod.ACCESS_CONTROL_STORAGE_POSITION);
-
-    function grantTemporaryRole(bytes32 _role, address _account, uint256 _expiresAt) external {
-        accessControlTemporal.grantRoleWithExpiry(_role, _account, _expiresAt);
-    }
-
-    function checkRole(bytes32 _role, address _account) external view {
-        accessControlTemporal.requireValidRole(_role, _account);
-    }
-
-    function revokeRole(bytes32 _role, address _account) external {
-        accessControlTemporal.revokeTemporalRole(_role, _account);
-    }
-}`}
-</ExpandableCode>
-
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Use `requireValidRole` to enforce temporal access control checks before sensitive operations, ensuring roles have not expired.
-- Grant roles with specific, short expiry durations to minimize the attack surface and adhere to the principle of least privilege.
-- Monitor `RoleGrantedWithExpiry` and `TemporalRoleRevoked` events for auditing and off-chain access control management.
+- Call `requireValidRole` before executing sensitive operations to ensure roles are active and not expired.
+- Use `grantRoleWithExpiry` for temporary permissions, reducing the need for manual revocation.
+- Handle `AccessControlRoleExpired` and `AccessControlUnauthorizedAccount` errors gracefully in calling facets.
 </Callout>
 
 ## Integration Notes
 
 <Callout type="success" title="Shared Storage">
-AccessControlTemporalMod utilizes diamond storage at the `ACCESS_CONTROL_STORAGE_POSITION` (keccak256("compose.accesscontrol")) to manage temporal role assignments. Facets interacting with this module should use the `IAccessControlTemporal` interface. The module's state is managed independently of the base `AccessControlStorage` but is accessible through the diamond storage pattern. Ensure that the `AccessControlTemporalFacet` is correctly implemented and added to the diamond to expose these functions.
+This module interacts with diamond storage using the `ACCESS_CONTROL_STORAGE_POSITION` key, referencing the `AccessControlTemporalStorage` struct. All state changes are made directly to this shared storage, making them immediately visible to any facet that accesses the same storage position.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -496,4 +472,4 @@ AccessControlTemporalMod utilizes diamond storage at the `ACCESS_CONTROL_STORAGE
   <WasThisHelpful pageId="AccessControlTemporalMod" />
 </div>
 
-<LastUpdated date="2025-12-30T15:54:10.163Z" />
+<LastUpdated date="2025-12-30T17:19:06.723Z" />

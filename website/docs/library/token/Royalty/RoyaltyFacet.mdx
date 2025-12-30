@@ -1,7 +1,7 @@
 ---
 sidebar_position: 2
 title: "RoyaltyFacet"
-description: "Handles ERC-2981 royalty information for NFTs."
+description: "Returns royalty information for NFTs"
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/token/Royalty/RoyaltyFacet.sol"
 ---
 
@@ -21,18 +21,19 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Handles ERC-2981 royalty information for NFTs.
+Returns royalty information for NFTs
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Implements ERC-2981 `royaltyInfo` function.
-- Supports default royalties and token-specific overrides.
-- Calculates royalty amount as a percentage of sale price using basis points.
+- Implements ERC-2981 royalty standard.
+- Provides external `royaltyInfo` function for querying royalty details.
+- Accesses royalty storage via internal `getStorage` function.
+- Designed for composability within the Compose diamond pattern.
 </Callout>
 
 ## Overview
 
-The RoyaltyFacet implements the ERC-2981 standard, enabling diamonds to return royalty information for a given token ID and sale price. It supports both default royalties and token-specific overrides, ensuring creators receive their due.
+This facet implements the ERC-2981 standard for royalty payments within a Compose diamond. It exposes the `royaltyInfo` function to query royalty details for a given token and sale price, routing calls through the diamond proxy. Developers can add this facet to enable royalty functionality for their NFTs.
 
 ---
 
@@ -124,38 +125,18 @@ Returns royalty information for a given token and sale price. Returns token-spec
   showRequired={false}
 />
 
-## Usage Example
-
-<ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
-{`pragma solidity ^0.8.30;
-
-import {IDiamondCut} from "@compose/diamond/Diamond.sol";
-import {IDiamondLoupe} from "@compose/diamond/Diamond.sol";
-import {RoyaltyFacet} from "@compose/token/Royalty/RoyaltyFacet.sol";
-
-contract MyDiamond is IDiamondCut, IDiamondLoupe {
-    // ... diamond deployment and initialization ...
-
-    function royaltyInfo(uint256 _tokenId, uint256 _salePrice) external view returns (address, uint256) {
-        // Delegate to the RoyaltyFacet
-        return RoyaltyFacet(address(this)).royaltyInfo(_tokenId, _salePrice);
-    }
-
-    // ... other diamond functions ...
-}`}
-</ExpandableCode>
-
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Initialize the `RoyaltyStorage` struct with default royalty recipient and basis points during diamond deployment.
-- Ensure the `RoyaltyFacet` is added to the diamond with appropriate selectors.
+- Ensure the `RoyaltyFacet` is correctly initialized with default royalty information if needed.
+- Calls to `royaltyInfo` are read-only and do not require special access control beyond what the diamond proxy enforces.
+- Verify storage slot compatibility when upgrading facets to prevent data corruption.
 </Callout>
 
 ## Security Considerations
 
 <Callout type="warning" title="Security">
-Access control for setting default royalties should be managed at the diamond level. Ensure sale price and royalty basis points are validated to prevent unexpected calculations.
+The `royaltyInfo` function is a view function and does not modify state, thus posing minimal reentrancy risk. Input validation for `_tokenId` and `_salePrice` is handled internally. Follow standard Solidity security practices for diamond deployment and facet management.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -205,4 +186,4 @@ Access control for setting default royalties should be managed at the diamond le
   <WasThisHelpful pageId="RoyaltyFacet" />
 </div>
 
-<LastUpdated date="2025-12-30T15:55:45.748Z" />
+<LastUpdated date="2025-12-30T17:20:36.024Z" />
