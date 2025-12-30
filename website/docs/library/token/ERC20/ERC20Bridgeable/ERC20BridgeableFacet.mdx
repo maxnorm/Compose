@@ -1,7 +1,7 @@
 ---
 sidebar_position: 2
 title: "ERC20BridgeableFacet"
-description: "ERC-20Bridgeable facet for Compose diamonds"
+description: "Facilitates cross-chain minting and burning of ERC20 tokens."
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/token/ERC20/ERC20Bridgeable/ERC20BridgeableFacet.sol"
 ---
 
@@ -21,19 +21,18 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-ERC-20Bridgeable facet for Compose diamonds
+Facilitates cross-chain minting and burning of ERC20 tokens.
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Self-contained facet with no imports or inheritance
-- Only `external` and `internal` function visibility
-- Follows Compose readability-first conventions
-- Ready for diamond integration
+- Cross-chain minting capability, restricted to trusted bridge addresses.
+- Cross-chain burning functionality for tokens received from other chains.
+- Integrates with Compose's access control system for role-based authorization.
 </Callout>
 
 ## Overview
 
-ERC-20Bridgeable facet for Compose diamonds
+The ERC20BridgeableFacet enables secure cross-chain token operations, allowing trusted bridge addresses to mint tokens on behalf of external chains and burn tokens received from them. It integrates with the diamond's access control system to restrict these sensitive operations to authorized entities.
 
 ---
 
@@ -339,6 +338,64 @@ error ERC20InsufficientBalance(address _from, uint256 _accountBalance, uint256 _
   </Accordion>
 </AccordionGroup>
 
+## Usage Example
+
+<ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
+{`pragma solidity ^0.8.30;
+
+import { IDiamondCut } from "@compose/diamond/Diamond.sol";
+import { IDiamondLoupe } from "@compose/diamond/Diamond.sol";
+import { ERC20BridgeableFacet } from "@compose/token/ERC20/ERC20Bridgeable/ERC20BridgeableFacet.sol";
+
+contract DeployERC20Bridgeable {
+    address immutable diamondAddress;
+
+    constructor(address _diamondAddress) {
+        diamondAddress = _diamondAddress;
+    }
+
+    function deploy() external {
+        address facetAddress = address(new ERC20BridgeableFacet());
+        bytes32 facetCutfnSelector = IDiamondCut.FacetCut(0).initFunction;
+
+        IDiamondCut(diamondAddress).diamondCut(
+            IDiamondCut.FacetCut[](\;
+                IDiamondCut.FacetCut({
+                    facetAddress: facetAddress,
+                    action: IDiamondCut.Action.ADD,
+                    functionSelectors:
+                        IDiamondLoupe.getSelectors(ERC20BridgeableFacet)
+                })
+            ),
+            address(0), // clear diamonds
+            '\' // init data
+        );
+    }
+
+    function crosschainMint(address _account, uint256 _value) external {
+        ERC20BridgeableFacet(diamondAddress).crosschainMint(_account, _value);
+    }
+
+    function crosschainBurn(address _from, uint256 _value) external {
+        ERC20BridgeableFacet(diamondAddress).crosschainBurn(_from, _value);
+    }
+}`}
+</ExpandableCode>
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Ensure the `trusted-bridge` role is assigned only to verified and secure cross-chain bridge operators.
+- Initialize the ERC20BridgeableFacet with the correct storage slot to prevent state conflicts.
+- Regularly audit the access control configurations to maintain security.
+</Callout>
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+The `crosschainMint` and `crosschainBurn` functions are critical and callable only by addresses with the `trusted-bridge` role. Improper management of this role could lead to unauthorized token inflation or destruction. The `checkTokenBridge` internal function ensures that only valid, authorized bridge addresses can execute these operations, preventing zero-address calls and unauthorized role usage.
+</Callout>
+
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
   <RelatedDocs
     items={[
@@ -380,4 +437,4 @@ error ERC20InsufficientBalance(address _from, uint256 _accountBalance, uint256 _
   <WasThisHelpful pageId="ERC20BridgeableFacet" />
 </div>
 
-<LastUpdated date="2025-12-30T15:54:54.852Z" />
+<LastUpdated date="2025-12-30T17:10:01.150Z" />

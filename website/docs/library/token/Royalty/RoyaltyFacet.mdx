@@ -1,7 +1,7 @@
 ---
 sidebar_position: 2
 title: "RoyaltyFacet"
-description: "Handles ERC-2981 royalty information for NFTs."
+description: "Handles ERC-2981 royalty information for tokens."
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/token/Royalty/RoyaltyFacet.sol"
 ---
 
@@ -21,18 +21,18 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Handles ERC-2981 royalty information for NFTs.
+Handles ERC-2981 royalty information for tokens.
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Implements ERC-2981 `royaltyInfo` function.
-- Supports default royalties and token-specific overrides.
-- Calculates royalty amount as a percentage of sale price using basis points.
+- Implements the ERC-2981 standard for on-chain royalty payments.
+- Supports token-specific royalty configurations.
+- Calculates royalty amounts as a percentage of the sale price using basis points.
 </Callout>
 
 ## Overview
 
-The RoyaltyFacet implements the ERC-2981 standard, enabling diamonds to return royalty information for a given token ID and sale price. It supports both default royalties and token-specific overrides, ensuring creators receive their due.
+The RoyaltyFacet implements the ERC-2981 standard, enabling the diamond to return royalty information for a given token ID and sale price. It supports both default royalties and token-specific overrides, ensuring creators receive their due.
 
 ---
 
@@ -129,33 +129,36 @@ Returns royalty information for a given token and sale price. Returns token-spec
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity ^0.8.30;
 
-import {IDiamondCut} from "@compose/diamond/Diamond.sol";
-import {IDiamondLoupe} from "@compose/diamond/Diamond.sol";
-import {RoyaltyFacet} from "@compose/token/Royalty/RoyaltyFacet.sol";
+import { IRoyaltyFacet } from "@compose/token/Royalty/IRoyaltyFacet";
+import { RoyaltyStorage } from "@compose/token/Royalty/RoyaltyStorage";
 
-contract MyDiamond is IDiamondCut, IDiamondLoupe {
-    // ... diamond deployment and initialization ...
+contract RoyaltyConsumer {
+    address immutable diamondAddress;
 
-    function royaltyInfo(uint256 _tokenId, uint256 _salePrice) external view returns (address, uint256) {
-        // Delegate to the RoyaltyFacet
-        return RoyaltyFacet(address(this)).royaltyInfo(_tokenId, _salePrice);
+    constructor(address _diamondAddress) {
+        diamondAddress = _diamondAddress;
     }
 
-    // ... other diamond functions ...
+    function getRoyaltyDetails(uint256 tokenId, uint256 salePrice) external view returns (address, uint256) {
+        IRoyaltyFacet royaltyFacet = IRoyaltyFacet(diamondAddress);
+        (address receiver, uint256 royaltyAmount) = royaltyFacet.royaltyInfo(tokenId, salePrice);
+        return (receiver, royaltyAmount);
+    }
 }`}
 </ExpandableCode>
 
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Initialize the `RoyaltyStorage` struct with default royalty recipient and basis points during diamond deployment.
-- Ensure the `RoyaltyFacet` is added to the diamond with appropriate selectors.
+- Initialize the RoyaltyStorage struct with default royalty information during diamond deployment or upgrade.
+- Ensure the `royaltyInfo` function is correctly implemented to calculate royalties based on sale price and basis points.
+- Integrate this facet with token facets (e.g., ERC1155Facet) to enable royalty distribution.
 </Callout>
 
 ## Security Considerations
 
 <Callout type="warning" title="Security">
-Access control for setting default royalties should be managed at the diamond level. Ensure sale price and royalty basis points are validated to prevent unexpected calculations.
+The `royaltyInfo` function is `view`, meaning it does not modify state and is safe from reentrancy. Ensure that default and token-specific royalty configurations are set correctly to prevent unexpected royalty distributions.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -205,4 +208,4 @@ Access control for setting default royalties should be managed at the diamond le
   <WasThisHelpful pageId="RoyaltyFacet" />
 </div>
 
-<LastUpdated date="2025-12-30T15:55:45.748Z" />
+<LastUpdated date="2025-12-30T17:10:48.651Z" />

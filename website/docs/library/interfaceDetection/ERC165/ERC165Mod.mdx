@@ -1,7 +1,7 @@
 ---
 sidebar_position: 1
 title: "ERC165Mod"
-description: "ERC-165 Interface Detection for Diamond Contracts"
+description: "Standard ERC-165 interface detection"
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/interfaceDetection/ERC165/ERC165Mod.sol"
 ---
 
@@ -21,13 +21,13 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-ERC-165 Interface Detection for Diamond Contracts
+Standard ERC-165 interface detection
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Standard ERC-165 interface detection for diamond contracts.
-- Minimal gas overhead for interface checks.
-- Facilitates interoperability by allowing external contracts to query supported functionality.
+- Enables ERC-165 standard interface detection for diamond proxies.
+- Uses a dedicated storage slot for interface support information.
+- Provides an internal function to register supported interface IDs.
 </Callout>
 
 <Callout type="info" title="Module Usage">
@@ -36,7 +36,7 @@ This module provides internal functions for use in your custom facets. Import it
 
 ## Overview
 
-This module provides essential ERC-165 interface detection capabilities for Compose diamonds. It ensures compliance with the standard, allowing external contracts to programmatically determine supported interfaces. Proper integration is crucial for interoperability and discoverability within the diamond ecosystem.
+This module provides the necessary storage and internal functions for ERC-165 interface detection. It allows facets to declare support for specific interfaces, enabling external contracts to query this information efficiently through the diamond proxy.
 
 ---
 
@@ -116,36 +116,13 @@ Register that a contract supports an interface Call this function during initial
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity ^0.8.30;
 
-import { ERC165Mod } from "@compose/interfaceDetection/ERC165/ERC165Mod";
+import { IERC165Mod } from "@compose/interfaceDetection/ERC165/ERC165Mod";
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 contract MyERC721Facet {
-    /**
-     * @notice Initializes the ERC721 facet, registering its supported interfaces.
-     */
     function initialize() external {
-        // Register the ERC721 interface ID
-        ERC165Mod.registerInterface(type(IERC721).interfaceId);
-
-        // ... other initialization logic ...
-    }
-
-    /**
-     * @notice Checks if the diamond supports a given interface.
-     * @param _interfaceId The interface ID to check.
-     * @return bool True if the interface is supported, false otherwise.
-     */
-    function supportsInterface(bytes4 _interfaceId) external view returns (bool) {
-        // Delegate to the ERC165 module for standard interface checks
-        // Note: This is a simplified example. A real implementation might query
-        // the ERC165Mod storage directly or use a helper function if available.
-        // For this example, we assume ERC165Mod provides a way to query.
-
-        // Placeholder for actual interface check logic using ERC165Mod
-        // Example: return ERC165Mod.supportsInterface(_interfaceId);
-
-        // Fallback to check if it's a known interface from this facet
-        return _interfaceId == type(IERC721).interfaceId;
+        // Register support for the ERC721 interface during facet initialization.
+        IERC165Mod.registerInterface(type(IERC721).interfaceId);
     }
 }`}
 </ExpandableCode>
@@ -153,19 +130,19 @@ contract MyERC721Facet {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Call `ERC165Mod.registerInterface` during facet initialization to declare supported interfaces.
-- Implement `supportsInterface` on facets that adopt ERC-165, delegating to the module for standard checks.
-- Ensure the `ERC165Mod` is initialized and its storage slot is correctly set up in the diamond.
+- Call `registerInterface` during facet initialization to declare supported interfaces.
+- Ensure the ERC165Mod facet is initialized before any other facet that relies on ERC-165 detection.
+- Interface IDs should be derived from the actual interface types for accuracy.
 </Callout>
 
 ## Integration Notes
 
 <Callout type="success" title="Shared Storage">
-The `ERC165Mod` utilizes a dedicated storage slot identified by `keccak256("compose.erc165")` to store its `ERC165Storage` struct. Facets interact with this module primarily through its `registerInterface` function during initialization. The diamond's storage layout must accommodate this slot. Facets intending to implement ERC-165 should call `registerInterface` with their relevant `bytes4` interface IDs. The `supportsInterface` function, typically implemented by individual facets, should consult the ERC-165 module's state (or a derived state) to accurately report supported interfaces.
+The ERC165Mod module utilizes a single storage slot identified by `keccak256("compose.erc165")` to store its `ERC165Storage` struct. Facets should call `registerInterface` during their initialization phase. This function updates the internal storage, making the registered interface IDs discoverable by any contract interacting with the diamond proxy.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
   <WasThisHelpful pageId="ERC165Mod" />
 </div>
 
-<LastUpdated date="2025-12-30T15:55:55.763Z" />
+<LastUpdated date="2025-12-30T17:10:55.971Z" />

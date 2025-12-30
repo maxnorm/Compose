@@ -1,7 +1,7 @@
 ---
 sidebar_position: 1
 title: "ERC721EnumerableMod"
-description: "Manages enumerable ERC-721 token state and operations."
+description: "Manages enumerable ERC721 tokens within a diamond."
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/token/ERC721/ERC721Enumerable/ERC721EnumerableMod.sol"
 ---
 
@@ -21,13 +21,13 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Manages enumerable ERC-721 token state and operations.
+Manages enumerable ERC721 tokens within a diamond.
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Manages internal state for enumerable ERC-721 tokens.
-- Provides atomic mint, burn, and transfer operations that update enumeration lists.
-- Reverts with specific errors for invalid operations such as non-existent tokens or incorrect ownership.
+- Manages token enumeration order, crucial for ordered list functionality.
+- Integrates seamlessly with the diamond storage pattern using a predefined storage slot.
+- Provides internal logic for minting, burning, and transferring tokens, abstracting away enumeration details.
 </Callout>
 
 <Callout type="info" title="Module Usage">
@@ -36,7 +36,7 @@ This module provides internal functions for use in your custom facets. Import it
 
 ## Overview
 
-This module provides the core internal logic for managing enumerable ERC-721 tokens within a Compose diamond. It ensures that token ownership and enumeration order are consistently maintained across mint, burn, and transfer operations. By abstracting this complex state management, facets can integrate ERC-721 functionality safely and efficiently.
+This module provides the core logic for managing enumerable ERC721 tokens, ensuring tokens are tracked in a consistent order. It integrates with the diamond storage pattern to maintain state across facets, enabling composable and upgradeable ERC721 functionality without relying on inheritance.
 
 ---
 
@@ -298,45 +298,47 @@ error ERC721NonexistentToken(uint256 _tokenId);
 {`pragma solidity ^0.8.30;
 
 import {ERC721EnumerableMod} from "@compose/token/ERC721/ERC721Enumerable/ERC721EnumerableMod";
+import {IERC721Enumerable} from "@compose/token/ERC721/IERC721Enumerable";
 
-contract MyERC721Facet {
-    ERC721EnumerableMod private enumerableMod;
+contract MyERC721Facet is IERC721Enumerable {
+    ERC721EnumerableMod internal enumerableMod;
 
     constructor(address _diamondAddress) {
-        // Assuming ERC721EnumerableMod is deployed and accessible
-        // via the diamond proxy mechanism.
         enumerableMod = ERC721EnumerableMod(_diamondAddress);
     }
 
-    function mintToken(address _to, uint256 _tokenId) external {
+    function mint(address _to, uint256 _tokenId) external override {
         enumerableMod.mint(_to, _tokenId);
+        emit Transfer(address(0), _to, _tokenId);
     }
 
-    function transferToken(address _from, address _to, uint256 _tokenId) external {
-        // In a real scenario, you'd check ownership and approvals here
-        // before calling transferFrom.
-        enumerableMod.transferFrom(_from, _to, _tokenId, msg.sender);
-    }
-
-    function burnToken(uint256 _tokenId) external {
-        // In a real scenario, you'd check ownership before calling burn.
+    function burn(uint256 _tokenId) external override {
+        address owner = OwnerFacet(_diamondAddress).ownerOf(_tokenId);
         enumerableMod.burn(_tokenId, msg.sender);
+        emit Transfer(owner, address(0), _tokenId);
     }
+
+    function transferFrom(address _from, address _to, uint256 _tokenId) external override {
+        enumerableMod.transferFrom(_from, _to, _tokenId, msg.sender);
+        emit Transfer(_from, _to, _tokenId);
+    }
+
+    // ... other ERC721 functions ...
 }`}
 </ExpandableCode>
 
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Always ensure the calling facet has the necessary permissions before invoking mint, burn, or transfer functions.
-- Handle custom errors like `ERC721IncorrectOwner`, `ERC721NonexistentToken`, and `ERC721InvalidReceiver` to provide clear feedback to users.
-- When upgrading facets, ensure the storage layout defined by `ERC721EnumerableStorage` remains compatible.
+- Ensure `mint` and `burn` functions correctly emit the `Transfer` event as required by the ERC721 standard and the module's internal logic.
+- Always validate ownership and approvals before calling `transferFrom` or `burn` if implementing custom access control logic in your facet.
+- Handle potential reverts from the module's functions (`ERC721IncorrectOwner`, `ERC721NonexistentToken`, etc.) by providing clear error messages to the end-user.
 </Callout>
 
 ## Integration Notes
 
 <Callout type="success" title="Shared Storage">
-This module utilizes the Compose diamond storage pattern. Its state is stored at a specific slot identified by `keccak256("compose.erc721.enumerable")`. Facets interacting with this module will access the `ERC721EnumerableStorage` struct via the `getStorage()` function, which returns a pointer to the storage slot. Any modifications made through the module's functions (mint, burn, transferFrom) directly alter this shared storage, making the changes visible to all facets that read from the same storage slot.
+The `ERC721EnumerableMod` stores its state in a dedicated slot within the diamond's storage, identified by `keccak256("compose.erc721.enumerable")`. Facets interacting with this module must retrieve an instance of the module using its address and call its internal functions. The `ERC721EnumerableStorage` struct, though defined with placeholder fields (`name`, `symbol`, `baseURI`), is primarily used to anchor the storage slot. Custom facets are responsible for implementing the external-facing ERC721 interface and emitting events. The module relies on the diamond's owner or other authorized facets to enforce access control for `mint`, `burn`, and `transferFrom` operations.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -380,4 +382,4 @@ This module utilizes the Compose diamond storage pattern. Its state is stored at
   <WasThisHelpful pageId="ERC721EnumerableMod" />
 </div>
 
-<LastUpdated date="2025-12-30T15:55:19.060Z" />
+<LastUpdated date="2025-12-30T17:10:25.505Z" />

@@ -25,15 +25,14 @@ Manages ERC-1155 fungible and non-fungible tokens.
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Supports both fungible and non-fungible token types.
-- Provides individual and batched balance queries.
-- Implements token approval mechanism for operators.
-- Includes safe transfer functions to prevent unintended token loss.
+- Supports both fungible and non-fungible tokens under the ERC-1155 standard.
+- Provides batched operations for efficiency in transfers and balance checks.
+- Emits standard ERC-1155 events for on-chain activity tracking.
 </Callout>
 
 ## Overview
 
-The ERC1155Facet provides a robust implementation of the ERC-1155 standard for multi-token management within a Compose diamond. It enables efficient handling of various token types, including fungible and non-fungible assets, facilitating complex tokenomics and interoperability.
+The ERC1155Facet provides a standard interface for managing ERC-1155 compliant tokens within a Compose diamond. It enables functions for token transfers, approvals, and balance checks, facilitating the management of multiple token types and owner balances.
 
 ---
 
@@ -602,49 +601,55 @@ error ERC1155InvalidArrayLength(uint256 _idsLength, uint256 _valuesLength);
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity ^0.8.30;
 
-import {ERC1155Facet} from "@compose/token/ERC1155/ERC1155Facet";
-import {DiamondCutFacet} from "@compose/diamond/DiamondCutFacet";
-import {DiamondLoupeFacet} from "@compose/diamond/DiamondLoupeFacet";
+import { IERC1155 } from "@compose/token/ERC1155/IERC1155.sol";
+import { ERC1155Facet } from "@compose/token/ERC1155/ERC1155Facet.sol";
 
-contract MyDiamond is DiamondCutFacet, DiamondLoupeFacet {
-    constructor(address _diamondOwner) DiamondCutFacet(_diamondOwner) {}
+contract MyDiamond is IERC1155 {
+    // Assume diamond deployment and facet setup is done elsewhere
 
-    function upgrade() public payable {
-        address[] memory facets = new address[](1);
-        bytes[] memory selectors = new bytes[](1);
-
-        facets[0] = address(new ERC1155Facet());
-        // Assuming default selectors for all functions
-        selectors[0] = ""; // Placeholder, actual selectors would be computed or passed
-
-        // Cut operation to add the ERC1155Facet
-        cut(facets, selectors, address(0), "");
+    function uri(uint256 _id) external view override returns (string memory) {
+        return ERC1155Facet.uri(_id);
     }
 
-    // Example of calling a function on the ERC1155Facet after deployment
-    function getTokenURI(uint256 _id) public view returns (string memory) {
-        // Assuming ERC1155Facet is already added and its functions are accessible via the diamond proxy
-        return ERC1155Facet(address(this)).uri(_id);
+    function balanceOf(address _account, uint256 _id) external view override returns (uint256) {
+        return ERC1155Facet.balanceOf(_account, _id);
     }
 
-    function getBalance(address _account, uint256 _id) public view returns (uint256) {
-        return ERC1155Facet(address(this)).balanceOf(_account, _id);
+    function balanceOfBatch(address[] calldata _accounts, uint256[] calldata _ids) external view override returns (uint256[] memory) {
+        return ERC1155Facet.balanceOfBatch(_accounts, _ids);
     }
-}`}
+
+    function setApprovalForAll(address _operator, bool _approved) external override {
+        ERC1155Facet.setApprovalForAll(_operator, _approved);
+    }
+
+    function isApprovedForAll(address _account, address _operator) external view override returns (bool) {
+        return ERC1155Facet.isApprovedForAll(_account, _operator);
+    }
+
+    function safeTransferFrom(address _from, address _to, uint256 _id, uint256 _value, bytes calldata _data) external override {
+        ERC1155Facet.safeTransferFrom(_from, _to, _id, _value, _data);
+    }
+
+    function safeBatchTransferFrom(address _from, address _to, uint256[] calldata _ids, uint256[] calldata _values, bytes calldata _data) external override {
+        ERC1155Facet.safeBatchTransferFrom(_from, _to, _ids, _values, _data);
+    }
+}
+`}
 </ExpandableCode>
 
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Initialize the `baseURI` in the ERC1155Storage if a common base URI is desired for all tokens.
-- Ensure `setApprovalForAll` is used correctly to grant necessary permissions before transfers.
-- Leverage `balanceOfBatch` and `safeBatchTransferFrom` for gas-efficient operations involving multiple token IDs.
+- Initialize the ERC1155 storage correctly during diamond deployment.
+- Ensure appropriate access control is layered on top of the facet functions if required by your application logic.
+- Handle token URIs carefully, considering both base URI and token-specific URIs for metadata resolution.
 </Callout>
 
 ## Security Considerations
 
 <Callout type="warning" title="Security">
-This facet relies on Compose's diamond proxy for access control and function routing. Ensure that the `operator` in `setApprovalForAll` is a trusted address. The `safeTransferFrom` and `safeBatchTransferFrom` functions include checks for sufficient balance and proper approvals, mitigating risks of insufficient funds or unauthorized transfers. Input validation for array lengths in batch operations is handled by custom errors.
+Input validation for addresses and array lengths is handled by the facet. Ensure that `_from` has sufficient balance and necessary approvals before calling transfer functions. Reentrancy is mitigated by the diamond proxy pattern and careful function implementation.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -688,4 +693,4 @@ This facet relies on Compose's diamond proxy for access control and function rou
   <WasThisHelpful pageId="ERC1155Facet" />
 </div>
 
-<LastUpdated date="2025-12-30T15:55:02.803Z" />
+<LastUpdated date="2025-12-30T17:10:11.833Z" />
