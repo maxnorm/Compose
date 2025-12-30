@@ -1,7 +1,7 @@
 ---
 sidebar_position: 2
 title: "ERC6909Facet"
-description: "Manages balances, allowances, and operator status for ERC-6909 tokens."
+description: "ERC-6909 token transfers and operator management"
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/token/ERC6909/ERC6909/ERC6909Facet.sol"
 ---
 
@@ -21,19 +21,19 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Manages balances, allowances, and operator status for ERC-6909 tokens.
+ERC-6909 token transfers and operator management
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Implements ERC-6909 token standard for fungible and non-fungible tokens.
-- Supports standard balance, allowance, and operator management functions.
-- Allows for granular control over token transfers via `transfer` and `transferFrom`.
-- Enables setting `operator` permissions for streamlined multi-transaction operations.
+- Implements ERC-6909 compliant token transfer and approval functions.
+- Provides external functions for direct interaction via the diamond proxy.
+- Exposes `isOperator` for checking delegated permissions.
+- Uses explicit custom errors for failed operations.
 </Callout>
 
 ## Overview
 
-The ERC6909Facet provides standard ERC-6909 functionality within a Compose diamond. It enables tracking token balances, managing allowances for token transfers, and setting operator permissions for accounts, facilitating composable token management.
+This facet implements ERC-6909 token transfers and operator approval functionalities within a diamond proxy. It provides external functions for managing token balances and allowances, routing calls through the diamond. Developers integrate this facet to expose ERC-6909 compliant token logic while leveraging the diamond's upgradeability and modularity.
 
 ---
 
@@ -455,59 +455,18 @@ error ERC6909InvalidSpender(address _spender);
   </Accordion>
 </AccordionGroup>
 
-## Usage Example
-
-<ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
-{`pragma solidity ^0.8.30;
-
-import {DiamondProxy} from "@compose/core/DiamondProxy.sol";
-import {ERC6909Facet} from "@compose/token/ERC6909/ERC6909/ERC6909Facet.sol";
-
-contract MyDiamond is DiamondProxy {
-    constructor(address _diamondAdmin, address[] memory _initFacets, bytes[] memory _calldatas)
-        DiamondProxy(_diamondAdmin, _initFacets, _calldatas)
-    {}
-
-    function mintTokens(address _to, uint256 _id, uint256 _amount) public {
-        // Assume minting logic is handled by another facet or initialization
-        // For demonstration, we call a hypothetical internal function that would be part of the ERC6909Facet deployment
-        // In a real scenario, minting might be exposed via a dedicated minting facet.
-        // This example focuses on invoking ERC6909Facet functions post-deployment.
-    }
-
-    function transferERC6909(address _receiver, uint256 _id, uint256 _amount) public {
-        bytes4 selector = ERC6909Facet.transfer.selector;
-        (bool success, ) = address(this).call(abi.encodeWithSelector(selector, _receiver, _id, _amount));
-        require(success, "Transfer failed");
-    }
-
-    function approveERC6909(address _spender, uint256 _id, uint256 _amount) public {
-        bytes4 selector = ERC6909Facet.approve.selector;
-        (bool success, ) = address(this).call(abi.encodeWithSelector(selector, _spender, _id, _amount));
-        require(success, "Approval failed");
-    }
-
-    function getBalance(address _owner, uint256 _id) public view returns (uint256) {
-        bytes4 selector = ERC6909Facet.balanceOf.selector;
-        (bool success, bytes memory data) = address(this).call(abi.encodeWithSelector(selector, _owner, _id));
-        require(success, "Get balance failed");
-        return abi.decode(data, (uint256));
-    }
-}`}
-</ExpandableCode>
-
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Ensure the ERC6909Facet is initialized correctly during diamond deployment to set up necessary storage.
-- Manage operator permissions judiciously, granting them only to trusted addresses and revoking them when no longer needed.
-- Treat token IDs as critical state; ensure proper handling and prevent unintended minting or burning if such logic is exposed by other facets.
+- Initialize the ERC6909Storage struct during diamond deployment.
+- Enforce appropriate access controls for functions like `setOperator` if required by your diamond's architecture.
+- Verify storage slot compatibility if upgrading or adding new facets that interact with ERC6909 storage.
 </Callout>
 
 ## Security Considerations
 
 <Callout type="warning" title="Security">
-Access control for functions like `transfer` and `approve` relies on the caller's permissions and token balances/allowances. Ensure that operator settings are managed securely to prevent unauthorized transfers. Input validation is crucial to prevent attacks such as integer overflows or transfers to zero addresses, handled by the facet's error codes. The `setOperator` function's approval mechanism should be carefully monitored.
+The `transfer` and `transferFrom` functions should be called with validated `_receiver`, `_sender`, `_id`, and `_amount` parameters. The `approve` and `setOperator` functions manage critical allowances and operator permissions. Ensure that access control, if implemented at the diamond level, correctly guards these functions. Follow standard Solidity security practices for input validation and reentrancy.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -551,4 +510,4 @@ Access control for functions like `transfer` and `approve` relies on the caller'
   <WasThisHelpful pageId="ERC6909Facet" />
 </div>
 
-<LastUpdated date="2025-12-30T15:55:10.122Z" />
+<LastUpdated date="2025-12-30T17:20:00.748Z" />

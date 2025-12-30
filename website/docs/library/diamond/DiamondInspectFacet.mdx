@@ -1,7 +1,7 @@
 ---
 sidebar_position: 510
 title: "DiamondInspectFacet"
-description: "Inspect diamond storage and function mappings."
+description: "Inspect diamond storage and facet mappings"
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/diamond/DiamondInspectFacet.sol"
 ---
 
@@ -21,18 +21,19 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Inspect diamond storage and function mappings.
+Inspect diamond storage and facet mappings
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Provides read-only access to diamond's function-to-facet mappings.
-- Enables programmatic inspection of the diamond's storage layout.
-- Utilizes inline assembly for direct storage access, ensuring efficiency for critical inspection tasks.
+- Exposes external view function `functionFacetPairs()` for diamond introspection.
+- Provides internal access to diamond storage via `getStorage()`.
+- Facilitates understanding of diamond facet distribution.
+- Compliant with ERC-2535 diamond standard.
 </Callout>
 
 ## Overview
 
-The DiamondInspectFacet provides read-only access to the diamond's internal state and function routing. It allows external querying of how function selectors map to specific facet addresses, facilitating dynamic interaction and debugging without altering diamond state.
+This facet provides external view functions to inspect the diamond's storage layout and its function-to-facet mappings. It routes calls through the diamond proxy, enabling developers to query deployed facets and their associated functions without direct storage access. This facilitates understanding and debugging of diamond implementations.
 
 ---
 
@@ -106,52 +107,22 @@ Returns an array of all function selectors and their corresponding facet address
   showRequired={false}
 />
 
-## Usage Example
-
-<ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
-{`pragma solidity ^0.8.30;
-
-import {DiamondInspectFacet} from "@compose/diamond/DiamondInspectFacet";
-import {IDiamondCut} from "@compose/diamond/IDiamondCut";
-
-contract Deployer {
-    address immutable diamond;
-
-    constructor(address _diamond) {
-        diamond = _diamond;
-    }
-
-    function inspectDiamond() external view {
-        DiamondInspectFacet inspectFacet = DiamondInspectFacet(diamond);
-
-        // Get all function selector to facet address mappings
-        DiamondInspectFacet.FunctionFacetPair[] memory pairs = inspectFacet.functionFacetPairs();
-
-        // Example: Iterate and log mappings (requires a logging mechanism or event)
-        for (uint i = 0; i < pairs.length; i++) {
-            // Log pairs[i].functionSelector and pairs[i].facetAddress
-            // (Actual logging would involve events or external calls)
-        }
-    }
-}`}
-</ExpandableCode>
-
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Integrate this facet to enable external inspection of diamond's function routing.
-- Use the `functionFacetPairs` function to dynamically resolve function calls when the target facet is not known statically.
-- Access storage directly via `getStorage` only when absolutely necessary for deep inspection, as it bypasses standard function call interfaces.
+- Use the `functionFacetPairs()` function to map function selectors to their respective facet addresses within the diamond.
+- Understand that `getStorage()` is an internal function and not directly callable through the diamond proxy; use it within other facets or for internal diamond logic.
+- Integrate this facet to provide an introspection layer for deployed diamond functions.
 </Callout>
 
 ## Security Considerations
 
 <Callout type="warning" title="Security">
-This facet is read-only and does not introduce reentrancy risks. Direct storage access via `getStorage` should be used with caution to avoid misinterpreting raw storage data. Ensure that the diamond's storage slot `DIAMOND_STORAGE_POSITION` is correctly set to `keccak256("compose.diamond")` to prevent accidental data corruption.
+All exposed functions are view functions and do not modify state, thus posing no reentrancy risk. Input validation is handled internally by the diamond proxy mechanism for function routing. Follow standard Solidity security practices for interacting with diamond contracts.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
   <WasThisHelpful pageId="DiamondInspectFacet" />
 </div>
 
-<LastUpdated date="2025-12-30T15:56:01.960Z" />
+<LastUpdated date="2025-12-30T17:20:51.602Z" />

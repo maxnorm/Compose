@@ -1,7 +1,7 @@
 ---
 sidebar_position: 2
 title: "OwnerFacet"
-description: "Manages contract ownership and transfers."
+description: "Manages contract ownership and ownership transfers"
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/access/Owner/OwnerFacet.sol"
 ---
 
@@ -21,18 +21,19 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Manages contract ownership and transfers.
+Manages contract ownership and ownership transfers
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Provides `owner()` to view the current contract owner.
-- Enables `transferOwnership(address _newOwner)` to delegate control.
-- Supports `renounceOwnership()` to relinquish control, making the contract effectively immutable regarding ownership changes.
+- Exposes external functions for ownership management.
+- Uses a dedicated storage slot for owner state.
+- Supports ownership transfer and renouncement.
+- Compatible with ERC-2535 diamond standard.
 </Callout>
 
 ## Overview
 
-The OwnerFacet provides essential functionality for managing contract ownership within a Compose diamond. It allows querying the current owner, transferring ownership to a new address, and renouncing ownership entirely. This facet is fundamental for access control and administrative operations.
+This facet provides ownership management functionality for a diamond. It exposes functions to view the current owner, transfer ownership, and renounce ownership. Developers integrate this facet to establish a clear owner for administrative tasks within the diamond.
 
 ---
 
@@ -140,56 +141,18 @@ error OwnerUnauthorizedAccount();
   </Accordion>
 </AccordionGroup>
 
-## Usage Example
-
-<ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
-{`pragma solidity ^0.8.30;
-
-import {DiamondCutFacet} from "@compose/diamond/DiamondCutFacet";
-import {DiamondInit} from "@compose/diamond/DiamondInit";
-import {DiamondLoupeFacet} from "@compose/diamond/DiamondLoupeFacet";
-import {OwnerFacet, OwnerStorage} from "@compose/access/Owner/OwnerFacet";
-
-contract DeployOwnerDiamond is DiamondInit {
-    function deploy() public {
-        // ... deployment setup ...
-
-        // Add OwnerFacet
-        OwnerFacet ownerFacet = new OwnerFacet();
-        bytes memory ownerFacetData = abi.encodeWithSelector(OwnerFacet.transferOwnership.selector, msg.sender); // Set initial owner to deployer
-        IDiamondCut.FacetCut[] memory cut = new IDiamondCut.FacetCut[](1);
-        cut[0] = IDiamondCut.FacetCut({
-            facetAddress: address(ownerFacet),
-            action: IDiamondCut.Action.Add,
-            functionSelectors: DiamondCutFacet.getSelectors(ownerFacet)
-        });
-
-        // ... execute diamond cut ...
-
-        // Call initializer function if needed (not applicable for OwnerFacet)
-
-        // Verify owner
-        OwnerFacet deployedOwnerFacet = OwnerFacet(diamondAddress);
-        address currentOwner = deployedOwnerFacet.owner();
-        // assert(currentOwner == msg.sender);
-    }
-
-    // ... other deployment logic ...
-}`}
-</ExpandableCode>
-
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Initialize ownership during diamond deployment, typically setting the deployer as the initial owner.
-- Treat ownership transfers with caution; consider using a multi-signature wallet or a timelock for critical transfers.
-- Ensure related access control facets (e.g., OwnerTwoStepsFacet) are integrated correctly if advanced ownership patterns are required.
+- Initialize the owner address during diamond deployment.
+- Use `transferOwnership` to safely delegate administrative control.
+- Call `renounceOwnership` only when the contract should no longer have a designated owner.
 </Callout>
 
 ## Security Considerations
 
 <Callout type="warning" title="Security">
-Access control is paramount. Only the current owner can call `transferOwnership` and `renounceOwnership`. The `OwnerUnauthorizedAccount` error is emitted if an unauthorized account attempts these actions. Transferring ownership to `address(0)` effectively renounces ownership, making subsequent ownership-dependent functions inaccessible unless ownership is re-established by another mechanism.
+All state-changing functions (`transferOwnership`, `renounceOwnership`) are protected by access control, reverting with `OwnerUnauthorizedAccount` if called by an unauthorized address. Use `transferOwnership` carefully to avoid unintended ownership changes. Renouncing ownership permanently removes the owner.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -221,4 +184,4 @@ Access control is paramount. Only the current owner can call `transferOwnership`
   <WasThisHelpful pageId="OwnerFacet" />
 </div>
 
-<LastUpdated date="2025-12-30T15:54:12.641Z" />
+<LastUpdated date="2025-12-30T17:19:08.420Z" />
