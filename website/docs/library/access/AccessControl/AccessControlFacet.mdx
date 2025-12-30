@@ -1,7 +1,7 @@
 ---
 sidebar_position: 2
 title: "AccessControlFacet"
-description: "Role-based access control for diamond contracts"
+description: "Manages roles and permissions within a diamond"
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/access/AccessControl/AccessControlFacet.sol"
 ---
 
@@ -21,19 +21,19 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Role-based access control for diamond contracts
+Manages roles and permissions within a diamond
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Exposes external functions for role management and permission checking.
-- Integrates with diamond storage for persistent role data.
-- Supports batch operations for granting and revoking roles to multiple accounts.
-- Provides functions to check role membership and enforce role requirements.
+- Manages roles and their assignments to accounts.
+- Provides functions to check, grant, and revoke roles.
+- Supports batch operations for granting and revoking roles.
+- Compatible with EIP-2535 diamond standard.
 </Callout>
 
 ## Overview
 
-This facet implements role-based access control for Compose diamonds. It exposes external functions to manage roles and permissions, interacting with diamond storage. Developers add this facet to enforce access control policies across their diamond's functionality.
+This facet implements role-based access control for a diamond. It exposes functions to grant, revoke, and check roles, enabling granular permission management. Developers integrate this facet to enforce access policies on diamond functions.
 
 ---
 
@@ -483,27 +483,26 @@ error AccessControlUnauthorizedSender(address _sender, address _account);
 import { IDiamond } from "@compose/diamond/IDiamond.sol";
 import { AccessControlFacet } from "@compose/access/AccessControl/AccessControlFacet.sol";
 
-contract DiamondUser {
-    address immutable diamondAddress;
+// Example: Using AccessControlFacet within a diamond
+contract MyDiamond {
+    IDiamond internal diamond;
 
     constructor(address _diamondAddress) {
-        diamondAddress = _diamondAddress;
+        diamond = IDiamond(_diamondAddress);
     }
 
-    function grantAdminRole(address _admin) external {
-        IDiamond(diamondAddress).grantRole(AccessControlFacet.AccessControl.DEFAULT_ADMIN_ROLE(), _admin);
+    function grantAdminRole(address _account) public {
+        // Assuming 'diamond' is the address of the diamond proxy
+        // and the caller has the 'ROLE_ADMIN_ROLE' to execute this.
+        diamond.grantRole("ROLE_ADMIN_ROLE", _account);
     }
 
-    function checkAdminRole(address _account) external view returns (bool) {
-        return IDiamond(diamondAddress).hasRole(AccessControlFacet.AccessControl.DEFAULT_ADMIN_ROLE(), _account);
+    function checkUserRole(address _account, bytes32 _role) public view returns (bool) {
+        return diamond.hasRole(_role, _account);
     }
 
-    function setRoleAdmin(bytes32 _role, bytes32 _adminRole) external {
-        IDiamond(diamondAddress).setRoleAdmin(_role, _adminRole);
-    }
-
-    function grantUserRole(bytes32 _role, address _user) external {
-        IDiamond(diamondAddress).grantRole(_role, _user);
+    function enforceManagerRole(address _account) public view {
+        diamond.requireRole("MANAGER_ROLE", _account);
     }
 }`}
 </ExpandableCode>
@@ -512,16 +511,15 @@ contract DiamondUser {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Initialize role administration and grant initial roles during diamond deployment.
-- Use `grantRole` and `revokeRole` for individual account management.
-- Utilize `grantRoleBatch` and `revokeRoleBatch` for efficient management of multiple accounts.
-- Ensure that roles are properly defined and their admin roles are set to manage permissions effectively.
+- Initialize roles and their admin roles during diamond deployment.
+- Enforce role checks on sensitive functions using `requireRole` or `hasRole`.
+- Define and manage role hierarchies using `setRoleAdmin`.
 </Callout>
 
 ## Security Considerations
 
 <Callout type="warning" title="Security">
-All state-changing functions (`setRoleAdmin`, `grantRole`, `revokeRole`, `grantRoleBatch`, `revokeRoleBatch`, `renounceRole`) require caller authorization, typically controlled by the role's admin role. The `requireRole` function reverts with `AccessControlUnauthorizedAccount` if the caller lacks the specified role. `renounceRole` reverts with `AccessControlUnauthorizedSender` if the caller is not the account attempting to renounce the role. Follow standard Solidity security practices for input validation.
+All role-modifying functions (`setRoleAdmin`, `grantRole`, `revokeRole`, `grantRoleBatch`, `revokeRoleBatch`) require the caller to have the admin role of the target role, enforced by `AccessControlUnauthorizedAccount` errors. The `renounceRole` function requires the caller to be the account from which the role is being renounced, enforced by `AccessControlUnauthorizedSender` errors. Input validation is handled by the underlying role management logic.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -565,4 +563,4 @@ All state-changing functions (`setRoleAdmin`, `grantRole`, `revokeRole`, `grantR
   <WasThisHelpful pageId="AccessControlFacet" />
 </div>
 
-<LastUpdated date="2025-12-30T17:27:36.331Z" />
+<LastUpdated date="2025-12-30T17:40:46.949Z" />

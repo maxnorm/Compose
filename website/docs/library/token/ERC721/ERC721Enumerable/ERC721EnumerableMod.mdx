@@ -25,10 +25,10 @@ Internal logic for enumerable ERC-721 tokens
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Provides internal functions for minting, burning, and transferring ERC-721 tokens.
-- Manages token enumeration state within the diamond storage pattern.
-- Uses custom errors for clear revert reasons.
-- No external dependencies, promoting composability.
+- Exposes `internal` functions for direct use within custom facets.
+- Manages ERC-721 token state and enumeration using the diamond storage pattern.
+- Does not rely on `using` directives for its core logic, promoting explicitness.
+- Emits standard `Transfer` events upon token state changes.
 </Callout>
 
 <Callout type="info" title="Module Usage">
@@ -37,7 +37,7 @@ This module provides internal functions for use in your custom facets. Import it
 
 ## Overview
 
-This module provides internal functions for managing enumerable ERC-721 tokens within a diamond. Facets can import this module to mint, burn, and transfer tokens, updating internal enumeration lists. Changes are immediately visible to all facets accessing the shared diamond storage.
+This module provides internal functions for minting, burning, and transferring ERC-721 tokens, updating enumeration data. Facets importing this module can integrate ERC-721 functionality, leveraging shared diamond storage for token state. Changes made via this module are immediately visible to all facets accessing the same storage.
 
 ---
 
@@ -299,49 +299,21 @@ error ERC721NonexistentToken(uint256 _tokenId);
 
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity >=0.8.30;
-
 import {ERC721EnumerableMod} from "@compose/token/ERC721/ERC721Enumerable/ERC721EnumerableMod";
 
 contract MyERC721Facet {
-    ERC721EnumerableMod private _erc721EnumerableMod;
+    using ERC721EnumerableMod for ERC721EnumerableMod;
 
-    constructor(address diamondAddress) {
-        // Assuming ERC721EnumerableMod is accessible via the diamond proxy
-        // and its implementation is registered.
-        _erc721EnumerableMod = ERC721EnumerableMod(diamondAddress);
-    }
-
-    /**
-     * @notice Mints a new ERC-721 token.
-     * @param _to The address to mint the token to.
-     * @param _tokenId The ID of the token to mint.
-     */
     function mintToken(address _to, uint256 _tokenId) external {
-        // Call the internal mint function from the module.
-        // The actual diamond proxy will route this call to the correct facet implementation.
-        _erc721EnumerableMod.mint(_to, _tokenId);
+        ERC721EnumerableMod.mint(_to, _tokenId);
     }
 
-    /**
-     * @notice Transfers an ERC-721 token.
-     * @param _from The current owner of the token.
-     * @param _to The new owner of the token.
-     * @param _tokenId The ID of the token to transfer.
-     */
-    function transferToken(address _from, address _to, uint256 _tokenId) external {
-        // Call the internal transferFrom function from the module.
-        // The 'msg.sender' is passed as '_sender' for authorization checks within the module.
-        _erc721EnumerableMod.transferFrom(_from, _to, _tokenId, msg.sender);
+    function burnToken(uint256 _tokenId, address _sender) external {
+        ERC721EnumerableMod.burn(_tokenId, _sender);
     }
 
-    /**
-     * @notice Burns an ERC-721 token.
-     * @param _tokenId The ID of the token to burn.
-     */
-    function burnToken(uint256 _tokenId) external {
-        // Call the internal burn function from the module.
-        // The 'msg.sender' is passed as '_sender' for authorization checks within the module.
-        _erc721EnumerableMod.burn(_tokenId, msg.sender);
+    function transferToken(address _from, address _to, uint256 _tokenId, address _sender) external {
+        ERC721EnumerableMod.transferFrom(_from, _to, _tokenId, _sender);
     }
 }`}
 </ExpandableCode>
@@ -350,15 +322,15 @@ contract MyERC721Facet {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Ensure that the diamond contract has registered an implementation for this module's functions before attempting to call them.
-- Handle custom errors like `ERC721NonexistentToken`, `ERC721IncorrectOwner`, and `ERC721InvalidReceiver` returned by module functions.
-- Verify that the `_sender` address passed to `burn` and `transferFrom` functions is appropriate for authorization checks.
+- Ensure all calls to `mint`, `burn`, and `transferFrom` are guarded by appropriate access control mechanisms within your facet.
+- Handle the specific errors emitted by this module, such as `ERC721NonexistentToken` or `ERC721InvalidReceiver`.
+- Verify that the `STORAGE_POSITION` for `ERC721EnumerableStorage` is correctly reserved and not colliding with other facets.
 </Callout>
 
 ## Integration Notes
 
 <Callout type="success" title="Shared Storage">
-This module utilizes diamond storage at the slot identified by `keccak256(\"compose.erc721.enumerable\")`. The `ERC721EnumerableStorage` struct, containing fields like `name`, `symbol`, and `baseURI`, is stored at this position. All functions (`mint`, `burn`, `transferFrom`) operate directly on this shared storage, ensuring that state changes are immediately visible to all facets interacting with the diamond.
+This module utilizes diamond storage at the predefined `STORAGE_POSITION` for `ERC721EnumerableStorage`. The `getStorage()` function provides inline assembly access to this storage struct. Any modifications made to the token state through `mint`, `burn`, or `transferFrom` functions are immediately reflected in the shared diamond storage, ensuring consistency across all facets interacting with this storage slot.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -402,4 +374,4 @@ This module utilizes diamond storage at the slot identified by `keccak256(\"comp
   <WasThisHelpful pageId="ERC721EnumerableMod" />
 </div>
 
-<LastUpdated date="2025-12-30T17:28:29.930Z" />
+<LastUpdated date="2025-12-30T17:41:39.443Z" />

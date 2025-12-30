@@ -1,7 +1,7 @@
 ---
 sidebar_position: 1
 title: "AccessControlPausableMod"
-description: "Control access and pause roles within a diamond"
+description: "Manages role pausing and access control checks"
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/access/AccessControlPausable/AccessControlPausableMod.sol"
 ---
 
@@ -21,13 +21,13 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Control access and pause roles within a diamond
+Manages role pausing and access control checks
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Internal functions for role pausing and access control checks.
-- Utilizes diamond storage pattern (EIP-8042) at `ACCESS_CONTROL_STORAGE_POSITION`.
-- Compatible with ERC-2535 diamonds.
+- Internal functions for role pausing and access checks.
+- Uses diamond storage pattern (EIP-8042) for shared state.
+- Reverts with specific errors (`AccessControlRolePaused`, `AccessControlUnauthorizedAccount`) on failure.
 - No external dependencies or `using` directives.
 </Callout>
 
@@ -37,7 +37,7 @@ This module provides internal functions for use in your custom facets. Import it
 
 ## Overview
 
-This module provides internal functions to manage role pausing and access control checks. Facets can import this module to enforce role-specific pauses and verify account permissions using shared diamond storage. Changes to role pausing are immediately visible to all facets accessing the same storage.
+This module provides internal functions for pausing specific roles, preventing any account from exercising that role's permissions. Facets can import this module to enforce role-specific pausing logic within the diamond's shared storage. Changes to role pause status are immediately reflected across all facets accessing the same diamond storage.
 
 ---
 
@@ -335,19 +335,25 @@ error AccessControlUnauthorizedAccount(address _account, bytes32 _role);
 import @compose/access/AccessControlPausable/AccessControlPausableMod;
 
 contract MyAccessFacet {
-    AccessControlPausableMod internal accessControlPausableMod;
+    AccessControlPausableMod internal acpMod;
 
-    function initialize(AccessControlPausableMod _mod) external {
-        accessControlPausableMod = _mod;
+    constructor(address _diamondProxy) {
+        acpMod = AccessControlPausableMod(_diamondProxy);
     }
 
-    function grantRoleAndUnpause(bytes32 _role, address _account) external {
-        // Assume granting role logic exists elsewhere or is handled by another facet
-        accessControlPausableMod.unpauseRole(_role);
+    function checkRole(bytes32 _role, address _account) external view {
+        // This call will revert if the account does not have the role OR if the role is paused.
+        acpMod.requireRoleNotPaused(_role, _account);
     }
 
-    function checkRolePermission(bytes32 _role, address _account) view external {
-        accessControlPausableMod.requireRoleNotPaused(_role, _account);
+    function pauseMyRole(bytes32 _role) external {
+        // Assumes appropriate role checks are performed before calling this.
+        acpMod.pauseRole(_role);
+    }
+
+    function unpauseMyRole(bytes32 _role) external {
+        // Assumes appropriate role checks are performed before calling this.
+        acpMod.unpauseRole(_role);
     }
 }`}
 </ExpandableCode>
@@ -356,15 +362,15 @@ contract MyAccessFacet {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Call `requireRoleNotPaused` to enforce role checks and ensure roles are not paused.
-- Use `pauseRole` and `unpauseRole` exclusively for managing role state.
-- Ensure storage layout compatibility when upgrading facets to maintain state integrity.
+- Ensure `requireRoleNotPaused` is called before executing role-restricted logic.
+- Call `pauseRole` and `unpauseRole` only from authorized facets.
+- Verify the storage layout compatibility when upgrading facets to ensure correct state access.
 </Callout>
 
 ## Integration Notes
 
 <Callout type="success" title="Shared Storage">
-This module interacts with diamond storage at the `ACCESS_CONTROL_STORAGE_POSITION`, identified by `keccak256(\"compose.accesscontrol\")`. It utilizes the `AccessControlPausableStorage` struct. All functions are internal, ensuring that state modifications and checks are performed within the diamond's context and are immediately visible to all composited facets accessing the same storage.
+This module interacts with diamond storage at the `ACCESS_CONTROL_STORAGE_POSITION`, identified by `keccak256(\"compose.accesscontrol\")`. All state modifications and checks are performed against the `AccessControlPausableStorage` struct within this shared storage. Functions are internal, ensuring direct integration with other facets that also adhere to the diamond storage pattern.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -384,4 +390,4 @@ This module interacts with diamond storage at the `ACCESS_CONTROL_STORAGE_POSITI
   <WasThisHelpful pageId="AccessControlPausableMod" />
 </div>
 
-<LastUpdated date="2025-12-30T17:27:07.684Z" />
+<LastUpdated date="2025-12-30T17:40:18.286Z" />

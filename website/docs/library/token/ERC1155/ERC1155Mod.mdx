@@ -1,7 +1,7 @@
 ---
 sidebar_position: 1
 title: "ERC1155Mod"
-description: "Manages ERC-1155 token transfers and metadata"
+description: "Manages ERC-1155 token transfers, minting, and burning"
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/token/ERC1155/ERC1155Mod.sol"
 ---
 
@@ -21,14 +21,14 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Manages ERC-1155 token transfers and metadata
+Manages ERC-1155 token transfers, minting, and burning
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Internal functions for minting, burning, and transfers.
-- Supports ERC-1155 safe transfer requirements.
+- Internal functions for ERC-1155 token management.
+- Supports safe transfers for both single and batch operations.
 - Manages token URIs with base URI concatenation.
-- Uses diamond storage pattern for shared state.
+- Integrates with the diamond storage pattern for shared state.
 </Callout>
 
 <Callout type="info" title="Module Usage">
@@ -37,7 +37,7 @@ This module provides internal functions for use in your custom facets. Import it
 
 ## Overview
 
-This module provides internal functions for minting, burning, and transferring ERC-1155 tokens. Facets can import this module to manage token balances and metadata within a diamond storage pattern. Changes to token balances and URIs are immediately visible to all facets accessing the shared storage.
+This module provides internal functions for managing ERC-1155 token balances, transfers, and metadata within a diamond. Facets can import this module to implement ERC-1155 compliant functionality, leveraging shared diamond storage for token state. It ensures safe transfers by validating receiver contracts and handles batch operations for efficiency.
 
 ---
 
@@ -564,26 +564,28 @@ error ERC1155MissingApprovalForAll(address _operator, address _owner);
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity >=0.8.30;
 
-import {ERC1155Mod} from "@compose/token/ERC1155/ERC1155Mod";
-import {ERC1155Storage} from "@compose/token/ERC1155/ERC1155Storage";
+import { ERC1155Mod } from "@compose/token/ERC1155/ERC1155Mod";
 
 contract MyERC1155Facet {
-    ERC1155Mod internal erc1155Module;
+    ERC1155Mod internal erc1155Mod;
 
-    function initialize(ERC1155Storage storage _storage) external {
-        erc1155Module = ERC1155Mod(_storage);
+    function initialize(address erc1155ModAddress) external {
+        erc1155Mod = ERC1155Mod(erc1155ModAddress);
     }
 
-    function mintNewToken(address _to, uint256 _id, uint256 _value) external {
-        erc1155Module.mint(_to, _id, _value);
+    function mintTokens(address _to, uint256 _id, uint256 _value) external {
+        // Assumes caller has permission to mint.
+        erc1155Mod.mint(_to, _id, _value);
     }
 
-    function transferToken(address _from, address _to, uint256 _id, uint256 _value, address _operator) external {
-        erc1155Module.safeTransferFrom(_from, _to, _id, _value, _operator);
+    function transferTokens(address _from, address _to, uint256 _id, uint256 _value, address _operator) external {
+        // Assumes caller has permission to transfer.
+        erc1155Mod.safeTransferFrom(_from, _to, _id, _value, _operator);
     }
 
-    function setTokenMetadataURI(uint256 _tokenId, string memory _tokenURI) external {
-        erc1155Module.setTokenURI(_tokenId, _tokenURI);
+    function burnTokens(address _from, uint256 _id, uint256 _value) external {
+        // Assumes caller has permission to burn.
+        erc1155Mod.burn(_from, _id, _value);
     }
 }`}
 </ExpandableCode>
@@ -592,15 +594,15 @@ contract MyERC1155Facet {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Ensure receiver contracts implement the ERC1155TokenReceiver interface for safe transfers.
-- Call `safeTransferFrom` or `safeBatchTransferFrom` for external transfers to ensure compatibility.
-- Verify ownership and approvals before executing transfers to prevent reverts.
+- Ensure necessary approvals are granted before calling transfer functions.
+- Perform receiver validation when implementing custom mint or transfer logic.
+- Handle specific errors like `ERC1155InsufficientBalance` and `ERC1155InvalidReceiver`.
 </Callout>
 
 ## Integration Notes
 
 <Callout type="success" title="Shared Storage">
-This module interacts with diamond storage at the position identified by `keccak256(\"compose.erc1155\")`. It utilizes the `ERC1155Storage` struct, which includes fields for `uri` and `baseURI`. All state modifications (minting, burning, URI setting) are performed directly on this shared storage, ensuring immediate visibility across all facets.
+This module interacts with diamond storage at the `STORAGE_POSITION` defined by `keccak256("compose.erc1155")`. It utilizes the `ERC1155Storage` struct to manage token URIs and base URIs. All state changes made through this module are immediately visible to any facet accessing the same storage position.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -632,4 +634,4 @@ This module interacts with diamond storage at the position identified by `keccak
   <WasThisHelpful pageId="ERC1155Mod" />
 </div>
 
-<LastUpdated date="2025-12-30T17:28:11.667Z" />
+<LastUpdated date="2025-12-30T17:41:21.383Z" />

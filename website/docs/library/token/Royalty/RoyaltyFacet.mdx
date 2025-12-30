@@ -1,7 +1,7 @@
 ---
 sidebar_position: 2
 title: "RoyaltyFacet"
-description: "Returns royalty information for NFTs"
+description: "Returns royalty information for tokens"
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/token/Royalty/RoyaltyFacet.sol"
 ---
 
@@ -21,19 +21,19 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Returns royalty information for NFTs
+Returns royalty information for tokens
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Implements ERC-2981 royalty standard.
-- Routes `royaltyInfo` calls through the diamond proxy.
-- Accesses royalty data from diamond storage.
-- Self-contained with no external dependencies.
+- Implements ERC-2981 standard for royalty payments.
+- Provides token-specific and default royalty fallback logic.
+- Functions are routed through the diamond proxy for composability.
+- Self-contained facet with no external dependencies.
 </Callout>
 
 ## Overview
 
-This facet implements the ERC-2981 standard for NFT royalties within a Compose diamond. It exposes the `royaltyInfo` function to query royalty details for a given token and sale price. Calls are routed through the diamond proxy, enabling flexible integration and upgradeability.
+This facet implements ERC-2981 royalty information retrieval for tokens within a diamond. It provides an external function to query royalty details based on token ID and sale price, falling back to default royalty settings when token-specific data is absent. Developers integrate this facet to expose royalty standards while leveraging the diamond's upgradeability and composability.
 
 ---
 
@@ -132,21 +132,27 @@ Returns royalty information for a given token and sale price. Returns token-spec
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity >=0.8.30;
 
-import { IRoyaltyFacet } from "@compose/token/Royalty/IRoyaltyFacet";
-import { IDiamond } from "@compose/diamond/IDiamond";
+import { IDiamond } from "@compose/diamond/IDiamond.sol";
+import { RoyaltyFacet } from "@compose/token/Royalty/RoyaltyFacet.sol";
 
 contract RoyaltyUser {
-    address immutable DIAMOND_ADDRESS;
+    IDiamond diamond;
 
-    constructor(address diamondAddress) {
-        DIAMOND_ADDRESS = diamondAddress;
+    constructor(address _diamondAddress) {
+        diamond = IDiamond(_diamondAddress);
     }
 
-    function getRoyaltyDetails(uint256 tokenId, uint256 salePrice) public view returns (address, uint256) {
-        // Access the facet's function through the diamond proxy
-        IDiamond diamond = IDiamond(DIAMOND_ADDRESS);
-        // The diamond will route this call to the RoyaltyFacet
-        return IRoyaltyFacet(diamond).royaltyInfo(tokenId, salePrice);
+    /**
+     * @notice Get royalty information for a specific token and sale price.
+     * @param _tokenId The ID of the token.
+     * @param _salePrice The price at which the token is being sold.
+     * @return receiver The address receiving the royalty payment.
+     * @return royaltyAmount The amount of royalty to be paid.
+     */
+    function getRoyaltyDetails(uint256 _tokenId, uint256 _salePrice) public view returns (address receiver, uint256 royaltyAmount) {
+        // Calls the royaltyInfo function through the diamond proxy
+        (receiver, royaltyAmount) = diamond.royaltyInfo(_tokenId, _salePrice);
+        return (receiver, royaltyAmount);
     }
 }`}
 </ExpandableCode>
@@ -155,15 +161,15 @@ contract RoyaltyUser {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Initialize default royalty information during diamond setup.
-- Ensure the `RoyaltyFacet` is correctly added to the diamond's facet registry.
-- Verify that the `royaltyInfo` function is correctly called through the diamond proxy.
+- Ensure the RoyaltyFacet is correctly initialized with default royalty information during diamond deployment.
+- Verify that any custom royalty settings for specific tokens are correctly stored and managed.
+- Confirm storage slot compatibility before upgrading the diamond to prevent data corruption.
 </Callout>
 
 ## Security Considerations
 
 <Callout type="warning" title="Security">
-The `royaltyInfo` function is a `view` function and does not modify state, reducing security risks. Input validation for `_tokenId` and `_salePrice` is handled internally. Follow standard Solidity security practices for diamond integration.
+The `royaltyInfo` function is `view` and does not modify state. Input validation for `_tokenId` and `_salePrice` is handled internally by the facet's logic. Follow standard Solidity security practices for diamond interactions.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -213,4 +219,4 @@ The `royaltyInfo` function is a `view` function and does not modify state, reduc
   <WasThisHelpful pageId="RoyaltyFacet" />
 </div>
 
-<LastUpdated date="2025-12-30T17:28:53.800Z" />
+<LastUpdated date="2025-12-30T17:42:07.410Z" />

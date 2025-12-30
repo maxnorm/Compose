@@ -1,7 +1,7 @@
 ---
 sidebar_position: 2
 title: "ERC1155Facet"
-description: "ERC-1155 token transfers and management within a diamond"
+description: "ERC-1155 token transfers and queries within a diamond"
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/token/ERC1155/ERC1155Facet.sol"
 ---
 
@@ -21,19 +21,19 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-ERC-1155 token transfers and management within a diamond
+ERC-1155 token transfers and queries within a diamond
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Implements core ERC-1155 external functions for diamond routing.
-- Accesses token state via the diamond storage pattern.
-- Supports both single and batch token transfers.
-- Emits standard ERC-1155 events for on-chain activity tracking.
+- Exposes external functions for ERC-1155 token transfers and balance queries.
+- Integrates with the diamond storage pattern for state management.
+- Follows EIP-1155 standards for multi-token fungibility.
+- Self-contained, adhering to Compose facet design principles.
 </Callout>
 
 ## Overview
 
-This facet implements ERC-1155 fungible token standard functions within a Compose diamond. It provides external interfaces for token transfers, balance checks, and approvals, routing calls through the diamond proxy to access shared storage. Developers add this facet to expose ERC-1155 functionality while preserving upgradeability and composability.
+This facet implements ERC-1155 token functionality as external functions within a diamond. It routes calls through the diamond proxy and accesses shared storage for token balances and URIs. Developers add this facet to expose ERC-1155 token capabilities while maintaining diamond upgradeability.
 
 ---
 
@@ -606,29 +606,23 @@ error ERC1155InvalidArrayLength(uint256 _idsLength, uint256 _valuesLength);
 import { IDiamond } from "@compose/diamond/IDiamond.sol";
 import { ERC1155Facet } from "@compose/token/ERC1155/ERC1155Facet.sol";
 
-contract MyDiamondUser {
-    IDiamond diamond;
+contract DiamondConsumer {
+    IDiamond immutable diamond;
 
     constructor(address _diamondAddress) {
         diamond = IDiamond(_diamondAddress);
     }
 
-    function transferSingleToken(address _to, uint256 _id, uint256 _value, bytes _data) external {
-        ERC1155Facet(diamond.getFacetAddress(ERC1155Facet.facetName())).safeTransferFrom(
-            address(this),
-            _to,
-            _id,
-            _value,
-            _data
-        );
-    }
-
+    // Example: Checking balance
     function checkBalance(address _account, uint256 _id) external view returns (uint256) {
-        return ERC1155Facet(diamond.getFacetAddress(ERC1155Facet.facetName())).balanceOf(_account, _id);
+        // Accessing ERC1155Facet functions through the diamond proxy
+        return diamond.balanceOf(_account, _id);
     }
 
-    function approveOperator(address _operator, bool _approved) external {
-        ERC1155Facet(diamond.getFacetAddress(ERC1155Facet.facetName())).setApprovalForAll(_operator, _approved);
+    // Example: Transferring tokens
+    function transferTokens(address _from, address _to, uint256 _id, uint256 _value) external {
+        // Calling the safeTransferFrom function via the diamond
+        diamond.safeTransferFrom(_from, _to, _id, _value, "");
     }
 }`}
 </ExpandableCode>
@@ -637,15 +631,15 @@ contract MyDiamondUser {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Initialize ERC1155 storage and base URI during diamond deployment or upgrade.
-- Enforce access control for functions that modify approvals or URIs if needed, beyond the standard ERC-1155 requirements.
-- Verify storage compatibility and slot alignment before upgrading to maintain state integrity.
+- Initialize the ERC1155Storage struct during diamond deployment or upgrade.
+- Enforce necessary approvals via `setApprovalForAll` before calling transfer functions.
+- Verify that the `_data` parameter in `safeTransferFrom` and `safeBatchTransferFrom` is handled correctly by the receiver contract if it implements `onERC1155Received`.
 </Callout>
 
 ## Security Considerations
 
 <Callout type="warning" title="Security">
-Functions like `safeTransferFrom` and `safeBatchTransferFrom` use the checks-effects-interactions pattern to prevent reentrancy. Input validation is performed to ensure correct array lengths and to prevent transfers to the zero address. `setApprovalForAll` requires the caller to have permission to approve for the `_account`. The `uri` function handles potential concatenation of base and token-specific URIs. Follow standard Solidity security practices for external calls and input validation.
+Follow standard Solidity security practices. Ensure proper access control is enforced by the diamond proxy for state-changing functions like `setApprovalForAll`, `safeTransferFrom`, and `safeBatchTransferFrom`. Validate input parameters, especially `_accounts`, `_ids`, and `_values` in batch functions, to prevent errors such as `ERC1155InvalidArrayLength`. The `safeTransferFrom` and `safeBatchTransferFrom` functions include checks for receiver contract compatibility with the ERC-1155 standard.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -689,4 +683,4 @@ Functions like `safeTransferFrom` and `safeBatchTransferFrom` use the checks-eff
   <WasThisHelpful pageId="ERC1155Facet" />
 </div>
 
-<LastUpdated date="2025-12-30T17:28:16.124Z" />
+<LastUpdated date="2025-12-30T17:41:25.793Z" />

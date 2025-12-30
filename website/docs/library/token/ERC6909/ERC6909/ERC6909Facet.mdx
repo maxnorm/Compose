@@ -25,15 +25,15 @@ ERC-6909 token transfers and operator management
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Implements ERC-6909 token standards for transfers and approvals.
-- Manages operator approvals for token management.
-- Functions are routed through the diamond proxy, adhering to EIP-2535.
-- Self-contained unit with no external dependencies beyond standard Solidity.
+- Exposes external functions for ERC-6909 token operations within a diamond.
+- Manages token balances, allowances, and operator status using diamond storage.
+- Self-contained facet with no external dependencies or inheritance.
+- Compatible with the ERC-2535 diamond standard.
 </Callout>
 
 ## Overview
 
-This facet implements ERC-6909 token functionality, including transfers, allowances, and operator approvals, within a Compose diamond. It exposes these operations as external functions, routing calls through the diamond proxy and accessing shared storage. Developers integrate this facet to provide advanced token capabilities while maintaining the diamond's upgradeability and modularity.
+This facet implements ERC-6909 token functionality within a diamond. It provides external functions for token transfers, allowances, and operator management, routing calls through the diamond proxy and accessing shared storage. Developers integrate this facet to expose composable token capabilities while preserving diamond upgradeability.
 
 ---
 
@@ -461,8 +461,9 @@ error ERC6909InvalidSpender(address _spender);
 
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity >=0.8.30;
-import {ERC6909Facet} from "@compose/token/ERC6909/ERC6909/ERC6909Facet";
-import {IDiamond} from "@compose/diamond/IDiamond.sol";
+
+import { IDiamond } from "@compose/diamond/IDiamond.sol";
+import { ERC6909Facet } from "@compose/token/ERC6909/ERC6909/ERC6909Facet";
 
 contract ExampleDiamondUser {
     address immutable DIAMOND_ADDRESS;
@@ -472,19 +473,21 @@ contract ExampleDiamondUser {
     }
 
     function exampleTransfer(address _receiver, uint256 _id, uint256 _amount) external {
-        IDiamond(DIAMOND_ADDRESS).transfer(_receiver, _id, _amount);
+        IDiamond diamond = IDiamond(DIAMOND_ADDRESS);
+        // Calls the transfer function implemented by ERC6909Facet via the diamond proxy
+        diamond.transfer(_receiver, _id, _amount);
     }
 
     function exampleApprove(address _spender, uint256 _id, uint256 _amount) external {
-        IDiamond(DIAMOND_ADDRESS).approve(_spender, _id, _amount);
-    }
-
-    function exampleSetOperator(address _spender, bool _approved) external {
-        IDiamond(DIAMOND_ADDRESS).setOperator(_spender, _approved);
+        IDiamond diamond = IDiamond(DIAMOND_ADDRESS);
+        // Calls the approve function implemented by ERC6909Facet via the diamond proxy
+        diamond.approve(_spender, _id, _amount);
     }
 
     function exampleBalanceOf(address _owner, uint256 _id) external view returns (uint256) {
-        return IDiamond(DIAMOND_ADDRESS).balanceOf(_owner, _id);
+        IDiamond diamond = IDiamond(DIAMOND_ADDRESS);
+        // Calls the balanceOf function implemented by ERC6909Facet via the diamond proxy
+        return diamond.balanceOf(_owner, _id);
     }
 }`}
 </ExpandableCode>
@@ -493,15 +496,15 @@ contract ExampleDiamondUser {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Initialize the facet's storage correctly during diamond deployment.
-- Enforce appropriate access controls for functions that modify state (approve, setOperator, transfer, transferFrom).
-- Verify storage compatibility if upgrading to a new version of this facet.
+- Initialize the ERC6909Storage struct at the correct storage slot during diamond deployment.
+- Ensure that the `setOperator` function is used to grant necessary permissions for `transferFrom` operations.
+- Validate input parameters in functions like `transfer` and `transferFrom` to prevent unexpected behavior and gas wastage.
 </Callout>
 
 ## Security Considerations
 
 <Callout type="warning" title="Security">
-Follow standard Solidity security practices. Ensure that `transfer` and `transferFrom` functions validate `_receiver` and `_sender` addresses respectively to prevent unintended transfers. Use `approve` and `setOperator` functions with caution, granting permissions only to trusted addresses. The `balanceOf` and `allowance` functions are view functions and do not pose direct state modification risks.
+The `transfer` and `transferFrom` functions implement checks-effects-interactions pattern to mitigate reentrancy risks. Input validation is performed for receiver and sender addresses. Granting operator status via `setOperator` requires careful consideration of the approved spender's capabilities. Insufficient balance or allowance will revert with `ERC6909InsufficientBalance` or `ERC6909InsufficientAllowance` respectively.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -545,4 +548,4 @@ Follow standard Solidity security practices. Ensure that `transfer` and `transfe
   <WasThisHelpful pageId="ERC6909Facet" />
 </div>
 
-<LastUpdated date="2025-12-30T17:28:19.891Z" />
+<LastUpdated date="2025-12-30T17:41:32.587Z" />

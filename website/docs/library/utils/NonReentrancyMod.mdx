@@ -1,7 +1,7 @@
 ---
 sidebar_position: 1
 title: "NonReentrancyMod"
-description: "Prevent reentrant calls within facets"
+description: "Prevent reentrant calls within functions"
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/libraries/NonReentrancyMod.sol"
 ---
 
@@ -21,13 +21,13 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Prevent reentrant calls within facets
+Prevent reentrant calls within functions
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Provides `enter()` and `exit()` functions to manage reentrancy guards.
-- Uses custom error `Reentrancy` for gas-efficient reverts.
-- Designed for direct import and use within facets.
+- Provides `enter` and `exit` functions to manage reentrancy guards.
+- Emits a `Reentrancy` error if a reentrant call is detected.
+- Designed for internal use within facets to protect critical operations.
 </Callout>
 
 <Callout type="info" title="Module Usage">
@@ -36,7 +36,7 @@ This module provides internal functions for use in your custom facets. Import it
 
 ## Overview
 
-This library provides functions to prevent reentrant function calls. Facets import and use its internal functions to guard critical operations, ensuring that a function cannot be called again before its previous execution has completed. This protects against common reentrancy exploits.
+This library provides internal functions to prevent reentrant function calls. Facets can import and use these functions to ensure that a function's execution is not interrupted by another call to itself or another function within the same execution context. This is crucial for maintaining state integrity and security in composable diamond architectures.
 
 ---
 
@@ -98,33 +98,27 @@ error Reentrancy();
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity >=0.8.30;
 
-import {NonReentrancyMod} from '@compose/libraries/NonReentrancyMod';
+import { NonReentrancyMod } from "@compose/libraries/NonReentrancyMod";
 
 contract MyFacet {
-    // NonReentrancyMod is a library, not a facet. It should be imported and its functions called directly.
+    using NonReentrancyMod for uint256;
 
-    /**
-     * @notice Example function demonstrating non-reentrancy guard.
-     */
-    function sensitiveOperation() external {
-        // Prevent reentrant calls before entering the critical section
+    uint256 internal _stateVar;
+
+    function executeWithNonReentrancy(uint256 _value) external {
+        // Check for reentrancy before entering the critical section
         NonReentrancyMod.enter();
 
-        // Perform sensitive operations here...
-        // For example, token transfers that might call back into this contract.
+        // Perform critical operations
+        _stateVar = _value;
+        // ... other state-changing operations ...
 
-        // Allow reentrant calls after the critical section is finished
+        // Exit the critical section, allowing reentrancy again
         NonReentrancyMod.exit();
     }
 
-    /**
-     * @notice Example function demonstrating reentrancy error.
-     */
-    function triggerReentrancy() external {
-        NonReentrancyMod.enter();
-        // This call would revert if sensitiveOperation() was already active
-        // sensitiveOperation();
-        NonReentrancyMod.exit();
+    function getState() external view returns (uint256) {
+        return _stateVar;
     }
 }`}
 </ExpandableCode>
@@ -133,19 +127,19 @@ contract MyFacet {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Call `NonReentrancyMod.enter()` at the beginning of any function that should not be reentered.
-- Call `NonReentrancyMod.exit()` at the end of the function after all critical operations are complete.
-- Ensure `NonReentrancyMod.exit()` is always called, even in error paths if applicable, to avoid permanent locking.
+- Call `NonReentrancyMod.enter()` at the beginning of functions that should not be reentrant.
+- Call `NonReentrancyMod.exit()` at the end of these functions to reset the reentrancy guard.
+- Ensure custom errors are handled if reentrancy is detected.
 </Callout>
 
 ## Integration Notes
 
 <Callout type="success" title="Shared Storage">
-This library does not interact with diamond storage. It manages its state internally using a simple flag that is checked and updated by its `enter` and `exit` functions. Facets using this library maintain their own instance or call the library functions directly, ensuring reentrancy protection is localized to the calling facet's execution context.
+This library does not interact with diamond storage. Its functionality is managed internally within the library's scope for each function call. The `enter` and `exit` functions manage a local reentrancy guard specific to the execution context of the calling function.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
   <WasThisHelpful pageId="NonReentrancyMod" />
 </div>
 
-<LastUpdated date="2025-12-30T17:29:32.640Z" />
+<LastUpdated date="2025-12-30T17:42:46.110Z" />
