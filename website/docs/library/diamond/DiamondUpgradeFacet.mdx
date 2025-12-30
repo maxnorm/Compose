@@ -1,0 +1,517 @@
+---
+sidebar_position: 510
+title: "DiamondUpgradeFacet"
+description: "Manage diamond facets and upgrade logic"
+gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/diamond/DiamondUpgradeFacet.sol"
+---
+
+import DocSubtitle  from '@site/src/components/docs/DocSubtitle';
+import Badge from '@site/src/components/ui/Badge';
+import Callout from '@site/src/components/ui/Callout';
+import CalloutBox from '@site/src/components/ui/CalloutBox';
+import Accordion, { AccordionGroup } from '@site/src/components/ui/Accordion';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+import ExpandableCode from '@site/src/components/code/ExpandableCode';
+import CodeShowcase from '@site/src/components/code/CodeShowcase';
+import RelatedDocs from '@site/src/components/docs/RelatedDocs';
+import WasThisHelpful from '@site/src/components/docs/WasThisHelpful';
+import LastUpdated from '@site/src/components/docs/LastUpdated';
+import ReadingTime from '@site/src/components/docs/ReadingTime';
+import GradientText from '@site/src/components/ui/GradientText';
+import GradientButton from '@site/src/components/ui/GradientButton';
+
+<DocSubtitle>
+Manage diamond facets and upgrade logic
+</DocSubtitle>
+
+<Callout type="info" title="Key Features">
+- Allows adding, replacing, and removing facet functions.
+- Emits events for function changes and delegate calls.
+- Supports setting diamond metadata.
+- Includes error handling for common upgrade issues.
+</Callout>
+
+## Overview
+
+This facet provides functions to add, replace, and remove facets within a diamond proxy. It orchestrates upgrades by modifying the diamond's function selector mappings. Developers use this facet to manage the diamond's surface area and upgrade its functionality while maintaining state.
+
+---
+
+## Storage
+
+### OwnerStorage
+
+<ExpandableCode language="solidity" maxLines={15} title="Definition">
+{`struct OwnerStorage {
+    address owner;
+}`}
+</ExpandableCode>
+
+---
+### FacetAndPosition
+
+<ExpandableCode language="solidity" maxLines={15} title="Definition">
+{`struct FacetAndPosition {
+    address facet;
+    uint32 position;
+}`}
+</ExpandableCode>
+
+---
+### DiamondStorage
+
+<ExpandableCode language="solidity" maxLines={15} title="Definition">
+{`struct DiamondStorage {
+    mapping(bytes4 functionSelector => FacetAndPosition) facetAndPosition;
+    /**
+    * Array of all function selectors that can be called in the diamond
+    */
+    bytes4[] selectors;
+}`}
+</ExpandableCode>
+
+---
+### FacetFunctions
+
+<ExpandableCode language="solidity" maxLines={15} title="Definition">
+{`struct FacetFunctions {
+    address facet;
+    bytes4[] selectors;
+}`}
+</ExpandableCode>
+
+### State Variables
+
+<PropertyTable
+  properties={[
+    {
+      name: "OWNER_STORAGE_POSITION",
+      type: "bytes32",
+      description: "Diamond storage slot position for this module (Value: `keccak256(\"compose.owner\")`)"
+    },
+    {
+      name: "DIAMOND_STORAGE_POSITION",
+      type: "bytes32",
+      description: "Diamond storage slot position for this module (Value: `keccak256(\"erc8109.diamond\")`)"
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Functions
+
+### upgradeDiamond
+
+---
+### Function Changes:
+
+---
+### DelegateCall:
+
+---
+### Metadata:
+
+If _tag is non-zero or if _metadata.length &gt; 0 then the `DiamondMetadata` event is emitted.
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function upgradeDiamond(
+    FacetFunctions[] calldata _addFunctions,
+    FacetFunctions[] calldata _replaceFunctions,
+    bytes4[] calldata _removeFunctions,
+    address _delegate,
+    bytes calldata _functionCall,
+    bytes32 _tag,
+    bytes calldata _metadata
+) external;`}
+</ExpandableCode>
+
+**Parameters:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "_addFunctions",
+      type: "FacetFunctions[]",
+      description: "Selectors to add, grouped by facet."
+    },
+    {
+      name: "_replaceFunctions",
+      type: "FacetFunctions[]",
+      description: "Selectors to replace, grouped by facet."
+    },
+    {
+      name: "_removeFunctions",
+      type: "bytes4[]",
+      description: "Selectors to remove."
+    },
+    {
+      name: "_delegate",
+      type: "address",
+      description: "Optional contract to delegatecall (zero address to skip)."
+    },
+    {
+      name: "_functionCall",
+      type: "bytes",
+      description: "Optional calldata to execute on `_delegate`."
+    },
+    {
+      name: "_tag",
+      type: "bytes32",
+      description: "Optional arbitrary metadata, such as release version."
+    },
+    {
+      name: "_metadata",
+      type: "bytes",
+      description: "Optional arbitrary data."
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Events
+
+<AccordionGroup>
+  <Accordion title="DiamondFunctionAdded" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Emitted when a function is added to a diamond.
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+{`event DiamondFunctionAdded(bytes4 indexed _selector, address indexed _facet);`}
+      </ExpandableCode>
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Parameters:</strong>
+      <PropertyTable
+        properties={[
+          {
+            name: "_selector",
+            type: "bytes4",
+            description: "The function selector being added."
+          },
+          {
+            name: "_facet",
+            type: "address",
+            description: "The facet address that will handle calls to `_selector`."
+          }
+        ]}
+        showRequired={false}
+      />
+    </div>
+  </Accordion>
+  <Accordion title="DiamondFunctionReplaced" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Emitted when changing the facet that will handle calls to a function.
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+{`event DiamondFunctionReplaced(bytes4 indexed _selector, address indexed _oldFacet, address indexed _newFacet);`}
+      </ExpandableCode>
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Parameters:</strong>
+      <PropertyTable
+        properties={[
+          {
+            name: "_selector",
+            type: "bytes4",
+            description: "The function selector being affected."
+          },
+          {
+            name: "_oldFacet",
+            type: "address",
+            description: "The facet address previously responsible for `_selector`."
+          },
+          {
+            name: "_newFacet",
+            type: "address",
+            description: "The facet address that will now handle calls to `_selector`."
+          }
+        ]}
+        showRequired={false}
+      />
+    </div>
+  </Accordion>
+  <Accordion title="DiamondFunctionRemoved" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Emitted when a function is removed from a diamond.
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+{`event DiamondFunctionRemoved(bytes4 indexed _selector, address indexed _oldFacet);`}
+      </ExpandableCode>
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Parameters:</strong>
+      <PropertyTable
+        properties={[
+          {
+            name: "_selector",
+            type: "bytes4",
+            description: "The function selector being removed."
+          },
+          {
+            name: "_oldFacet",
+            type: "address",
+            description: "The facet address that previously handled `_selector`."
+          }
+        ]}
+        showRequired={false}
+      />
+    </div>
+  </Accordion>
+  <Accordion title="DiamondDelegateCall" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Emitted when a diamond's constructor function or function from a facet makes a `delegatecall`.
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+{`event DiamondDelegateCall(address indexed _delegate, bytes _functionCall);`}
+      </ExpandableCode>
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Parameters:</strong>
+      <PropertyTable
+        properties={[
+          {
+            name: "_delegate",
+            type: "address",
+            description: "The contract that was delegatecalled."
+          },
+          {
+            name: "_functionCall",
+            type: "bytes",
+            description: "The function call, including function selector and any arguments."
+          }
+        ]}
+        showRequired={false}
+      />
+    </div>
+  </Accordion>
+  <Accordion title="DiamondMetadata" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Emitted to record information about a diamond. This event records any arbitrary metadata. The format of `_tag` and `_data` are not specified by the standard.
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+{`event DiamondMetadata(bytes32 indexed _tag, bytes _data);`}
+      </ExpandableCode>
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Parameters:</strong>
+      <PropertyTable
+        properties={[
+          {
+            name: "_tag",
+            type: "bytes32",
+            description: "Arbitrary metadata, such as a release version."
+          },
+          {
+            name: "_data",
+            type: "bytes",
+            description: "Arbitrary metadata."
+          }
+        ]}
+        showRequired={false}
+      />
+    </div>
+  </Accordion>
+</AccordionGroup>
+
+## Errors
+
+<AccordionGroup>
+  <Accordion title="OwnerUnauthorizedAccount" defaultOpen={false}>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error OwnerUnauthorizedAccount();
+      </ExpandableCode>
+    </div>
+  </Accordion>
+  <Accordion title="NoSelectorsProvidedForFacet" defaultOpen={false}>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error NoSelectorsProvidedForFacet(address _facet);
+      </ExpandableCode>
+    </div>
+  </Accordion>
+  <Accordion title="NoBytecodeAtAddress" defaultOpen={false}>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error NoBytecodeAtAddress(address _contractAddress);
+      </ExpandableCode>
+    </div>
+  </Accordion>
+  <Accordion title="CannotAddFunctionToDiamondThatAlreadyExists" defaultOpen={false}>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error CannotAddFunctionToDiamondThatAlreadyExists(bytes4 _selector);
+      </ExpandableCode>
+    </div>
+  </Accordion>
+  <Accordion title="CannotReplaceFunctionThatDoesNotExist" defaultOpen={false}>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error CannotReplaceFunctionThatDoesNotExist(bytes4 _selector);
+      </ExpandableCode>
+    </div>
+  </Accordion>
+  <Accordion title="CannotRemoveFunctionThatDoesNotExist" defaultOpen={false}>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error CannotRemoveFunctionThatDoesNotExist(bytes4 _selector);
+      </ExpandableCode>
+    </div>
+  </Accordion>
+  <Accordion title="CannotReplaceFunctionWithTheSameFacet" defaultOpen={false}>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error CannotReplaceFunctionWithTheSameFacet(bytes4 _selector);
+      </ExpandableCode>
+    </div>
+  </Accordion>
+  <Accordion title="DelegateCallReverted" defaultOpen={false}>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error DelegateCallReverted(address _delegate, bytes _functionCall);
+      </ExpandableCode>
+    </div>
+  </Accordion>
+  <Accordion title="CannotReplaceImmutableFunction" defaultOpen={false}>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error CannotReplaceImmutableFunction(bytes4 _selector);
+      </ExpandableCode>
+    </div>
+  </Accordion>
+  <Accordion title="CannotRemoveImmutableFunction" defaultOpen={false}>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error CannotRemoveImmutableFunction(bytes4 _selector);
+      </ExpandableCode>
+    </div>
+  </Accordion>
+</AccordionGroup>
+
+<!-- Usage Example section commented out for now -->
+<!--
+## Usage Example
+
+<ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
+{`pragma solidity >=0.8.30;
+
+import { IDiamond } from "@compose/diamond/IDiamond.sol";
+import { DiamondUpgradeFacet } from "@compose/diamond/DiamondUpgradeFacet.sol";
+
+contract DiamondDeployer {
+    address immutable DIAMOND_ADDRESS;
+
+    constructor(address diamondAddress) {
+        DIAMOND_ADDRESS = diamondAddress;
+    }
+
+    function upgradeDiamondWithNewFacet(address newFacetAddress, bytes4[] memory selectors) public {
+        IDiamond diamond = IDiamond(DIAMOND_ADDRESS);
+
+        // Add new functions to the diamond
+        diamond.addFunctions(newFacetAddress, selectors);
+    }
+
+    function replaceFacetFunctions(address newFacetAddress, bytes4[] memory selectors) public {
+        IDiamond diamond = IDiamond(DIAMOND_ADDRESS);
+
+        // Replace existing functions with new ones
+        diamond.replaceFunctions(newFacetAddress, selectors);
+    }
+
+    function removeFacetFunctions(bytes4[] memory selectors) public {
+        IDiamond diamond = IDiamond(DIAMOND_ADDRESS);
+
+        // Remove functions from the diamond
+        diamond.removeFunctions(selectors);
+    }
+
+    function setDiamondMetadata(bytes32 tag, bytes memory data) public {
+        IDiamond diamond = IDiamond(DIAMOND_ADDRESS);
+
+        // Set metadata for the diamond
+        diamond.Metadata(tag, data);
+    }
+}`}
+</ExpandableCode>
+-->
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Initialize diamond storage correctly before adding facets.
+- Use `addFunctions`, `replaceFunctions`, and `removeFunctions` to manage the diamond's executable functions.
+- Ensure facet bytecode is deployed and accessible at the provided address before calling upgrade functions.
+- Verify that facet functions do not conflict with immutable functions.
+</Callout>
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+Access to upgrade functions is restricted to the diamond's owner via the `OwnerUnauthorizedAccount` error. The `Metadata` function emits an event for tracking metadata changes. Input validation is performed to prevent adding duplicate functions or replacing non-existent ones. The `DelegateCall` function should be used with extreme caution due to reentrancy risks.
+</Callout>
+
+<div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
+  <RelatedDocs
+    items={[
+      {
+        title: "DiamondInspectFacet",
+        href: "/docs/library/diamond/DiamondInspectFacet",
+        description: "Related facet in diamond",
+        icon: "💎"
+      },
+      {
+        title: "DiamondLoupeFacet",
+        href: "/docs/library/diamond/DiamondLoupeFacet",
+        description: "Related facet in diamond",
+        icon: "💎"
+      }
+    ]}
+  />
+</div>
+
+<div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
+  <WasThisHelpful pageId="DiamondUpgradeFacet" />
+</div>
+
+<LastUpdated date="2025-12-30T18:43:17.907Z" />

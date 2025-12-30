@@ -1,7 +1,7 @@
 ---
 sidebar_position: 510
 title: "ExampleDiamond"
-description: "Example Diamond initialization and fallback handlers"
+description: "Example Diamond library for Compose diamonds"
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/diamond/example/ExampleDiamond.sol"
 ---
 
@@ -21,19 +21,19 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Example Diamond initialization and fallback handlers
+Example Diamond library for Compose diamonds
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Provides a constructor for diamond initialization.
-- Includes fallback and receive functions for general contract interaction.
-- Demonstrates facet cut structure for diamond assembly.
-- Acts as a foundational example for Compose diamond deployments.
+- Demonstrates diamond initialization with facets and owner.
+- Exposes fallback and receive functions for ether handling.
+- Provides a template for custom diamond implementations.
+- Compliant with EIP-2535 Diamond Standard.
 </Callout>
 
 ## Overview
 
-This contract serves as an example for initializing a diamond with facets and owner. It also includes fallback and receive functions for handling arbitrary calls and ether transfers. Developers can reference this contract for structuring diamond deployments and understanding basic diamond proxy behavior.
+This library provides an example implementation of a diamond contract, demonstrating facet registration and basic diamond functionality. It serves as a foundational template for developers to build upon. The example diamond initializes with provided facets and an owner, enabling routing of calls to registered facet functions.
 
 ---
 
@@ -43,10 +43,10 @@ This contract serves as an example for initializing a diamond with facets and ow
 
 ### constructor
 
-Struct to hold facet address and its function selectors. struct FacetCut &#123; address facetAddress; FacetCutAction action; // Add=0, Replace=1, Remove=2 bytes4[] functionSelectors; &#125; Initializes the diamond contract with facets, owner and other data. Adds all provided facets to the diamond's function selector mapping and sets the contract owner. Each facet in the array will have its function selectors registered to enable delegatecall routing.
+Struct to hold facet address and its function selectors. struct FacetFunctions &#123; address facet; bytes4[] selectors; &#125; Initializes the diamond contract with facets, owner and other data. Adds all provided facets to the diamond's function selector mapping and sets the contract owner. Each facet in the array will have its function selectors registered to enable delegatecall routing.
 
 <ExpandableCode language="solidity" maxLines={8}>
-{`constructor(DiamondMod.FacetCut[] memory _facets, address _diamondOwner) ;`}
+{`constructor(DiamondMod.FacetFunctions[] memory _facets, address _diamondOwner) ;`}
 </ExpandableCode>
 
 **Parameters:**
@@ -55,7 +55,7 @@ Struct to hold facet address and its function selectors. struct FacetCut &#123; 
   properties={[
     {
       name: "_facets",
-      type: "DiamondMod.FacetCut[]",
+      type: "DiamondMod.FacetFunctions[]",
       description: "Array of facet addresses and their corresponding function selectors to add to the diamond."
     },
     {
@@ -88,30 +88,24 @@ Struct to hold facet address and its function selectors. struct FacetCut &#123; 
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity >=0.8.30;
 
-import { IDiamond, DiamondMod } from '@compose/diamond/example/ExampleDiamond';
+import { ExampleDiamond, DiamondMod } from "@compose/diamond/example/ExampleDiamond";
 
-// Example: Deploying and initializing an ExampleDiamond
-contract DeployExampleDiamond {
+contract Deployer {
     address public diamondAddress;
 
-    constructor(
-        DiamondMod.FacetCut[] memory _facets,
-        address _diamondOwner
-    ) {
-        // Deploy and initialize the diamond
-        diamondAddress = address(new ExampleDiamond(_facets, _diamondOwner));
+    function deployDiamond(address _diamondOwner, DiamondMod.FacetFunctions[] memory _facets) public {
+        ExampleDiamond exampleDiamond = new ExampleDiamond(_facets, _diamondOwner);
+        diamondAddress = address(exampleDiamond);
     }
 
-    // Example of calling a function through the diamond proxy (assuming it's implemented by an added facet)
-    function callFacetFunction(address _diamondAddress, bytes memory _calldata) public {
-        IDiamond(_diamondAddress).diamondCut(_calldata);
+    // Example of interacting with a deployed diamond (assuming a facet is registered)
+    function callRegisteredFacet(address _diamondAddress, bytes memory _calldata) public {
+        IDiamond(_diamondAddress).fallback.value(0)(_calldata);
     }
+}
 
-    // Example of sending ether to the diamond
-    function sendEtherToDiamond(address _diamondAddress) public payable {
-        (bool success, ) = _diamondAddress.call{value: msg.value}("");
-        require(success, "Failed to send ether to diamond");
-    }
+interface IDiamond {
+    function fallback(bytes calldata _calldata) external payable;
 }`}
 </ExpandableCode>
 -->
@@ -120,14 +114,14 @@ contract DeployExampleDiamond {
 
 <Callout type="tip" title="Best Practice">
 - Initialize the diamond with all necessary facets and the owner during deployment.
-- Ensure facet cut data is correctly formatted with actions, facet addresses, and function selectors.
-- Use the fallback and receive functions for handling arbitrary calls and ether transfers to the diamond proxy as intended.
+- Ensure facet function selectors accurately map to registered facet addresses.
+- Utilize the diamond's fallback and receive functions for ether handling if required.
 </Callout>
 
 ## Security Considerations
 
 <Callout type="warning" title="Security">
-The constructor should only be called once during deployment. The fallback and receive functions should be reviewed for intended behavior, especially if they are intended to forward calls or handle value. Ensure that added facets implement robust access control for sensitive operations.
+Follow standard Solidity security practices. Ensure that facet registration and initialization are performed securely. The fallback and receive functions should be carefully considered for ether handling to prevent unexpected behavior.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -144,6 +138,18 @@ The constructor should only be called once during deployment. The fallback and r
         href: "/docs/library/diamond/DiamondInspectFacet",
         description: "Related facet in diamond",
         icon: "💎"
+      },
+      {
+        title: "DiamondLoupeFacet",
+        href: "/docs/library/diamond/DiamondLoupeFacet",
+        description: "Related facet in diamond",
+        icon: "💎"
+      },
+      {
+        title: "DiamondUpgradeFacet",
+        href: "/docs/library/diamond/DiamondUpgradeFacet",
+        description: "Related facet in diamond",
+        icon: "💎"
       }
     ]}
   />
@@ -153,4 +159,4 @@ The constructor should only be called once during deployment. The fallback and r
   <WasThisHelpful pageId="ExampleDiamond" />
 </div>
 
-<LastUpdated date="2025-12-30T17:29:22.328Z" />
+<LastUpdated date="2025-12-30T18:43:24.665Z" />
