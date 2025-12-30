@@ -1,7 +1,7 @@
 ---
 sidebar_position: 1
 title: "OwnerMod"
-description: "Manages ERC-173 contract ownership and access control."
+description: "Manages ERC-173 contract ownership and owner transfers."
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/access/Owner/OwnerMod.sol"
 ---
 
@@ -21,13 +21,14 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Manages ERC-173 contract ownership and access control.
+Manages ERC-173 contract ownership and owner transfers.
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
 - Implements ERC-173 standard for contract ownership.
-- Provides `owner()` and `requireOwner()` for access control.
-- Supports renouncing ownership by setting the owner to `address(0)`.
+- Provides `owner()` view function to retrieve the current owner's address.
+- Includes `requireOwner()` for access control, reverting if the caller is not the owner.
+- Supports ownership renouncement by transferring ownership to `address(0)`.
 </Callout>
 
 <Callout type="info" title="Module Usage">
@@ -36,7 +37,7 @@ This module provides internal functions for use in your custom facets. Import it
 
 ## Overview
 
-The OwnerMod provides essential ERC-173 ownership management functions. It defines the storage layout for the contract owner and offers utility functions like `owner()` and `requireOwner()` for access control. This module is fundamental for secure diamond upgrades and administrative operations.
+This module provides the core functionality for ERC-173 contract ownership, including retrieving the current owner and transferring ownership. It utilizes a dedicated storage slot for owner information, ensuring a clear separation of concerns within the diamond's storage layout.
 
 ---
 
@@ -210,31 +211,27 @@ error OwnerUnauthorizedAccount();
 import {IOwnerMod, OwnerStorage} from "@compose/access/Owner/OwnerMod";
 
 contract MyOwnerFacet {
-    IOwnerMod public ownerMod;
+    IOwnerMod private immutable ownerMod;
 
-    function initialize(address _owner) external {
-        // Assuming OwnerMod is deployed and its address is known
-        // In a real diamond, this would be handled by the Diamond initializer
-        // For example purposes, we set it directly here.
-        address ownerModAddress = address(0x1234567890123456789012345678901234567890;
+    constructor(address ownerModAddress) {
         ownerMod = IOwnerMod(ownerModAddress);
-        ownerMod.transferOwnership(_owner);
     }
 
-    function getOwner() external view returns (address) {
+    function getOwner() public view returns (address) {
         return ownerMod.owner();
     }
 
-    function setOwner(address _newOwner) external {
-        // Access control check, only owner can call this
-        ownerMod.requireOwner();
+    function transferOwner(address _newOwner) public {
         ownerMod.transferOwnership(_newOwner);
     }
 
-    function renounce() external {
-        ownerMod.requireOwner();
-        // Renounce ownership by setting owner to address(0)
+    function renounceOwnership() public {
         ownerMod.transferOwnership(address(0));
+    }
+
+    function onlyOwnerFunction() public view {
+        ownerMod.requireOwner();
+        // ... function logic here ...
     }
 }`}
 </ExpandableCode>
@@ -242,15 +239,15 @@ contract MyOwnerFacet {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Always use `requireOwner()` to protect sensitive administrative functions.
-- Be cautious when renouncing ownership by setting the owner to `address(0)`, as administrative functions will become inaccessible.
-- Ensure `OwnerMod` is initialized with a secure owner address during deployment.
+- Use `transferOwnership(address(0))` to renounce ownership, as indicated by the module's description.
+- Always check the `OwnerUnauthorizedAccount` error before proceeding with sensitive operations if the caller is not the owner.
+- Ensure the `OwnerMod` is initialized correctly during diamond deployment to prevent ownership-related issues.
 </Callout>
 
 ## Integration Notes
 
 <Callout type="success" title="Shared Storage">
-The `OwnerMod` utilizes a dedicated storage slot identified by `STORAGE_POSITION` (keccak256("compose.owner")) to store its `OwnerStorage` struct. This struct contains the `owner` address. Facets interacting with ownership functions must import and reference `IOwnerMod` and ensure the `OwnerMod` is correctly initialized and its address is discoverable within the diamond.
+The `OwnerMod` stores its state in a single storage slot identified by `STORAGE_POSITION` (keccak256("compose.owner")). The `OwnerStorage` struct contains the `owner` address. Facets interacting with this module should import `IOwnerMod` and use the provided addresses. The `getStorage()` function returns a pointer to this storage, allowing direct access if needed, though module functions are preferred for abstraction.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -288,4 +285,4 @@ The `OwnerMod` utilizes a dedicated storage slot identified by `STORAGE_POSITION
   <WasThisHelpful pageId="OwnerMod" />
 </div>
 
-<LastUpdated date="2025-12-30T15:54:18.505Z" />
+<LastUpdated date="2025-12-30T17:09:17.548Z" />

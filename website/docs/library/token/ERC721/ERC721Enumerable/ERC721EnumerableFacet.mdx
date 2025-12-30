@@ -1,7 +1,7 @@
 ---
 sidebar_position: 2
 title: "ERC721EnumerableFacet"
-description: "Manages ERC721 token metadata and enumerable features."
+description: "Manages ERC721 tokens with enumerable properties."
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/token/ERC721/ERC721Enumerable/ERC721EnumerableFacet.sol"
 ---
 
@@ -21,19 +21,19 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Manages ERC721 token metadata and enumerable features.
+Manages ERC721 tokens with enumerable properties.
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Implements ERC721 standard metadata and enumerable properties.
-- Provides efficient `tokenOfOwnerByIndex` for indexed token retrieval.
-- Supports `approve` and `setApprovalForAll` for granular token permissions.
-- Includes safe transfer variants for enhanced security with receiver contracts.
+- Implements ERC721 standard with enumerable extensions.
+- Supports standard ERC721 metadata and ownership queries.
+- Provides functions for token approvals and transfers, including safe transfers.
+- Enables querying of token ownership by index for a given address.
 </Callout>
 
 ## Overview
 
-The ERC721EnumerableFacet provides standard ERC721 functionality, including token metadata and ownership tracking. It enables efficient querying of token balances and ownership by index, crucial for applications requiring ordered token management within a Compose diamond.
+The ERC721EnumerableFacet provides standard ERC721 functionality alongside enumerable capabilities. It allows querying token metadata, ownership, and provides functions for approvals and transfers, adhering to the ERC721 standard while enabling efficient iteration over owned tokens.
 
 ---
 
@@ -637,31 +637,34 @@ error ERC721OutOfBoundsIndex(address _owner, uint256 _index);
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity ^0.8.30;
 
-import { DiamondInit } from "@compose/diamond-core/DiamondInit.sol";
-import { DiamondCut } from "@compose/diamond-core/DiamondCut.sol";
+import { IDiamondCut } from "@compose/diamond/Diamond.sol";
 import { ERC721EnumerableFacet } from "@compose/token/ERC721/ERC721Enumerable/ERC721EnumerableFacet.sol";
 
-contract Deployer {
-    function deploy() external {
-        // Assume diamond contract is already deployed and initialized
-        address diamond = address(0x123); // Replace with actual diamond address
+contract MyDiamond is IDiamondCut {
+    address constant ERC721_ENUMERABLE_FACET_CUT = address(0); // Placeholder
 
-        // Prepare facet cut data
-        bytes memory initData = abi.encodeWithSelector(ERC721EnumerableFacet.init.selector, "My Token", "MTK");
-        ERC721EnumerableFacet.FacetCut[] memory cuts = new ERC721EnumerableFacet.FacetCut[](1);
-        cuts[0] = ERC721EnumerableFacet.FacetCut({
-            facetAddress: address(new ERC721EnumerableFacet()), // Replace with actual deployed facet address
-            action: DiamondCut.Action.ADD,
-            selectors: ERC721EnumerableFacet.getSelectors()
-        });
+    function diamondCut(FacetCut[] memory _diamondCut, address _init, bytes memory _calldata) external override {}
 
-        // Execute cut
-        DiamondCut(diamond).diamondCut(cuts, address(0), initData);
+    function diamondCut() public view returns (FacetCut[] memory) {
+        // Example of how to retrieve data
+        ERC721EnumerableFacet enumerableFacet = ERC721EnumerableFacet(address(this));
 
-        // Example of calling functions after deployment
-        ERC721EnumerableFacet(diamond).name();
-        ERC721EnumerableFacet(diamond).symbol();
-        ERC721EnumerableFacet(diamond).totalSupply();
+        // Get token name
+        string memory tokenName = enumerableFacet.name();
+
+        // Get total supply
+        uint256 supply = enumerableFacet.totalSupply();
+
+        // Get owner of a token
+        address owner = enumerableFacet.ownerOf(1);
+
+        // Approve another address to transfer token 1
+        enumerableFacet.approve(msg.sender, 1);
+
+        // Transfer token 1 to msg.sender
+        enumerableFacet.transferFrom(owner, msg.sender, 1);
+
+        return new FacetCut[](0); // Placeholder
     }
 }`}
 </ExpandableCode>
@@ -669,15 +672,15 @@ contract Deployer {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Initialize the facet with the desired token name and symbol using its `init` function during diamond deployment.
-- Utilize `tokenOfOwnerByIndex` for iterating through a user's tokens, ensuring proper handling of index bounds.
-- Leverage internal functions like `internalTransferFrom` within other facets for robust token management.
+- Initialize the facet with core ERC721 metadata (name, symbol, baseURI) during diamond deployment.
+- Use `ownerOf` and `tokenOfOwnerByIndex` together for iterating through a user's tokens, respecting gas limits.
+- Ensure correct access control is implemented at the diamond level for functions like `approve` and `transferFrom`.
 </Callout>
 
 ## Security Considerations
 
 <Callout type="warning" title="Security">
-Ensure proper access control is implemented at the diamond proxy level for functions that modify state (e.g., `approve`, `setApprovalForAll`). Validate `_to` and `_from` addresses in transfer functions to prevent unintended transfers. Be aware of potential reentrancy risks if external calls are made within transfer functions, though this facet's core transfer logic is internal.
+Input validation for token IDs and addresses is critical. Ensure proper checks are in place to prevent reentrancy for transfer functions. Access control for `approve` and `transferFrom` should be managed at the diamond proxy level to restrict unauthorized operations.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -727,4 +730,4 @@ Ensure proper access control is implemented at the diamond proxy level for funct
   <WasThisHelpful pageId="ERC721EnumerableFacet" />
 </div>
 
-<LastUpdated date="2025-12-30T15:55:30.055Z" />
+<LastUpdated date="2025-12-30T17:10:31.565Z" />

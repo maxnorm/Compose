@@ -25,14 +25,14 @@ Manage diamond ownership with a two-step transfer process.
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Secure two-step ownership transfer process (`transferOwnership` and `acceptOwnership`).
-- Allows for ownership renouncement, making the contract ownerless.
-- Provides view functions (`owner`, `pendingOwner`) to check current and pending ownership.
+- Implements a two-step ownership transfer process for enhanced security.
+- Provides functions to query the current and pending owner addresses.
+- Allows for ownership renouncement by the current owner.
 </Callout>
 
 ## Overview
 
-The OwnerTwoSteps facet provides a secure, two-step mechanism for transferring ownership of a Compose diamond. This pattern prevents accidental or malicious ownership changes by requiring both the current owner to initiate the transfer and the new owner to accept it, enhancing the diamond's security and operational integrity.
+The OwnerTwoSteps facet implements a secure, two-step ownership transfer mechanism for Compose diamonds. It prevents accidental ownership loss by requiring both the current owner to initiate a transfer and the new owner to accept it. This facet provides essential owner querying functions and manages the lifecycle of ownership changes.
 
 ---
 
@@ -198,33 +198,63 @@ error OwnerUnauthorizedAccount();
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity ^0.8.30;
 
-import {IOwnerTwoStepsFacet} from "@compose/access/OwnerTwoSteps/IOwnerTwoStepsFacet.sol";
+import {DiamondCutFacet} from "@compose/diamond/DiamondCutFacet.sol";
 import {OwnerTwoStepsFacet} from "@compose/access/OwnerTwoSteps/OwnerTwoStepsFacet.sol";
 
-// Assume diamond deployment and initialization context
+contract MyDiamond is DiamondCutFacet {
+    address internal constant OWNER_STORAGE_POSITION = keccak256(\"compose.owner\");
+    address internal constant PENDING_OWNER_STORAGE_POSITION = keccak256(\"compose.pendingOwner\");
 
-contract DiamondOwnerDeployer {
-    address public diamondAddress;
-
-    function deployDiamondWithOwner() external {
-        // ... diamond deployment logic ...
-        // diamondAddress = deployedDiamond;
-
-        // Add OwnerTwoStepsFacet to the diamond
-        // ... facet registration logic ...
-
-        // Initialize the facet
-        IOwnerTwoStepsFacet(diamondAddress).transferOwnership(msg.sender); // Or an admin address
+    struct OwnerStorage {
+        address owner;
     }
 
-    function acceptDiamondOwnership() external {
-        // Call from the pending owner
-        IOwnerTwoStepsFacet(diamondAddress).acceptOwnership();
+    struct PendingOwnerStorage {
+        address pendingOwner;
     }
 
-    function renounceDiamondOwnership() external {
-        // Call from the current owner to renounce ownership
-        IOwnerTwoStepsFacet(diamondAddress).renounceOwnership();
+    function getOwnerStorage() internal pure returns (OwnerStorage storage) {
+        assembly {
+            owner := sload(OWNER_STORAGE_POSITION)
+        }
+    }
+
+    function getPendingOwnerStorage() internal pure returns (PendingOwnerStorage storage) {
+        assembly {
+            pendingOwner := sload(PENDING_OWNER_STORAGE_POSITION)
+        }
+    }
+
+    // ... other facets
+
+    function transferOwnership(address _newOwner) external {
+        address owner = this.owner();
+        require(msg.sender == owner, \"Ownable: caller is not the owner\");
+        getPendingOwnerStorage().pendingOwner = _newOwner;
+        emit OwnershipTransferStarted();
+    }
+
+    function owner() external view returns (address) {
+        return getOwnerStorage().owner;
+    }
+
+    function pendingOwner() external view returns (address) {
+        return getPendingOwnerStorage().pendingOwner;
+    }
+
+    function acceptOwnership() external {
+        address pending = this.pendingOwner();
+        require(msg.sender == pending, \"Ownable: caller is not the pending owner\");
+        getOwnerStorage().owner = pending;
+        delete getPendingOwnerStorage().pendingOwner;
+        emit OwnershipTransferred();
+    }
+
+    function renounceOwnership() external {
+        address owner = this.owner();
+        require(msg.sender == owner, \"Ownable: caller is not the owner\");
+        delete getOwnerStorage().owner;
+        emit OwnershipTransferred();
     }
 }`}
 </ExpandableCode>
@@ -232,19 +262,19 @@ contract DiamondOwnerDeployer {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Initialize ownership transfers using `transferOwnership` from an authorized address.
-- Ensure the intended new owner calls `acceptOwnership` to finalize the transfer.
-- Use `renounceOwnership` cautiously, as it makes the diamond contract unownable.
+- Initialize the diamond with the contract deployer as the initial owner.
+- Use `transferOwnership` followed by `acceptOwnership` for secure owner transitions.
+- Ensure the `OwnerTwoStepsFacet` is added to the diamond's facets during deployment or upgrades.
 </Callout>
 
 ## Security Considerations
 
 <Callout type="warning" title="Security">
-Access to `transferOwnership` and `renounceOwnership` is restricted to the current owner. `acceptOwnership` can only be called by the address designated as the pending owner. Ensure that the address initiating `transferOwnership` is indeed the legitimate owner to prevent unauthorized ownership changes. Accidental renouncement will render the contract unmanageable by any address.
+The `transferOwnership` function is only callable by the current owner. The `acceptOwnership` function is only callable by the pending owner. The `renounceOwnership` function is only callable by the current owner. The `OwnerUnauthorizedAccount` error is emitted when an unauthorized account attempts an ownership-related action.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
   <WasThisHelpful pageId="OwnerTwoStepsFacet" />
 </div>
 
-<LastUpdated date="2025-12-30T15:53:48.922Z" />
+<LastUpdated date="2025-12-30T17:08:46.703Z" />

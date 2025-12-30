@@ -1,7 +1,7 @@
 ---
 sidebar_position: 3
 title: "DiamondCutFacet"
-description: "Manage diamond facets and upgrade diamond proxy"
+description: "Manages diamond facet upgrades and initialization."
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/diamond/DiamondCutFacet.sol"
 ---
 
@@ -21,18 +21,18 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Manage diamond facets and upgrade diamond proxy
+Manages diamond facet upgrades and initialization.
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Allows atomic addition, replacement, and removal of functions from the diamond proxy.
-- Supports executing an initialization function after performing facet changes.
-- Provides error handling for common upgrade-related issues like unauthorized access or invalid operations.
+- Allows adding, replacing, and removing facets from the diamond proxy.
+- Supports optional initialization execution via `delegatecall` during an upgrade.
+- Enforces access control, requiring the caller to be the diamond owner.
 </Callout>
 
 ## Overview
 
-The DiamondCutFacet provides essential functions for managing the diamond proxy's facets. It allows authorized callers to add, replace, or remove functions, effectively upgrading or modifying the diamond's functionality. This facet is crucial for maintaining and evolving the diamond's surface area.
+The DiamondCutFacet provides the core functionality for upgrading and managing the facets of a Compose diamond. It allows for adding new facets, replacing existing ones, and removing facets, all while ensuring proper access control and optional initialization execution.
 
 ---
 
@@ -265,47 +265,64 @@ error InitializationFunctionReverted(address _initializationContractAddress, byt
 {`pragma solidity ^0.8.30;
 
 import {DiamondCutFacet} from "@compose/diamond/DiamondCutFacet.sol";
-import {DiamondInit} from "@compose/diamond/DiamondInit.sol";
-import {Selectors} from "@compose/diamond/Selectors.sol";
+import {DiamondInit} from "@compose/diamond/DiamondInit.sol"; // Example Init contract
+import {IDiamondCut} from "@compose/diamond/IDiamondCut.sol";
 
-contract MyDiamond is DiamondCutFacet, DiamondInit {
-    constructor(address[] memory _diamondFacets, bytes[] memory _facetCuts, address _init, bytes memory _calldata) DiamondInit(_diamondFacets, _facetCuts, _init, _calldata) {}
+contract MyDiamond is IDiamondCut {
 
-    // Functions from DiamondCutFacet can be called externally after deployment
-    // Example: Adding a new facet
-    function upgradeDiamond(address _newFacetAddress, bytes[] memory _newSelectors) external onlyOwner { // Assuming onlyOwner modifier is implemented elsewhere
-        FacetCut[] memory cut = new FacetCut[](1);
-        cut[0] = FacetCut(FacetCutAction.Add, _newFacetAddress, _newSelectors);
-        diamondCut(cut, address(0), "");
+    address constant DIAMOND_INIT_ADDRESS = address(new DiamondInit()); // Example initialization contract
+
+    function upgradeDiamond() external {
+        // Define facet cuts for upgrade
+        DiamondCutFacet.FacetCut[] memory cuts = new DiamondCutFacet.FacetCut[](2);
+
+        // Example: Add a new facet
+        cuts[0] = DiamondCutFacet.FacetCut({
+            facetAddress: address(0x123), // Address of the new facet contract
+            action: DiamondCutFacet.FacetCutAction.ADD,
+            selectors: new bytes[](0) // Selectors will be populated by the facet itself or computed
+        });
+
+        // Example: Replace an existing facet
+        cuts[1] = DiamondCutFacet.FacetCut({
+            facetAddress: address(0x456), // Address of the new version of the facet
+            action: DiamondCutFacet.FacetCutAction.REPLACE,
+            selectors: new bytes[](0) // Selectors will be populated by the facet itself or computed
+        });
+
+        // Execute the diamond cut
+        // Note: The DiamondCutFacet must be deployed and accessible within the diamond proxy
+        // For deployment, this would typically be called via the DiamondInit contract.
+        // This example assumes the diamondCut function is already registered and callable.
+        // In a real deployment scenario, you would call this via the Diamond proxy itself.
+        // For demonstration purposes, we simulate the call:
+        // diamondCut(cuts, DIAMOND_INIT_ADDRESS, abi.encodeWithSignature("initMyDiamond()", _someArgs));
+
+        // In a real scenario, assuming DiamondCutFacet is already part of the diamond:
+        // DiamondCutFacet(address(this)).diamondCut(cuts, DIAMOND_INIT_ADDRESS, abi.encodeWithSignature("initMyDiamond()"));
     }
 
-    // Example: Replacing an existing facet's function
-    function replaceFunction(address _facetAddress, bytes4 _selector, address _newFacetAddress) external onlyOwner { // Assuming onlyOwner modifier is implemented elsewhere
-        FacetCut[] memory cut = new FacetCut[](1);
-        cut[0] = FacetCut(FacetCutAction.Replace, _facetAddress, new bytes[](1));
-        cut[0].selectors[0] = _selector; // This is a simplification, actual implementation requires selector mapping
-        // In a real scenario, you'd provide the new selector and its facet address
-        // For demonstration, this shows the intent of replacing a selector
-        // The diamondCut function expects an array of selectors for a given facet address
-        // A more accurate call would involve constructing the correct FacetCut struct
-        // with the new facet address and its selectors.
+    // Implement the IDiamondCut interface functions if MyDiamond is the proxy itself
+    function diamondCut(FacetCut[] calldata _diamondCut, address _init, bytes calldata _calldata) external override {
+        // Implementation would call the actual DiamondCutFacet logic
     }
-}
-`}
+
+    // Other IDiamondCut functions would be implemented here as well.
+}`}
 </ExpandableCode>
 
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Ensure that the `diamondCut` function is only callable by an authorized entity (e.g., an owner or a governance contract) to prevent unauthorized upgrades.
-- When adding or replacing facets, carefully verify that the function selectors do not conflict with existing functions, especially immutable ones.
-- Always provide an initialization function (`_init` and `_calldata`) when performing complex upgrades to ensure the diamond's state is consistent after the cut.
+- Ensure the `DiamondCutFacet` is the first facet added to a new diamond or is already established as the upgrade mechanism.
+- Carefully manage the `action` field in `FacetCut` to perform ADD, REPLACE, or REMOVE operations correctly. Use `DELETE` for removing facets.
+- When performing an upgrade, ensure the `_init` address and `_calldata` are correctly set if initialization or post-upgrade logic is required.
 </Callout>
 
 ## Security Considerations
 
 <Callout type="warning" title="Security">
-Access to the `diamondCut` function must be strictly controlled to prevent malicious actors from altering the diamond's behavior. Ensure that any initialization function provided is thoroughly audited to prevent state corruption. Be mindful of potential reentrancy if the initialization function or facets being added/replaced interact with external contracts. Immutable functions cannot be replaced or removed.
+Access to the `diamondCut` function is restricted to the owner of the diamond, preventing unauthorized upgrades. Ensure that the addresses of new facets are verified and that their bytecode is valid before adding or replacing them. Initialization functions executed via `delegatecall` must be carefully audited for reentrancy and state manipulation vulnerabilities.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -337,4 +354,4 @@ Access to the `diamondCut` function must be strictly controlled to prevent malic
   <WasThisHelpful pageId="DiamondCutFacet" />
 </div>
 
-<LastUpdated date="2025-12-30T15:56:18.625Z" />
+<LastUpdated date="2025-12-30T17:11:20.282Z" />

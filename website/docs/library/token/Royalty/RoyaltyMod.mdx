@@ -1,7 +1,7 @@
 ---
 sidebar_position: 1
 title: "RoyaltyMod"
-description: "Manages ERC-2981 royalty information for tokens."
+description: "Handles ERC-2981 royalty logic for tokens"
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/token/Royalty/RoyaltyMod.sol"
 ---
 
@@ -21,13 +21,14 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Manages ERC-2981 royalty information for tokens.
+Handles ERC-2981 royalty logic for tokens
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Implements ERC-2981 `royaltyInfo` function logic.
-- Supports both default royalties and token-specific royalty overrides.
-- Provides functions to set, delete, and query royalty information.
+- Implements ERC-2981 standard for royalty information.
+- Supports setting both default and token-specific royalties.
+- Allows resetting token-specific royalties to fall back to defaults.
+- Provides functions to query royalty information based on token ID and sale price.
 </Callout>
 
 <Callout type="info" title="Module Usage">
@@ -36,7 +37,7 @@ This module provides internal functions for use in your custom facets. Import it
 
 ## Overview
 
-This module provides the core logic and storage for ERC-2981 royalty standards. It enables setting and querying both default and token-specific royalties, ensuring compliance and composability for token contracts within a diamond.
+This module provides the core logic for ERC-2981 royalty payments, enabling tokens within a diamond to support royalty distributions. It manages both default royalties for all tokens and specific royalties for individual token IDs, ensuring compliance with the ERC-2981 standard.
 
 ---
 
@@ -299,21 +300,19 @@ error ERC2981InvalidTokenRoyaltyReceiver(uint256 _tokenId, address _receiver);
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity ^0.8.30;
 
-import {IRoyaltyMod} from "@compose/token/Royalty/RoyaltyMod";
+import {IRoyaltyFacet} from "@compose/token/Royalty/IRoyaltyFacet";
+import {RoyaltyMod} from "@compose/token/Royalty/RoyaltyMod";
 
-contract MyRoyaltyFacet {
-    address immutable DIAMOND_STORAGE_ADDRESS;
+contract MyTokenFacet {
+    using RoyaltyMod for RoyaltyMod;
 
-    constructor(address _diamondStorageAddress) {
-        DIAMOND_STORAGE_ADDRESS = _diamondStorageAddress;
+    function setMyTokenRoyalty(uint256 _tokenId, address _receiver, uint96 _feeNumerator) external {
+        // Assuming access control is handled elsewhere or by the diamond proxy
+        RoyaltyMod.setTokenRoyalty(_tokenId, _receiver, _feeNumerator);
     }
 
-    function setTokenRoyalty(uint256 _tokenId, address _receiver, uint96 _feeNumerator) external {
-        IRoyaltyMod(DIAMOND_STORAGE_ADDRESS).setTokenRoyalty(_tokenId, _receiver, _feeNumerator);
-    }
-
-    function royaltyInfo(uint256 _tokenId, uint256 _salePrice) external view returns (address, uint256) {
-        return IRoyaltyMod(DIAMOND_STORAGE_ADDRESS).royaltyInfo(_tokenId, _salePrice);
+    function getMyTokenRoyaltyInfo(uint256 _tokenId, uint256 _salePrice) external view returns (address, uint256) {
+        return RoyaltyMod.royaltyInfo(_tokenId, _salePrice);
     }
 }`}
 </ExpandableCode>
@@ -321,15 +320,15 @@ contract MyRoyaltyFacet {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Use `setDefaultRoyalty` and `setTokenRoyalty` with validated receiver addresses and fee numerators to prevent errors.
-- Handle custom errors like `ERC2981InvalidDefaultRoyalty` and `ERC2981InvalidTokenRoyalty` in calling facets.
-- Leverage `resetTokenRoyalty` to revert token-specific royalties to the default setting.
+- Ensure appropriate access control is implemented at the facet or diamond level before calling `setDefaultRoyalty` or `setTokenRoyalty`.
+- Handle the custom errors (`ERC2981InvalidDefaultRoyalty`, `ERC2981InvalidTokenRoyalty`, etc.) to provide clear feedback to users.
+- Be mindful of storage slot usage; this module reserves `keccak256("compose.erc2981")` for its storage.
 </Callout>
 
 ## Integration Notes
 
 <Callout type="success" title="Shared Storage">
-The RoyaltyMod utilizes a dedicated storage slot identified by `keccak256("compose.erc2981")` to store its `RoyaltyStorage` struct. This struct contains default royalty information. Token-specific royalties are stored within the `tokenRoyalty` mapping within the `RoyaltyStorage` struct itself, managed by the module. Facets interacting with this module should use the `IRoyaltyMod` interface and call functions via the diamond proxy, which dispatches to the appropriate facet containing this module's logic.
+The `RoyaltyMod` module manages its state within the diamond's storage at the slot identified by `keccak256("compose.erc2981")`. This slot holds a `RoyaltyStorage` struct, which contains the `defaultRoyaltyInfo`. Facets interacting with this module can access this storage directly via `RoyaltyMod.getStorage()` or indirectly through the module's functions. Changes to default royalties are immediately reflected in `royaltyInfo` calls for tokens without specific royalty settings. Token-specific royalties override default settings.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -379,4 +378,4 @@ The RoyaltyMod utilizes a dedicated storage slot identified by `keccak256("compo
   <WasThisHelpful pageId="RoyaltyMod" />
 </div>
 
-<LastUpdated date="2025-12-30T15:55:50.887Z" />
+<LastUpdated date="2025-12-30T17:10:53.047Z" />

@@ -1,7 +1,7 @@
 ---
 sidebar_position: 1
 title: "ERC20Mod"
-description: "ERC-20 token logic and state management."
+description: "ERC-20 token logic with mint, burn, and transfer functions."
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/token/ERC20/ERC20/ERC20Mod.sol"
 ---
 
@@ -21,13 +21,13 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-ERC-20 token logic and state management.
+ERC-20 token logic with mint, burn, and transfer functions.
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Provides essential ERC-20 functions: `transfer`, `transferFrom`, `approve`, `mint`, `burn`.
-- Manages ERC-20 state including `totalSupply`, `decimals`, `name`, and `symbol`.
-- Leverages the diamond storage pattern via `getStorage` for external access to its state.
+- Provides standard ERC-20 `transfer`, `transferFrom`, `approve`, `mint`, and `burn` functionalities.
+- Manages ERC-20 token state including `totalSupply`, `decimals`, `name`, and `symbol`.
+- Leverages the diamond storage pattern for efficient state management.
 </Callout>
 
 <Callout type="info" title="Module Usage">
@@ -36,7 +36,7 @@ This module provides internal functions for use in your custom facets. Import it
 
 ## Overview
 
-This module provides the core internal functions and storage layout for ERC-20 token functionality within a Compose diamond. It ensures standardized token operations, including transfers, minting, and burning, while adhering to the diamond storage pattern for composability and upgradeability.
+The ERC20Mod module provides essential ERC-20 token functionalities including minting, burning, transferring, and approving allowances. It defines the core storage layout and internal logic, enabling facets to manage token balances and supply efficiently within a diamond proxy architecture.
 
 ---
 
@@ -378,42 +378,57 @@ error ERC20InvalidSpender(address _spender);
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity ^0.8.30;
 
-import {IERC20Facet} from "@compose/token/ERC20/ERC20Facet";
-import {ERC20Mod} from "@compose/token/ERC20/ERC20/ERC20Mod";
+import { ERC20Mod } from "@compose/token/ERC20/ERC20/ERC20Mod";
+import { IERC20Facet } from "@compose/token/ERC20/ERC20/IERC20Facet";
 
 contract MyERC20Facet is IERC20Facet {
-    address immutable DIAMOND_STORAGE_POSITION;
+    ERC20Mod internal erc20Mod;
 
-    constructor(address _diamondStoragePosition) {
-        DIAMOND_STORAGE_POSITION = _diamondStoragePosition;
+    constructor(address _diamondProxy) {
+        erc20Mod = ERC20Mod(_diamondProxy);
     }
 
-    function transfer(address _to, uint256 _value) external override {
-        ERC20Mod.ERC20Storage storage erc20Storage = ERC20Mod.ERC20Storage(DIAMOND_STORAGE_POSITION);
-        ERC20Mod.transfer(erc20Storage, _to, _value);
+    function transfer(address _to, uint256 _value) external override returns (bool) {
+        // Example of calling the module's transfer function
+        erc20Mod.transfer(_to, _value);
+        return true;
     }
 
-    function mint(address _account, uint256 _value) external override {
-        ERC20Mod.ERC20Storage storage erc20Storage = ERC20Mod.ERC20Storage(DIAMOND_STORAGE_POSITION);
-        ERC20Mod.mint(erc20Storage, _account, _value);
+    function mint(address _to, uint256 _value) external override {
+        // Example of calling the module's mint function
+        erc20Mod.mint(_to, _value);
     }
 
-    // ... other ERC20Facet functions
-}`}
+    function approve(address _spender, uint256 _value) external override returns (bool) {
+        // Example of calling the module's approve function
+        return erc20Mod.approve(_spender, _value);
+    }
+
+    function transferFrom(address _from, address _to, uint256 _value) external override returns (bool) {
+        // Example of calling the module's transferFrom function
+        return erc20Mod.transferFrom(_from, _to, _value);
+    }
+
+    function burn(address _account, uint256 _value) external override {
+        // Example of calling the module's burn function
+        erc20Mod.burn(_account, _value);
+    }
+}
+`}
 </ExpandableCode>
 
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Ensure the `DIAMOND_STORAGE_POSITION` is correctly set and points to the ERC-20 storage slot.
-- Handle ERC-20 specific errors such as `ERC20InsufficientBalance` and `ERC20InvalidReceiver` appropriately.
-- Be mindful of the immutable `totalSupply` which is managed internally by mint and burn operations.
+- Always check for and handle the custom errors (e.g., `ERC20InsufficientBalance`, `ERC20InvalidReceiver`) returned by module functions.
+- Ensure the ERC20Mod is initialized correctly within the diamond proxy deployment process.
+- Be mindful of gas costs when performing operations, especially on-chain, and consider batching if applicable.
 </Callout>
 
 ## Integration Notes
 
 <Callout type="success" title="Shared Storage">
-This module's state is managed within the diamond's storage at a dedicated slot (`STORAGE_POSITION`, `keccak256("compose.erc20")`). Facets interacting with this module should retrieve a pointer to the `ERC20Storage` struct using `ERC20Mod.getStorage()` and pass it to the module's internal functions. The `ERC20Storage` struct contains fields like `totalSupply`, `decimals`, `name`, and `symbol`.
+The ERC20Mod utilizes a dedicated storage slot identified by `keccak256("compose.erc20")` to store its `ERC20Storage` struct. Facets interacting with this module will access its functions through the diamond proxy. The `getStorage()` function can be used to retrieve a pointer to the `ERC20Storage` struct, allowing facets to read token metadata like `totalSupply`, `decimals`, `name`, and `symbol` directly. Changes to these values, such as `totalSupply` during mint/burn operations, are reflected immediately and are consistent across all facets interacting with the module.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -439,4 +454,4 @@ This module's state is managed within the diamond's storage at a dedicated slot 
   <WasThisHelpful pageId="ERC20Mod" />
 </div>
 
-<LastUpdated date="2025-12-30T15:54:42.966Z" />
+<LastUpdated date="2025-12-30T17:09:47.803Z" />

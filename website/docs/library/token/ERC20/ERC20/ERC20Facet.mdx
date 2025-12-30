@@ -1,7 +1,7 @@
 ---
 sidebar_position: 2
 title: "ERC20Facet"
-description: "ERC-20 facet for Compose diamonds"
+description: "Standard ERC-20 token functionality for Compose diamonds."
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/token/ERC20/ERC20/ERC20Facet.sol"
 ---
 
@@ -21,19 +21,19 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-ERC-20 facet for Compose diamonds
+Standard ERC-20 token functionality for Compose diamonds.
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Self-contained facet with no imports or inheritance
-- Only `external` and `internal` function visibility
-- Follows Compose readability-first conventions
-- Ready for diamond integration
+- Implements the standard ERC-20 interface for token operations.
+- Supports token transfers, balance checks, and approval mechanisms.
+- Emits standard `Transfer` and `Approval` events for off-chain indexing and interaction.
+- Leverages Compose's storage pattern for state management, allowing for future extensions without impacting existing ERC-20 functionality.
 </Callout>
 
 ## Overview
 
-ERC-20 facet for Compose diamonds
+The ERC20Facet implements the core ERC-20 token standard, providing essential functions for managing token balances, transfers, and allowances within a Compose diamond. It ensures interoperability with the broader Ethereum ecosystem by adhering to established standards.
 
 ---
 
@@ -496,6 +496,72 @@ error ERC20InvalidSpender(address _spender);
   </Accordion>
 </AccordionGroup>
 
+## Usage Example
+
+<ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
+{`pragma solidity ^0.8.30;
+
+import {DiamondCutFacet} from "@compose/diamond/DiamondCutFacet.sol";
+import {DiamondLoupeFacet} from "@compose/diamond/DiamondLoupeFacet.sol";
+import {ERC20Facet} from "@compose/token/ERC20/ERC20/ERC20Facet";
+import {ERC20Storage} from "@compose/token/ERC20/ERC20/ERC20Storage.sol";
+import {DIAMOND_STORAGE_POSITION} from "@compose/diamond/Constants.sol";
+
+contract MyTokenDiamond is DiamondCutFacet, DiamondLoupeFacet {
+    // ... other facets and deployment logic ...
+
+    function deployERC20Facet(address _diamondCutFacet) public {
+        // Add ERC20Facet to the diamond
+        address[] memory facets = new address[](1);
+        uint8[] memory selectors = new uint8[](10); // Number of functions in ERC20Facet
+        facets[0] = address(new ERC20Facet());
+        selectors[0] = 0x313ce567; // name()
+        selectors[1] = 0x95d86598; // symbol()
+        selectors[2] = 0x382a5269; // decimals()
+        selectors[3] = 0x09541f71; // totalSupply()
+        selectors[4] = 0x70a08231; // balanceOf(address)
+        selectors[5] = 0xdd62ed3e; // allowance(address,address)
+        selectors[6] = 0x095ea7b3; // approve(address,uint256)
+        selectors[7] = 0xa9059cbb; // transfer(address,uint256)
+        selectors[8] = 0x23b87210; // transferFrom(address,address,uint256)
+        selectors[9] = 0x157a497f; // getStorage() - internal, not typically cut
+
+        _diamondCut(facets, selectors, new bytes[](1), new bytes[](1));
+
+        // Initialize ERC20Storage (example using direct storage manipulation, usually done via an initializer facet)
+        ERC20Storage storage erc20Storage = ERC20Storage(DIAMOND_STORAGE_POSITION);
+        erc20Storage.name = "MyToken";
+        erc20Storage.symbol = "MTK";
+        erc20Storage.decimals = 18;
+        erc20Storage.totalSupply = 1_000_000 * (10**18);
+    }
+
+    // Example of calling ERC20 functions through the diamond proxy
+    function getTokenName() public view returns (string memory) {
+        return ERC20Facet(address(this)).name();
+    }
+
+    function getTokenBalance(address _account) public view returns (uint256) {
+        return ERC20Facet(address(this)).balanceOf(_account);
+    }
+}
+`}
+</ExpandableCode>
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Initialize the `ERC20Storage` struct with token name, symbol, decimals, and total supply during diamond deployment, typically via a dedicated initializer facet.
+- Ensure the `ERC20Facet` is cut into the diamond with the correct function selectors. Internal functions like `getStorage` should not be exposed externally unless intended.
+- Treat the `totalSupply`, `name`, `symbol`, and `decimals` as immutable after initialization. Any logic to change these should be handled by separate, access-controlled facets if required.
+</Callout>
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+This facet implements standard ERC-20 logic. Security considerations are primarily related to the diamond proxy's access control and the correct initialization of the `ERC20Storage` struct. Ensure that sensitive operations like `approve`, `transfer`, and `transferFrom` are called by authorized addresses or adhere to standard allowance mechanisms. Malicious initialization of token properties (name, symbol, decimals, totalSupply) could lead to user confusion or unexpected behavior. Reentrancy is not a direct concern for the read-only functions or the standard transfer/approval functions as implemented, assuming the underlying diamond proxy and any custom logic within other facets are secure.
+</Callout>
+
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
   <RelatedDocs
     items={[
@@ -513,4 +579,4 @@ error ERC20InvalidSpender(address _spender);
   <WasThisHelpful pageId="ERC20Facet" />
 </div>
 
-<LastUpdated date="2025-12-30T15:54:39.818Z" />
+<LastUpdated date="2025-12-30T17:09:45.324Z" />

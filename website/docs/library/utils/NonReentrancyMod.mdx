@@ -1,7 +1,7 @@
 ---
 sidebar_position: 1
 title: "NonReentrancyMod"
-description: "Prevent reentrant function calls within facets."
+description: "Prevent reentrant function calls in facets."
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/libraries/NonReentrancyMod.sol"
 ---
 
@@ -21,13 +21,12 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Prevent reentrant function calls within facets.
+Prevent reentrant function calls in facets.
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Prevents reentrant calls to functions, enhancing security.
-- Uses a simple, composable library interface for easy integration.
-- Emits a `Reentrancy` error if a reentrant call is detected.
+- Prevents reentrant function calls using a simple lock mechanism.
+- Employs a custom error `Reentrancy` for explicit failure conditions.
 </Callout>
 
 <Callout type="info" title="Module Usage">
@@ -36,7 +35,7 @@ This module provides internal functions for use in your custom facets. Import it
 
 ## Overview
 
-This library provides a robust mechanism to prevent reentrant function calls, a common vulnerability. By incorporating its `enter` and `exit` functions, facets can ensure that sensitive operations are executed atomically, safeguarding against unexpected state changes and exploits.
+The NonReentrancyMod library provides essential functions to prevent reentrant calls within your diamond facets. By implementing its `enter` and `exit` functions, you ensure that a function cannot be re-entered before its initial execution completes, safeguarding against common reentrancy vulnerabilities.
 
 ---
 
@@ -99,26 +98,19 @@ error Reentrancy();
 import {NonReentrancyMod} from "@compose/libraries/NonReentrancyMod";
 
 contract MyFacet {
-    using NonReentrancyMod for uint256; // Example: using with a dummy type
+    using NonReentrancyMod for NonReentrancyMod.State;
 
-    function sensitiveOperation() external {
-        // Enter the non-reentrant guard
-        NonReentrancyMod.enter();
+    NonReentrancyMod.State private _nonReentrancyState;
 
-        try {
-            // Perform sensitive operations here
-            // ...
-        } finally {
-            // Exit the non-reentrant guard
-            NonReentrancyMod.exit();
-        }
-    }
+    /**
+     * @notice Demonstrates a non-reentrant function.
+     */
+    function protectedFunction() external {
+        _nonReentrancyState.enter(); // Lock the function
 
-    // Example of direct usage without try/finally
-    function anotherSensitiveOperation() external {
-        NonReentrancyMod.enter();
-        // ... operations ...
-        NonReentrancyMod.exit();
+        // ... perform critical operations ...
+
+        _nonReentrancyState.exit(); // Unlock the function
     }
 }`}
 </ExpandableCode>
@@ -126,18 +118,18 @@ contract MyFacet {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Always pair `NonReentrancyMod.enter()` with `NonReentrancyMod.exit()` within a `try...finally` block to guarantee exit, even if errors occur during execution.
-- Ensure `NonReentrancyMod.exit()` is called before any external calls or state-changing operations that might re-enter the current function or other protected functions.
+- Always call `enter()` at the beginning of a function and `exit()` at the end to properly guard against reentrancy.
+- Utilize the `Reentrancy` custom error for clear and gas-efficient error reporting if a reentrant call is detected.
 </Callout>
 
 ## Integration Notes
 
 <Callout type="success" title="Shared Storage">
-The `NonReentrancyMod` is a library and does not directly interact with diamond storage. Its state is managed internally within the scope of the calling facet's execution context. Facets can integrate this library by importing it and calling its `enter` and `exit` functions directly. No specific storage slots are required from the diamond's perspective for this library's operation.
+The NonReentrancyMod library does not require direct integration with diamond storage. Its state is managed internally within the facet that uses it. Facets should declare an internal state variable of type `NonReentrancyMod.State` and use the library's functions to manage reentrancy protection.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
   <WasThisHelpful pageId="NonReentrancyMod" />
 </div>
 
-<LastUpdated date="2025-12-30T15:56:27.297Z" />
+<LastUpdated date="2025-12-30T17:11:28.484Z" />
