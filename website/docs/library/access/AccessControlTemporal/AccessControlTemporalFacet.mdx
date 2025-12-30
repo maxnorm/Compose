@@ -1,7 +1,7 @@
 ---
 sidebar_position: 2
 title: "AccessControlTemporalFacet"
-description: "Grants and revokes roles with expiry timestamps"
+description: "Manages time-bound role assignments for access control"
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/access/AccessControlTemporal/AccessControlTemporalFacet.sol"
 ---
 
@@ -21,19 +21,19 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Grants and revokes roles with expiry timestamps
+Manages time-bound role assignments for access control
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Manages role assignments with time-based expiration.
-- Provides external functions for granting, revoking, and checking temporal roles.
-- Emits `RoleGrantedWithExpiry` and `TemporalRoleRevoked` events for tracking.
-- Integrates with the diamond storage pattern for composability.
+- Grants roles with specific expiry timestamps.
+- Provides functions to check role expiry and validity.
+- Revokes temporal roles explicitly.
+- Compatible with ERC-2535 diamond standard.
 </Callout>
 
 ## Overview
 
-This facet implements temporal role-based access control within a diamond. It allows granting roles with specific expiry dates and revoking them. Calls are routed through the diamond proxy, accessing shared storage for role management. Developers integrate this facet to manage time-bound permissions in a composable and upgradeable manner.
+This facet implements temporal access control, allowing roles to be granted with specific expiry timestamps. It integrates with the diamond's access control system to enforce time-sensitive permissions. Developers add this facet to manage roles that should automatically revoke after a certain period, enhancing dynamic permission management within a diamond.
 
 ---
 
@@ -365,23 +365,23 @@ error AccessControlRoleExpired(bytes32 _role, address _account);
 import { IDiamond } from "@compose/diamond/IDiamond";
 import { AccessControlTemporalFacet } from "@compose/access/AccessControlTemporal/AccessControlTemporalFacet";
 
-contract DiamondDeployment {
-    address constant ACCESS_CONTROL_TEMPORAL_FACET_ADDRESS = address(0xabc);
-    address constant DIAMOND_ADDRESS = address(0xdef);
+contract ExampleDiamondUser {
+    address immutable diamondAddress;
 
-    function deploy() public {
-        // Assume diamond is already deployed and facets are added
-        IDiamond diamond = IDiamond(DIAMOND_ADDRESS);
+    constructor(address _diamondAddress) {
+        diamondAddress = _diamondAddress;
+    }
 
-        // Grant a role with an expiry timestamp (e.g., 1 hour from now)
-        uint256 expiry = block.timestamp + 1 hours;
-        diamond.grantRoleWithExpiry(bytes32(keccak256("OPERATOR_ROLE")), address(0x123), expiry);
+    function grantTemporaryAdminRole(address _account, uint256 _expiresAt) external {
+        IDiamond(diamondAddress).grantRoleWithExpiry(keccak256("ADMIN_ROLE"), _account, _expiresAt);
+    }
 
-        // Check if a role is expired
-        bool isExpired = diamond.isRoleExpired(bytes32(keccak256("OPERATOR_ROLE")), address(0x123));
+    function checkAdminRoleValidity(address _account) external view {
+        IDiamond(diamondAddress).requireValidRole(keccak256("ADMIN_ROLE"), _account);
+    }
 
-        // Revoke a temporal role
-        diamond.revokeTemporalRole(bytes32(keccak256("OPERATOR_ROLE")), address(0x123));
+    function revokeAdminRole(address _account) external {
+        IDiamond(diamondAddress).revokeTemporalRole(keccak256("ADMIN_ROLE"), _account);
     }
 }`}
 </ExpandableCode>
@@ -390,15 +390,15 @@ contract DiamondDeployment {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Initialize temporal roles and their expiry logic during diamond setup.
-- Ensure that callers invoking `grantRoleWithExpiry` and `revokeTemporalRole` possess the necessary administrative privileges.
-- Regularly audit expired roles to maintain security posture.
+- Initialize temporal roles during diamond deployment or upgrade.
+- Enforce role validity using `requireValidRole` before critical operations.
+- Utilize `grantRoleWithExpiry` and `revokeTemporalRole` for dynamic permission management.
 </Callout>
 
 ## Security Considerations
 
 <Callout type="warning" title="Security">
-All state-changing functions (`grantRoleWithExpiry`, `revokeTemporalRole`) are protected by access control, reverting with `AccessControlUnauthorizedAccount` if the caller lacks the required role. The `requireValidRole` function validates role existence and expiry, reverting with `AccessControlRoleExpired` if the role has expired. Input parameters for expiry timestamps should be validated to prevent unexpected behavior.
+All state-changing functions (`grantRoleWithExpiry`, `revokeTemporalRole`) are protected by access control, reverting with `AccessControlUnauthorizedAccount` if the caller is not the role's admin. The `requireValidRole` function validates role existence and expiry, reverting with `AccessControlUnauthorizedAccount` or `AccessControlRoleExpired` respectively. Follow standard Solidity security practices for input validation.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -424,4 +424,4 @@ All state-changing functions (`grantRoleWithExpiry`, `revokeTemporalRole`) are p
   <WasThisHelpful pageId="AccessControlTemporalFacet" />
 </div>
 
-<LastUpdated date="2025-12-30T17:27:16.806Z" />
+<LastUpdated date="2025-12-30T17:40:26.449Z" />

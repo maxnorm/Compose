@@ -25,10 +25,10 @@ Internal logic for ERC-721 token management
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Provides `internal` functions for core ERC-721 logic, promoting facet reusability.
-- Utilizes the diamond storage pattern (EIP-8042) for shared state management.
-- No external dependencies, ensuring minimal on-chain footprint.
-- Exposes `burn`, `mint`, and `transferFrom` operations.
+- Exposes `internal` functions for ERC-721 operations.
+- Integrates with diamond storage using a predefined slot (`keccak256(\"compose.erc721\")`).
+- No external dependencies, promoting composability.
+- Supports standard ERC-721 state management within a diamond.
 </Callout>
 
 <Callout type="info" title="Module Usage">
@@ -37,7 +37,7 @@ This module provides internal functions for use in your custom facets. Import it
 
 ## Overview
 
-This module provides internal functions for ERC-721 token operations, designed for integration within Compose diamonds. Facets can import and utilize these functions to manage token minting, transfers, and burning, leveraging the shared diamond storage pattern for consistent state visibility across all facets.
+This module provides internal functions for minting, burning, and transferring ERC-721 tokens using diamond storage. Facets importing this module can leverage its logic to manage token state within a shared storage pattern. Changes to token ownership or metadata are immediately reflected across all facets accessing the same storage.
 
 ---
 
@@ -316,52 +316,25 @@ error ERC721NonexistentToken(uint256 _tokenId);
 
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity >=0.8.30;
-
 import { ERC721Mod } from "@compose/token/ERC721/ERC721/ERC721Mod";
 
 contract MyERC721Facet {
-    ERC721Mod internal erc721Mod;
+    using ERC721Mod for ERC721Mod;
 
-    function initialize(address _diamondAddress) external {
-        // In a real scenario, _diamondAddress would be the address of the diamond proxy
-        // This is a simplified example assuming direct access to the module's storage
-        // In a diamond, modules are typically accessed via the DiamondLoupeFacet or similar registry.
-        // For demonstration, we simulate calling module functions.
+    function safeMint(address to, uint256 tokenId) external {
+        ERC721Mod.mint(to, tokenId);
     }
 
-    /**
-     * @notice Mints a new token to a recipient address.
-     * @param _to The address to mint the token to.
-     * @param _tokenId The ID of the token to mint.
-     */
-    function mintToken(address _to, uint256 _tokenId) external {
-        erc721Mod.mint(_to, _tokenId);
+    function safeTransfer(address from, address to, uint256 tokenId) external {
+        ERC721Mod.transferFrom(from, to, tokenId);
     }
 
-    /**
-     * @notice Transfers a token from one address to another.
-     * @param _from The current owner's address.
-     * @param _to The recipient's address.
-     * @param _tokenId The ID of the token to transfer.
-     */
-    function transferToken(address _from, address _to, uint256 _tokenId) external {
-        erc721Mod.transferFrom(_from, _to, _tokenId);
+    function safeBurn(uint256 tokenId) external {
+        ERC721Mod.burn(tokenId);
     }
 
-    /**
-     * @notice Burns a token by its ID.
-     * @param _tokenId The ID of the token to burn.
-     */
-    function burnToken(uint256 _tokenId) external {
-        erc721Mod.burn(_tokenId);
-    }
-
-    /**
-     * @notice Retrieves the ERC721 storage struct.
-     * @return ERC721Storage The storage struct.
-     */
-    function getERC721Storage() external pure returns (ERC721Mod.ERC721Storage memory) {
-        return erc721Mod.getStorage();
+    function getERC721Storage() external view returns (ERC721Mod.ERC721Storage memory) {
+        return ERC721Mod.getStorage();
     }
 }`}
 </ExpandableCode>
@@ -370,15 +343,15 @@ contract MyERC721Facet {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Ensure access control is implemented in the calling facet before executing mint, transfer, or burn operations.
-- Verify that the ERC721Storage struct's layout remains compatible when upgrading facets or adding new ones.
-- Handle specific errors like `ERC721NonexistentToken`, `ERC721IncorrectOwner`, and `ERC721InvalidReceiver` returned by module functions.
+- Ensure the ERC721Storage struct layout is compatible before upgrading facets.
+- Call internal functions like `mint`, `burn`, and `transferFrom` with appropriate checks for token existence and ownership.
+- Handle custom errors like `ERC721NonexistentToken` or `ERC721IncorrectOwner` in calling facets.
 </Callout>
 
 ## Integration Notes
 
 <Callout type="success" title="Shared Storage">
-This module stores its state in a dedicated slot within the diamond's storage, identified by `keccak256(\"compose.erc721\")`. All functions operate on this shared `ERC721Storage` struct. Changes made by any facet calling functions in this module are immediately visible to all other facets interacting with the same storage slot, ensuring data consistency across the diamond.
+This module utilizes diamond storage at the slot derived from `keccak256(\"compose.erc721\")`. The `getStorage()` function provides access to the `ERC721Storage` struct, which contains fields such as `name`, `symbol`, and `baseURI`. All state modifications performed by `mint`, `burn`, and `transferFrom` directly update this shared storage, making them immediately visible to all facets interacting with the same storage position.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -428,4 +401,4 @@ This module stores its state in a dedicated slot within the diamond's storage, i
   <WasThisHelpful pageId="ERC721Mod" />
 </div>
 
-<LastUpdated date="2025-12-30T17:28:46.853Z" />
+<LastUpdated date="2025-12-30T17:42:00.590Z" />

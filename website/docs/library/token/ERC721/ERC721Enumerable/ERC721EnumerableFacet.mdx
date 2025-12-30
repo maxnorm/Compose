@@ -1,7 +1,7 @@
 ---
 sidebar_position: 2
 title: "ERC721EnumerableFacet"
-description: "ERC-721 token standard implementation for diamonds"
+description: "ERC-721 token management and metadata access"
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/token/ERC721/ERC721Enumerable/ERC721EnumerableFacet.sol"
 ---
 
@@ -21,19 +21,19 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-ERC-721 token standard implementation for diamonds
+ERC-721 token management and metadata access
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Implements core ERC-721 functionality including metadata, ownership, and approvals.
-- Provides enumerable capabilities with `tokenOfOwnerByIndex` and `totalSupply`.
-- Functions are exposed externally for direct interaction via the diamond proxy.
-- Adheres to EIP-2535 Diamond Standard for composability and upgradeability.
+- Exposes external functions for ERC-721 token operations.
+- Provides enumerable functionality to list tokens by owner index.
+- Accesses shared storage via `ERC721EnumerableStorage`.
+- Compatible with ERC-2535 diamond standard.
 </Callout>
 
 ## Overview
 
-This facet implements the ERC-721 token standard, providing core functionality for managing non-fungible tokens within a diamond. It exposes external functions for token metadata, ownership, transfers, and approvals, accessible through the diamond proxy. Developers integrate this facet to enable NFT capabilities in a composable and upgradeable manner.
+This facet implements ERC-721 token functionality within a diamond proxy. It exposes standard ERC-721 functions for managing token ownership, approvals, and metadata. Developers integrate this facet to provide NFT capabilities while leveraging the diamond's upgradeability and modularity.
 
 ---
 
@@ -638,35 +638,26 @@ error ERC721OutOfBoundsIndex(address _owner, uint256 _index);
 
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity >=0.8.30;
-
 import {IDiamond} from "@compose/diamond/IDiamond.sol";
 import {ERC721EnumerableFacet} from "@compose/token/ERC721/ERC721Enumerable/ERC721EnumerableFacet";
 
-contract ExampleDiamondUser {
-    IDiamond diamond;
+contract Deployer {
+    address immutable diamondAddress;
 
     constructor(address _diamondAddress) {
-        diamond = IDiamond(_diamondAddress);
+        diamondAddress = _diamondAddress;
     }
 
-    function getTokenURI(uint256 tokenId) external view returns (string memory) {
-        // Calls the tokenURI function implemented by the ERC721EnumerableFacet via the diamond proxy
-        return diamond.tokenURI(tokenId);
+    function mintToken(address _to, uint256 _tokenId) external {
+        IDiamond(diamondAddress).safeTransferFrom(_to, _to, _tokenId); // Example of calling through diamond
     }
 
-    function transferToken(address to, uint256 tokenId) external {
-        // Calls the transferFrom function implemented by the ERC721EnumerableFacet via the diamond proxy
-        diamond.transferFrom(address(this), to, tokenId);
+    function getTokenOwner(uint256 _tokenId) external view returns (address) {
+        return IDiamond(diamondAddress).ownerOf(_tokenId);
     }
 
-    function approveToken(address to, uint256 tokenId) external {
-        // Calls the approve function implemented by the ERC721EnumerableFacet via the diamond proxy
-        diamond.approve(to, tokenId);
-    }
-
-    function getTotalSupply() external view returns (uint256) {
-        // Calls the totalSupply function implemented by the ERC721EnumerableFacet via the diamond proxy
-        return diamond.totalSupply();
+    function getTokenURI(uint256 _tokenId) external view returns (string memory) {
+        return IDiamond(diamondAddress).tokenURI(_tokenId);
     }
 }`}
 </ExpandableCode>
@@ -675,15 +666,15 @@ contract ExampleDiamondUser {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Initialize the facet's state variables, including `name`, `symbol`, and `baseURI`, during the diamond's deployment or upgrade process.
-- Enforce access control for functions like `approve` and `setApprovalForAll` by ensuring the caller has the necessary permissions or is the token owner.
-- Verify that the `internalTransferFrom` function is correctly called by authorized functions such as `transferFrom` and `safeTransferFrom` to maintain token ownership integrity.
+- Initialize token name, symbol, and base URI during diamond deployment.
+- Use the `ownerOf` and `balanceOf` functions to verify token ownership before state-changing operations.
+- Ensure that the `safeTransferFrom` functions are used when transferring tokens to potentially unknown contracts.
 </Callout>
 
 ## Security Considerations
 
 <Callout type="warning" title="Security">
-Follow standard Solidity security practices. Input validation is crucial for functions like `transferFrom`, `safeTransferFrom`, and `approve` to prevent issues such as transferring tokens to zero addresses or approving invalid operators. The `ownerOf` and `balanceOf` functions should be used to verify token ownership and existence before executing sensitive operations. Reentrancy is mitigated by the internal `internalTransferFrom` function, which follows the checks-effects-interactions pattern.
+Follow standard Solidity security practices. Ensure that only authorized addresses can call state-changing functions like `approve`, `setApprovalForAll`, `transferFrom`, and `safeTransferFrom`. The `ownerOf`, `balanceOf`, `tokenOfOwnerByIndex`, `getApproved`, and `isApprovedForAll` functions are view functions and do not pose direct state modification risks. Input validation is handled by custom errors such as `ERC721InvalidOwner` and `ERC721NonexistentToken`.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -733,4 +724,4 @@ Follow standard Solidity security practices. Input validation is crucial for fun
   <WasThisHelpful pageId="ERC721EnumerableFacet" />
 </div>
 
-<LastUpdated date="2025-12-30T17:28:36.017Z" />
+<LastUpdated date="2025-12-30T17:41:46.337Z" />

@@ -1,7 +1,7 @@
 ---
 sidebar_position: 1
 title: "ERC20PermitMod"
-description: "ERC-2612 permit logic and domain separator"
+description: "ERC-2612 permit and domain separator logic"
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/token/ERC20/ERC20Permit/ERC20PermitMod.sol"
 ---
 
@@ -21,14 +21,14 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-ERC-2612 permit logic and domain separator
+ERC-2612 permit and domain separator logic
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Provides ERC-2612 permit logic for signed token approvals.
-- Exposes `DOMAIN_SEPARATOR` for signature encoding.
-- Uses diamond storage pattern for persistent state management.
-- Functions are `pure` or `view` where applicable, facilitating static analysis.
+- Internal functions for tight integration with facets.
+- Generates domain separator for secure permit signatures.
+- Compatible with the diamond storage pattern (EIP-8042).
+- No external dependencies, promoting composability.
 </Callout>
 
 <Callout type="info" title="Module Usage">
@@ -37,7 +37,7 @@ This module provides internal functions for use in your custom facets. Import it
 
 ## Overview
 
-This module provides ERC-2612 permit functionality, enabling off-chain approvals via signed messages. Facets can integrate this module to manage signed token approvals, leveraging shared diamond storage for consistency. The domain separator ensures signature validity across different contract deployments.
+This module provides internal functions for ERC-2612 permit validation and domain separator generation. Facets can import this module to handle permit signatures, ensuring replay protection via a unique domain separator. It leverages diamond storage for a self-contained implementation.
 
 ---
 
@@ -238,13 +238,15 @@ address _owner, address _spender, uint256 _value, uint256 _deadline, uint8 _v, b
 
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity >=0.8.30;
+
 import { ERC20PermitMod } from "@compose/token/ERC20/ERC20Permit/ERC20PermitMod";
+import { ERC20PermitStorage } from "@compose/token/ERC20/ERC20Permit/ERC20PermitMod";
 
 contract MyERC20Facet {
-    // Assume ERC20PermitMod is correctly initialized and its storage is accessible via diamond storage.
-    // Assume necessary access control and error handling are in place.
+    // Assume ERC20PermitStorage is accessible via diamond storage
+    // Assume ERC20_STORAGE_POSITION is defined and accessible
 
-    function executePermit(
+    function handlePermit(
         address _owner,
         address _spender,
         uint256 _value,
@@ -253,68 +255,66 @@ contract MyERC20Facet {
         bytes32 _r,
         bytes32 _s
     ) external {
-        // This is a conceptual example. In a real scenario, you would call a private or internal function
-        // within this facet that then calls ERC20PermitMod.permit.
-        // The actual permit function in the module validates the signature and sets the allowance.
-        // The Approval event must be emitted by the calling facet.
+        // In a real scenario, you would retrieve storage pointers from diamond storage
+        // For demonstration, we assume direct access or retrieval mechanisms are in place
 
-        // For demonstration, let's assume a direct call pattern for clarity, though typically an internal helper would be used.
-        // The actual ERC20PermitMod.permit function does not emit the event; the caller must.
+        // ERC20PermitMod.permit(
+        //     _owner,
+        //     _spender,
+        //     _value,
+        //     _deadline
+        // );
 
-        // ERC20PermitMod.permit(_owner, _spender, _value, _deadline, _v, _r, _s);
-        // emit Approval(_owner, _spender, _value);
+        // The permit function is intended to be called internally by a facet.
+        // Actual allowance setting logic would follow here, typically involving
+        // interaction with the ERC20Storage struct.
 
-        // Note: The actual implementation would involve retrieving storage and calling the internal logic.
-        // The provided contract data does not expose an internal permit function for direct facet use in this manner.
-        // The 'permit' function signature suggests it's meant to be called directly within the module context.
-        // For a facet to use this, it would typically need an internal wrapper function that calls the module's logic.
+        // Note: The provided contract data does not expose a function to actually set allowance.
+        // The \`permit\` function in the module validates the signature and emits Approval.
+        // The actual allowance update would be handled by the calling facet.
 
-        // Placeholder for actual integration logic:
-        // uint256 currentAllowance = getAllowance(_owner, _spender);
-        // if (block.timestamp > _deadline) {
-        //     revert ERC2612InvalidSignature(_owner, _spender, _value, _deadline, _v, _r, _s);
-        // }
-        // The actual signature verification would happen internally within the module's implementation.
+        // Example of calling the validation function (conceptual):
+        // This call would typically be part of a larger function that also updates allowances.
+        // The \`permit\` function itself does not modify allowances directly in the provided snippet.
 
-        // The module's \`permit\` function is not directly callable by a facet in this manner as per typical module patterns.
-        // A facet would interact with the state managed by the module.
-        // The provided \`permit\` function signature implies it handles the state update.
+        // To demonstrate the signature validation part:
+        // We'll simulate a check, as the actual permit function in the module
+        // expects to be called in a context where it can emit events and
+        // potentially interact with the shared storage for allowance updates.
 
-        // Example of how a facet might conceptually use the storage:
-        // ERC20PermitStorage storage permitStorage = ERC20PermitMod.getPermitStorage();
-        // ERC20Storage storage erc20Storage = ERC20PermitMod.getERC20Storage();
+        // Placeholder for actual allowance update logic after signature validation
+        // For example:
+        // ERC20Storage storage erc20Data = ERC20Storage(ERC20_STORAGE_POSITION);
+        // erc20Data.allowances[_owner][_spender] = _value;
 
-        // The direct call to \`ERC20PermitMod.permit\` is illustrative of the functionality,
-        // but the actual integration would depend on how the module exposes its state-modifying capabilities.
-        // Based on the provided data, the \`permit\` function is part of the module's internal logic.
-
-        // A facet would typically have an internal function that uses the module's storage:
-        // function _handlePermit(...) internal {
-        //    // Call internal logic that reads/writes permitStorage and erc20Storage
-        //    // Emit Approval event
-        // }
+        // The permit function itself is designed to be called by a facet.
+        // The following is a conceptual representation of its usage within a facet context.
+        // The actual implementation of \`permit\` would handle signature verification and event emission.
     }
-}
-`}
+
+    function getDomainSeparator() public view returns (bytes32) {
+        return ERC20PermitMod.DOMAIN_SEPARATOR();
+    }
+}`}
 </ExpandableCode>
 -->
 
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Ensure the diamond's storage layout is compatible with `ERC20PermitStorage` and `ERC20Storage`.
-- Verify the domain separator is correctly configured and unique for the deployed diamond and chain ID.
-- Handle the `ERC2612InvalidSignature` error, which is returned if the signature validation fails.
+- Ensure the diamond's storage layout is compatible with `ERC20PermitStorage`.
+- Call `permit` within a facet that correctly handles allowance updates and event emissions.
+- Verify signature validity using the returned values from `permit` before proceeding with state changes.
 </Callout>
 
 ## Integration Notes
 
 <Callout type="success" title="Shared Storage">
-This module interacts with diamond storage using the `ERC20_STORAGE_POSITION` for `ERC20PermitStorage` and `compose.erc20` for `ERC20Storage`. Facets integrating this module should ensure they access these storage slots correctly. Changes to allowances made via permit operations are reflected in the shared diamond storage, visible to all facets interacting with the ERC-20 state.
+This module interacts with diamond storage via the `ERC20_STORAGE_POSITION` constant, which maps to `keccak256(\"compose.erc20\")`. It utilizes the `ERC20PermitStorage` struct. Any facet importing this module can access and modify the permit-related state through the diamond's storage mechanism. Changes made are immediately visible to all facets sharing the same storage.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
   <WasThisHelpful pageId="ERC20PermitMod" />
 </div>
 
-<LastUpdated date="2025-12-30T17:27:43.324Z" />
+<LastUpdated date="2025-12-30T17:40:52.832Z" />

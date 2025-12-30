@@ -25,15 +25,15 @@ Implements ERC-20 token functionality within a diamond
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Exposes standard ERC-20 functions for external calls.
-- Integrates with the diamond storage pattern for state management.
+- Exposes standard ERC-20 functions (transfer, approve, balanceOf, etc.) via the diamond proxy.
+- Manages token state (totalSupply, balances, allowances) using the diamond storage pattern.
+- Emits ERC-20 standard `Transfer` and `Approval` events.
 - Self-contained, adhering to Compose facet design principles.
-- Emits standard ERC-20 Approval and Transfer events.
 </Callout>
 
 ## Overview
 
-This facet implements ERC-20 token transfers as external functions in a diamond. It routes calls through the diamond proxy and accesses shared storage. Developers add this facet to expose token functionality while maintaining upgradeability.
+This facet implements core ERC-20 token functions such as transfers, approvals, and balance queries within a diamond proxy. It accesses shared token state via the diamond storage pattern, enabling composability and upgradeability for token operations. Developers integrate this facet to expose standard ERC-20 behavior through the diamond's unified interface.
 
 ---
 
@@ -503,24 +503,34 @@ error ERC20InvalidSpender(address _spender);
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity >=0.8.30;
 
+import {IDiamond} from "@compose/diamond/IDiamond";
 import {ERC20Facet} from "@compose/token/ERC20/ERC20/ERC20Facet";
-import {IDiamond} from "@compose/diamond-proxy/contracts/IDiamond";
 
-contract Deployer {
-    address immutable diamondAddress;
+contract DiamondUser {
+    IDiamond immutable diamond;
 
     constructor(address _diamondAddress) {
-        diamondAddress = _diamondAddress;
+        diamond = IDiamond(_diamondAddress);
     }
 
-    function distributeTokens(address _recipient, uint256 _amount) external {
-        // Assuming the ERC20Facet is already added to the diamond
-        IDiamond(diamondAddress).transfer(_recipient, _amount);
+    function getTokenName() external view returns (string memory) {
+        // Calls the name() function implemented by ERC20Facet
+        return diamond.name();
     }
 
-    function checkBalance(address _account) external view returns (uint256) {
-        IDiamond(diamondAddress).balanceOf(_account);
-        return IDiamond(diamondAddress).balanceOf(_account);
+    function transferTokens(address _to, uint256 _value) external {
+        // Calls the transfer() function implemented by ERC20Facet
+        diamond.transfer(_to, _value);
+    }
+
+    function getBalance(address _account) external view returns (uint256) {
+        // Calls the balanceOf() function implemented by ERC20Facet
+        return diamond.balanceOf(_account);
+    }
+
+    function approveSpending(address _spender, uint256 _value) external {
+        // Calls the approve() function implemented by ERC20Facet
+        diamond.approve(_spender, _value);
     }
 }`}
 </ExpandableCode>
@@ -529,15 +539,15 @@ contract Deployer {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Initialize token name, symbol, and decimals during diamond deployment.
-- Enforce access control on functions that modify token state if required by your token's design.
-- Ensure storage compatibility with existing facets before upgrading.
+- Initialize token metadata (name, symbol, decimals) and total supply during diamond deployment.
+- Ensure appropriate access controls are applied to functions that modify token state if required by the diamond's architecture.
+- Verify storage compatibility before upgrading to a new version of this facet to prevent state corruption.
 </Callout>
 
 ## Security Considerations
 
 <Callout type="warning" title="Security">
-Follow standard Solidity security practices. Input validation is performed for addresses and amounts. Reentrancy is mitigated by following the checks-effects-interactions pattern for transfer and transferFrom functions. Ensure sufficient allowance before calling transferFrom. Errors ERC20InsufficientBalance, ERC20InvalidSender, ERC20InvalidReceiver, ERC20InsufficientAllowance, and ERC20InvalidSpender are used for validation.
+Functions like `transfer`, `transferFrom`, and `approve` implement standard ERC-20 checks to prevent insufficient balance or allowance issues, reverting with custom errors (`ERC20InsufficientBalance`, `ERC20InsufficientAllowance`). Input validation is performed on addresses to ensure they are not the zero address for relevant operations. Follow standard Solidity security practices for input validation and reentrancy guards if further customization is applied.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -557,4 +567,4 @@ Follow standard Solidity security practices. Input validation is performed for a
   <WasThisHelpful pageId="ERC20Facet" />
 </div>
 
-<LastUpdated date="2025-12-30T17:27:50.372Z" />
+<LastUpdated date="2025-12-30T17:41:00.406Z" />

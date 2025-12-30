@@ -25,15 +25,15 @@ Implements EIP-2612 permit functionality for ERC-20 tokens
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Implements EIP-2612 permit function for off-chain approvals.
-- Provides access to nonces and domain separator for signature verification.
-- Utilizes diamond storage for nonce management.
-- Self-contained facet with no external dependencies.
+- Implements EIP-2612 permit functionality.
+- Exposes `permit`, `DOMAIN_SEPARATOR`, and `nonces` functions.
+- Facilitates gasless token approvals via signed messages.
+- Designed for integration with the diamond storage pattern.
 </Callout>
 
 ## Overview
 
-This facet enables EIP-2612 permit functionality, allowing token owners to grant allowances via signed messages. It integrates with the diamond storage pattern to manage nonces and domain separators. Developers add this facet to a diamond to provide a gas-efficient way for users to approve token transfers without on-chain transactions.
+This facet implements EIP-2612 permit functionality, allowing token owners to grant allowances via signed messages. It exposes the `permit` function to the diamond proxy, enabling off-chain authorization for token transfers. Developers integrate this facet to provide gasless approval mechanisms for ERC-20 tokens within a Compose diamond.
 
 ---
 
@@ -275,41 +275,37 @@ error ERC20InvalidSpender(address _spender);
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity >=0.8.30;
 
-import {ERC20PermitFacet} from "@compose/token/ERC20/ERC20Permit/ERC20PermitFacet";
-import {IDiamond} from "@compose/diamond/IDiamond.sol";
+import { ERC20PermitFacet } from "@compose/token/ERC20/ERC20Permit/ERC20PermitFacet";
+import { IDiamond } from "@compose/diamond/IDiamond";
 
-contract MyDiamondUsers {
-    address public diamondAddress;
+contract Deployer {
+    address immutable DIAMOND_ADDRESS;
 
-    constructor(address _diamondAddress) {
-        diamondAddress = _diamondAddress;
+    constructor(address diamondAddress) {
+        DIAMOND_ADDRESS = diamondAddress;
     }
 
-    function grantPermit(address _owner, address _spender, uint256 _value, uint256 _deadline, uint8 _v, bytes32 _r, bytes32 _s) external {
-        IDiamond diamond = IDiamond(diamondAddress);
+    function grantPermit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external {
         // Call the permit function through the diamond proxy
-        diamond.executeFacetFunction(
-            ERC20PermitFacet.ERC20PERMIT_FACET_FUNCTION_SELECTORS.PERMIT,
-            abi.encodeCall(ERC20PermitFacet.permit, (_owner, _spender, _value, _deadline, _v, _r, _s))
+        IDiamond(DIAMOND_ADDRESS).permit(
+            owner,
+            spender,
+            value,
+            deadline,
+            v,
+            r,
+            s
         );
     }
 
-    function getNonces(address _owner) external view returns (uint256) {
-        IDiamond diamond = IDiamond(diamondAddress);
-        // Call the nonces function through the diamond proxy
-        return abi.decode(diamond.executeFacetFunction(
-            ERC20PermitFacet.ERC20PERMIT_FACET_FUNCTION_SELECTORS.NONCES,
-            abi.encodeCall(ERC20PermitFacet.nonces, (_owner))
-        ), (uint256));
+    // Example of retrieving domain separator
+    function getDomainSeparator() external view returns (bytes32) {
+        return IDiamond(DIAMOND_ADDRESS).DOMAIN_SEPARATOR();
     }
 
-    function getDomainSeparator() external view returns (bytes32) {
-        IDiamond diamond = IDiamond(diamondAddress);
-        // Call the DOMAIN_SEPARATOR function through the diamond proxy
-        return abi.decode(diamond.executeFacetFunction(
-            ERC20PermitFacet.ERC20PERMIT_FACET_FUNCTION_SELECTORS.DOMAIN_SEPARATOR,
-            ''
-        ), (bytes32));
+    // Example of retrieving nonces
+    function getNonces(address owner) external view returns (uint256) {
+        return IDiamond(DIAMOND_ADDRESS).nonces(owner);
     }
 }`}
 </ExpandableCode>
@@ -318,15 +314,15 @@ contract MyDiamondUsers {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Initialize the ERC20PermitStorage struct when deploying the diamond.
-- Ensure the DOMAIN_SEPARATOR is correctly configured for replay protection.
-- Validate the signature parameters (_v, _r, _s) before calling the permit function.
+- Ensure the `permit` function is called through the diamond proxy.
+- Verify the `DOMAIN_SEPARATOR` and `nonces` are correctly used when generating signatures off-chain.
+- Integrate with the ERC20PermitMod for internal logic and state management.
 </Callout>
 
 ## Security Considerations
 
 <Callout type="warning" title="Security">
-The `permit` function validates signatures using ECDSA. Ensure proper signature generation off-chain to prevent unauthorized approvals. Input validation for spender, value, and deadline is crucial. Revert with `ERC2612InvalidSignature` if the signature is invalid. Revert with `ERC20InvalidSpender` if the spender address is invalid.
+Follow standard Solidity security practices. Validate all input parameters for the `permit` function. Ensure correct signature verification logic is implemented off-chain to prevent invalid permits from being processed. The `nonces` function helps mitigate replay attacks by ensuring each permit can only be used once.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -346,4 +342,4 @@ The `permit` function validates signatures using ECDSA. Ensure proper signature 
   <WasThisHelpful pageId="ERC20PermitFacet" />
 </div>
 
-<LastUpdated date="2025-12-30T17:27:45.564Z" />
+<LastUpdated date="2025-12-30T17:40:55.770Z" />

@@ -1,7 +1,7 @@
 ---
 sidebar_position: 2
 title: "DiamondCutMod"
-description: "Manage diamond facets and initialization logic"
+description: "Add, replace, and remove diamond facets and logic"
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/diamond/DiamondCutMod.sol"
 ---
 
@@ -21,14 +21,14 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Manage diamond facets and initialization logic
+Add, replace, and remove diamond facets and logic
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Manages facet additions, replacements, and removals.
-- Supports optional initialization calls during diamond upgrades.
-- Utilizes the diamond storage pattern for state management.
-- Provides explicit error types for upgrade operations.
+- Manages addition, replacement, and removal of facet functions.
+- Supports an initialization function call during diamond cuts.
+- Utilizes EIP-8042 diamond storage pattern.
+- Functions are `external` to allow calls from the diamond proxy.
 </Callout>
 
 <Callout type="info" title="Module Usage">
@@ -37,7 +37,7 @@ This module provides internal functions for use in your custom facets. Import it
 
 ## Overview
 
-This module provides core functions for managing facets within a diamond proxy. It enables adding, replacing, and removing facets, including optional initialization logic. This composition pattern allows for upgradeable and modular smart contract architectures.
+This module provides core functionality for managing diamond facets, including adding, replacing, and removing functions. It enables dynamic upgrades and composition of logic within a diamond proxy. Changes made through this module are immediately visible to all facets interacting with the diamond storage.
 
 ---
 
@@ -337,41 +337,36 @@ error RemoveFacetAddressMustBeZeroAddress(address _facet);
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity >=0.8.30;
 
-import {DiamondCutMod, FacetCutAction, FacetCut} from "@compose/diamond/DiamondCutMod";
+import { DiamondCut } from "@compose/diamond/DiamondCutMod";
+import { FacetCut } from "@compose/diamond/DiamondCutMod";
+import { DiamondStorage } from "@compose/diamond/DiamondCutMod";
 
 contract MyFacet {
-    DiamondCutMod immutable diamondCutMod;
+    function exampleDiamondCut() external {
+        address facetAddress = address(this);
+        bytes[] memory functionSelectors = new bytes[](1);
+        functionSelectors[0] = bytes4(keccak256("myFunction()
+"));
 
-    constructor(address _diamondCutModAddress) {
-        diamondCutMod = DiamondCutMod(_diamondCutModAddress);
-    }
-
-    function upgradeDiamond() external {
         FacetCut[] memory cuts = new FacetCut[](1);
-        // Assuming you have the bytecode of the new facet and its selectors
-        bytes memory facetBytecode = bytes("0x..."); // Replace with actual bytecode
-        bytes4[] memory selectors = new bytes4[](1);
-        selectors[0] = this.someFunction.selector; // Example selector
-
         cuts[0] = FacetCut({
-            facetAddress: address(this),
-            action: FacetCutAction.REPLACE,
-            selectors: selectors
+            facetAddress: facetAddress,
+            action: 1, // Add
+            functionSelectors: functionSelectors
         });
 
-        // Optional: call an initialization function on the new facet
-        bytes memory initCalldata = abi.encodeWithSelector(this.initialize.selector, _someParam);
+        // Assuming DiamondCut is a library or accessible contract
+        // In a real scenario, you'd call this on the diamond proxy itself
+        // For demonstration, we'll simulate the call structure
+        // Replace with actual diamond proxy address and call
+        // DiamondCut.diamondCut(cuts, address(0), "");
 
-        diamondCutMod.diamondCut(cuts, address(this), initCalldata);
+        // To demonstrate getStorage:
+        // DiamondStorage storageLayout = DiamondCut.getStorage();
     }
 
-    function initialize(string memory _param) external {
-        // Initialization logic
-    }
-
-    function someFunction() external pure {
-        // Facet logic
-    }
+    // Dummy function for example
+    function myFunction() external {}
 }`}
 </ExpandableCode>
 -->
@@ -379,19 +374,20 @@ contract MyFacet {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Ensure all facet upgrade operations are thoroughly tested before deployment.
-- Verify that the `_init` address and `_calldata` are correctly formed for initialization.
-- Handle errors such as `InitializationFunctionReverted` and `NoSelectorsProvidedForFacet`.
+- Call `diamondCut` only from authorized addresses.
+- Ensure new facets are correctly implemented and tested before adding.
+- Verify that selectors are unique and actions are appropriate for the desired state change.
+- Handle errors like `InitializationFunctionReverted` and `NoSelectorsProvidedForFacet`.
 </Callout>
 
 ## Integration Notes
 
 <Callout type="success" title="Shared Storage">
-This module interacts with diamond storage at the `DIAMOND_STORAGE_POSITION` using the `DiamondStorage` struct. All facet management functions are internal and directly modify the diamond's facet mapping. Changes are immediately reflected across all facets interacting with the diamond storage.
+This module interacts with diamond storage at the `DIAMOND_STORAGE_POSITION` using the `DiamondStorage` struct. All facet and function management operations directly modify this shared storage, making changes immediately visible to all facets that adhere to the diamond storage pattern. The `diamondCut` function is the primary interface for altering the diamond's facet registry.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
   <WasThisHelpful pageId="DiamondCutMod" />
 </div>
 
-<LastUpdated date="2025-12-30T17:29:14.565Z" />
+<LastUpdated date="2025-12-30T17:42:28.369Z" />

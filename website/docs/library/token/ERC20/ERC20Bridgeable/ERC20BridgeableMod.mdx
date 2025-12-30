@@ -1,7 +1,7 @@
 ---
 sidebar_position: 1
 title: "ERC20BridgeableMod"
-description: "Cross-chain token transfers with role-based access control"
+description: "Manages cross-chain ERC20 token operations"
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/token/ERC20/ERC20Bridgeable/ERC20BridgeableMod.sol"
 ---
 
@@ -21,14 +21,14 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Cross-chain token transfers with role-based access control
+Manages cross-chain ERC20 token operations
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Enables cross-chain minting and burning operations.
-- Enforces `trusted-bridge` role for cross-chain actions.
-- Uses diamond storage for shared state management.
-- Functions are internal and designed for facet composition.
+- Provides `crosschainBurn` and `crosschainMint` functions for cross-chain operations.
+- Enforces `trusted-bridge` role using internal access control checks.
+- Utilizes diamond storage for ERC20 state management.
+- Functions are `internal` and intended for use within facets.
 </Callout>
 
 <Callout type="info" title="Module Usage">
@@ -37,7 +37,7 @@ This module provides internal functions for use in your custom facets. Import it
 
 ## Overview
 
-This module facilitates cross-chain token transfers by enabling trusted bridges to mint and burn tokens. It enforces access control for these operations using the `trusted-bridge` role, ensuring only authorized entities can perform cross-chain actions. Changes made through this module are immediately visible to all facets interacting with the shared ERC20 storage.
+This module enables cross-chain token transfers by providing functions for minting and burning tokens on behalf of trusted bridge addresses. It integrates with diamond storage to manage ERC20 state and access control roles. Facets importing this module can delegate cross-chain operations to authorized bridge contracts.
 
 ---
 
@@ -385,32 +385,33 @@ error ERC20InvalidSender(address _sender);
 
 import {ERC20BridgeableMod} from "@compose/token/ERC20/ERC20Bridgeable/ERC20BridgeableMod";
 
-contract MyBridgeFacet {
-    ERC20BridgeableMod private bridgeableMod;
+contract MyFacet {
+    ERC20BridgeableMod private erc20Bridgeable;
 
-    // Assume bridgeableMod is initialized with the correct diamond storage address
-    constructor(address _diamondAddress) {
-        bridgeableMod = ERC20BridgeableMod(_diamondAddress);
+    constructor(address _diamondProxy) {
+        erc20Bridgeable = ERC20BridgeableMod(_diamondProxy);
     }
 
     /**
-     * @notice Mints tokens for a recipient on the current chain.
-     * @param _account The address to mint tokens to.
-     * @param _value The amount of tokens to mint.
-     */
-    function mintCrosschain(address _account, uint256 _value) external {
-        // checkTokenBridge is implicitly called by crosschainMint
-        bridgeableMod.crosschainMint(_account, _value);
-    }
-
-    /**
-     * @notice Burns tokens from a sender on the current chain.
+     * @notice Burns tokens for a cross-chain operation.
      * @param _from The address to burn tokens from.
      * @param _value The amount of tokens to burn.
      */
-    function burnCrosschain(address _from, uint256 _value) external {
-        // checkTokenBridge is implicitly called by crosschainBurn
-        bridgeableMod.crosschainBurn(_from, _value);
+    function burnForCrosschain(address _from, uint256 _value) external {
+        // The caller must have the 'trusted-bridge' role for crosschainBurn to succeed
+        // The ERC20BridgeableMod contract enforces this role check internally.
+        erc20Bridgeable.crosschainBurn(_from, _value);
+    }
+
+    /**
+     * @notice Mints tokens for a cross-chain operation.
+     * @param _account The address to mint tokens to.
+     * @param _value The amount of tokens to mint.
+     */
+    function mintForCrosschain(address _account, uint256 _value) external {
+        // The caller must have the 'trusted-bridge' role for crosschainMint to succeed
+        // The ERC20BridgeableMod contract enforces this role check internally.
+        erc20Bridgeable.crosschainMint(_account, _value);
     }
 }`}
 </ExpandableCode>
@@ -419,15 +420,15 @@ contract MyBridgeFacet {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Ensure the `trusted-bridge` role is correctly managed via an access control module.
-- Call `crosschainMint` and `crosschainBurn` only from authorized bridge contracts.
-- Verify the `ERC20_STORAGE_POSITION` and `AccessControlStorage` struct compatibility during upgrades.
+- Ensure the caller has the `trusted-bridge` role before calling `crosschainBurn` or `crosschainMint`.
+- Verify that the `ERC20_STORAGE_POSITION` is correctly set in the diamond storage.
+- Handle the `ERC20InvalidBridgeAccount` error if the bridge account is invalid.
 </Callout>
 
 ## Integration Notes
 
 <Callout type="success" title="Shared Storage">
-This module interacts with diamond storage at the `ERC20_STORAGE_POSITION`, identified by `keccak256("compose.erc20")`. It uses the `ERC20Storage` and `AccessControlStorage` structs. Functions like `crosschainMint` and `crosschainBurn` implicitly call `checkTokenBridge`, which verifies the caller's role against the access control storage. All state modifications are immediately visible to other facets accessing the same storage.
+This module interacts with diamond storage at the `ERC20_STORAGE_POSITION`, which is determined by `keccak256("compose.erc20")`. It relies on the `AccessControlStorage` struct for role management and `ERC20Storage` for token state. All state modifications are immediately visible to other facets that access the same storage slots.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -453,4 +454,4 @@ This module interacts with diamond storage at the `ERC20_STORAGE_POSITION`, iden
   <WasThisHelpful pageId="ERC20BridgeableMod" />
 </div>
 
-<LastUpdated date="2025-12-30T17:28:03.537Z" />
+<LastUpdated date="2025-12-30T17:41:13.627Z" />

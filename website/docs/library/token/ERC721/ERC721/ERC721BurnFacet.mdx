@@ -1,7 +1,7 @@
 ---
 sidebar_position: 3
 title: "ERC721BurnFacet"
-description: "Burns ERC-721 tokens within a diamond"
+description: "Burns ERC-721 tokens within a diamond proxy"
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/token/ERC721/ERC721/ERC721BurnFacet.sol"
 ---
 
@@ -21,19 +21,19 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Burns ERC-721 tokens within a diamond
+Burns ERC-721 tokens within a diamond proxy
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
 - Exposes an external `burn` function for token destruction.
-- Interacts with diamond storage for token state management.
-- Self-contained, adhering to Compose facet design principles.
-- Compatible with the ERC-2535 diamond standard.
+- Emits standard ERC-721 `Transfer` events upon successful burning.
+- Leverages diamond storage for state management.
+- Self-contained, requiring no external dependencies beyond diamond core.
 </Callout>
 
 ## Overview
 
-This facet implements the burning of ERC-721 tokens as an external function within a diamond. It interacts with the diamond's shared storage to remove token ownership and tracking. Developers integrate this facet to provide token destruction functionality while maintaining the diamond's upgradeability and composability.
+This facet implements ERC-721 token burning as an external function within a diamond proxy. It interacts with shared diamond storage to remove tokens and emits `Transfer` events. Developers integrate this facet to provide token destruction capabilities while maintaining the upgradeability and modularity of the diamond pattern.
 
 ---
 
@@ -151,14 +151,14 @@ error ERC721InsufficientApproval(address _operator, uint256 _tokenId);
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity >=0.8.30;
 
-import {ERC721BurnFacet} from "@compose/token/ERC721/ERC721/ERC721BurnFacet";
-import {IDiamond} from "@compose/diamond/core/IDiamond";
+import { ERC721BurnFacet } from "@compose/token/ERC721/ERC721/ERC721BurnFacet";
+import { IDiamond } from "@compose/diamond/IDiamond.sol";
 
-contract DiamondUser {
-    address immutable diamondAddress;
+contract MyDiamondUser {
+    IDiamond diamond;
 
     constructor(address _diamondAddress) {
-        diamondAddress = _diamondAddress;
+        diamond = IDiamond(_diamondAddress);
     }
 
     /**
@@ -166,11 +166,8 @@ contract DiamondUser {
      * @param _tokenId The ID of the token to burn.
      */
     function burnToken(uint256 _tokenId) external {
-        /**
-         * Calls the burn function through the diamond proxy.
-         * The diamond dispatcher routes this call to the ERC721BurnFacet.
-         */
-        IDiamond(diamondAddress).burn(_tokenId);
+        // Calls the burn function exposed by the ERC721BurnFacet through the diamond proxy.
+        diamond.burn(_tokenId);
     }
 }`}
 </ExpandableCode>
@@ -179,15 +176,15 @@ contract DiamondUser {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Ensure the ERC721BurnFacet is correctly initialized with the diamond's storage slot.
-- Verify that the `burn` function is called only by authorized addresses or under specific conditions if access control is layered.
-- Confirm storage compatibility before upgrading the diamond to include or replace this facet.
+- Integrate the `ERC721BurnFacet` during diamond initialization.
+- Ensure the `ERC721Storage` struct is correctly laid out and accessible.
+- Verify that the `burn` function's access control (if any) is correctly configured before deployment.
 </Callout>
 
 ## Security Considerations
 
 <Callout type="warning" title="Security">
-The `burn` function should be protected by appropriate access control mechanisms at the diamond level to prevent unauthorized token destruction. Input validation for `_tokenId` is handled by the facet, reverting with `ERC721NonexistentToken` if the token ID does not exist. Follow standard Solidity security practices for contract interactions.
+The `burn` function should have appropriate access control mechanisms in place, typically managed by a separate access control facet, to ensure only authorized addresses can burn tokens. Input validation for `_tokenId` is critical to prevent unintended state modifications or reverts due to non-existent tokens, though specific checks are handled internally by the facet's logic. Follow standard Solidity security practices for all interactions.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -237,4 +234,4 @@ The `burn` function should be protected by appropriate access control mechanisms
   <WasThisHelpful pageId="ERC721BurnFacet" />
 </div>
 
-<LastUpdated date="2025-12-30T17:28:40.670Z" />
+<LastUpdated date="2025-12-30T17:41:51.357Z" />

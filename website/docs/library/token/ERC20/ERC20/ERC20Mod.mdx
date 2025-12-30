@@ -1,7 +1,7 @@
 ---
 sidebar_position: 1
 title: "ERC20Mod"
-description: "LibERC20 — ERC-20 Library - Provides internal functions and storage layout for ERC-20 token logic."
+description: "Internal functions for ERC-20 token operations"
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/token/ERC20/ERC20/ERC20Mod.sol"
 ---
 
@@ -21,14 +21,14 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-LibERC20 — ERC-20 Library - Provides internal functions and storage layout for ERC-20 token logic.
+Internal functions for ERC-20 token operations
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- All functions are `internal` for use in custom facets
-- Follows diamond storage pattern (EIP-8042)
-- Compatible with ERC-2535 diamonds
-- No external dependencies or `using` directives
+- Provides `internal` functions for core ERC-20 operations.
+- Manages token state using the diamond storage pattern at a defined slot.
+- Emits `Transfer` and `Approval` events upon relevant state changes.
+- Includes custom errors for common ERC-20 failure conditions.
 </Callout>
 
 <Callout type="info" title="Module Usage">
@@ -37,7 +37,7 @@ This module provides internal functions for use in your custom facets. Import it
 
 ## Overview
 
-LibERC20 — ERC-20 Library - Provides internal functions and storage layout for ERC-20 token logic.
+This module exposes internal functions for core ERC-20 token operations such as minting, burning, transferring, and approving allowances. Facets can import this module to implement ERC-20 functionality within a diamond, leveraging shared diamond storage for token state. Changes to token supply and balances are managed atomically.
 
 ---
 
@@ -374,10 +374,75 @@ error ERC20InvalidSpender(address _spender);
   </Accordion>
 </AccordionGroup>
 
+<!-- Usage Example section commented out for now -->
+<!--
+## Usage Example
+
+<ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
+{`pragma solidity >=0.8.30;
+
+import { ERC20Mod } from "@compose/token/ERC20/ERC20/ERC20Mod";
+
+contract MyERC20Facet {
+    ERC20Mod internal erc20Module;
+
+    // Assume erc20Module is initialized with the correct storage slot
+    constructor(address _diamondStorage) {
+        // In a real scenario, this would be handled by a diamond initializer
+        // and the storage slot would be passed or retrieved appropriately.
+        // For this example, we simulate obtaining the module instance.
+        // The actual initialization would involve setting storage pointers.
+        // This is a placeholder to demonstrate function calls.
+    }
+
+    /**
+     * @notice Transfers tokens from the caller to a specified recipient.
+     * @param _to The address to transfer tokens to.
+     * @param _value The amount of tokens to transfer.
+     */
+    function transferTokens(address _to, uint256 _value) external {
+        // Assuming the module is correctly initialized to point to the diamond's storage
+        // The actual call would look like this, with the module instance correctly set.
+        // erc20Module.transfer(_to, _value);
+        revert("Simulated transfer call - module not fully initialized in example");
+    }
+
+    /**
+     * @notice Approves a spender to transfer tokens on behalf of the caller.
+     * @param _spender The address to approve.
+     * @param _value The amount of tokens the spender is allowed to transfer.
+     */
+    function approveSpender(address _spender, uint256 _value) external {
+        // erc20Module.approve(_spender, _value);
+        revert("Simulated approve call - module not fully initialized in example");
+    }
+
+    /**
+     * @notice Mints new tokens to a specified account.
+     * @param _account The account to mint tokens to.
+     * @param _value The amount of tokens to mint.
+     */
+    function mintTokens(address _account, uint256 _value) external {
+        // erc20Module.mint(_account, _value);
+        revert("Simulated mint call - module not fully initialized in example");
+    }
+}
+`}
+</ExpandableCode>
+-->
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Ensure the `ERC20Mod` instance correctly points to the diamond's storage slot for ERC-20 state.
+- Handle specific `ERC20` errors such as `ERC20InsufficientBalance` and `ERC20InsufficientAllowance` when calling related functions.
+- Implement access control within your facet to restrict sensitive operations like minting or burning if necessary.
+</Callout>
+
 ## Integration Notes
 
 <Callout type="success" title="Shared Storage">
-This module accesses shared diamond storage, so changes made through this module are immediately visible to facets using the same storage pattern. All functions are internal as per Compose conventions.
+This module interacts with diamond storage via a designated storage position (`STORAGE_POSITION` which is `keccak256("compose.erc20")`). It reads and writes to the `ERC20Storage` struct, which contains fields like `totalSupply`, `decimals`, `name`, and `symbol`. All state changes are directly applied to this shared storage, making them immediately visible to any facet that accesses the same storage position.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -403,4 +468,4 @@ This module accesses shared diamond storage, so changes made through this module
   <WasThisHelpful pageId="ERC20Mod" />
 </div>
 
-<LastUpdated date="2025-12-30T17:27:57.788Z" />
+<LastUpdated date="2025-12-30T17:41:07.791Z" />

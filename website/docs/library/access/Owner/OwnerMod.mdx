@@ -1,7 +1,7 @@
 ---
 sidebar_position: 1
 title: "OwnerMod"
-description: "Manages contract ownership using diamond storage"
+description: "Manages ERC-173 contract ownership internally"
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/access/Owner/OwnerMod.sol"
 ---
 
@@ -21,14 +21,14 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Manages contract ownership using diamond storage
+Manages ERC-173 contract ownership internally
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Provides internal functions for ERC-173 ownership management.
-- Uses diamond storage pattern for shared state.
-- No external dependencies or `using` directives.
-- Compatible with ERC-2535 diamonds.
+- Provides internal functions for ownership management.
+- Uses diamond storage pattern (EIP-8042) for shared state.
+- Includes `requireOwner()` for caller verification.
+- Supports ownership transfer and renouncement.
 </Callout>
 
 <Callout type="info" title="Module Usage">
@@ -37,7 +37,7 @@ This module provides internal functions for use in your custom facets. Import it
 
 ## Overview
 
-This module provides internal functions for managing contract ownership according to ERC-173. Facets can import this module to check ownership or transfer it using shared diamond storage. Ownership changes are immediately visible to all facets accessing the same storage.
+This module provides internal functions for managing ERC-173 contract ownership using diamond storage. Facets can import this module to check ownership and transfer ownership securely within the diamond pattern. Ownership changes are immediately visible to all facets interacting with the shared owner storage.
 
 ---
 
@@ -212,22 +212,22 @@ error OwnerUnauthorizedAccount();
 import @compose/access/Owner/OwnerMod;
 
 contract MyOwnerFacet {
-    OwnerMod private ownerMod;
+    OwnerMod internal ownerMod;
 
-    constructor(address ownerModAddress) {
-        ownerMod = OwnerMod(ownerModAddress);
-    }
+    // Assume OwnerMod is initialized and accessible via an interface or direct import
+    // For demonstration, we'll instantiate it directly, but in a diamond context, it would be part of the diamond's logic.
+    // constructor(address ownerModAddress) { ownerMod = OwnerMod(ownerModAddress); }
 
-    function getOwner() external view returns (address) {
+    function getContractOwner() external view returns (address) {
         return ownerMod.owner();
     }
 
-    function transferContractOwnership(address _newOwner) external {
-        ownerMod.transferOwnership(_newOwner);
+    function transferOwnershipTo(address newOwner) external {
+        ownerMod.transferOwnership(newOwner);
     }
 
-    function renounceOwnership() external {
-        ownerMod.transferOwnership(address(0));
+    function checkCallerIsOwner() external view {
+        ownerMod.requireOwner();
     }
 }`}
 </ExpandableCode>
@@ -236,15 +236,15 @@ contract MyOwnerFacet {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Ensure the caller is the current owner before calling `transferOwnership`.
-- Use `transferOwnership(address(0))` to renounce ownership.
-- Handle `OwnerUnauthorizedAccount` and `OwnerAlreadyRenounced` errors appropriately.
+- Call `requireOwner()` before executing sensitive operations.
+- Use `transferOwnership()` to reassign ownership, setting `address(0)` to renounce ownership.
+- Ensure `OwnerMod` is correctly initialized and accessible by facets that require ownership checks.
 </Callout>
 
 ## Integration Notes
 
 <Callout type="success" title="Shared Storage">
-This module utilizes diamond storage at the slot defined by `STORAGE_POSITION` (`keccak256(\"compose.owner\")`). The `OwnerStorage` struct, containing the `owner` field, is accessed via inline assembly. Any modifications to ownership are immediately reflected across all facets that interact with this storage slot.
+This module utilizes diamond storage at the position defined by `STORAGE_POSITION` (keccak256("compose.owner")). The `OwnerStorage` struct, containing the `owner` field, is managed at this slot. All functions, including `owner()` and `transferOwnership()`, interact directly with this shared storage, making ownership state universally visible and consistent across all composable facets within the diamond.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -282,4 +282,4 @@ This module utilizes diamond storage at the slot defined by `STORAGE_POSITION` (
   <WasThisHelpful pageId="OwnerMod" />
 </div>
 
-<LastUpdated date="2025-12-30T17:27:27.716Z" />
+<LastUpdated date="2025-12-30T17:40:39.825Z" />

@@ -1,7 +1,7 @@
 ---
 sidebar_position: 510
 title: "ExampleDiamond"
-description: "Example Diamond initialization and fallback handlers"
+description: "Example diamond initialization and fallback handling"
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/diamond/example/ExampleDiamond.sol"
 ---
 
@@ -21,19 +21,19 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Example Diamond initialization and fallback handlers
+Example diamond initialization and fallback handling
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Provides a constructor for diamond initialization.
-- Includes fallback and receive functions for general contract interaction.
-- Demonstrates facet cut structure for diamond assembly.
-- Acts as a foundational example for Compose diamond deployments.
+- Provides an example constructor for diamond initialization.
+- Includes fallback and receive functions for Ether handling.
+- Demonstrates facet registration via constructor arguments.
+- Self-contained example, no external dependencies beyond Compose core.
 </Callout>
 
 ## Overview
 
-This contract serves as an example for initializing a diamond with facets and owner. It also includes fallback and receive functions for handling arbitrary calls and ether transfers. Developers can reference this contract for structuring diamond deployments and understanding basic diamond proxy behavior.
+This module serves as an example for initializing a diamond with facets and handling fallback and receive calls. It demonstrates how to structure diamond deployments by accepting an array of facet cuts and an owner address during construction. The fallback and receive functions allow the diamond to accept Ether.
 
 ---
 
@@ -88,29 +88,40 @@ Struct to hold facet address and its function selectors. struct FacetCut &#123; 
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity >=0.8.30;
 
-import { IDiamond, DiamondMod } from '@compose/diamond/example/ExampleDiamond';
+import { ExampleDiamond } from "@compose/diamond/example/ExampleDiamond";
+import { IDiamond } from "@compose/diamond/IDiamond";
+import { DiamondCutFacet } from "@compose/diamond/facets/DiamondCutFacet";
+import { DiamondLoupeFacet } from "@compose/diamond/facets/DiamondLoupeFacet";
 
-// Example: Deploying and initializing an ExampleDiamond
 contract DeployExampleDiamond {
-    address public diamondAddress;
+    address public deployedDiamond;
 
-    constructor(
-        DiamondMod.FacetCut[] memory _facets,
-        address _diamondOwner
-    ) {
-        // Deploy and initialize the diamond
-        diamondAddress = address(new ExampleDiamond(_facets, _diamondOwner));
-    }
+    constructor(address[] memory facetAddresses, bytes[] memory facetCuts) {
+        // Example of deploying a diamond using ExampleDiamond
+        // In a real scenario, facetCuts would be properly constructed
+        // For simplicity, this example assumes facetCuts are pre-formatted
+        ExampleDiamond diamond = new ExampleDiamond(
+            diamondOwner,
+            new DiamondMod.FacetCut[](0) // Placeholder for actual facet cuts
+        );
 
-    // Example of calling a function through the diamond proxy (assuming it's implemented by an added facet)
-    function callFacetFunction(address _diamondAddress, bytes memory _calldata) public {
-        IDiamond(_diamondAddress).diamondCut(_calldata);
-    }
+        // In a real deployment, you would add facets here.
+        // For example, adding DiamondCutFacet and DiamondLoupeFacet:
+        // address diamondCutFacetAddress = address(new DiamondCutFacet());
+        // address diamondLoupeFacetAddress = address(new DiamondLoupeFacet());
+        //
+        // diamond.diamondCut(
+        //     address(diamondCutFacetAddress),
+        //     FacetCutAction.Add,
+        //     DiamondCutFacet.getSelectors()
+        // );
+        // diamond.diamondCut(
+        //     address(diamondLoupeFacetAddress),
+        //     FacetCutAction.Add,
+        //     DiamondLoupeFacet.getSelectors()
+        // );
 
-    // Example of sending ether to the diamond
-    function sendEtherToDiamond(address _diamondAddress) public payable {
-        (bool success, ) = _diamondAddress.call{value: msg.value}("");
-        require(success, "Failed to send ether to diamond");
+        deployedDiamond = address(diamond);
     }
 }`}
 </ExpandableCode>
@@ -119,15 +130,15 @@ contract DeployExampleDiamond {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Initialize the diamond with all necessary facets and the owner during deployment.
-- Ensure facet cut data is correctly formatted with actions, facet addresses, and function selectors.
-- Use the fallback and receive functions for handling arbitrary calls and ether transfers to the diamond proxy as intended.
+- Initialize the diamond with facets and owner using the constructor.
+- Ensure facet cut data is correctly formatted before passing to the constructor.
+- Use the fallback and receive functions to allow Ether reception by the diamond.
 </Callout>
 
 ## Security Considerations
 
 <Callout type="warning" title="Security">
-The constructor should only be called once during deployment. The fallback and receive functions should be reviewed for intended behavior, especially if they are intended to forward calls or handle value. Ensure that added facets implement robust access control for sensitive operations.
+Follow standard Solidity security practices. Ensure that the `diamondOwner` is set to a secure address. Validate the integrity and source of facet addresses and selectors during initialization.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -153,4 +164,4 @@ The constructor should only be called once during deployment. The fallback and r
   <WasThisHelpful pageId="ExampleDiamond" />
 </div>
 
-<LastUpdated date="2025-12-30T17:29:22.328Z" />
+<LastUpdated date="2025-12-30T17:42:36.183Z" />

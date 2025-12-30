@@ -1,7 +1,7 @@
 ---
 sidebar_position: 1
 title: "OwnerTwoStepsMod"
-description: "Two-step ownership transfer logic"
+description: "Two-step contract ownership transfer"
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/access/OwnerTwoSteps/OwnerTwoStepsMod.sol"
 ---
 
@@ -21,14 +21,14 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Two-step ownership transfer logic
+Two-step contract ownership transfer
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Implements ERC-173 two-step ownership transfer.
-- All functions are `internal` for use within facets.
-- Utilizes diamond storage for owner and pending owner state.
-- Includes `requireOwner` for access control checks.
+- Implements ERC-173 two-step ownership transfer logic.
+- Provides `internal` functions for seamless integration with custom facets.
+- Utilizes diamond storage for shared ownership state.
+- Includes `renounceOwnership` to set the owner to address(0).
 </Callout>
 
 <Callout type="info" title="Module Usage">
@@ -37,7 +37,7 @@ This module provides internal functions for use in your custom facets. Import it
 
 ## Overview
 
-This module provides ERC-173 compliant two-step ownership transfer logic. Facets import this module to manage contract ownership securely, preventing accidental self-renouncement or unauthorized transfers. Changes are managed via shared diamond storage.
+This module provides a two-step ownership transfer mechanism, ensuring secure transitions of contract control. Facets can import and utilize these functions to manage ownership, preventing accidental or unauthorized changes. Ownership changes are immediately reflected across all facets interacting with the shared diamond storage.
 
 ---
 
@@ -260,8 +260,9 @@ import {OwnerTwoStepsMod} from "@compose/access/OwnerTwoSteps/OwnerTwoStepsMod";
 contract OwnerFacet {
     OwnerTwoStepsMod internal ownerMod;
 
-    // Assume ownerMod is initialized with the correct storage slot
-    // via a diamond initializer or facet deployment.
+    constructor(address ownerModAddress) {
+        ownerMod = OwnerTwoStepsMod(ownerModAddress);
+    }
 
     function transferContractOwnership(address _newOwner) external {
         ownerMod.transferOwnership(_newOwner);
@@ -271,21 +272,12 @@ contract OwnerFacet {
         ownerMod.acceptOwnership();
     }
 
-    function renounceContractOwnership() external {
-        ownerMod.renounceOwnership();
-    }
-
     function getCurrentOwner() external view returns (address) {
         return ownerMod.owner();
     }
 
     function getPendingOwner() external view returns (address) {
         return ownerMod.pendingOwner();
-    }
-
-    function checkOwnerPermissions() external view {
-        ownerMod.requireOwner();
-        // ... owner-only logic ...
     }
 }`}
 </ExpandableCode>
@@ -295,14 +287,14 @@ contract OwnerFacet {
 
 <Callout type="tip" title="Best Practice">
 - Call `transferOwnership` to initiate a transfer and `acceptOwnership` to finalize it.
-- Ensure the caller is the current owner before calling `transferOwnership` or `renounceOwnership`.
-- Handle `OwnerUnauthorizedAccount` and `OwnerAlreadyRenounced` errors for robust operation.
+- Use `requireOwner()` within facets to restrict sensitive operations to the current owner.
+- Handle `OwnerUnauthorizedAccount` errors when unauthorized callers attempt ownership actions.
 </Callout>
 
 ## Integration Notes
 
 <Callout type="success" title="Shared Storage">
-This module reads and writes to diamond storage locations defined by `OWNER_STORAGE_POSITION` and `PENDING_OWNER_STORAGE_POSITION`. The `OwnerStorage` and `PendingOwnerStorage` structs are accessed via inline assembly. Changes to ownership state are immediately reflected across all facets that interact with these storage slots.
+This module manages ownership state within the diamond's storage. It uses inline assembly to read and write to the `OWNER_STORAGE_POSITION` and `PENDING_OWNER_STORAGE_POSITION`, ensuring atomic updates visible to all facets. The `OwnerStorage` and `PendingOwnerStorage` structs define the layout for this state.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -322,4 +314,4 @@ This module reads and writes to diamond storage locations defined by `OWNER_STOR
   <WasThisHelpful pageId="OwnerTwoStepsMod" />
 </div>
 
-<LastUpdated date="2025-12-30T17:27:02.725Z" />
+<LastUpdated date="2025-12-30T17:40:13.048Z" />

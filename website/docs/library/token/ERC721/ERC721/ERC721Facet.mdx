@@ -25,15 +25,15 @@ ERC-721 token management within a diamond
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Exposes standard ERC-721 functions for token management.
-- Utilizes diamond storage pattern for shared state.
-- Supports `safeTransferFrom` for secure token transfers.
-- Functions are routed through the diamond proxy for upgradeability.
+- Exposes standard ERC-721 functions including `ownerOf`, `balanceOf`, `transferFrom`, and `approve`.
+- Provides `tokenURI` for accessing token metadata.
+- Utilizes the diamond storage pattern for state management.
+- Facilitates upgradeability by separating ERC-721 logic into a distinct facet.
 </Callout>
 
 ## Overview
 
-This facet implements ERC-721 token functionality as external functions within a diamond. It routes calls through the diamond proxy and accesses shared ERC-721 storage. Developers add this facet to expose token ownership, transfers, and approvals while maintaining diamond upgradeability.
+This facet implements ERC-721 token functionality for a diamond proxy. It provides external functions to manage token ownership, approvals, and metadata. Developers integrate this facet to expose a full ERC-721 interface while leveraging the diamond's upgradeability and storage pattern.
 
 ---
 
@@ -568,29 +568,29 @@ error ERC721InvalidOperator(address _operator);
 import {IDiamond} from "@compose/diamond/IDiamond.sol";
 import {ERC721Facet} from "@compose/token/ERC721/ERC721/ERC721Facet";
 
-contract DiamondConsumer {
+contract MyDiamondUser {
     address immutable diamondAddress;
 
     constructor(address _diamondAddress) {
         diamondAddress = _diamondAddress;
     }
 
-    function getOwnerOfToken(uint256 _tokenId) public view returns (address) {
+    function getTokenOwner(uint256 tokenId) public view returns (address) {
         IDiamond diamond = IDiamond(diamondAddress);
-        // Calls the ownerOf function implemented by ERC721Facet
-        return diamond.ownerOf(_tokenId);
+        // ERC721Facet.ownerOf is routed through the diamond proxy
+        return diamond.ownerOf(tokenId);
     }
 
-    function transferToken(address _to, uint256 _tokenId) public {
+    function approveTokenTransfer(address to, uint256 tokenId) public {
         IDiamond diamond = IDiamond(diamondAddress);
-        // Calls the transferFrom function implemented by ERC721Facet
-        diamond.transferFrom(msg.sender, _to, _tokenId);
+        // ERC721Facet.approve is routed through the diamond proxy
+        diamond.approve(to, tokenId);
     }
 
-    function approveToken(address _to, uint256 _tokenId) public {
+    function transferToken(address from, address to, uint256 tokenId) public {
         IDiamond diamond = IDiamond(diamondAddress);
-        // Calls the approve function implemented by ERC721Facet
-        diamond.approve(_to, _tokenId);
+        // ERC721Facet.transferFrom is routed through the diamond proxy
+        diamond.transferFrom(from, to, tokenId);
     }
 }`}
 </ExpandableCode>
@@ -599,15 +599,15 @@ contract DiamondConsumer {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Initialize the `name`, `symbol`, and `baseURI` in the `ERC721Storage` struct during diamond deployment.
-- Enforce ownership checks on state-changing functions like `approve` and `transferFrom`.
-- Ensure the receiver contract can handle ERC-721 tokens when using `safeTransferFrom` functions.
+- Initialize the `name`, `symbol`, and `baseURI` fields during diamond deployment.
+- Ensure the `ERC721Mod` module is correctly integrated for storage access.
+- Verify that all ERC-721 specific errors are handled by the calling contract or client.
 </Callout>
 
 ## Security Considerations
 
 <Callout type="warning" title="Security">
-Input validation is performed for `_tokenId` and addresses. Functions like `transferFrom`, `safeTransferFrom`, `approve`, and `setApprovalForAll` require correct caller permissions and approvals. Reentrancy is mitigated by following the checks-effects-interactions pattern. Errors like `ERC721InvalidOwner`, `ERC721NonexistentToken`, `ERC721InsufficientApproval`, and `ERC721InvalidSender` are used to revert on invalid conditions.
+Input validation is performed within the facet functions to prevent common ERC-721 vulnerabilities. Functions such as `transferFrom` and `safeTransferFrom` include checks for ownership and approvals. Errors like `ERC721InvalidOwner`, `ERC721NonexistentToken`, and `ERC721InsufficientApproval` are emitted to indicate specific failure conditions. Follow standard Solidity security practices for external calls and state management.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -657,4 +657,4 @@ Input validation is performed for `_tokenId` and addresses. Functions like `tran
   <WasThisHelpful pageId="ERC721Facet" />
 </div>
 
-<LastUpdated date="2025-12-30T17:28:48.566Z" />
+<LastUpdated date="2025-12-30T17:42:04.461Z" />

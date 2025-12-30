@@ -1,7 +1,7 @@
 ---
 sidebar_position: 2
 title: "OwnerFacet"
-description: "Manage contract ownership and transferability"
+description: "Manages contract ownership and transfers"
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/access/Owner/OwnerFacet.sol"
 ---
 
@@ -21,19 +21,19 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Manage contract ownership and transferability
+Manages contract ownership and transfers
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
 - Exposes external functions for ownership management.
-- Utilizes diamond storage for owner state.
-- Compatible with ERC-2535 diamond standard.
-- Provides functions for viewing, transferring, and renouncing ownership.
+- Integrates with the diamond storage pattern using a defined storage slot.
+- Provides `owner`, `transferOwnership`, and `renounceOwnership` functions.
+- Emits `OwnershipTransferred` event upon ownership change.
 </Callout>
 
 ## Overview
 
-This facet provides core ownership management functionality for a diamond. It exposes external functions to view the current owner and transfer ownership, leveraging diamond storage for state persistence. Developers integrate this facet to establish clear ownership and control over diamond operations.
+This facet provides ownership management for a Compose diamond. It exposes functions to retrieve the current owner, transfer ownership to a new address, and renounce ownership. Developers integrate this facet to establish a clear owner for administrative tasks and upgrades within the diamond pattern.
 
 ---
 
@@ -149,32 +149,31 @@ error OwnerUnauthorizedAccount();
 {`pragma solidity >=0.8.30;
 
 import { IDiamond } from "@compose/diamond/IDiamond.sol";
-import { OwnerFacet } from "@compose/access/Owner/OwnerFacet";
+import { OwnerFacet } from "@compose/access/Owner/OwnerFacet.sol";
 
 contract Deployer {
-    address immutable DIAMOND_ADDRESS;
+    address immutable diamondAddress;
 
-    constructor(address diamondAddress) {
-        DIAMOND_ADDRESS = diamondAddress;
+    constructor(address _diamondAddress) {
+        diamondAddress = _diamondAddress;
     }
 
-    function setOwner(address newOwner) external {
-        IDiamond diamond = IDiamond(DIAMOND_ADDRESS);
-        // Call transferOwnership through the diamond proxy
-        // Assumes OwnerFacet is already added and selectors are registered
-        diamond.transferOwnership(newOwner);
+    function transferDiamondOwnership(address _newOwner) external {
+        IDiamond diamond = IDiamond(diamondAddress);
+        // Call through the diamond proxy to access the OwnerFacet function
+        diamond.transferOwnership(_newOwner);
     }
 
-    function getOwner() external view returns (address) {
-        IDiamond diamond = IDiamond(DIAMOND_ADDRESS);
-        // Call owner through the diamond proxy
-        return diamond.owner();
-    }
-
-    function renounceContractOwnership() external {
-        IDiamond diamond = IDiamond(DIAMOND_ADDRESS);
-        // Call renounceOwnership through the diamond proxy
+    function renounceDiamondOwnership() external {
+        IDiamond diamond = IDiamond(diamondAddress);
+        // Call through the diamond proxy to access the OwnerFacet function
         diamond.renounceOwnership();
+    }
+
+    function getDiamondOwner() external view returns (address) {
+        IDiamond diamond = IDiamond(diamondAddress);
+        // Call through the diamond proxy to access the OwnerFacet function
+        return diamond.owner();
     }
 }`}
 </ExpandableCode>
@@ -183,15 +182,15 @@ contract Deployer {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Initialize the owner address during the diamond's deployment phase.
-- Ensure only authorized accounts can call `transferOwnership` and `renounceOwnership`.
-- Verify compatibility with other access control facets before upgrading.
+- Initialize the owner address during diamond deployment.
+- Use `transferOwnership` to safely transfer control to a new address.
+- Call `renounceOwnership` only when the contract should become ownerless.
 </Callout>
 
 ## Security Considerations
 
 <Callout type="warning" title="Security">
-The `transferOwnership` function allows setting the owner to `address(0)`, effectively renouncing ownership. Ensure that ownership is transferred to a valid and secure address or renounced intentionally. All state-changing functions are expected to be protected by appropriate access control mechanisms, typically enforced by other facets or the diamond itself. Follow standard Solidity security practices for input validation.
+The `transferOwnership` function should be called by the current owner. Input validation for `_newOwner` is handled by the function logic (setting to address(0) renounces ownership). Access to state-changing functions is implicitly controlled by the diamond's routing mechanism, ensuring only the facet's intended functions are callable externally. Follow standard Solidity security practices.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -223,4 +222,4 @@ The `transferOwnership` function allows setting the owner to `address(0)`, effec
   <WasThisHelpful pageId="OwnerFacet" />
 </div>
 
-<LastUpdated date="2025-12-30T17:27:22.897Z" />
+<LastUpdated date="2025-12-30T17:40:33.633Z" />
