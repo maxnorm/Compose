@@ -1,7 +1,7 @@
 ---
 sidebar_position: 1
 title: "DiamondMod"
-description: "Manage diamond facets and storage during deployment and runtime."
+description: "Manages diamond facets and internal proxy logic."
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/diamond/DiamondMod.sol"
 ---
 
@@ -21,13 +21,13 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Manage diamond facets and storage during deployment and runtime.
+Manages diamond facets and internal proxy logic.
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Restricts facet additions to the initial deployment phase, enforcing a stable diamond structure post-deployment.
-- Provides a fallback mechanism (`diamondFallback`) to dynamically route function calls to the correct facet based on selector.
-- Exposes internal storage access (`getStorage`) for advanced diagnostic or upgrade scenarios.
+- Manages the mapping of function selectors to facet addresses.
+- Facilitates dynamic function dispatch via `diamondFallback`.
+- Enforces deployment-time constraints for facet additions.
 </Callout>
 
 <Callout type="info" title="Module Usage">
@@ -36,7 +36,7 @@ This module provides internal functions for use in your custom facets. Import it
 
 ## Overview
 
-The DiamondMod module provides core logic for managing facets within a diamond proxy. It handles adding facets during initial deployment and provides a fallback mechanism to route external calls to the appropriate facet. This ensures composability and efficient execution of diamond functions.
+The DiamondMod provides core functionality for managing facets within a Compose diamond. It handles the addition of facets and their associated function selectors, ensuring proper registration. This module is crucial for the diamond's ability to delegate calls to the correct facet implementations.
 
 ---
 
@@ -196,24 +196,19 @@ error NoBytecodeAtAddress(address _contractAddress, string _message);
 {`pragma solidity ^0.8.30;
 
 import {IDiamondMod} from "@compose/contracts/diamond/interfaces/IDiamondMod.sol";
-import {DiamondCut} from "@compose/contracts/diamond/events/DiamondCut.sol";
 
 contract MyFacet {
-    // Assume DiamondMod is deployed and its address is known
-    IDiamondMod internal diamondMod;
+    IDiamondMod public diamondMod;
 
-    constructor(address _diamondModAddress) {
-        diamondMod = IDiamondMod(_diamondModAddress);
+    constructor(address _diamondMod) {
+        diamondMod = IDiamondMod(_diamondMod);
     }
 
-    function addMyFacet() external {
-        // Example of adding facets during deployment (not typical for runtime)
-        // diamondMod.addFacets(...); // This function is restricted to deployment
-    }
-
-    // Example of how diamondFallback might be used internally if a facet needed to access it
-    function callUnknownFunction(bytes memory _calldata) external returns (bytes memory) {
-        return diamondMod.diamondFallback(_calldata);
+    function someFacetFunction() external {
+        // Example of calling a function that might be handled by diamondFallback
+        // This is illustrative; direct calls to diamondFallback are less common
+        // as the proxy handles dispatch automatically.
+        // diamondMod.diamondFallback(...);
     }
 }`}
 </ExpandableCode>
@@ -221,15 +216,15 @@ contract MyFacet {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Use `addFacets` strictly during the initial diamond deployment phase. It is not intended for runtime facet additions.
-- Implement robust error handling by checking for Compose-specific errors like `CannotAddFunctionToDiamondThatAlreadyExists` and `FunctionNotFound`.
-- Understand that `diamondFallback` is the primary mechanism for routing calls; ensure your diamond's logic correctly dispatches to facets.
+- Facet additions are restricted to the initial diamond deployment phase to maintain upgrade safety.
+- Utilize custom errors for explicit error handling during facet registration and function dispatch.
+- Ensure facet function selectors are unique to prevent ambiguous dispatch.
 </Callout>
 
 ## Integration Notes
 
 <Callout type="success" title="Shared Storage">
-DiamondMod stores facet information and function selector mappings. The `addFacets` function is designed to be called only during the initial diamond deployment to populate these mappings. The `diamondFallback` function reads from this storage to determine which facet should handle an incoming call. Any changes to facet mappings or storage layout made by `addFacets` are persistent and visible to all facets interacting with the diamond.
+DiamondMod interacts directly with the diamond's storage to maintain the mapping of function selectors to facet addresses. The `addFacets` function is designed to be called only during the initial deployment of the diamond. `diamondFallback` is the internal dispatch mechanism, invoked by the diamond proxy to find and execute the appropriate facet function based on the incoming call's selector.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -237,7 +232,7 @@ DiamondMod stores facet information and function selector mappings. The `addFace
     items={[
       {
         title: "DiamondCutMod",
-        href: "/docs/library/diamond",
+        href: "/docs/library/diamond/DiamondCutMod",
         description: "Related module in diamond",
         icon: "📦"
       }
@@ -249,4 +244,4 @@ DiamondMod stores facet information and function selector mappings. The `addFace
   <WasThisHelpful pageId="DiamondMod" />
 </div>
 
-<LastUpdated date="2025-12-28T04:49:07.717Z" />
+<LastUpdated date="2025-12-30T14:36:41.499Z" />

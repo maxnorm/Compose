@@ -1,7 +1,7 @@
 ---
 sidebar_position: 1
 title: "ERC721Mod"
-description: "Internal logic for ERC-721 token management."
+description: "Internal logic for ERC-721 token management within a diamond."
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/token/ERC721/ERC721/ERC721Mod.sol"
 ---
 
@@ -21,13 +21,13 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Internal logic for ERC-721 token management.
+Internal logic for ERC-721 token management within a diamond.
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Provides internal utility functions for ERC-721 compliant token operations.
-- Directly interacts with diamond storage for token state management.
-- Supports minting, burning, and transferring tokens with robust validation.
+- Provides core ERC-721 operations: minting, burning, and transfers.
+- Enforces essential ERC-721 invariants and checks for invalid operations.
+- Leverages diamond storage for persistent token state management.
 </Callout>
 
 <Callout type="info" title="Module Usage">
@@ -36,7 +36,7 @@ This module provides internal functions for use in your custom facets. Import it
 
 ## Overview
 
-The ERC721Mod provides essential internal functions for managing ERC-721 tokens within a Compose diamond. It handles core operations like minting, burning, and transferring tokens, ensuring state integrity through diamond storage access. This module enables facets to implement ERC-721 compliance safely and efficiently.
+The ERC721Mod provides essential internal logic for managing ERC-721 tokens using the diamond storage pattern. It enables facets to mint, burn, and transfer tokens while enforcing core ERC-721 rules. This module simplifies integration by abstracting complex state management into reusable functions.
 
 ---
 
@@ -314,20 +314,33 @@ error ERC721NonexistentToken(uint256 _tokenId);
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity ^0.8.30;
 
-import {IERC721Mod } from "@compose/modules/ERC721Mod.sol";
-import {IERC721Storage } from "@compose/storage/ERC721Storage.sol";
+import {IERC721Mod } from "../mods/ERC721Mod.sol";
 
 contract MyERC721Facet {
-    address constant ERC721_STORAGE_SLOT = 0x1234567890; // Example slot
+    // Assume ERC721Mod is deployed and its address is known
+    IERC721Mod private immutable _erc721Mod;
 
-    function mintToken(address _to, uint256 _tokenId) external {
-        IERC721Storage erc721Storage = IERC721Storage(ERC721_STORAGE_SLOT);
-        IERC721Mod(address(this)).mint(erc721Storage, _to, _tokenId);
+    constructor(address _erc721ModAddress) {
+        _erc721Mod = IERC721Mod(_erc721ModAddress);
     }
 
+    /**
+     * @notice Mints a new ERC721 token.
+     * @param _to The address to mint the token to.
+     * @param _tokenId The ID of the token to mint.
+     */
+    function mintToken(address _to, uint256 _tokenId) external {
+        _erc721Mod.mint(_to, _tokenId);
+    }
+
+    /**
+     * @notice Transfers ownership of an ERC721 token.
+     * @param _from The current owner's address.
+     * @param _to The new owner's address.
+     * @param _tokenId The ID of the token to transfer.
+     */
     function transferToken(address _from, address _to, uint256 _tokenId) external {
-        IERC721Storage erc721Storage = IERC721Storage(ERC721_STORAGE_SLOT);
-        IERC721Mod(address(this)).transferFrom(erc721Storage, _from, _to, _tokenId);
+        _erc721Mod.transferFrom(_from, _to, _tokenId);
     }
 }`}
 </ExpandableCode>
@@ -335,15 +348,15 @@ contract MyERC721Facet {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Ensure the ERC721Storage struct is correctly initialized and accessible via its designated slot.
-- Always validate `_to` addresses to prevent minting to the zero address.
-- Handle potential `ERC721IncorrectOwner`, `ERC721InsufficientApproval`, and `ERC721NonexistentToken` errors appropriately in facet logic.
+- Ensure proper access control is implemented in facets calling `mint` and `burn` functions to prevent unauthorized operations.
+- Handle potential revert reasons like `ERC721NonexistentToken`, `ERC721InvalidSender`, and `ERC721InvalidReceiver` in calling facets.
+- When upgrading facets that interact with ERC721Mod, be mindful of storage layout compatibility and ensure the module's storage slot remains consistent.
 </Callout>
 
 ## Integration Notes
 
 <Callout type="success" title="Shared Storage">
-This module accesses ERC721 state via the `ERC721Storage` struct, which is expected to reside at a predefined storage slot within the diamond. Facets using this module must pass the `ERC721Storage` instance to the module functions. The `getStorage` function can be used by facets to retrieve the storage layout. Ensure that the storage slot for `ERC721Storage` is correctly configured and that no other facets or modules overwrite this critical state.
+The ERC721Mod utilizes a predefined storage slot for its internal ERC-721 storage struct. Facets that interact with this module must be aware that operations like `mint`, `burn`, and `transferFrom` directly modify this shared diamond storage. The `getStorage` function can be used by facets to read the current state of the ERC-721 data, but direct modification of the storage struct by external facets is discouraged to maintain module integrity.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -351,37 +364,37 @@ This module accesses ERC721 state via the `ERC721Storage` struct, which is expec
     items={[
       {
         title: "ERC20PermitMod",
-        href: "/docs/library/token/ERC20/ERC20Permit",
+        href: "/docs/library/token/ERC20/ERC20Permit/ERC20PermitMod",
         description: "Related module in token",
         icon: "📦"
       },
       {
         title: "ERC20Mod",
-        href: "/docs/library/token/ERC20/ERC20",
+        href: "/docs/library/token/ERC20/ERC20/ERC20Mod",
         description: "Related module in token",
         icon: "📦"
       },
       {
         title: "ERC20BridgeableMod",
-        href: "/docs/library/token/ERC20/ERC20Bridgeable",
+        href: "/docs/library/token/ERC20/ERC20Bridgeable/ERC20BridgeableMod",
         description: "Related module in token",
         icon: "📦"
       },
       {
         title: "ERC1155Mod",
-        href: "/docs/library/token/ERC1155",
+        href: "/docs/library/token/ERC1155/ERC1155Mod",
         description: "Related module in token",
         icon: "📦"
       },
       {
         title: "ERC6909Mod",
-        href: "/docs/library/token/ERC6909/ERC6909",
+        href: "/docs/library/token/ERC6909/ERC6909/ERC6909Mod",
         description: "Related module in token",
         icon: "📦"
       },
       {
         title: "ERC721EnumerableMod",
-        href: "/docs/library/token/ERC721/ERC721Enumerable",
+        href: "/docs/library/token/ERC721/ERC721Enumerable/ERC721EnumerableMod",
         description: "Related module in token",
         icon: "📦"
       }
@@ -393,4 +406,4 @@ This module accesses ERC721 state via the `ERC721Storage` struct, which is expec
   <WasThisHelpful pageId="ERC721Mod" />
 </div>
 
-<LastUpdated date="2025-12-28T04:48:34.951Z" />
+<LastUpdated date="2025-12-30T14:36:10.067Z" />

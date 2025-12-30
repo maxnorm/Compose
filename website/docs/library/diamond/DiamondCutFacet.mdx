@@ -1,7 +1,7 @@
 ---
 sidebar_position: 3
 title: "DiamondCutFacet"
-description: "Manage diamond facet additions, replacements, and removals."
+description: "Manage diamond facets and functions"
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/diamond/DiamondCutFacet.sol"
 ---
 
@@ -21,19 +21,18 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Manage diamond facet additions, replacements, and removals.
+Manage diamond facets and functions
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Supports adding new facets to the diamond proxy.
-- Enables replacing existing facet functions with new implementations.
-- Allows for the removal of functions from the diamond's routing.
-- Can optionally execute an initialization function after the cut.
+- Programmatic addition, replacement, and removal of facets.
+- Supports adding/replacing/removing multiple functions in a single transaction.
+- Enables arbitrary `delegatecall` execution for facet initialization or complex upgrade logic.
 </Callout>
 
 ## Overview
 
-The DiamondCutFacet provides the core functionality for upgrading a diamond proxy. It allows for the addition, replacement, and removal of functions (facets) within the diamond, enabling dynamic contract logic updates and extensions.
+The DiamondCutFacet allows for the programmatic management of facets and functions within a Compose diamond. It enables adding, replacing, and removing functions, as well as executing arbitrary `delegatecall` operations during upgrades. This facet is crucial for diamond upgrades and dynamic facet composition.
 
 ---
 
@@ -265,77 +264,46 @@ error InitializationFunctionReverted(address _initializationContractAddress, byt
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity ^0.8.30;
 
-import {IDiamondCut} from "@compose/diamond/contracts/facets/DiamondCutFacet.sol";
+import {DiamondCutFacet} from "@compose-protocol/diamond-contracts/contracts/facets/DiamondCutFacet.sol";
+import {IDiamondCut} from "@compose-protocol/diamond-contracts/contracts/interfaces/IDiamondCut.sol";
 
-contract MyDiamond {
-    // Assume DiamondProxy is deployed with DiamondCutFacet
-    IDiamondCut internal diamondCutFacet;
+contract Deployer {
+    address immutable diamondAbi;
 
-    constructor(address _diamondProxyAddress) {
-        diamondCutFacet = IDiamondCut(_diamondProxyAddress);
+    constructor(address _diamondAbi) {
+        diamondAbi = _diamondAbi;
     }
 
-    function upgradeDiamond() external {
-        // Example: Add a new facet
-        address newFacetAddress = address(0x123...); // Address of the new facet contract
-        bytes4[] memory functionsToAdd = new bytes4[](1);
-        functionsToAdd[0] = this.newFunction.selector; // Selector for a function in the new facet
+    function upgradeDiamond(address _newFacetAddress, bytes4[] memory _selectors) public {
+        DiamondCutFacet diamondCutFacet = DiamondCutFacet(diamondAbi);
 
-        // Example: Replace an existing facet's function
-        address existingFacetAddress = address(0x456...); // Address of the existing facet contract
-        bytes4[] memory functionsToReplace = new bytes4[](1);
-        functionsToReplace[0] = this.oldFunction.selector; // Selector for a function in the existing facet
-
-        // Example: Remove a facet's function
-        address facetToRemoveFromAddress = address(0x789...); // Address of the facet to remove function from
-        bytes4[] memory functionsToRemove = new bytes4[](1);
-        functionsToRemove[0] = this.deprecatedFunction.selector; // Selector for a function to remove
-
-        // Construct the diamond cut data
-        IDiamondCut.FacetCut[] memory cuts = new IDiamondCut.FacetCut[](3);
-
-        cuts[0] = IDiamondCut.FacetCut({
-            facetAddress: newFacetAddress,
-            action: IDiamondCut.FacetAction.Add,
-            functionSelectors: functionsToAdd
+        // Example: Add a new facet and its functions
+        IDiamondCut.FacetCut[] memory cut = new IDiamondCut.FacetCut[](1);
+        cut[0] = IDiamondCut.FacetCut({
+            facetAddress: _newFacetAddress,
+            action: IDiamondCut.Action.Add,
+            functionSelectors: _selectors
         });
 
-        cuts[1] = IDiamondCut.FacetCut({
-            facetAddress: existingFacetAddress,
-            action: IDiamondCut.FacetAction.Replace,
-            functionSelectors: functionsToReplace
-        });
+        // You can also include replace or remove actions in the same cut array
 
-        cuts[2] = IDiamondCut.FacetCut({
-            facetAddress: facetToRemoveFromAddress,
-            action: IDiamondCut.FacetAction.Remove,
-            functionSelectors: functionsToRemove
-        });
-
-        // Execute the diamond cut
-        // The owner of the diamond must have permissions to call this
-        diamondCutFacet.diamondCut(cuts, address(0), "");
+        diamondCutFacet.diamondCut(cut, address(0), ""); // address(0) and "" for no init call
     }
-
-    // Dummy functions for example selectors
-    function newFunction() external pure returns (uint256) { return 0; }
-    function oldFunction() external pure returns (uint256) { return 0; }
-    function deprecatedFunction() external pure returns (uint256) { return 0; }
 }`}
 </ExpandableCode>
 
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Ensure the caller has the necessary ownership or administrative role to execute `diamondCut`.
-- Carefully review the `FacetCut` actions (Add, Replace, Remove) and associated function selectors before execution to prevent unintended logic changes.
-- Always provide a valid `facetAddress` for Add and Replace actions, and zero address for Remove actions as per EIP-2535.
+- Ensure the `diamondCut` function is called by the diamond's owner or an authorized address.
+- Carefully manage function selectors to avoid conflicts or unintended overwrites.
+- Use the `diamondCut` function with an initialization call for deploying new facets that require setup.
 </Callout>
 
 ## Security Considerations
 
 <Callout type="warning" title="Security">
-Access to `diamondCut` must be strictly controlled, typically by an owner or a dedicated role, to prevent unauthorized upgrades. Incorrectly specifying facet addresses or function selectors can lead to broken functionality or security vulnerabilities. Ensure that replaced or removed functions are not critical for existing operations or that alternative logic is in place. Reentrancy is not a direct concern for the `diamondCut` function itself, but any initialization function called via `diamondCut` must be guarded against reentrancy if it modifies sensitive state.
+Access to `diamondCut` must be strictly controlled, typically to the diamond's owner, to prevent unauthorized modifications. Incorrectly managing function selectors can lead to broken functionality or security vulnerabilities. Ensure that any initialization function called via `diamondCut` is thoroughly audited, as it executes with the diamond's context.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -343,19 +311,19 @@ Access to `diamondCut` must be strictly controlled, typically by an owner or a d
     items={[
       {
         title: "DiamondCutMod",
-        href: "/docs/library/diamond",
+        href: "/docs/library/diamond/DiamondCutMod",
         description: "Module used by DiamondCutFacet",
         icon: "📦"
       },
       {
         title: "DiamondInspectFacet",
-        href: "/docs/library/diamond",
+        href: "/docs/library/diamond/DiamondInspectFacet",
         description: "Related facet in diamond",
         icon: "💎"
       },
       {
         title: "ExampleDiamond",
-        href: "/docs/library/diamond/example",
+        href: "/docs/library/diamond/example/ExampleDiamond",
         description: "Related facet in diamond",
         icon: "💎"
       }
@@ -367,4 +335,4 @@ Access to `diamondCut` must be strictly controlled, typically by an owner or a d
   <WasThisHelpful pageId="DiamondCutFacet" />
 </div>
 
-<LastUpdated date="2025-12-28T04:49:17.725Z" />
+<LastUpdated date="2025-12-30T14:36:51.591Z" />

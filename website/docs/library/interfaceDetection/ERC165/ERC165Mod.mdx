@@ -1,7 +1,7 @@
 ---
 sidebar_position: 1
 title: "ERC165Mod"
-description: "Implement ERC-165 interface detection."
+description: "ERC-165 interface detection and registration."
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/interfaceDetection/ERC165/ERC165Mod.sol"
 ---
 
@@ -21,13 +21,12 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Implement ERC-165 interface detection.
+ERC-165 interface detection and registration.
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Implements the ERC-165 standard for interface detection.
-- Allows facets to declare support for specific interfaces.
-- Facilitates dynamic discovery of facet capabilities within a diamond.
+- Registers ERC-165 supported interfaces at a fixed storage slot.
+- Provides a public getter for interface support checks.
 </Callout>
 
 <Callout type="info" title="Module Usage">
@@ -36,7 +35,7 @@ This module provides internal functions for use in your custom facets. Import it
 
 ## Overview
 
-The ERC165Mod provides the necessary storage and internal functions to comply with the ERC-165 standard for interface detection. By registering supported interfaces during initialization, facets can leverage this module to declare their capabilities, enhancing composability and discoverability within the diamond.
+This module provides the core logic for ERC-165 interface detection within a Compose diamond. It allows facets to register supported interfaces and enables other contracts to query them via the diamond proxy.
 
 ---
 
@@ -116,36 +115,34 @@ Register that a contract supports an interface Call this function during initial
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity ^0.8.30;
 
-import {LibERC165, IERC165} from "@compose/modules/erc165/LibERC165.sol";
+import {LibERC165} from "@compose/modules/erc165/LibERC165.sol";
+import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
-contract MyFacet {
-    function initialize() external {
-        // Register ERC721 interface support during facet initialization
+contract MyERC721Facet {
+    function initialize(address _diamondProxy) external {
+        // Register ERC721 interface support
         LibERC165.registerInterface(type(IERC721).interfaceId);
     }
 
-    function supportsInterface(bytes4 interfaceId) external view override(IERC165) returns (bool) {
-        return LibERC165.supportsInterface(interfaceId);
-    }
+    // ... other ERC721 functions ...
 }`}
 </ExpandableCode>
 
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Register all supported interfaces during facet initialization to ensure accurate reporting.
-- Call `supportsInterface` to check for interface support, leveraging the module's internal logic.
-- Ensure the `ERC165Mod` storage is correctly positioned and initialized within the diamond's deployment process.
+- Call `registerInterface` during facet initialization to declare supported ERC-165 interfaces.
+- Ensure the ERC165 storage slot is correctly managed by the diamond proxy.
 </Callout>
 
 ## Integration Notes
 
 <Callout type="success" title="Shared Storage">
-The ERC165Mod utilizes a dedicated storage slot for its `ERC165Storage` struct. Facets can access this storage via the `getStorage` internal function. Interface IDs are registered using `LibERC165.registerInterface` during facet initialization. The `supportsInterface` function checks against the registered interfaces, including the diamond's own capabilities if it inherits from `IDiamondCut`.
+ERC165Mod uses a fixed storage slot for its `ERC165Storage` struct. Facets should call `LibERC165.registerInterface` during their initialization to add their supported interfaces to this storage. The diamond proxy will route calls to `supportsInterface` to this facet, which will internally use the registered interfaces.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
   <WasThisHelpful pageId="ERC165Mod" />
 </div>
 
-<LastUpdated date="2025-12-28T04:48:51.185Z" />
+<LastUpdated date="2025-12-30T14:36:23.611Z" />

@@ -1,7 +1,7 @@
 ---
 sidebar_position: 2
 title: "ERC721Facet"
-description: "Manages ERC-721 token ownership, approvals, and metadata."
+description: "Manages ERC-721 token ownership, transfers, and approvals."
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/token/ERC721/ERC721/ERC721Facet.sol"
 ---
 
@@ -21,19 +21,18 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Manages ERC-721 token ownership, approvals, and metadata.
+Manages ERC-721 token ownership, transfers, and approvals.
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Full ERC-721 compliance for token management.
-- Support for token metadata retrieval via `tokenURI`.
-- Internal transfer mechanism (`internalTransferFrom`) for robust state management.
-- Explicit error handling for common ERC-721 issues.
+- Implements the core ERC-721 interface for NFTs.
+- Supports token ownership tracking and metadata retrieval.
+- Enables both individual token approvals and operator approvals for managing multiple tokens.
 </Callout>
 
 ## Overview
 
-The ERC721Facet provides the core functionality for managing ERC-721 compliant non-fungible tokens within a Compose diamond. It handles token ownership, transfer logic, approvals, and metadata retrieval, enabling a robust NFT collection experience.
+The ERC721Facet provides a standard interface for managing Non-Fungible Tokens (NFTs) within a Compose diamond. It handles token ownership, retrieval of metadata, and approval mechanisms for transfers, enabling a composable NFT collection.
 
 ---
 
@@ -563,43 +562,29 @@ error ERC721InvalidOperator(address _operator);
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity ^0.8.30;
 
-import {IERC721Facet} from "@compose/contracts/src/facets/ERC721Facet.sol";
+import { IERC721Facet } from "@compose-protocol/core/src/facets/erc721/IERC721Facet.sol";
 
 contract ERC721Consumer {
-    address diamondAddress;
+    IERC721Facet public immutable erc721Facet;
 
-    // ERC721Facet selectors
-    bytes4 private constant _NAME_SELECTOR = IERC721Facet.name.selector;
-    bytes4 private constant _SYMBOL_SELECTOR = IERC721Facet.symbol.selector;
-    bytes4 private constant _OWNEROF_SELECTOR = IERC721Facet.ownerOf.selector;
-    bytes4 private constant _TOKENURI_SELECTOR = IERC721Facet.tokenURI.selector;
-
-    constructor(address _diamondAddress) {
-        diamondAddress = _diamondAddress;
+    constructor(address _erc721FacetAddress) {
+        erc721Facet = IERC721Facet(_erc721FacetAddress);
     }
 
-    function getTokenName() public view returns (string memory) {
-        (bool success, bytes memory data) = diamondAddress.call(abi.encodeWithSelector(_NAME_SELECTOR));
-        require(success, "ERC721Facet: failed to get name");
-        return abi.decode(data, (string));
+    function getTokenName() external view returns (string memory) {
+        return erc721Facet.name();
     }
 
-    function getTokenSymbol() public view returns (string memory) {
-        (bool success, bytes memory data) = diamondAddress.call(abi.encodeWithSelector(_SYMBOL_SELECTOR));
-        require(success, "ERC721Facet: failed to get symbol");
-        return abi.decode(data, (string));
+    function getTokenSymbol() external view returns (string memory) {
+        return erc721Facet.symbol();
     }
 
-    function getOwnerOfToken(uint256 tokenId) public view returns (address) {
-        (bool success, bytes memory data) = diamondAddress.call(abi.encodeWithSelector(_OWNEROF_SELECTOR, tokenId));
-        require(success, "ERC721Facet: failed to get owner");
-        return abi.decode(data, (address));
+    function getOwnerOfToken(uint256 tokenId) external view returns (address) {
+        return erc721Facet.ownerOf(tokenId);
     }
 
-    function getTokenMetadataURI(uint256 tokenId) public view returns (string memory) {
-        (bool success, bytes memory data) = diamondAddress.call(abi.encodeWithSelector(_TOKENURI_SELECTOR, tokenId));
-        require(success, "ERC721Facet: failed to get token URI");
-        return abi.decode(data, (string));
+    function transferToken(address to, uint256 tokenId) external {
+        erc721Facet.transferFrom(msg.sender, to, tokenId);
     }
 }`}
 </ExpandableCode>
@@ -607,15 +592,15 @@ contract ERC721Consumer {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Initialize the facet with the correct storage slot using `getStorage` before any operations.
-- Ensure appropriate access control is implemented by the diamond proxy for sensitive functions like `approve` and `transferFrom` if not intended to be permissionless.
-- Carefully consider the implications of `setApprovalForAll` on operator permissions to prevent unintended access to a user's entire NFT collection.
+- Initialize the facet with the correct storage pointer during diamond deployment.
+- Ensure proper access control for functions that modify state (approve, setApprovalForAll, transferFrom).
+- Utilize the `safeTransferFrom` variants when interacting with potentially unknown receiver contracts.
 </Callout>
 
 ## Security Considerations
 
 <Callout type="warning" title="Security">
-This facet relies on the diamond proxy for access control and ensuring that only authorized addresses can perform state-changing operations. Input validation for token IDs and addresses is crucial. The `safeTransferFrom` functions include checks to prevent accidental transfers to non-compliant contracts, mitigating reentrancy risks associated with token receivers.
+This facet adheres to standard ERC-721 security patterns. Key considerations include ensuring that `approve` and `setApprovalForAll` calls originate from the token owner or an approved operator. The `internalTransferFrom` function includes necessary checks for ownership and approvals to prevent unauthorized transfers. `safeTransferFrom` includes checks for receiver contract compatibility.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -623,37 +608,37 @@ This facet relies on the diamond proxy for access control and ensuring that only
     items={[
       {
         title: "ERC721Mod",
-        href: "/docs/library/token/ERC721/ERC721",
+        href: "/docs/library/token/ERC721/ERC721/ERC721Mod",
         description: "Module used by ERC721Facet",
         icon: "📦"
       },
       {
         title: "ERC20PermitFacet",
-        href: "/docs/library/token/ERC20/ERC20Permit",
+        href: "/docs/library/token/ERC20/ERC20Permit/ERC20PermitFacet",
         description: "Related facet in token",
         icon: "💎"
       },
       {
         title: "ERC20Facet",
-        href: "/docs/library/token/ERC20/ERC20",
+        href: "/docs/library/token/ERC20/ERC20/ERC20Facet",
         description: "Related facet in token",
         icon: "💎"
       },
       {
         title: "ERC20BurnFacet",
-        href: "/docs/library/token/ERC20/ERC20",
+        href: "/docs/library/token/ERC20/ERC20/ERC20BurnFacet",
         description: "Related facet in token",
         icon: "💎"
       },
       {
         title: "ERC20BridgeableFacet",
-        href: "/docs/library/token/ERC20/ERC20Bridgeable",
+        href: "/docs/library/token/ERC20/ERC20Bridgeable/ERC20BridgeableFacet",
         description: "Related facet in token",
         icon: "💎"
       },
       {
         title: "ERC1155Facet",
-        href: "/docs/library/token/ERC1155",
+        href: "/docs/library/token/ERC1155/ERC1155Facet",
         description: "Related facet in token",
         icon: "💎"
       }
@@ -665,4 +650,4 @@ This facet relies on the diamond proxy for access control and ensuring that only
   <WasThisHelpful pageId="ERC721Facet" />
 </div>
 
-<LastUpdated date="2025-12-28T04:48:39.735Z" />
+<LastUpdated date="2025-12-30T14:36:13.592Z" />

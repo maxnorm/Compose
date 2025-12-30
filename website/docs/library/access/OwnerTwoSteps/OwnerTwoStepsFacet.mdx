@@ -25,14 +25,14 @@ Manages contract ownership with a two-step transfer process.
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Two-step ownership transfer (`transferOwnership` then `acceptOwnership`) for enhanced security.
-- Explicit getter functions (`owner`, `pendingOwner`) to retrieve ownership status.
-- Ability to renounce ownership, making the contract effectively immutable regarding owner-driven changes.
+- Two-step ownership transfer for enhanced security.
+- `transferOwnership` initiates a transfer, `acceptOwnership` finalizes it.
+- `renounceOwnership` allows relinquishing ownership.
 </Callout>
 
 ## Overview
 
-This facet provides a robust ownership management system for Compose diamonds, enforcing a two-step `transferOwnership` and `acceptOwnership` mechanism. This pattern enhances security by requiring explicit confirmation from the new owner before ownership is fully transferred, mitigating risks associated with accidental or malicious ownership changes.
+This facet provides a robust ownership management system for Compose diamonds, enforcing a two-step ownership transfer to prevent accidental ownership loss. It allows the current owner to initiate a transfer and a new owner to accept it, ensuring secure control transitions.
 
 ---
 
@@ -198,22 +198,20 @@ error OwnerUnauthorizedAccount();
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity ^0.8.30;
 
-import {IOwnerTwoStepsFacet} from "@compose/facets/owner/OwnerTwoStepsFacet.sol";
+import {IOwnerTwoStepsFacet} from "@compose/contracts/src/facets/OwnerTwoSteps/IOwnerTwoStepsFacet.sol";
 
-contract OwnerConsumer {
+contract OwnerManager {
     IOwnerTwoStepsFacet public ownerFacet;
 
-    constructor(address _ownerFacetAddress) {
-        ownerFacet = IOwnerTwoStepsFacet(_ownerFacetAddress);
+    constructor(address _diamondAddress) {
+        ownerFacet = IOwnerTwoStepsFacet(_diamondAddress);
     }
 
-    function proposeNewOwner(address _newOwner) external {
-        // Assuming the caller is the current owner
+    function initiateOwnershipTransfer(address _newOwner) external {
         ownerFacet.transferOwnership(_newOwner);
     }
 
-    function acceptNewOwner() external {
-        // Assuming the caller is the pending owner
+    function acceptNewOwnership() external {
         ownerFacet.acceptOwnership();
     }
 
@@ -221,7 +219,7 @@ contract OwnerConsumer {
         return ownerFacet.owner();
     }
 
-    function getPendingOwnerAddress() external view returns (address) {
+    function getPendingOwner() external view returns (address) {
         return ownerFacet.pendingOwner();
     }
 }`}
@@ -230,19 +228,19 @@ contract OwnerConsumer {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Initialize the `OwnerTwoStepsFacet` during diamond deployment and assign it to the current owner.
-- Ensure that `transferOwnership` is only callable by the current owner and `acceptOwnership` is only callable by the pending owner.
-- Store the facet's storage slots (`OWNER_STORAGE_POSITION`, `PENDING_OWNER_STORAGE_POSITION`) securely and access them via the provided getter functions.
+- Initialize the facet with the diamond proxy address to interact with its storage.
+- Ensure the caller is the current owner when calling `transferOwnership`.
+- The pending owner must call `acceptOwnership` to finalize the transfer.
 </Callout>
 
 ## Security Considerations
 
 <Callout type="warning" title="Security">
-The `transferOwnership` function should only be callable by the current owner to prevent unauthorized ownership changes. The `acceptOwnership` function must only be callable by the pending owner. The `renounceOwnership` function permanently relinquishes ownership and should be used with extreme caution. Direct manipulation of storage slots via `getOwnerStorage` and `getPendingOwnerStorage` should be avoided unless absolutely necessary and with a full understanding of the implications.
+Only the current owner can initiate a transfer. The pending owner must explicitly accept the ownership. Accidental calls to `transferOwnership` without subsequent acceptance by the intended recipient will not result in a permanent ownership change. Ensure the initial owner address is correctly set during deployment.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
   <WasThisHelpful pageId="OwnerTwoStepsFacet" />
 </div>
 
-<LastUpdated date="2025-12-28T04:46:55.580Z" />
+<LastUpdated date="2025-12-30T14:34:21.956Z" />

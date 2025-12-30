@@ -1,7 +1,7 @@
 ---
 sidebar_position: 2
 title: "ERC20BridgeableFacet"
-description: "Facilitates cross-chain ERC-20 token transfers and management."
+description: "ERC-20Bridgeable facet for Compose diamonds"
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/token/ERC20/ERC20Bridgeable/ERC20BridgeableFacet.sol"
 ---
 
@@ -21,18 +21,19 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Facilitates cross-chain ERC-20 token transfers and management.
+ERC-20Bridgeable facet for Compose diamonds
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Supports cross-chain minting and burning operations for ERC-20 tokens.
-- Enforces access control, allowing only addresses with the `trusted-bridge` role to execute cross-chain mint/burn functions.
-- Includes internal checks to validate bridge operator trust and token bridge configurations.
+- Self-contained facet with no imports or inheritance
+- Only `external` and `internal` function visibility
+- Follows Compose readability-first conventions
+- Ready for diamond integration
 </Callout>
 
 ## Overview
 
-The ERC20BridgeableFacet enables secure cross-chain operations for ERC-20 tokens within a Compose diamond. It provides functions for minting and burning tokens on behalf of trusted bridge operators and includes essential checks for token bridge validity and access control.
+ERC-20Bridgeable facet for Compose diamonds
 
 ---
 
@@ -338,91 +339,36 @@ error ERC20InsufficientBalance(address _from, uint256 _accountBalance, uint256 _
   </Accordion>
 </AccordionGroup>
 
-## Usage Example
-
-<ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
-{`pragma solidity ^0.8.30;
-
-import {IERC20BridgeableFacet} from "@compose-protocol/diamond/contracts/facets/ERC20Bridgeable/IERC20BridgeableFacet.sol";
-
-contract ERC20BridgeableConsumer {
-    // Assume diamondProxy is an instance of the diamond proxy contract
-    IERC20BridgeableFacet public immutable erc20BridgeableFacet;
-
-    constructor(address _diamondProxyAddress) {
-        erc20BridgeableFacet = IERC20BridgeableFacet(_diamondProxyAddress);
-    }
-
-    /**
-     * @notice Mints ERC20 tokens via the diamond proxy.
-     * @param _token The address of the ERC20 token.
-     * @param _to The recipient address.
-     * @param _amount The amount to mint.
-     */
-    function consumerMintTokens(address _token, address _to, uint256 _amount) external {
-        // This function would typically be called by a trusted bridge operator
-        // The actual call is routed to the ERC20BridgeableFacet within the diamond
-        erc20BridgeableFacet.crosschainMint(_token, _to, _amount);
-    }
-
-    /**
-     * @notice Burns ERC20 tokens via the diamond proxy.
-     * @param _token The address of the ERC20 token.
-     * @param _from The sender address.
-     * @param _amount The amount to burn.
-     */
-    function consumerBurnTokens(address _token, address _from, uint256 _amount) external {
-        // This function would typically be called by a trusted bridge operator
-        // The actual call is routed to the ERC20BridgeableFacet within the diamond
-        erc20BridgeableFacet.crosschainBurn(_token, _from, _amount);
-    }
-}`}
-</ExpandableCode>
-
-## Best Practices
-
-<Callout type="tip" title="Best Practice">
-- Ensure the `trusted-bridge` role is correctly assigned to authorized bridge operator addresses via the Access Control facet.
-- When interacting with the facet, use the diamond proxy address to ensure calls are routed correctly.
-- Leverage `getERC20Storage` and `getAccessControlStorage` to retrieve necessary configuration data before performing operations.
-</Callout>
-
-## Security Considerations
-
-<Callout type="warning" title="Security">
-Access to `crosschainMint` and `crosschainBurn` functions is restricted to addresses holding the `trusted-bridge` role. The `checkTokenBridge` internal function prevents calls from untrusted or zero addresses. Ensure proper role management to prevent unauthorized minting or burning.
-</Callout>
-
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
   <RelatedDocs
     items={[
       {
         title: "ERC20BridgeableMod",
-        href: "/docs/library/token/ERC20/ERC20Bridgeable",
+        href: "/docs/library/token/ERC20/ERC20Bridgeable/ERC20BridgeableMod",
         description: "Module used by ERC20BridgeableFacet",
         icon: "📦"
       },
       {
         title: "ERC20PermitFacet",
-        href: "/docs/library/token/ERC20/ERC20Permit",
+        href: "/docs/library/token/ERC20/ERC20Permit/ERC20PermitFacet",
         description: "Related facet in token",
         icon: "💎"
       },
       {
         title: "ERC20Facet",
-        href: "/docs/library/token/ERC20/ERC20",
+        href: "/docs/library/token/ERC20/ERC20/ERC20Facet",
         description: "Related facet in token",
         icon: "💎"
       },
       {
         title: "ERC20BurnFacet",
-        href: "/docs/library/token/ERC20/ERC20",
+        href: "/docs/library/token/ERC20/ERC20/ERC20BurnFacet",
         description: "Related facet in token",
         icon: "💎"
       },
       {
         title: "ERC20Facet",
-        href: "/docs/library/token/ERC20/ERC20",
+        href: "/docs/library/token/ERC20/ERC20/ERC20Facet",
         description: "Base facet for ERC20BridgeableFacet",
         icon: "💎"
       }
@@ -434,4 +380,4 @@ Access to `crosschainMint` and `crosschainBurn` functions is restricted to addre
   <WasThisHelpful pageId="ERC20BridgeableFacet" />
 </div>
 
-<LastUpdated date="2025-12-28T04:47:59.433Z" />
+<LastUpdated date="2025-12-30T14:35:28.320Z" />

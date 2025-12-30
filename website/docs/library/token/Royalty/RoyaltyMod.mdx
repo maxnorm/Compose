@@ -1,7 +1,7 @@
 ---
 sidebar_position: 1
 title: "RoyaltyMod"
-description: "Manages ERC-2981 royalties, supporting token-specific and default settings."
+description: "Manages ERC-2981 royalties with default and token-specific settings."
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/token/Royalty/RoyaltyMod.sol"
 ---
 
@@ -21,13 +21,13 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Manages ERC-2981 royalties, supporting token-specific and default settings.
+Manages ERC-2981 royalties with default and token-specific settings.
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Supports both token-specific and a global default royalty configuration.
-- Implements the ERC-2981 `royaltyInfo` function logic, returning royalty details based on token ID and sale price.
-- Provides functions to set, delete, and query royalty information, enabling flexible royalty management.
+- Supports both default and token-specific royalty configurations.
+- Implements the standard `royaltyInfo` function as per ERC-2981.
+- Provides explicit functions for setting, deleting, and resetting royalty data.
 </Callout>
 
 <Callout type="info" title="Module Usage">
@@ -36,7 +36,7 @@ This module provides internal functions for use in your custom facets. Import it
 
 ## Overview
 
-This module provides a standardized implementation for ERC-2981 royalty payments, allowing diamonds to manage royalty information for individual tokens and a global default. It ensures that royalty distributions are handled correctly according to the standard, enhancing composability and revenue sharing for creators.
+This module implements ERC-2981 royalty logic, allowing diamonds to define both a default royalty for all tokens and specific royalties for individual tokens. It ensures efficient storage access and provides clear functions for setting, deleting, and querying royalty information, supporting composable NFT royalty standards.
 
 ---
 
@@ -299,25 +299,44 @@ error ERC2981InvalidTokenRoyaltyReceiver(uint256 _tokenId, address _receiver);
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity ^0.8.30;
 
-import {IRoyaltyMod} from "@compose/modules/royalty/IRoyaltyMod.sol";
+import {IRoyaltyMod} from "path/to/IRoyaltyMod.sol";
 
-contract RoyaltyFacet {
-    // Assuming IRoyaltyMod is correctly interfaced with the diamond proxy
-    IRoyaltyMod public royaltyMod;
+contract RoyaltyConsumerFacet {
+    // Assume IRoyaltyMod is correctly interfaced and the diamond proxy is set up.
+    IRoyaltyMod internal royaltyMod;
 
-    // Function to set a token-specific royalty
-    function setTokenRoyalty(uint256 tokenId, address receiver, uint16 basisPoints) external {
-        royaltyMod.setTokenRoyalty(tokenId, receiver, basisPoints);
+    function _setRoyaltyMod(address _royaltyModAddress) internal {
+        royaltyMod = IRoyaltyMod(_royaltyModAddress);
     }
 
-    // Function to get royalty information for a token
-    function queryRoyaltyInfo(uint256 tokenId, uint256 salePrice) external view returns (address receiver, uint256 fee) {
-        return royaltyMod.royaltyInfo(tokenId, salePrice);
+    /**
+     * @notice Sets a specific royalty for a token.
+     * @param _tokenId The ID of the token.
+     * @param _receiver The address to receive royalty payments.
+     * @param _feeBasisPoints The royalty fee in basis points (e.g., 500 for 5%).
+     */
+    function setTokenSpecificRoyalty(uint256 _tokenId, address _receiver, uint256 _feeBasisPoints) external {
+        royaltyMod.setTokenRoyalty(_tokenId, _receiver, _feeBasisPoints);
     }
 
-    // Function to delete token-specific royalty
-    function resetTokenRoyalty(uint256 tokenId) external {
-        royaltyMod.resetTokenRoyalty(tokenId);
+    /**
+     * @notice Queries royalty information for a token.
+     * @param _tokenId The ID of the token.
+     * @param _salePrice The sale price of the token.
+     * @return receiver The address receiving the royalty.
+     * @return feeAmount The calculated royalty amount.
+     */
+    function getTokenRoyaltyInfo(uint256 _tokenId, uint256 _salePrice) external view returns (address receiver, uint256 feeAmount) {
+        (receiver, feeAmount) = royaltyMod.royaltyInfo(_tokenId, _salePrice);
+        return (receiver, feeAmount);
+    }
+
+    /**
+     * @notice Resets a token's royalty to use the default setting.
+     * @param _tokenId The ID of the token.
+     */
+    function resetTokenSpecificRoyalty(uint256 _tokenId) external {
+        royaltyMod.resetTokenRoyalty(_tokenId);
     }
 }`}
 </ExpandableCode>
@@ -325,15 +344,15 @@ contract RoyaltyFacet {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Always validate receiver addresses and basis points before setting royalties to prevent errors and misuse.
-- Use `deleteDefaultRoyalty` and `resetTokenRoyalty` judiciously to ensure predictable royalty behavior.
-- Be aware that royalty settings are stored and managed by the diamond proxy, affecting all facets interacting with this module.
+- Always validate receiver addresses and fee basis points before setting royalties to prevent errors.
+- Use `resetTokenRoyalty` to revert token-specific settings, ensuring clarity and predictable fallback behavior.
+- Be aware that `deleteDefaultRoyalty` will cause `royaltyInfo` to return `(address(0), 0)` for tokens without specific overrides.
 </Callout>
 
 ## Integration Notes
 
 <Callout type="success" title="Shared Storage">
-The RoyaltyMod utilizes a predefined storage slot for its internal `RoyaltyStorage` struct. Access to this storage is managed via inline assembly within the `getStorage` function. Facets interacting with this module will call its functions, which in turn read from and write to this dedicated storage. Changes to default royalties will affect all tokens that do not have specific royalty settings configured. Token-specific royalties override default settings for the designated token ID.
+The RoyaltyMod stores royalty data in a predefined slot within the diamond's storage. The `getStorage` function provides direct access to this storage, which is crucial for internal operations. Facets interacting with this module should be aware that modifications to default or token-specific royalties are immediately reflected in subsequent calls to `royaltyInfo`. The order of operations matters: setting token-specific royalties takes precedence over default royalties, and resetting a token's royalty reverts it to using the default.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -341,37 +360,37 @@ The RoyaltyMod utilizes a predefined storage slot for its internal `RoyaltyStora
     items={[
       {
         title: "RoyaltyFacet",
-        href: "/docs/library/token/Royalty",
+        href: "/docs/library/token/Royalty/RoyaltyFacet",
         description: "Facet using RoyaltyMod",
         icon: "💎"
       },
       {
         title: "ERC20PermitMod",
-        href: "/docs/library/token/ERC20/ERC20Permit",
+        href: "/docs/library/token/ERC20/ERC20Permit/ERC20PermitMod",
         description: "Related module in token",
         icon: "📦"
       },
       {
         title: "ERC20Mod",
-        href: "/docs/library/token/ERC20/ERC20",
+        href: "/docs/library/token/ERC20/ERC20/ERC20Mod",
         description: "Related module in token",
         icon: "📦"
       },
       {
         title: "ERC20BridgeableMod",
-        href: "/docs/library/token/ERC20/ERC20Bridgeable",
+        href: "/docs/library/token/ERC20/ERC20Bridgeable/ERC20BridgeableMod",
         description: "Related module in token",
         icon: "📦"
       },
       {
         title: "ERC1155Mod",
-        href: "/docs/library/token/ERC1155",
+        href: "/docs/library/token/ERC1155/ERC1155Mod",
         description: "Related module in token",
         icon: "📦"
       },
       {
         title: "ERC6909Mod",
-        href: "/docs/library/token/ERC6909/ERC6909",
+        href: "/docs/library/token/ERC6909/ERC6909/ERC6909Mod",
         description: "Related module in token",
         icon: "📦"
       }
@@ -383,4 +402,4 @@ The RoyaltyMod utilizes a predefined storage slot for its internal `RoyaltyStora
   <WasThisHelpful pageId="RoyaltyMod" />
 </div>
 
-<LastUpdated date="2025-12-28T04:48:46.778Z" />
+<LastUpdated date="2025-12-30T14:36:22.363Z" />

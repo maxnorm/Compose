@@ -1,7 +1,7 @@
 ---
 sidebar_position: 1
 title: "AccessControlMod"
-description: "Manage roles and permissions within a diamond."
+description: "Manage role-based access control within a diamond."
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/access/AccessControl/AccessControlMod.sol"
 ---
 
@@ -21,14 +21,13 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Manage roles and permissions within a diamond.
+Manage role-based access control within a diamond.
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Role-based access control for granular permission management.
-- Functions to grant, revoke, and check for role ownership (`grantRole`, `revokeRole`, `hasRole`).
-- Support for setting and changing the administrative role for any given role (`setRoleAdmin`).
-- Built-in reversion with `AccessControlUnauthorizedAccount` for unauthorized access attempts.
+- Enables granular permission management through roles.
+- Supports granting, revoking, and checking role assignments for accounts.
+- Allows dynamic configuration of role administration.
 </Callout>
 
 <Callout type="info" title="Module Usage">
@@ -37,7 +36,7 @@ This module provides internal functions for use in your custom facets. Import it
 
 ## Overview
 
-The AccessControl module provides a robust system for managing roles and permissions within a Compose diamond. It allows for granular control over which accounts can perform specific actions by assigning them roles. This is crucial for maintaining security and ensuring that only authorized entities can interact with sensitive functions.
+This module provides a robust role-based access control (RBAC) system, enabling granular permission management for diamond functions. It ensures that only authorized accounts can perform sensitive operations, enhancing security and maintainability by decoupling permissions from specific facet implementations.
 
 ---
 
@@ -402,24 +401,33 @@ error AccessControlUnauthorizedAccount(address _account, bytes32 _role);
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity ^0.8.30;
 
-import {IAccessControlMod} from "@compose-protocol/diamond-contracts/contracts/modules/access/AccessControlMod.sol";
+import {IAccessControlMod} from "@compose/modules/AccessControlMod.sol";
 
 contract MyFacet {
     IAccessControlMod internal accessControl;
 
-    function initialize(address accessControlAddress) external {
-        accessControl = IAccessControlMod(accessControlAddress);
+    // Assume accessControl is initialized elsewhere (e.g., in a diamond initializer)
+    function setAccessControl(address _accessControl) external {
+        accessControl = IAccessControlMod(_accessControl);
     }
 
-    function grantAdminRoleToUser(address user) external {
-        bytes32 adminRole = accessControl.getStorage().DEFAULT_ADMIN_ROLE;
-        accessControl.grantRole(adminRole, user);
+    /**
+     * @notice Grants the MANAGER role to an account.
+     * @param _account The account to grant the role to.
+     */
+    function grantManagerRole(address _account) external {
+        // Ensure the caller has the role that can grant MANAGER role (typically ADMIN)
+        accessControl.requireRole(accessControl.getRoleAdmin(AccessControlMod.MANAGER_ROLE), msg.sender);
+        accessControl.grantRole(AccessControlMod.MANAGER_ROLE, _account);
     }
 
-    function performAdminAction() external {
-        bytes32 adminRole = accessControl.getStorage().DEFAULT_ADMIN_ROLE;
-        accessControl.requireRole(adminRole);
-        // Perform admin action
+    /**
+     * @notice Checks if an account has the OPERATOR role.
+     * @param _account The account to check.
+     * @return bool True if the account has the role, false otherwise.
+     */
+    function doesAccountHaveOperatorRole(address _account) external view returns (bool) {
+        return accessControl.hasRole(AccessControlMod.OPERATOR_ROLE, _account);
     }
 }`}
 </ExpandableCode>
@@ -427,15 +435,15 @@ contract MyFacet {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Use `requireRole` to enforce access control checks directly within facet functions, reverting with `AccessControlUnauthorizedAccount` on failure.
-- Define custom roles and manage their admin roles using `setRoleAdmin` to maintain a clear hierarchy and control over role assignments.
-- Ensure the AccessControl module is initialized with appropriate default admin roles during diamond deployment.
+- Store the `AccessControlMod` facet address securely and use it consistently across facets requiring authorization checks.
+- Define custom roles with specific administrative roles using `setRoleAdmin` to create a clear hierarchy.
+- Always use `requireRole` within facets to enforce access control before executing sensitive operations, reverting with `AccessControlUnauthorizedAccount` on failure.
 </Callout>
 
 ## Integration Notes
 
 <Callout type="success" title="Shared Storage">
-The AccessControl module stores its state within the diamond's storage. Facets interact with this module via its interface. The `getStorage()` function provides direct access to the module's internal storage struct, which contains mappings for roles, role admins, and account role assignments. Any changes made to role assignments or admin roles through the AccessControl module's functions are immediately reflected and accessible to all facets interacting with the diamond.
+The `AccessControlMod` stores role assignments and role admin mappings. Facets interact with this module via its interface. When `grantRole`, `revokeRole`, or `setRoleAdmin` are called, the state within the `AccessControlMod` facet is updated. Functions like `hasRole` and `requireRole` read from this state. It is crucial that the `AccessControlMod` facet is initialized and its address is correctly set for all interacting facets. Changes to role assignments or admin roles are immediately visible to all facets calling the respective read functions.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -443,25 +451,25 @@ The AccessControl module stores its state within the diamond's storage. Facets i
     items={[
       {
         title: "OwnerTwoStepsMod",
-        href: "/docs/library/access/OwnerTwoSteps",
+        href: "/docs/library/access/OwnerTwoSteps/OwnerTwoStepsMod",
         description: "Related module in access",
         icon: "📦"
       },
       {
         title: "AccessControlPausableMod",
-        href: "/docs/library/access/AccessControlPausable",
+        href: "/docs/library/access/AccessControlPausable/AccessControlPausableMod",
         description: "Related module in access",
         icon: "📦"
       },
       {
         title: "AccessControlTemporalMod",
-        href: "/docs/library/access/AccessControlTemporal",
+        href: "/docs/library/access/AccessControlTemporal/AccessControlTemporalMod",
         description: "Related module in access",
         icon: "📦"
       },
       {
         title: "OwnerMod",
-        href: "/docs/library/access/Owner",
+        href: "/docs/library/access/Owner/OwnerMod",
         description: "Related module in access",
         icon: "📦"
       }
@@ -473,4 +481,4 @@ The AccessControl module stores its state within the diamond's storage. Facets i
   <WasThisHelpful pageId="AccessControlMod" />
 </div>
 
-<LastUpdated date="2025-12-28T04:47:27.236Z" />
+<LastUpdated date="2025-12-30T14:34:58.418Z" />

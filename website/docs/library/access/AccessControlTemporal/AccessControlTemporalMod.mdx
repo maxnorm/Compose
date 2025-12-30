@@ -1,7 +1,7 @@
 ---
 sidebar_position: 1
 title: "AccessControlTemporalMod"
-description: "Manages role assignments with expiration timestamps."
+description: "Grants and manages time-bound roles for access control."
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/access/AccessControlTemporal/AccessControlTemporalMod.sol"
 ---
 
@@ -21,14 +21,13 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Manages role assignments with expiration timestamps.
+Grants and manages time-bound roles for access control.
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Grants roles with specific expiration timestamps.
-- Allows checking if a role assignment is still valid (non-expired).
-- Automatically revokes expired roles via `requireValidRole` checks.
-- Provides functions to retrieve role expiry and underlying storage.
+- Roles can be granted with a specific expiry timestamp.
+- Automatically enforces role expiry, revoking access without manual intervention.
+- Provides functions to check role validity and expiry status.
 </Callout>
 
 <Callout type="info" title="Module Usage">
@@ -37,7 +36,7 @@ This module provides internal functions for use in your custom facets. Import it
 
 ## Overview
 
-This module extends role-based access control by introducing temporal constraints on role assignments. It allows granting roles that automatically expire, enhancing security and manageability for time-sensitive permissions within a diamond.
+This module extends standard access control by allowing roles to be granted with an expiry timestamp. It ensures that access is automatically revoked once the role's validity period concludes, enhancing security and automating permission management within Compose diamonds.
 
 ---
 
@@ -434,24 +433,22 @@ error AccessControlUnauthorizedAccount(address _account, bytes32 _role);
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity ^0.8.30;
 
-import {IAccessControlTemporalMod} from "@compose/modules/AccessControlTemporalMod.sol";
+import {IAccessControlTemporalMod} from "@compose/modules/access-control-temporal/IAccessControlTemporalMod.sol";
 
 contract MyFacet {
     IAccessControlTemporalMod internal accessControlTemporalMod;
 
-    function initialize(address _accessControlTemporalModAddress) external {
-        accessControlTemporalMod = IAccessControlTemporalMod(_accessControlTemporalModAddress);
+    constructor(address _accessControlTemporalMod) {
+        accessControlTemporalMod = IAccessControlTemporalMod(_accessControlTemporalMod);
     }
 
-    function grantAdminRoleWithExpiry(address _account, uint64 _expiry) external {
-        // Assuming ADMIN_ROLE is defined elsewhere or passed in
-        bytes32 ADMIN_ROLE = keccak256("ADMIN_ROLE");
-        accessControlTemporalMod.grantRoleWithExpiry(ADMIN_ROLE, _account, _expiry);
+    function grantUserRole(address _user, bytes32 _role, uint64 _expiry) external {
+        accessControlTemporalMod.grantRoleWithExpiry(_role, _user, _expiry);
     }
 
-    function checkAdminRole(address _account) external view {
-        bytes32 ADMIN_ROLE = keccak256("ADMIN_ROLE");
-        accessControlTemporalMod.requireValidRole(ADMIN_ROLE, _account);
+    function checkUserRole(address _user, bytes32 _role) external view {
+        accessControlTemporalMod.requireValidRole(_role, _user);
+        // Role is valid and not expired
     }
 }`}
 </ExpandableCode>
@@ -459,15 +456,15 @@ contract MyFacet {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Use `requireValidRole` to enforce time-bound access control checks, preventing operations by accounts with expired roles.
-- Implement clear expiry strategies for roles to ensure timely revocation and maintain security posture.
-- Monitor `RoleGrantedWithExpiry` and `TemporalRoleRevoked` events to track temporal role lifecycle.
+- Use `grantRoleWithExpiry` with a future timestamp to enforce time-limited permissions.
+- Call `requireValidRole` before executing sensitive operations to ensure the caller's role is still active.
+- Ensure the `AccessControlTemporalMod` facet is correctly initialized with the diamond proxy.
 </Callout>
 
 ## Integration Notes
 
 <Callout type="success" title="Shared Storage">
-The `AccessControlTemporalMod` manages its own storage, which is separate from the core AccessControl storage. Facets interacting with this module should obtain its address through the diamond proxy and use the `IAccessControlTemporalMod` interface. The `requireValidRole` function includes checks for both standard role authorization and temporal expiration, ensuring that only currently valid role assignments permit access. The module's storage layout should be considered when composing other modules to avoid slot collisions.
+The `AccessControlTemporalMod` module manages its own storage, distinct from the core Access Control module. When using `grantRoleWithExpiry`, ensure that the `_expiry` timestamp is set correctly. The `requireValidRole` function checks both the existence of the role assignment and its validity against the current block timestamp. Facets interacting with this module should be aware of potential `AccessControlRoleExpired` reverts.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -475,19 +472,19 @@ The `AccessControlTemporalMod` manages its own storage, which is separate from t
     items={[
       {
         title: "AccessControlTemporalFacet",
-        href: "/docs/library/access/AccessControlTemporal",
+        href: "/docs/library/access/AccessControlTemporal/AccessControlTemporalFacet",
         description: "Facet using AccessControlTemporalMod",
         icon: "💎"
       },
       {
         title: "OwnerTwoStepsMod",
-        href: "/docs/library/access/OwnerTwoSteps",
+        href: "/docs/library/access/OwnerTwoSteps/OwnerTwoStepsMod",
         description: "Related module in access",
         icon: "📦"
       },
       {
         title: "AccessControlPausableMod",
-        href: "/docs/library/access/AccessControlPausable",
+        href: "/docs/library/access/AccessControlPausable/AccessControlPausableMod",
         description: "Related module in access",
         icon: "📦"
       }
@@ -499,4 +496,4 @@ The `AccessControlTemporalMod` manages its own storage, which is separate from t
   <WasThisHelpful pageId="AccessControlTemporalMod" />
 </div>
 
-<LastUpdated date="2025-12-28T04:47:15.833Z" />
+<LastUpdated date="2025-12-30T14:34:45.449Z" />
