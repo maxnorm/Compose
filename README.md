@@ -1,7 +1,7 @@
 # Compose 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) [![Discord](https://img.shields.io/badge/Discord-Join%20Chat-blue.svg)](https://discord.gg/DCBD2UKbxc)
 
-> **⚠️ Early Stage**: Compose is currently in development and only available to contributors. It is **NOT production ready**.
+> **⚠️ Early Stage Beta**: Compose is currently in development and only available to contributors and early adopters. It is **NOT production ready**.
 
 ## What is Compose?
 
@@ -38,7 +38,7 @@ We build high-quality smart contracts by <a href="https://compose.diamonds/docs/
 forge install Perfect-Abstractions/Compose@v0.1.0
 ```
 
-Add to your `remappings.txt` with: ```@perfect-abstractions/compose/=src/```
+Add to a `remappings.txt` file with the following line: ```@perfect-abstractions/compose/=src/```
 
 ### Hardhat / npm
 

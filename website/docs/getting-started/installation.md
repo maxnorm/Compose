@@ -4,108 +4,59 @@ sidebar_position: 1
 
 # Installation
 
-Get up and running with Compose in just a few minutes.
+Get up and running with Composein your own project.
 
-## Prerequisites
+## Install with Foundry
 
-Before you begin, make sure you have the following installed:
+Before you begin, make sure you have:
 
-- **[Foundry](https://book.getfoundry.sh/getting-started/installation)** - Fast, portable Ethereum development framework
-- **Git** - For cloning repositories
-- **Node.js 20+** - (Optional) For running tests and scripts
+- **[Foundry](https://book.getfoundry.sh/getting-started/installation)**
+- **Git** (for resolving submodules dependencies)
 
-## Quick Start
-
-### Option 1: Clone the Repository (Contributors)
-
-If you're contributing to Compose:
+Install Compose into an existing Foundry project:
 
 ```bash
-# Clone the repository
-git clone https://github.com/Perfect-Abstractions/Compose.git
-cd Compose
-
-# Install dependencies
-forge install
-
-# Build the project
-forge build
-
-# Run tests
-forge test
+forge install Perfect-Abstractions/Compose@v0.1.0
 ```
 
-### Option 2: Install as Dependency (Coming Soon)
+Then configure a `remappings.txt` file at your project root with the following line:
+```text
+@perfect-abstractions/compose/=lib/compose/src/
+```
 
-In the future, you'll be able to install Compose as a Foundry dependency:
+## Install with Hardhat (npm)
 
+Before you begin, make sure you have:
+- **[Hardhat](https://hardhat.org/docs/getting-started)**
+- **[Node.js](https://nodejs.org/)**
+
+Install Compose into an existing Hardhat project by running:
 ```bash
-# This will be available when Compose reaches stable release
-forge install Perfect-Abstractions/Compose
-```
-
-## Project Structure
-
-After installation, you'll find the following structure:
+npm install @perfect-abstractions/compose
 
 ```
-Compose/
-├── src/                    # Source contracts
-│   ├── facets/            # Facet implementations
-│   ├── libraries/         # Library helpers
-│   └── interfaces/        # Standard interfaces
-├── test/                  # Test files
-├── script/                # Deployment scripts
-├── lib/                   # Dependencies
-└── foundry.toml          # Foundry configuration
+
+## Importing in Solidity
+
+Once installed, you can import Compose facets and libraries in your Solidity files. For example:
+
+```solidity
+import { DiamondMod } from "@perfect-abstractions/compose/diamond/DiamondMod.sol";
+
+contract MyDiamond {
+    constructor(_facets: address[]) {
+        DiamondMod.addFacets(_facets);
+    }
+
+    fallback() external payable {
+        DiamondMod.diamondFallback();
+    }
+}
 ```
 
-## Configuration
+## Working on Compose Itself
 
-### Foundry Setup
-
-Compose includes a pre-configured `foundry.toml`. If you're integrating Compose into an existing project, add these settings:
-
-```toml
-[profile.default]
-src = "src"
-out = "out"
-libs = ["lib"]
-optimizer = true
-optimizer_runs = 20_000
-evm_version = "prague"
-
-[profile.ci]
-src = "src"
-out = "out"
-libs = ["lib"]
-optimizer = true
-optimizer_runs = 20_000
-evm_version = "prague"
-# Coverage settings
-fuzz = { runs = 1000 }
-invariant = { runs = 1000 }
-
-[fmt]
-line_length = 120
-tab_width = 4
-bracket_spacing = false
-int_types = 'long'
-multiline_func_header = 'attributes_first'
-quote_style = 'double'
-number_underscore = 'preserve'
-single_line_statement_blocks = 'preserve'
-```
-
-## Verify Installation
-
-Run the tests to verify everything is working:
-
-```bash
-forge test -vvv
-```
-
-You should see output indicating all tests pass.
+If you want to help us improve Compose, you can work on the codebase by following the **[How to Contribute](/docs/contribution/how-to-contribute)** guide for full development setup instructions.
 
 <!-- ## What's Next?
 

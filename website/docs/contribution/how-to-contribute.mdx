@@ -69,6 +69,67 @@ There are many ways to contribute to Compose. Here are some ways:
    forge test
    ```
 
+### Project Structure
+
+Once you have the repository locally, you'll see a structure similar to:
+
+```
+Compose/
+├── src/                    # Source contracts
+│   ├── facets/            # Facet implementations
+│   ├── libraries/         # Library helpers
+│   └── interfaces/        # Standard interfaces
+├── test/                  # Test files
+├── script/                # Deployment scripts
+├── lib/                   # Dependencies
+└── foundry.toml          # Foundry configuration
+```
+
+### Foundry Configuration (reference)
+
+Compose includes a pre-configured `foundry.toml`. For reference, the default profile looks like this:
+
+```toml
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+optimizer = true
+optimizer_runs = 20_000
+evm_version = "prague"
+
+[profile.ci]
+src = "src"
+out = "out"
+libs = ["lib"]
+optimizer = true
+optimizer_runs = 20_000
+evm_version = "prague"
+# Coverage settings
+fuzz = { runs = 1000 }
+invariant = { runs = 1000 }
+
+[fmt]
+line_length = 120
+tab_width = 4
+bracket_spacing = false
+int_types = 'long'
+multiline_func_header = 'attributes_first'
+quote_style = 'double'
+number_underscore = 'preserve'
+single_line_statement_blocks = 'preserve'
+```
+
+### Verify your setup
+
+Run tests with verbose output to confirm everything is working:
+
+```bash
+forge test -vvv
+```
+
+You should see output indicating that all tests pass.
+
 ## Development Workflow
 
 Once you are assigned to an issue:
@@ -158,8 +219,8 @@ By contributing to Compose, you agree that your contributions will be licensed u
 
 ---
 
-This is the beginning and we are still working out how this will all work. We are glad you are interested in this project and want to make something great with you. - Nick
-
+Compose is evolving with your help. Join us in building the future of smart contract development. 
+- Nick & The Compose Community
 
 <!-- automd:contributors github="Perfect-Abstractions/Compose" license="MIT" -->
 
