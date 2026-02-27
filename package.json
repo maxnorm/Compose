@@ -1,0 +1,37 @@
+{
+  "name": "@perfect-abstractions/compose",
+  "version": "0.1.0",
+  "description": "Composable smart contract library for ERC-8153 Diamonds",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Perfect-Abstractions/Compose.git"
+  },
+  "homepage": "https://compose.diamonds",
+  "bugs": {
+    "url": "https://github.com/Perfect-Abstractions/Compose/issues"
+  },
+  "keywords": [
+    "solidity",
+    "ethereum",
+    "smart-contracts",
+    "diamonds",
+    "ERC-2535",
+    "ERC-8153",
+    "facets",
+    "compose"
+  ],
+  "author": "Perfect Abstractions",
+  "files": [
+    "src",
+    "remappings.txt",
+    "README.md",
+    "LICENSE.md"
+  ],
+  "exports": {
+    "./*": "./"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

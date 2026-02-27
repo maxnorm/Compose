@@ -1,0 +1,3 @@
+# For tools that read remappings from the package (e.g. when installed via npm).
+# For Foundry, copy this file in your project
+@perfect-abstractions/compose/=src/

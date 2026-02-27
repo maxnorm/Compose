@@ -29,24 +29,29 @@ We build high-quality smart contracts by <a href="https://compose.diamonds/docs/
 - **Composition Over Inheritance**: Combine facets instead of inheriting contracts
 - **Intentional Simplicity**: Banned features lead to clearer, safer code
 
-## Quick Start
+## Installation
+
+### Foundry
+
 
 ```bash
-# Clone the repository
-git clone https://github.com/Perfect-Abstractions/Compose.git
-cd Compose
-
-# Install dependencies
-forge install
-
-# Build the project
-forge build
-
-# Run tests
-forge test
-
-# For test documentation, see test/README.md
+forge install Perfect-Abstractions/Compose@v0.1.0
 ```
+
+Add to your `remappings.txt` with: ```@perfect-abstractions/compose/=src/```
+
+### Hardhat / npm
+
+```bash
+npm install @perfect-abstractions/compose
+```
+
+###  Import in Solidity files:
+
+```solidity
+import { ERC20DataFacet } from "@perfect-abstractions/compose/token/ERC20/Data/ERC20DataFacet.sol";
+```
+
 ## Documentation
 
 Please see our [documentation website](https://compose.diamonds/docs/) for full documentation.
