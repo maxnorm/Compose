@@ -1,7 +1,7 @@
 ---
 sidebar_position: 1
 title: "RoyaltyMod"
-description: "ERC-2981 royalty logic for NFTs"
+description: "ERC-2981 royalty logic for tokens"
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/token/Royalty/RoyaltyMod.sol"
 ---
 
@@ -21,14 +21,14 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-ERC-2981 royalty logic for NFTs
+ERC-2981 royalty logic for tokens
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Implements ERC-2981 `royaltyInfo` logic.
-- Supports setting default and token-specific royalty information.
-- Utilizes diamond storage for state persistence.
-- Internal functions ensure composability within facets.
+- Implements ERC-2981 royalty information logic.
+- Supports both default and token-specific royalty settings.
+- Uses diamond storage for persistent royalty data.
+- Provides internal functions for facet integration.
 </Callout>
 
 <Callout type="info" title="Module Usage">
@@ -37,7 +37,7 @@ This module provides internal functions for use in your custom facets. Import it
 
 ## Overview
 
-This module provides internal functions for managing ERC-2981 royalty information within a diamond. Facets can use these functions to set, retrieve, and reset both default and token-specific royalties, leveraging shared diamond storage. The royalty logic is transparently applied via the `royaltyInfo` function.
+This module provides internal functions for managing ERC-2981 royalty information, including default and token-specific settings. Facets can import this module to implement royalty queries and updates using shared diamond storage. This enables consistent royalty logic across different parts of a diamond.
 
 ---
 
@@ -57,7 +57,7 @@ Structure containing royalty information. **Properties**
 ---
 ### RoyaltyStorage
 
-storage-location: erc8042:compose.erc2981
+storage-location: erc8042:erc2981
 
 <ExpandableCode language="solidity" maxLines={15} title="Definition">
 {`struct RoyaltyStorage {
@@ -73,7 +73,7 @@ storage-location: erc8042:compose.erc2981
     {
       name: "STORAGE_POSITION",
       type: "bytes32",
-      description: "Diamond storage slot position for this module (Value: `keccak256(\"compose.erc2981\")`)"
+      description: "Diamond storage slot position for this module (Value: `keccak256(\"erc2981\")`)"
     },
     {
       name: "FEE_DENOMINATOR",
@@ -301,27 +301,25 @@ error ERC2981InvalidTokenRoyaltyReceiver(uint256 _tokenId, address _receiver);
 
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity >=0.8.30;
-
-import { RoyaltyMod } from "@compose/token/Royalty/RoyaltyMod";
-import { RoyaltyStorage } from "@compose/token/Royalty/RoyaltyMod";
+import @compose/token/Royalty/RoyaltyMod;
 
 contract RoyaltyFacet {
-    // Assume RoyaltyMod is deployed and accessible
-    // Assume STORAGE_POSITION is defined and known
+    RoyaltyMod internal royaltyMod;
 
-    function _setTokenRoyalty(uint256 _tokenId, address _receiver, uint96 _feeNumerator) external {
-        // Call internal function from RoyaltyMod
-        RoyaltyMod.setTokenRoyalty(_tokenId, _receiver, uint256(_feeNumerator));
+    constructor(address diamondProxyAddress) {
+        royaltyMod = RoyaltyMod(diamondProxyAddress);
     }
 
-    function _getDefaultRoyalty() external view returns (address receiver, uint256 feeNumerator) {
-        RoyaltyStorage storage royaltyData = RoyaltyMod.getStorage();
-        return (royaltyData.defaultRoyaltyInfo.receiver, royaltyData.defaultRoyaltyInfo.feeNumerator);
+    function setTokenRoyalty(uint256 _tokenId, address _receiver, uint96 _feeNumerator) external {
+        royaltyMod.setTokenRoyalty(_tokenId, _receiver, _feeNumerator);
     }
 
-    function _royaltyInfo(uint256 _tokenId, uint256 _salePrice) external view returns (address, uint256) {
-        // Call internal function from RoyaltyMod
-        return RoyaltyMod.royaltyInfo(_tokenId, _salePrice);
+    function royaltyInfo(uint256 _tokenId, uint256 _salePrice) external view returns (address, uint256) {
+        return royaltyMod.royaltyInfo(_tokenId, _salePrice);
+    }
+
+    function resetTokenRoyalty(uint256 _tokenId) external {
+        royaltyMod.resetTokenRoyalty(_tokenId);
     }
 }`}
 </ExpandableCode>
@@ -330,15 +328,15 @@ contract RoyaltyFacet {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Ensure receiver addresses are valid and fee numerators are within acceptable bounds (e.g., 0-10000) before calling set functions.
-- Use `resetTokenRoyalty` to revert token-specific royalties to the default.
-- Call `royaltyInfo` to retrieve royalty details, which automatically handles fallback to default royalties.
+- Ensure input validation for receiver addresses and fee numerators before calling `setDefaultRoyalty` or `setTokenRoyalty`.
+- Call `resetTokenRoyalty` to revert token-specific royalties to the default setting.
+- Handle custom errors like `ERC2981InvalidDefaultRoyalty` and `ERC2981InvalidTokenRoyaltyReceiver` for robust error handling.
 </Callout>
 
 ## Integration Notes
 
 <Callout type="success" title="Shared Storage">
-This module interacts with diamond storage at a specific, predefined slot identified by `keccak256("compose.erc2981")`. It manages a `RoyaltyStorage` struct containing `defaultRoyaltyInfo`. Functions like `setDefaultRoyalty` and `setTokenRoyalty` directly modify this shared storage. The `royaltyInfo` function reads from this storage to provide royalty details, falling back to default settings when token-specific settings are absent. All modifications are immediately visible to other facets accessing the same diamond storage.
+This module utilizes diamond storage at the predefined `STORAGE_POSITION` associated with the `keccak256(\"erc2981\")` hash. It reads and writes to the `RoyaltyStorage` struct, which contains the `defaultRoyaltyInfo`. Changes made via `setDefaultRoyalty` or `setTokenRoyalty` are immediately reflected for all facets that access this storage position.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -351,20 +349,20 @@ This module interacts with diamond storage at a specific, predefined slot identi
         icon: "💎"
       },
       {
-        title: "ERC20PermitMod",
-        href: "/docs/library/token/ERC20/ERC20Permit/ERC20PermitMod",
+        title: "ERC1155ApproveMod",
+        href: "/docs/library/token/ERC1155/Approve/ERC1155ApproveMod",
         description: "Related module in token",
         icon: "📦"
       },
       {
-        title: "ERC20Mod",
-        href: "/docs/library/token/ERC20/ERC20/ERC20Mod",
+        title: "ERC1155BurnMod",
+        href: "/docs/library/token/ERC1155/Burn/ERC1155BurnMod",
         description: "Related module in token",
         icon: "📦"
       },
       {
-        title: "ERC20BridgeableMod",
-        href: "/docs/library/token/ERC20/ERC20Bridgeable/ERC20BridgeableMod",
+        title: "ERC1155MetadataMod",
+        href: "/docs/library/token/ERC1155/Metadata/ERC1155MetadataMod",
         description: "Related module in token",
         icon: "📦"
       }
@@ -376,4 +374,4 @@ This module interacts with diamond storage at a specific, predefined slot identi
   <WasThisHelpful pageId="RoyaltyMod" />
 </div>
 
-<LastUpdated date="2025-12-30T20:14:31.561Z" />
+<LastUpdated date="2026-03-12T19:45:40.228Z" />

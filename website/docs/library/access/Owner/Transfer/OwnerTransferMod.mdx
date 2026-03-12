@@ -1,0 +1,238 @@
+---
+sidebar_position: 100
+title: "OwnerTransferMod"
+description: "Manage ERC-173 ownership transfers within a diamond"
+gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/access/Owner/Transfer/OwnerTransferMod.sol"
+---
+
+import DocSubtitle  from '@site/src/components/docs/DocSubtitle';
+import Badge from '@site/src/components/ui/Badge';
+import Callout from '@site/src/components/ui/Callout';
+import CalloutBox from '@site/src/components/ui/CalloutBox';
+import Accordion, { AccordionGroup } from '@site/src/components/ui/Accordion';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+import ExpandableCode from '@site/src/components/code/ExpandableCode';
+import CodeShowcase from '@site/src/components/code/CodeShowcase';
+import RelatedDocs from '@site/src/components/docs/RelatedDocs';
+import WasThisHelpful from '@site/src/components/docs/WasThisHelpful';
+import LastUpdated from '@site/src/components/docs/LastUpdated';
+import ReadingTime from '@site/src/components/docs/ReadingTime';
+import GradientText from '@site/src/components/ui/GradientText';
+import GradientButton from '@site/src/components/ui/GradientButton';
+
+<DocSubtitle>
+Manage ERC-173 ownership transfers within a diamond
+</DocSubtitle>
+
+<Callout type="info" title="Key Features">
+- Implements ERC-173 ownership standard.
+- Internal functions for seamless facet integration.
+- Manages ownership directly within the diamond storage pattern.
+- Supports renouncing ownership by setting the owner to `address(0)`.
+</Callout>
+
+<Callout type="info" title="Module Usage">
+This module provides internal functions for use in your custom facets. Import it to access shared logic and storage.
+</Callout>
+
+## Overview
+
+This module provides ERC-173 ownership transfer logic, allowing diamonds to manage contract ownership. Facets can import this module to transfer ownership or renounce it, ensuring a clear and auditable ownership chain. Ownership changes are managed directly in diamond storage, making them immediately visible to all facets.
+
+---
+
+## Storage
+
+### OwnerStorage
+
+storage-location: erc8042:erc173.owner
+
+<ExpandableCode language="solidity" maxLines={15} title="Definition">
+{`struct OwnerStorage {
+    address owner;
+}`}
+</ExpandableCode>
+
+### State Variables
+
+<PropertyTable
+  properties={[
+    {
+      name: "STORAGE_POSITION",
+      type: "bytes32",
+      description: "Diamond storage slot position for this module (Value: `keccak256(\"erc173.owner\")`)"
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Functions
+
+### getStorage
+
+Returns a pointer to the ERC-173 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function getStorage() pure returns (OwnerStorage storage s);`}
+</ExpandableCode>
+
+**Returns:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "s",
+      type: "OwnerStorage",
+      description: "The OwnerStorage struct in storage."
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### transferOwnership
+
+Set the address of the new owner of the contract. Set _newOwner to address(0) to renounce any ownership.
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function transferOwnership(address _newOwner) ;`}
+</ExpandableCode>
+
+**Parameters:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "_newOwner",
+      type: "address",
+      description: "The address of the new owner of the contract."
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Events
+
+<AccordionGroup>
+  <Accordion title="OwnershipTransferred" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      This emits when ownership of a contract changes.
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+{`event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);`}
+      </ExpandableCode>
+    </div>
+
+  </Accordion>
+</AccordionGroup>
+
+## Errors
+
+<AccordionGroup>
+  <Accordion title="OwnerUnauthorizedAccount" defaultOpen={false}>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error OwnerUnauthorizedAccount();
+      </ExpandableCode>
+    </div>
+  </Accordion>
+</AccordionGroup>
+
+<!-- Usage Example section commented out for now -->
+<!--
+## Usage Example
+
+<ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
+{`pragma solidity >=0.8.30;
+
+import {OwnerTransferMod, OwnerStorage} from "@compose/access/Owner/Transfer/OwnerTransferMod";
+
+contract OwnerTransferFacet {
+    OwnerTransferMod private ownerTransferMod;
+
+    function initialize(address initialOwner) external {
+        // Assuming OwnerTransferMod is initialized and its storage slot is known
+        // In a real scenario, you'd get the storage pointer through a diamond interface or similar mechanism.
+        // For this example, we'll simulate accessing the storage directly.
+        ownerTransferMod = OwnerTransferMod(address(this)); // Placeholder for actual module address
+        ownerTransferMod.transferOwnership(initialOwner);
+    }
+
+    function renounceContractOwnership() external {
+        // Call the internal function to renounce ownership
+        // Note: In a real facet, you would call the internal function directly if it were accessible,
+        // or use the module's exposed function if it's designed for facet interaction.
+        // This example assumes a direct call for demonstration.
+
+        // ownerTransferMod.transferOwnership(address(0)); // Conceptual call
+    }
+
+    function transferContractOwnership(address _newOwner) external {
+        // Call the internal function to transfer ownership
+        // ownerTransferMod.transferOwnership(_newOwner); // Conceptual call
+    }
+
+    // Example of how a facet might access storage if needed (direct access is discouraged in favor of module functions)
+    function getOwnerStoragePointer() external pure returns (OwnerStorage storage) {
+        // return OwnerTransferMod.getStorage(); // Conceptual call
+        return ownerTransferMod.getStorage();
+    }
+}`}
+</ExpandableCode>
+-->
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Ensure ownership transfers are initiated by the current owner, or handle `OwnerUnauthorizedAccount` errors.
+- Carefully manage the renouncement of ownership; it cannot be recovered.
+- Integrate ownership transfer logic early in the diamond deployment or upgrade process.
+</Callout>
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+This module utilizes the diamond storage pattern, specifically referencing the storage slot identified by `STORAGE_POSITION` (keccak256("erc173.owner")). The `OwnerStorage` struct, containing the `owner` field, is accessed and modified through internal functions. Any facet interacting with this storage slot will see the updated owner address immediately after a successful transferOwnership call.
+</Callout>
+
+<div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
+  <RelatedDocs
+    items={[
+      {
+        title: "OwnerTransferFacet",
+        href: "/docs/library/access/Owner/Transfer/OwnerTransferFacet",
+        description: "Facet using OwnerTransferMod",
+        icon: "💎"
+      },
+      {
+        title: "AccessControlAdminMod",
+        href: "/docs/library/access/AccessControl/Admin/AccessControlAdminMod",
+        description: "Related module in access",
+        icon: "📦"
+      },
+      {
+        title: "AccessControlGrantBatchMod",
+        href: "/docs/library/access/AccessControl/Batch/Grant/AccessControlGrantBatchMod",
+        description: "Related module in access",
+        icon: "📦"
+      },
+      {
+        title: "AccessControlRevokeBatchMod",
+        href: "/docs/library/access/AccessControl/Batch/Revoke/AccessControlRevokeBatchMod",
+        description: "Related module in access",
+        icon: "📦"
+      }
+    ]}
+  />
+</div>
+
+<div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
+  <WasThisHelpful pageId="OwnerTransferMod" />
+</div>
+
+<LastUpdated date="2026-03-12T19:41:45.519Z" />

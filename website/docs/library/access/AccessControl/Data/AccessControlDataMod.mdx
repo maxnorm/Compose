@@ -1,0 +1,259 @@
+---
+sidebar_position: 100
+title: "AccessControlDataMod"
+description: "Manage role assignments and checks using diamond storage"
+gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/access/AccessControl/Data/AccessControlDataMod.sol"
+---
+
+import DocSubtitle  from '@site/src/components/docs/DocSubtitle';
+import Badge from '@site/src/components/ui/Badge';
+import Callout from '@site/src/components/ui/Callout';
+import CalloutBox from '@site/src/components/ui/CalloutBox';
+import Accordion, { AccordionGroup } from '@site/src/components/ui/Accordion';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+import ExpandableCode from '@site/src/components/code/ExpandableCode';
+import CodeShowcase from '@site/src/components/code/CodeShowcase';
+import RelatedDocs from '@site/src/components/docs/RelatedDocs';
+import WasThisHelpful from '@site/src/components/docs/WasThisHelpful';
+import LastUpdated from '@site/src/components/docs/LastUpdated';
+import ReadingTime from '@site/src/components/docs/ReadingTime';
+import GradientText from '@site/src/components/ui/GradientText';
+import GradientButton from '@site/src/components/ui/GradientButton';
+
+<DocSubtitle>
+Manage role assignments and checks using diamond storage
+</DocSubtitle>
+
+<Callout type="info" title="Key Features">
+- Provides `internal` functions for role management and checks.
+- Utilizes the diamond storage pattern for shared access control state.
+- Reverts with `AccessControlUnauthorizedAccount` error on failed checks.
+- No external dependencies, promoting composability.
+</Callout>
+
+<Callout type="info" title="Module Usage">
+This module provides internal functions for use in your custom facets. Import it to access shared logic and storage.
+</Callout>
+
+## Overview
+
+This module provides internal functions for managing role assignments and checking permissions within a diamond. Facets can import this module to interact with shared access control state stored in the diamond. Access checks are performed directly against the diamond's storage, ensuring consistency across all facets.
+
+---
+
+## Storage
+
+### AccessControlStorage
+
+storage struct for the AccessControl. storage-location: erc8042:compose.accesscontrol
+
+<ExpandableCode language="solidity" maxLines={15} title="Definition">
+{`struct AccessControlStorage {
+    mapping(address account => mapping(bytes32 role => bool hasRole)) hasRole;
+    mapping(bytes32 role => bytes32 adminRole) adminRole;
+}`}
+</ExpandableCode>
+
+### State Variables
+
+<PropertyTable
+  properties={[
+    {
+      name: "STORAGE_POSITION",
+      type: "bytes32",
+      description: "Diamond storage slot position for this module (Value: `keccak256(\"compose.accesscontrol\")`)"
+    },
+    {
+      name: "DEFAULT_ADMIN_ROLE",
+      type: "bytes32",
+      description: "Default administrative role identifier (bytes32(0)) (Value: `0x00`)"
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Functions
+
+### getStorage
+
+Returns the storage for the AccessControl.
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function getStorage() pure returns (AccessControlStorage storage _s);`}
+</ExpandableCode>
+
+**Returns:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "_s",
+      type: "AccessControlStorage",
+      description: "The storage for the AccessControl."
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### hasRole
+
+function to check if an account has a role.
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function hasRole(bytes32 _role, address _account) view returns (bool);`}
+</ExpandableCode>
+
+**Parameters:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role to check."
+    },
+    {
+      name: "_account",
+      type: "address",
+      description: "The account to check the role for."
+    }
+  ]}
+  showRequired={false}
+/>
+
+**Returns:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "bool",
+      description: "True if the account has the role, false otherwise."
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### requireRole
+
+function to check if an account has a required role. Reverts with AccessControlUnauthorizedAccount If the account does not have the role.
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function requireRole(bytes32 _role, address _account) view;`}
+</ExpandableCode>
+
+**Parameters:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role to assert."
+    },
+    {
+      name: "_account",
+      type: "address",
+      description: "The account to assert the role for."
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Errors
+
+<AccordionGroup>
+  <Accordion title="AccessControlUnauthorizedAccount" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Thrown when the account does not have a specific role.
+    </div>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error AccessControlUnauthorizedAccount(address _account, bytes32 _role);
+      </ExpandableCode>
+    </div>
+  </Accordion>
+</AccordionGroup>
+
+<!-- Usage Example section commented out for now -->
+<!--
+## Usage Example
+
+<ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
+{`pragma solidity >=0.8.30;
+import @compose/access/AccessControl/Data/AccessControlDataMod;
+
+contract MyAccessControlFacet {
+    AccessControlDataMod internal accessControlDataMod;
+
+    constructor(address diamondAddress) {
+        accessControlDataMod = AccessControlDataMod(diamondAddress);
+    }
+
+    function _checkAdminRole() internal view {
+        bytes32 adminRole = keccak256("AdminRole");
+        accessControlDataMod.requireRole(adminRole, msg.sender);
+    }
+
+    function _hasOwnerRole(address _account) internal view returns (bool) {
+        bytes32 ownerRole = keccak256("OwnerRole");
+        return accessControlDataMod.hasRole(ownerRole, _account);
+    }
+}`}
+</ExpandableCode>
+-->
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Call `requireRole` with specific roles before executing sensitive operations.
+- Ensure the diamond's storage slot for `AccessControlStorage` is correctly initialized.
+- Integrate with `AccessControlAdminMod` for managing roles and role assignments.
+</Callout>
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+This module reads and writes to the diamond's storage at the `STORAGE_POSITION` defined by `keccak256("compose.accesscontrol")`. The `AccessControlStorage` struct holds the role assignment data. All functions are internal, intended to be called by facets that compose this module, ensuring that changes to role assignments are immediately reflected across all facets accessing the same storage slot.
+</Callout>
+
+<div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
+  <RelatedDocs
+    items={[
+      {
+        title: "AccessControlDataFacet",
+        href: "/docs/library/access/AccessControl/Data/AccessControlDataFacet",
+        description: "Facet using AccessControlDataMod",
+        icon: "💎"
+      },
+      {
+        title: "AccessControlAdminMod",
+        href: "/docs/library/access/AccessControl/Admin/AccessControlAdminMod",
+        description: "Related module in access",
+        icon: "📦"
+      },
+      {
+        title: "AccessControlGrantBatchMod",
+        href: "/docs/library/access/AccessControl/Batch/Grant/AccessControlGrantBatchMod",
+        description: "Related module in access",
+        icon: "📦"
+      },
+      {
+        title: "AccessControlRevokeBatchMod",
+        href: "/docs/library/access/AccessControl/Batch/Revoke/AccessControlRevokeBatchMod",
+        description: "Related module in access",
+        icon: "📦"
+      }
+    ]}
+  />
+</div>
+
+<div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
+  <WasThisHelpful pageId="AccessControlDataMod" />
+</div>
+
+<LastUpdated date="2026-03-12T19:40:23.922Z" />

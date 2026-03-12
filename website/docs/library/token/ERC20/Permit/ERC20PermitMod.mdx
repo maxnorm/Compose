@@ -1,0 +1,386 @@
+---
+sidebar_position: 1
+title: "ERC20PermitMod"
+description: "ERC-2612 permit logic and domain separator"
+gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/token/ERC20/Permit/ERC20PermitMod.sol"
+---
+
+import DocSubtitle  from '@site/src/components/docs/DocSubtitle';
+import Badge from '@site/src/components/ui/Badge';
+import Callout from '@site/src/components/ui/Callout';
+import CalloutBox from '@site/src/components/ui/CalloutBox';
+import Accordion, { AccordionGroup } from '@site/src/components/ui/Accordion';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+import ExpandableCode from '@site/src/components/code/ExpandableCode';
+import CodeShowcase from '@site/src/components/code/CodeShowcase';
+import RelatedDocs from '@site/src/components/docs/RelatedDocs';
+import WasThisHelpful from '@site/src/components/docs/WasThisHelpful';
+import LastUpdated from '@site/src/components/docs/LastUpdated';
+import ReadingTime from '@site/src/components/docs/ReadingTime';
+import GradientText from '@site/src/components/ui/GradientText';
+import GradientButton from '@site/src/components/ui/GradientButton';
+
+<DocSubtitle>
+ERC-2612 permit logic and domain separator
+</DocSubtitle>
+
+<Callout type="info" title="Key Features">
+- Provides `DOMAIN_SEPARATOR` for secure ERC-2612 signature encoding.
+- Internal functions for permit validation and allowance setting.
+- Uses diamond storage for shared permit state.
+- Emits `Approval` event upon successful permit validation.
+</Callout>
+
+<Callout type="info" title="Module Usage">
+This module provides internal functions for use in your custom facets. Import it to access shared logic and storage.
+</Callout>
+
+## Overview
+
+This module provides ERC-2612 permit functionality, enabling off-chain signing of token approvals. Facets can integrate this module to manage permit validation and storage, leveraging the diamond storage pattern for shared state. It ensures a unique domain separator for secure signature verification, preventing replay attacks across different chains or contracts.
+
+---
+
+## Storage
+
+### ERC20MetadataStorage
+
+storage-location: erc8042:erc20.metadata
+
+<ExpandableCode language="solidity" maxLines={15} title="Definition">
+{`struct ERC20MetadataStorage {
+    string name;
+}`}
+</ExpandableCode>
+
+---
+### ERC20Storage
+
+storage-location: erc8042:erc20
+
+<ExpandableCode language="solidity" maxLines={15} title="Definition">
+{`struct ERC20Storage {
+    mapping(address owner => uint256 balance) balanceOf;
+    uint256 totalSupply;
+    mapping(address owner => mapping(address spender => uint256 allowance)) allowance;
+}`}
+</ExpandableCode>
+
+---
+### NoncesStorage
+
+storage-location: erc8042:nonces
+
+<ExpandableCode language="solidity" maxLines={15} title="Definition">
+{`struct NoncesStorage {
+    mapping(address owner => uint256) nonces;
+}`}
+</ExpandableCode>
+
+### State Variables
+
+<PropertyTable
+  properties={[
+    {
+      name: "ERC20_METADATA_STORAGE_POSITION",
+      type: "bytes32",
+      description: "Diamond storage slot position for this module (Value: `keccak256(\"erc20.metadata\")`)"
+    },
+    {
+      name: "ERC20_STORAGE_POSITION",
+      type: "bytes32",
+      description: "Diamond storage slot position for this module (Value: `keccak256(\"erc20\")`)"
+    },
+    {
+      name: "STORAGE_POSITION",
+      type: "bytes32",
+      description: "Diamond storage slot position for this module (Value: `keccak256(\"nonces\")`)"
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Functions
+
+### DOMAIN_SEPARATOR
+
+Returns the domain separator used in the encoding of the signature for &#123;permit&#125;. This value is unique to a contract and chain ID combination to prevent replay attacks.
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function DOMAIN_SEPARATOR() view returns (bytes32);`}
+</ExpandableCode>
+
+**Returns:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "bytes32",
+      description: "The domain separator."
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### getERC20MetadataStorage
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function getERC20MetadataStorage() pure returns (ERC20MetadataStorage storage s);`}
+</ExpandableCode>
+
+---
+### getERC20Storage
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function getERC20Storage() pure returns (ERC20Storage storage s);`}
+</ExpandableCode>
+
+---
+### getPermitStorage
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function getPermitStorage() pure returns (NoncesStorage storage s);`}
+</ExpandableCode>
+
+---
+### permit
+
+Validates a permit signature and sets allowance. Emits Approval event; must be emitted by the calling facet/contract.
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function permit(address _owner, address _spender, uint256 _value, uint256 _deadline, uint8 _v, bytes32 _r, bytes32 _s) ;`}
+</ExpandableCode>
+
+**Parameters:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "_owner",
+      type: "address",
+      description: "Token owner."
+    },
+    {
+      name: "_spender",
+      type: "address",
+      description: "Token spender."
+    },
+    {
+      name: "_value",
+      type: "uint256",
+      description: "Allowance value."
+    },
+    {
+      name: "_deadline",
+      type: "uint256",
+      description: "Permit\'s time deadline."
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Events
+
+<AccordionGroup>
+  <Accordion title="Approval" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Emitted when an approval is made for a spender by an owner.
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+{`event Approval(address indexed _owner, address indexed _spender, uint256 _value);`}
+      </ExpandableCode>
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Parameters:</strong>
+      <PropertyTable
+        properties={[
+          {
+            name: "_owner",
+            type: "address",
+            description: "The address granting the allowance."
+          },
+          {
+            name: "_spender",
+            type: "address",
+            description: "The address receiving the allowance."
+          },
+          {
+            name: "_value",
+            type: "uint256",
+            description: "The amount approved."
+          }
+        ]}
+        showRequired={false}
+      />
+    </div>
+  </Accordion>
+</AccordionGroup>
+
+## Errors
+
+<AccordionGroup>
+  <Accordion title="ERC20InvalidSpender" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Thrown when the spender address is invalid (e.g., zero address).
+    </div>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error ERC20InvalidSpender(address _spender);
+      </ExpandableCode>
+    </div>
+  </Accordion>
+  <Accordion title="ERC2612InvalidSignature" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Thrown when a permit signature is invalid or expired.
+    </div>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error ERC2612InvalidSignature(
+address _owner, address _spender, uint256 _value, uint256 _deadline, uint8 _v, bytes32 _r, bytes32 _s
+);
+      </ExpandableCode>
+    </div>
+  </Accordion>
+</AccordionGroup>
+
+<!-- Usage Example section commented out for now -->
+<!--
+## Usage Example
+
+<ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
+{`pragma solidity >=0.8.30;
+
+import @compose/token/ERC20/Permit/ERC20PermitMod;
+
+contract ERC20PermitFacet {
+    using ERC20PermitMod for ERC20PermitMod;
+
+    ERC20PermitMod internal permitMod;
+
+    constructor() {
+        // Assume permitMod is initialized with appropriate storage pointers
+    }
+
+    /**
+     * @notice Approves a spender to withdraw tokens on behalf of the owner.
+     * @dev Uses ERC-2612 permit logic for signature validation.
+     * @param _owner The owner of the tokens.
+     * @param _spender The address to approve.
+     * @param _value The amount of tokens to approve.
+     * @param _deadline The deadline for the permit.
+     * @param _v The v component of the signature.
+     * @param _r The r component of the signature.
+     * @param _s The s component of the signature.
+     */
+    function permit(
+        address _owner,
+        address _spender,
+        uint256 _value,
+        uint256 _deadline,
+        uint8 _v,
+        bytes32 _r,
+        bytes32 _s
+    ) external {
+        // In a real facet, you would recover the owner from the signature and then call the internal permit function.
+        // This example directly calls the internal function for demonstration purposes.
+        // permitMod.permit(_owner, _spender, _value, _deadline, _v, _r, _s);
+        // The actual permit function in the module does not take v, r, s as parameters directly.
+        // This example needs to be adjusted to reflect the actual module's internal permit call structure.
+        // For demonstration, we'll simulate calling an internal validation and then an approval setting function.
+
+        // Simplified representation: The module's permit function would handle validation and setting allowance.
+        // permitMod.permit(_owner, _spender, _value, _deadline);
+
+        // A facet would typically recover the signature and then call the module's internal permit function.
+        // Example of calling the internal permit function (if it were exposed externally for clarity in this example):
+        // permitMod.validateAndSetAllowance(_owner, _spender, _value, _deadline, _v, _r, _s);
+
+        // The actual permit function in ERC20PermitMod is internal and expects to be called by a facet that has already verified the signature.
+        // The facet would recover the signature, then call an internal function like \`_setApproval\` or similar.
+        // The \`permit\` function in the module is likely meant to be called internally by the facet after signature recovery.
+
+        // To accurately reflect usage, a facet would:
+        // 1. Recover the owner address from the signature using ECDSA.
+        // 2. Call the module's internal permit logic with the recovered owner and other parameters.
+        // Example assuming the module has an internal \`_permit\` function:
+        // address recoveredOwner = ECDSA.recover(keccak256(abi.encodePacked(keccak256(abi.encodePacked("\x19Ethereum Signed Message:
+" || bytes(permitMod.DOMAIN_SEPARATOR()).length || bytes(permitMod.DOMAIN_SEPARATOR()), keccak256(abi.encode(uint256(0x1), _owner, _spender, _value, _deadline))))), _v, _r, _s);
+        // permitMod._permit(recoveredOwner, _spender, _value, _deadline);
+
+        // Since the provided contract data doesn't expose signature recovery or an internal \`_permit\` function directly in the module,
+        // we'll simulate the action of setting an allowance after a successful permit validation.
+        // In a real scenario, the \`permit\` function in the module would handle validation and emit the Approval event.
+
+        // Simulating the outcome of a successful permit validation and allowance setting:
+        // This would typically involve calling an internal function provided by the module.
+        // As the \`permit\` function itself is the entry point for validation in the module's context:
+        permitMod.permit(_owner, _spender, _value, _deadline);
+    }
+
+    function getDomainSeparator() external view returns (bytes32) {
+        return permitMod.DOMAIN_SEPARATOR();
+    }
+}`}
+</ExpandableCode>
+-->
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Ensure signature recovery is performed correctly within the calling facet before invoking the module's permit logic.
+- Verify that the `_deadline` parameter is checked to prevent expired permits from being used.
+- Handle the `ERC2612InvalidSignature` error to gracefully manage invalid permit attempts.
+</Callout>
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+This module integrates with the diamond storage pattern by utilizing a dedicated storage slot for permit-related data. The `permit` function interacts with this shared storage to validate signatures and update allowances. Changes to allowances made through this module are immediately reflected in the diamond's storage and visible to all facets accessing the same storage position.
+</Callout>
+
+<div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
+  <RelatedDocs
+    items={[
+      {
+        title: "ERC20PermitFacet",
+        href: "/docs/library/token/ERC20/Permit/ERC20PermitFacet",
+        description: "Facet using ERC20PermitMod",
+        icon: "💎"
+      },
+      {
+        title: "ERC1155ApproveMod",
+        href: "/docs/library/token/ERC1155/Approve/ERC1155ApproveMod",
+        description: "Related module in token",
+        icon: "📦"
+      },
+      {
+        title: "ERC1155BurnMod",
+        href: "/docs/library/token/ERC1155/Burn/ERC1155BurnMod",
+        description: "Related module in token",
+        icon: "📦"
+      },
+      {
+        title: "ERC1155MetadataMod",
+        href: "/docs/library/token/ERC1155/Metadata/ERC1155MetadataMod",
+        description: "Related module in token",
+        icon: "📦"
+      }
+    ]}
+  />
+</div>
+
+<div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
+  <WasThisHelpful pageId="ERC20PermitMod" />
+</div>
+
+<LastUpdated date="2026-03-12T19:44:13.654Z" />

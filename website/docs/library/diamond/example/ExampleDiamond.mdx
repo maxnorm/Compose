@@ -1,7 +1,7 @@
 ---
 sidebar_position: 510
 title: "ExampleDiamond"
-description: "Initializes diamond with facets and owner"
+description: "Example Diamond library for Compose diamonds"
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/diamond/example/ExampleDiamond.sol"
 ---
 
@@ -21,18 +21,18 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Initializes diamond with facets and owner
+Example Diamond library for Compose diamonds
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Registers facets and their function selectors on diamond deployment.
-- Establishes the initial owner of the diamond contract.
-- Enables correct call routing through the diamond proxy pattern.
+- Initializes the diamond with provided facets and owner.
+- Maps function selectors to facet addresses for routing.
+- Serves as a base implementation for Compose diamond deployment.
 </Callout>
 
 ## Overview
 
-This constructor initializes a diamond contract by registering facets and their function selectors. It also sets the initial owner of the diamond. This setup ensures that the diamond proxy can correctly route calls to the appropriate facet implementation.
+The ExampleDiamond contract serves as a foundational library for Compose diamonds, enabling the registration of facets and setting the diamond's owner. It orchestrates initial deployment by mapping function selectors to facet addresses, facilitating the diamond proxy's routing mechanism. Developers use this as a starting point for diamond initialization.
 
 ---
 
@@ -42,10 +42,10 @@ This constructor initializes a diamond contract by registering facets and their 
 
 ### constructor
 
-Struct to hold facet address and its function selectors. struct FacetFunctions &#123; address facet; bytes4[] selectors; &#125; Initializes the diamond contract with facets, owner and other data. Adds all provided facets to the diamond's function selector mapping and sets the contract owner. Each facet in the array will have its function selectors registered to enable delegatecall routing.
+Initializes the diamond contract with facets, owner and other data. Adds all provided facets to the diamond's function selector mapping and sets the contract owner. Each facet in the array will have its function selectors registered to enable delegatecall routing.
 
 <ExpandableCode language="solidity" maxLines={8}>
-{`constructor(DiamondMod.FacetFunctions[] memory _facets, address _diamondOwner) ;`}
+{`constructor(address[] memory _facets, address _diamondOwner) ;`}
 </ExpandableCode>
 
 **Parameters:**
@@ -54,7 +54,7 @@ Struct to hold facet address and its function selectors. struct FacetFunctions &
   properties={[
     {
       name: "_facets",
-      type: "DiamondMod.FacetFunctions[]",
+      type: "address[]",
       description: "Array of facet addresses and their corresponding function selectors to add to the diamond."
     },
     {
@@ -87,44 +87,46 @@ Struct to hold facet address and its function selectors. struct FacetFunctions &
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity >=0.8.30;
 
-import { IDiamond } from "@compose/diamond/contracts/IDiamond.sol";
-import { DiamondInit } from "@compose/diamond/contracts/DiamondInit.sol";
-import { ExampleDiamond } from "@compose/diamond/example/ExampleDiamond.sol";
+import { ExampleDiamond } from "@compose/diamond/example/ExampleDiamond";
 
-contract DeployExampleDiamond is DiamondInit {
-    function deploy() public {
-        // Define facets and their selectors
-        ExampleDiamond.FacetFunctions[] memory facets = new ExampleDiamond.FacetFunctions[](1);
-        bytes4[] memory exampleFacetSelectors = new bytes4[](1);
-        exampleFacetSelectors[0] = ExampleDiamond.fallback.selector; // Example selector
-        facets[0] = ExampleDiamond.FacetFunctions({
-            facet: address(new ExampleDiamond()),
-            selectors: exampleFacetSelectors
-        });
+contract DeployExampleDiamond {
+    address immutable _diamondAddress;
 
-        // Initialize the diamond
-        // Note: In a real deployment, you would pass the actual facet addresses and selectors.
-        // This example demonstrates the structure.
-        address diamondOwner = msg.sender;
-        diamond.init(facets, diamondOwner);
+    constructor(
+        address[] memory _facets,
+        address _diamondOwner
+    ) {
+        // Deploy and initialize the ExampleDiamond
+        _diamondAddress = address(new ExampleDiamond(_facets, _diamondOwner));
     }
+
+    // Example of how to interact with the deployed diamond, assuming facets are added
+    // function interactWithDiamond() public {
+    //     IDiamond diamond = IDiamond(_diamondAddress);
+    //     // Call a function from an added facet, e.g., diamond.someFacetFunction();
+    // }
 }
-`}
+
+// Interface for the diamond proxy (assuming it's defined elsewhere)
+interface IDiamond {
+    function owner() external view returns (address);
+    // ... other functions from added facets
+}`}
 </ExpandableCode>
 -->
 
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Ensure all facets intended for the diamond are correctly registered with their selectors during initialization.
-- Set the diamond owner with a secure, multi-signature wallet or a dedicated governance contract.
-- Verify that the provided facet addresses are deployed and verified.
+- Initialize the diamond with all necessary facets during deployment.
+- Clearly define the diamond owner during initialization.
+- Ensure facet addresses provided to the constructor are valid and deployed.
 </Callout>
 
 ## Security Considerations
 
 <Callout type="warning" title="Security">
-The constructor is critical for setting up the diamond's functionality. Ensure that only trusted addresses are provided as facet implementations and that the owner is set to a secure address. Validate that all function selectors are correctly mapped to their respective facets to prevent unexpected behavior.
+Follow standard Solidity security practices. Ensure that only trusted addresses are provided as facet addresses and the diamond owner during initialization.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -141,6 +143,12 @@ The constructor is critical for setting up the diamond's functionality. Ensure t
         href: "/docs/library/diamond/DiamondInspectFacet",
         description: "Related facet in diamond",
         icon: "💎"
+      },
+      {
+        title: "DiamondUpgradeFacet",
+        href: "/docs/library/diamond/DiamondUpgradeFacet",
+        description: "Related facet in diamond",
+        icon: "💎"
       }
     ]}
   />
@@ -150,4 +158,4 @@ The constructor is critical for setting up the diamond's functionality. Ensure t
   <WasThisHelpful pageId="ExampleDiamond" />
 </div>
 
-<LastUpdated date="2025-12-30T20:14:52.529Z" />
+<LastUpdated date="2026-03-12T19:42:30.053Z" />

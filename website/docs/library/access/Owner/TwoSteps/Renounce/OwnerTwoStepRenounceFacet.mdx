@@ -1,0 +1,216 @@
+---
+sidebar_position: 110
+title: "OwnerTwoStepRenounceFacet"
+description: "Two-step ownership renouncement for diamonds"
+gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/access/Owner/TwoSteps/Renounce/OwnerTwoStepRenounceFacet.sol"
+---
+
+import DocSubtitle  from '@site/src/components/docs/DocSubtitle';
+import Badge from '@site/src/components/ui/Badge';
+import Callout from '@site/src/components/ui/Callout';
+import CalloutBox from '@site/src/components/ui/CalloutBox';
+import Accordion, { AccordionGroup } from '@site/src/components/ui/Accordion';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+import ExpandableCode from '@site/src/components/code/ExpandableCode';
+import CodeShowcase from '@site/src/components/code/CodeShowcase';
+import RelatedDocs from '@site/src/components/docs/RelatedDocs';
+import WasThisHelpful from '@site/src/components/docs/WasThisHelpful';
+import LastUpdated from '@site/src/components/docs/LastUpdated';
+import ReadingTime from '@site/src/components/docs/ReadingTime';
+import GradientText from '@site/src/components/ui/GradientText';
+import GradientButton from '@site/src/components/ui/GradientButton';
+
+<DocSubtitle>
+Two-step ownership renouncement for diamonds
+</DocSubtitle>
+
+<Callout type="info" title="Key Features">
+- Implements a two-step ownership renouncement process.
+- Utilizes diamond storage for owner and pending owner state.
+- Exports selectors for easy integration into a diamond.
+- Follows Compose readability-first conventions.
+</Callout>
+
+## Overview
+
+This facet implements a two-step ownership renouncement mechanism for diamond contracts. It exposes functions to manage the pending owner and finalize the renouncement, ensuring a secure transition of control. Developers add this facet to facilitate the secure transfer of ownership away from the current owner.
+
+---
+
+## Storage
+
+### OwnerStorage
+
+<ExpandableCode language="solidity" maxLines={15} title="Definition">
+{`struct OwnerStorage {
+    address owner;
+}`}
+</ExpandableCode>
+
+---
+### PendingOwnerStorage
+
+<ExpandableCode language="solidity" maxLines={15} title="Definition">
+{`struct PendingOwnerStorage {
+    address pendingOwner;
+}`}
+</ExpandableCode>
+
+### State Variables
+
+<PropertyTable
+  properties={[
+    {
+      name: "OWNER_STORAGE_POSITION",
+      type: "bytes32",
+      description: "Diamond storage slot position for this module (Value: `keccak256(\"erc173.owner\")`)"
+    },
+    {
+      name: "PENDING_OWNER_STORAGE_POSITION",
+      type: "bytes32",
+      description: "Diamond storage slot position for this module (Value: `keccak256(\"erc173.owner.pending\")`)"
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Functions
+
+### renounceOwnership
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function renounceOwnership() external;`}
+</ExpandableCode>
+
+---
+### exportSelectors
+
+Exports the function selectors of the OwnerTwoStepRenounceFacet This function is use as a selector discovery mechanism for diamonds
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function exportSelectors() external pure returns (bytes memory);`}
+</ExpandableCode>
+
+**Returns:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "bytes",
+      description: "selectors The exported function selectors of the OwnerTwoStepRenounceFacet"
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Events
+
+<AccordionGroup>
+  <Accordion title="OwnershipTransferred" defaultOpen={false}>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+{`event OwnershipTransferred(address indexed _previousOwner, address indexed _newOwner);`}
+      </ExpandableCode>
+    </div>
+
+  </Accordion>
+</AccordionGroup>
+
+## Errors
+
+<AccordionGroup>
+  <Accordion title="OwnerUnauthorizedAccount" defaultOpen={false}>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error OwnerUnauthorizedAccount();
+      </ExpandableCode>
+    </div>
+  </Accordion>
+</AccordionGroup>
+
+<!-- Usage Example section commented out for now -->
+<!--
+## Usage Example
+
+<ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
+{`pragma solidity >=0.8.30;
+
+import {IDiamond} from "@compose/core/src/diamond/IDiamond";
+import {OwnerTwoStepRenounceFacet} from "@compose/access/Owner/TwoSteps/Renounce/OwnerTwoStepRenounceFacet";
+
+contract Deployer {
+    address immutable diamondAddress;
+
+    constructor(address _diamondAddress) {
+        diamondAddress = _diamondAddress;
+    }
+
+    function renounceDiamondOwnership() external {
+        IDiamond diamond = IDiamond(diamondAddress);
+        // Call the renounceOwnership function through the diamond proxy
+        diamond.renounceOwnership();
+    }
+
+    // Function to export selectors for diamond registration
+    function exportOwnerSelectors() external pure returns (bytes memory) {
+        return OwnerTwoStepRenounceFacet.exportSelectors();
+    }
+}`}
+</ExpandableCode>
+-->
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Call `renounceOwnership()` through the diamond proxy to ensure proper function dispatch.
+- Ensure the `OwnerTwoStepRenounceFacet` is registered with the diamond contract before use.
+- Verify that the current owner is the one initiating the `renounceOwnership()` call.
+</Callout>
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+The `renounceOwnership()` function does not have explicit access control, implying it can be called by anyone. However, the underlying logic within the diamond proxy and facet implementation will ensure it only affects the current owner's state. Follow standard Solidity security practices for diamond proxy interactions.
+</Callout>
+
+<div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
+  <RelatedDocs
+    items={[
+      {
+        title: "AccessControlAdminFacet",
+        href: "/docs/library/access/AccessControl/Admin/AccessControlAdminFacet",
+        description: "Related facet in access",
+        icon: "💎"
+      },
+      {
+        title: "AccessControlGrantBatchFacet",
+        href: "/docs/library/access/AccessControl/Batch/Grant/AccessControlGrantBatchFacet",
+        description: "Related facet in access",
+        icon: "💎"
+      },
+      {
+        title: "AccessControlRevokeBatchFacet",
+        href: "/docs/library/access/AccessControl/Batch/Revoke/AccessControlRevokeBatchFacet",
+        description: "Related facet in access",
+        icon: "💎"
+      },
+      {
+        title: "AccessControlDataFacet",
+        href: "/docs/library/access/AccessControl/Data/AccessControlDataFacet",
+        description: "Related facet in access",
+        icon: "💎"
+      }
+    ]}
+  />
+</div>
+
+<div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
+  <WasThisHelpful pageId="OwnerTwoStepRenounceFacet" />
+</div>
+
+<LastUpdated date="2026-03-12T19:41:56.587Z" />

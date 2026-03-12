@@ -1,0 +1,289 @@
+---
+sidebar_position: 200
+title: "ERC721EnumerableBurnMod"
+description: "Burns ERC-721 tokens and tracks enumeration"
+gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/token/ERC721/Enumerable/Burn/ERC721EnumerableBurnMod.sol"
+---
+
+import DocSubtitle  from '@site/src/components/docs/DocSubtitle';
+import Badge from '@site/src/components/ui/Badge';
+import Callout from '@site/src/components/ui/Callout';
+import CalloutBox from '@site/src/components/ui/CalloutBox';
+import Accordion, { AccordionGroup } from '@site/src/components/ui/Accordion';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+import ExpandableCode from '@site/src/components/code/ExpandableCode';
+import CodeShowcase from '@site/src/components/code/CodeShowcase';
+import RelatedDocs from '@site/src/components/docs/RelatedDocs';
+import WasThisHelpful from '@site/src/components/docs/WasThisHelpful';
+import LastUpdated from '@site/src/components/docs/LastUpdated';
+import ReadingTime from '@site/src/components/docs/ReadingTime';
+import GradientText from '@site/src/components/ui/GradientText';
+import GradientButton from '@site/src/components/ui/GradientButton';
+
+<DocSubtitle>
+Burns ERC-721 tokens and tracks enumeration
+</DocSubtitle>
+
+<Callout type="info" title="Key Features">
+- Internal functions for burning ERC-721 tokens.
+- Manages enumeration state updates upon token burn.
+- Uses diamond storage pattern for shared state management.
+- Functions are `external` to be called by facets, but do not perform approval checks.
+</Callout>
+
+<Callout type="info" title="Module Usage">
+This module provides internal functions for use in your custom facets. Import it to access shared logic and storage.
+</Callout>
+
+## Overview
+
+This module provides internal functions for burning ERC-721 tokens, ensuring they are removed from enumeration tracking. Facets using this module can interact with shared ERC721Storage and ERC721EnumerableStorage via diamond storage. Changes to token state are immediately visible to all facets accessing the same storage.
+
+---
+
+## Storage
+
+### ERC721EnumerableStorage
+
+storage-location: erc8042:erc721.enumerable
+
+<ExpandableCode language="solidity" maxLines={15} title="Definition">
+{`struct ERC721EnumerableStorage {
+    mapping(address owner => mapping(uint256 index => uint256 tokenId)) ownerTokens;
+    mapping(uint256 tokenId => uint256 ownerTokensIndex) ownerTokensIndex;
+    uint256[] allTokens;
+    mapping(uint256 tokenId => uint256 allTokensIndex) allTokensIndex;
+}`}
+</ExpandableCode>
+
+---
+### ERC721Storage
+
+storage-location: erc8042:erc721
+
+<ExpandableCode language="solidity" maxLines={15} title="Definition">
+{`struct ERC721Storage {
+    mapping(uint256 tokenId => address owner) ownerOf;
+    mapping(address owner => uint256 balance) balanceOf;
+    mapping(address owner => mapping(address operator => bool approved)) isApprovedForAll;
+    mapping(uint256 tokenId => address approved) approved;
+}`}
+</ExpandableCode>
+
+### State Variables
+
+<PropertyTable
+  properties={[
+    {
+      name: "STORAGE_POSITION",
+      type: "bytes32",
+      description: "Diamond storage slot position for this module (Value: `keccak256(\"erc721.enumerable\")`)"
+    },
+    {
+      name: "ERC721_STORAGE_POSITION",
+      type: "bytes32",
+      description: "Diamond storage slot position for this module (Value: `keccak256(\"erc721\")`)"
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Functions
+
+### burn
+
+Burns (destroys) a token, removing it from enumeration tracking. This module does not check for approval. Use the facet for approval-checked burns.
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function burn(uint256 _tokenId) ;`}
+</ExpandableCode>
+
+**Parameters:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "_tokenId",
+      type: "uint256",
+      description: "The ID of the token to burn."
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### getERC721Storage
+
+Returns a pointer to the ERC-721 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function getERC721Storage() pure returns (ERC721Storage storage s);`}
+</ExpandableCode>
+
+**Returns:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "s",
+      type: "ERC721Storage",
+      description: "The ERC721Storage struct in storage."
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### getStorage
+
+Returns the storage struct used by this facet.
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function getStorage() pure returns (ERC721EnumerableStorage storage s);`}
+</ExpandableCode>
+
+**Returns:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "s",
+      type: "ERC721EnumerableStorage",
+      description: "The ERC721Enumerable storage struct."
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Events
+
+<AccordionGroup>
+  <Accordion title="Transfer" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Emitted when a token is transferred between addresses.
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+{`event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId);`}
+      </ExpandableCode>
+    </div>
+
+  </Accordion>
+</AccordionGroup>
+
+## Errors
+
+<AccordionGroup>
+  <Accordion title="ERC721NonexistentToken" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Thrown when operating on a non-existent token.
+    </div>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error ERC721NonexistentToken(uint256 _tokenId);
+      </ExpandableCode>
+    </div>
+  </Accordion>
+</AccordionGroup>
+
+<!-- Usage Example section commented out for now -->
+<!--
+## Usage Example
+
+<ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
+{`pragma solidity >=0.8.30;
+
+import @compose/token/ERC721/Enumerable/Burn/ERC721EnumerableBurnMod;
+
+contract MyERC721Facet {
+    ERC721EnumerableBurnMod internal immutable _erc721EnumerableBurnMod;
+
+    constructor(address _moduleAddress) {
+        _erc721EnumerableBurnMod = ERC721EnumerableBurnMod(_moduleAddress);
+    }
+
+    /**
+     * @notice Burns a token by its ID.
+     * @dev Does not perform approval checks; use facet for that.
+     * @param _tokenId The ID of the token to burn.
+     */
+    function burnToken(uint256 _tokenId) external {
+        // Ensure token exists before burning (facet responsibility)
+        // ... token existence check ...
+
+        _erc721EnumerableBurnMod.burn(_tokenId);
+    }
+
+    /**
+     * @notice Retrieves the ERC721Storage struct.
+     * @return The ERC721Storage struct.
+     */
+    function getErc721Storage() external pure returns (ERC721Storage) {
+        return _erc721EnumerableBurnMod.getERC721Storage();
+    }
+
+    /**
+     * @notice Retrieves the ERC721EnumerableStorage struct.
+     * @return The ERC721EnumerableStorage struct.
+     */
+    function getEnumerableStorage() external pure returns (ERC721EnumerableStorage) {
+        return _erc721EnumerableBurnMod.getStorage();
+    }
+}`}
+</ExpandableCode>
+-->
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Call `burn` only after verifying token existence and ownership (handled by the facet).
+- Ensure correct storage slot `STORAGE_POSITION` is used by the diamond proxy.
+- Handle the `ERC721NonexistentToken` error if the facet directly calls `burn` without prior checks.
+</Callout>
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+This module utilizes the diamond storage pattern at `STORAGE_POSITION`, identified by `keccak256(\"erc721.enumerable\")`. It reads from and writes to `ERC721EnumerableStorage` and `ERC721Storage` structs within this slot. All state changes made by the `burn` function are immediately reflected across all facets that access this shared diamond storage.
+</Callout>
+
+<div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
+  <RelatedDocs
+    items={[
+      {
+        title: "ERC721EnumerableBurnFacet",
+        href: "/docs/library/token/ERC721/Enumerable/Burn/ERC721EnumerableBurnFacet",
+        description: "Facet using ERC721EnumerableBurnMod",
+        icon: "💎"
+      },
+      {
+        title: "ERC1155ApproveMod",
+        href: "/docs/library/token/ERC1155/Approve/ERC1155ApproveMod",
+        description: "Related module in token",
+        icon: "📦"
+      },
+      {
+        title: "ERC1155BurnMod",
+        href: "/docs/library/token/ERC1155/Burn/ERC1155BurnMod",
+        description: "Related module in token",
+        icon: "📦"
+      },
+      {
+        title: "ERC1155MetadataMod",
+        href: "/docs/library/token/ERC1155/Metadata/ERC1155MetadataMod",
+        description: "Related module in token",
+        icon: "📦"
+      }
+    ]}
+  />
+</div>
+
+<div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
+  <WasThisHelpful pageId="ERC721EnumerableBurnMod" />
+</div>
+
+<LastUpdated date="2026-03-12T19:44:55.934Z" />

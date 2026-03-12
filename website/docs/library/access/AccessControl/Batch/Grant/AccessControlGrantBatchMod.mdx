@@ -1,0 +1,260 @@
+---
+sidebar_position: 100
+title: "AccessControlGrantBatchMod"
+description: "Grant roles to multiple accounts in one transaction"
+gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/access/AccessControl/Batch/Grant/AccessControlGrantBatchMod.sol"
+---
+
+import DocSubtitle  from '@site/src/components/docs/DocSubtitle';
+import Badge from '@site/src/components/ui/Badge';
+import Callout from '@site/src/components/ui/Callout';
+import CalloutBox from '@site/src/components/ui/CalloutBox';
+import Accordion, { AccordionGroup } from '@site/src/components/ui/Accordion';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+import ExpandableCode from '@site/src/components/code/ExpandableCode';
+import CodeShowcase from '@site/src/components/code/CodeShowcase';
+import RelatedDocs from '@site/src/components/docs/RelatedDocs';
+import WasThisHelpful from '@site/src/components/docs/WasThisHelpful';
+import LastUpdated from '@site/src/components/docs/LastUpdated';
+import ReadingTime from '@site/src/components/docs/ReadingTime';
+import GradientText from '@site/src/components/ui/GradientText';
+import GradientButton from '@site/src/components/ui/GradientButton';
+
+<DocSubtitle>
+Grant roles to multiple accounts in one transaction
+</DocSubtitle>
+
+<Callout type="info" title="Key Features">
+- Provides `internal` functions for use within custom facets.
+- Enables granting roles to multiple accounts in a single transaction, optimizing gas usage.
+- Emits `RoleGranted` events for each successful role assignment.
+- Compatible with the diamond storage pattern (EIP-8042).
+</Callout>
+
+<Callout type="info" title="Module Usage">
+This module provides internal functions for use in your custom facets. Import it to access shared logic and storage.
+</Callout>
+
+## Overview
+
+This module provides an efficient way to grant a specific role to multiple accounts simultaneously. By batching these operations, it reduces gas costs and simplifies common administrative tasks within a diamond. Developers can integrate this module into facets to manage role assignments programmatically.
+
+---
+
+## Storage
+
+### AccessControlStorage
+
+storage struct for the AccessControl. storage-location: erc8042:compose.accesscontrol
+
+<ExpandableCode language="solidity" maxLines={15} title="Definition">
+{`struct AccessControlStorage {
+    mapping(address account => mapping(bytes32 role => bool hasRole)) hasRole;
+    mapping(bytes32 role => bytes32 adminRole) adminRole;
+}`}
+</ExpandableCode>
+
+### State Variables
+
+<PropertyTable
+  properties={[
+    {
+      name: "STORAGE_POSITION",
+      type: "bytes32",
+      description: "Diamond storage slot position for this module (Value: `keccak256(\"compose.accesscontrol\")`)"
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Functions
+
+### getStorage
+
+Returns the storage for the AccessControl.
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function getStorage() pure returns (AccessControlStorage storage _s);`}
+</ExpandableCode>
+
+**Returns:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "_s",
+      type: "AccessControlStorage",
+      description: "The storage for the AccessControl."
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### grantRoleBatch
+
+function to grant a role to multiple accounts in a single transaction. Emits a &#123;RoleGranted&#125; event for each newly granted account. Reverts with AccessControlUnauthorizedAccount If the caller is not the admin of the role.
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function grantRoleBatch(bytes32 _role, address[] calldata _accounts) ;`}
+</ExpandableCode>
+
+**Parameters:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "_role",
+      type: "bytes32",
+      description: "The role to grant."
+    },
+    {
+      name: "_accounts",
+      type: "address[]",
+      description: "The accounts to grant the role to."
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Events
+
+<AccordionGroup>
+  <Accordion title="RoleGranted" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Emitted when a role is granted to an account.
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+{`event RoleGranted(bytes32 indexed _role, address indexed _account, address indexed _sender);`}
+      </ExpandableCode>
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Parameters:</strong>
+      <PropertyTable
+        properties={[
+          {
+            name: "_role",
+            type: "bytes32",
+            description: "The role that was granted."
+          },
+          {
+            name: "_account",
+            type: "address",
+            description: "The account that was granted the role."
+          },
+          {
+            name: "_sender",
+            type: "address",
+            description: "The sender that granted the role."
+          }
+        ]}
+        showRequired={false}
+      />
+    </div>
+  </Accordion>
+</AccordionGroup>
+
+## Errors
+
+<AccordionGroup>
+  <Accordion title="AccessControlUnauthorizedAccount" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Thrown when the account does not have a specific role.
+    </div>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error AccessControlUnauthorizedAccount(address _account, bytes32 _role);
+      </ExpandableCode>
+    </div>
+  </Accordion>
+</AccordionGroup>
+
+<!-- Usage Example section commented out for now -->
+<!--
+## Usage Example
+
+<ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
+{`pragma solidity >=0.8.30;
+
+import {AccessControlGrantBatchMod} from "@compose/access/AccessControl/Batch/Grant/AccessControlGrantBatchMod";
+
+contract MyAccessFacet {
+    AccessControlGrantBatchMod internal acGrantBatchMod;
+
+    constructor(address accessControlDiamondAddress) {
+        // Assuming AccessControlGrantBatchMod is deployed at a known address or accessed via diamond proxy
+        // For demonstration, assuming it's directly instantiable or accessible.
+        // In a real diamond, this would likely be called via the diamond proxy.
+        // This example assumes a direct import and instantiation for clarity, but actual usage depends on diamond architecture.
+    }
+
+    /**
+     * @notice Grants a role to multiple accounts.
+     * @param _role The role to grant.
+     * @param _accounts The addresses to grant the role to.
+     */
+    function grantRoleToMultipleAccounts(bytes32 _role, address[] memory _accounts) external {
+        // In a real diamond, you would call the module's function through the diamond proxy or a facet that imports it.
+        // For this example, we simulate calling the module's internal function.
+        // Replace with actual call mechanism in your diamond context.
+        // acGrantBatchMod.grantRoleBatch(_role, _accounts);
+
+        // Placeholder for actual call within a diamond context:
+        // AccessControlGrantBatchMod.grantRoleBatch(_role, _accounts);
+    }
+
+    /**
+     * @notice Retrieves the AccessControl storage structure.
+     * @return AccessControlStorage The storage structure.
+     */
+    function getAccessControlStorage() public pure returns (AccessControlStorage) {
+        return AccessControlGrantBatchMod.getStorage();
+    }
+}`}
+</ExpandableCode>
+-->
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Ensure the caller has the necessary administrative permissions before invoking `grantRoleBatch`.
+- Handle the `AccessControlUnauthorizedAccount` error for failed role grants.
+- Verify the `AccessControlStorage` layout and slot position are compatible when upgrading diamond facets.
+</Callout>
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+This module interacts with diamond storage at the `STORAGE_POSITION` defined by `keccak256(\"compose.accesscontrol\")`. All functions are internal and operate directly on the shared `AccessControlStorage` struct. Changes to role assignments made via this module are immediately visible to all facets that access the same storage position.
+</Callout>
+
+<div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
+  <RelatedDocs
+    items={[
+      {
+        title: "AccessControlGrantBatchFacet",
+        href: "/docs/library/access/AccessControl/Batch/Grant/AccessControlGrantBatchFacet",
+        description: "Facet using AccessControlGrantBatchMod",
+        icon: "💎"
+      },
+      {
+        title: "AccessControlAdminMod",
+        href: "/docs/library/access/AccessControl/Admin/AccessControlAdminMod",
+        description: "Related module in access",
+        icon: "📦"
+      }
+    ]}
+  />
+</div>
+
+<div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
+  <WasThisHelpful pageId="AccessControlGrantBatchMod" />
+</div>
+
+<LastUpdated date="2026-03-12T19:40:08.708Z" />

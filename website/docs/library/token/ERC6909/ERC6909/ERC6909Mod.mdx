@@ -1,7 +1,7 @@
 ---
 sidebar_position: 1
 title: "ERC6909Mod"
-description: "Minimal multi-token logic for ERC-6909"
+description: "Internal functions for ERC-6909 multi-token logic"
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/token/ERC6909/ERC6909/ERC6909Mod.sol"
 ---
 
@@ -21,14 +21,14 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Minimal multi-token logic for ERC-6909
+Internal functions for ERC-6909 multi-token logic
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- All functions are `internal` for use in custom facets.
-- Utilizes diamond storage pattern (EIP-8042) for shared state.
-- Provides core ERC-6909 token operations: mint, burn, transfer, approve, setOperator.
-- No external dependencies or `using` directives.
+- Exposes `internal` functions for mint, burn, transfer, and approve operations.
+- Utilizes the diamond storage pattern at a dedicated `STORAGE_POSITION`.
+- No external dependencies, promoting composability.
+- Provides error types for common ERC-6909 failures.
 </Callout>
 
 <Callout type="info" title="Module Usage">
@@ -37,7 +37,7 @@ This module provides internal functions for use in your custom facets. Import it
 
 ## Overview
 
-This module provides internal functions and storage layout for ERC-6909 minimal multi-token logic. Facets can import this module to mint, burn, transfer, and manage approvals for tokens using shared diamond storage. Changes to balances and approvals are immediately visible to all facets interacting with the same storage.
+This module provides internal functions for managing ERC-6909 compliant multi-tokens. Facets can import this module to interact with token state stored within the diamond using a shared storage pattern. It enables composable token logic by exposing core operations like minting, burning, transferring, and approvals.
 
 ---
 
@@ -45,7 +45,7 @@ This module provides internal functions and storage layout for ERC-6909 minimal 
 
 ### ERC6909Storage
 
-storage-location: erc8042:compose.erc6909
+storage-location: erc8042:erc6909
 
 <ExpandableCode language="solidity" maxLines={15} title="Definition">
 {`struct ERC6909Storage {
@@ -62,7 +62,7 @@ storage-location: erc8042:compose.erc6909
     {
       name: "STORAGE_POSITION",
       type: "bytes32",
-      description: "Diamond storage slot position for this module (Value: `keccak256(\"compose.erc6909\")`)"
+      description: "Diamond storage slot position for this module (Value: `keccak256(\"erc6909\")`)"
     }
   ]}
   showRequired={false}
@@ -479,29 +479,20 @@ error ERC6909InvalidSpender(address _spender);
 
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity >=0.8.30;
-import { ERC6909Mod } from "@compose/token/ERC6909/ERC6909/ERC6909Mod";
 
-contract MyERC6909Facet {
-    ERC6909Mod internal erc6909Module;
+import {ERC6909Mod} from "@compose/token/ERC6909/ERC6909/ERC6909Mod";
 
-    function initialize(ERC6909Mod _erc6909Module) external {
-        erc6909Module = _erc6909Module;
+contract MyTokenFacet {
+    using ERC6909Mod for ERC6909Mod.ERC6909Storage;
+
+    function transferTokens(address _from, address _to, uint256 _id, uint256 _amount) external {
+        ERC6909Mod.ERC6909Storage storage storagePtr = ERC6909Mod.getStorage();
+        storagePtr.transfer(_from, _from, _to, _id, _amount);
     }
 
-    function mintToken(address _to, uint256 _id, uint256 _amount) external {
-        erc6909Module.mint(_to, _id, _amount);
-    }
-
-    function transferToken(address _from, address _to, uint256 _id, uint256 _amount) external {
-        erc6909Module.transfer(msg.sender, _from, _to, _id, _amount);
-    }
-
-    function approveOperator(address _spender, uint256 _id, uint256 _amount) external {
-        erc6909Module.approve(msg.sender, _spender, _id, _amount);
-    }
-
-    function setOperatorApproval(address _spender, bool _approved) external {
-        erc6909Module.setOperator(msg.sender, _spender, _approved);
+    function mintTokens(address _to, uint256 _id, uint256 _amount) external {
+        ERC6909Mod.ERC6909Storage storage storagePtr = ERC6909Mod.getStorage();
+        storagePtr.mint(_to, _id, _amount);
     }
 }`}
 </ExpandableCode>
@@ -510,15 +501,15 @@ contract MyERC6909Facet {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Ensure `msg.sender` has appropriate permissions before calling `burn` or `transfer`.
-- Verify storage layout compatibility when upgrading facets that use this module.
-- Handle specific errors like `ERC6909InsufficientBalance` and `ERC6909InsufficientAllowance`.
+- Ensure the caller has sufficient balance and allowance before initiating transfers.
+- Verify that receiver addresses are valid and not zero addresses.
+- Handle specific errors such as `ERC6909InsufficientBalance` and `ERC6909InsufficientAllowance`.
 </Callout>
 
 ## Integration Notes
 
 <Callout type="success" title="Shared Storage">
-This module stores ERC-6909 token data within the diamond's shared storage at the slot identified by `STORAGE_POSITION`. All functions operate directly on this shared `ERC6909Storage` struct. Changes made by any facet using this module are immediately visible to all other facets accessing the same storage position, ensuring consistent state across the diamond.
+This module accesses shared state via diamond storage at the slot identified by `keccak256("erc6909")`. All functions are internal and operate directly on the `ERC6909Storage` struct, ensuring that changes are immediately visible to all facets interacting with this storage position.
 </Callout>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
@@ -531,20 +522,20 @@ This module stores ERC-6909 token data within the diamond's shared storage at th
         icon: "💎"
       },
       {
-        title: "ERC20PermitMod",
-        href: "/docs/library/token/ERC20/ERC20Permit/ERC20PermitMod",
+        title: "ERC1155ApproveMod",
+        href: "/docs/library/token/ERC1155/Approve/ERC1155ApproveMod",
         description: "Related module in token",
         icon: "📦"
       },
       {
-        title: "ERC20Mod",
-        href: "/docs/library/token/ERC20/ERC20/ERC20Mod",
+        title: "ERC1155BurnMod",
+        href: "/docs/library/token/ERC1155/Burn/ERC1155BurnMod",
         description: "Related module in token",
         icon: "📦"
       },
       {
-        title: "ERC20BridgeableMod",
-        href: "/docs/library/token/ERC20/ERC20Bridgeable/ERC20BridgeableMod",
+        title: "ERC1155MetadataMod",
+        href: "/docs/library/token/ERC1155/Metadata/ERC1155MetadataMod",
         description: "Related module in token",
         icon: "📦"
       }
@@ -556,4 +547,4 @@ This module stores ERC-6909 token data within the diamond's shared storage at th
   <WasThisHelpful pageId="ERC6909Mod" />
 </div>
 
-<LastUpdated date="2025-12-30T20:13:58.897Z" />
+<LastUpdated date="2026-03-12T19:44:27.955Z" />

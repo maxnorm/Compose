@@ -1,0 +1,273 @@
+---
+sidebar_position: 100
+title: "OwnerDataMod"
+description: "Manages ERC-173 contract ownership internally"
+gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/access/Owner/Data/OwnerDataMod.sol"
+---
+
+import DocSubtitle  from '@site/src/components/docs/DocSubtitle';
+import Badge from '@site/src/components/ui/Badge';
+import Callout from '@site/src/components/ui/Callout';
+import CalloutBox from '@site/src/components/ui/CalloutBox';
+import Accordion, { AccordionGroup } from '@site/src/components/ui/Accordion';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+import ExpandableCode from '@site/src/components/code/ExpandableCode';
+import CodeShowcase from '@site/src/components/code/CodeShowcase';
+import RelatedDocs from '@site/src/components/docs/RelatedDocs';
+import WasThisHelpful from '@site/src/components/docs/WasThisHelpful';
+import LastUpdated from '@site/src/components/docs/LastUpdated';
+import ReadingTime from '@site/src/components/docs/ReadingTime';
+import GradientText from '@site/src/components/ui/GradientText';
+import GradientButton from '@site/src/components/ui/GradientButton';
+
+<DocSubtitle>
+Manages ERC-173 contract ownership internally
+</DocSubtitle>
+
+<Callout type="info" title="Key Features">
+- Provides internal functions for ERC-173 ownership management.
+- Uses diamond storage (EIP-8042) for owner state.
+- `requireOwner()` enforces caller authorization based on diamond owner.
+- Exposes `getStorage()` for direct access to ownership state.
+</Callout>
+
+<Callout type="info" title="Module Usage">
+This module provides internal functions for use in your custom facets. Import it to access shared logic and storage.
+</Callout>
+
+## Overview
+
+This module provides internal functions and storage for managing ERC-173 contract ownership. Facets can import this module to interact with shared ownership data, ensuring consistent owner checks and transfers across the diamond. Ownership changes are immediately reflected for all facets utilizing the diamond storage pattern.
+
+---
+
+## Storage
+
+### OwnerStorage
+
+storage-location: erc8042:erc173.owner
+
+<ExpandableCode language="solidity" maxLines={15} title="Definition">
+{`struct OwnerStorage {
+    address owner;
+}`}
+</ExpandableCode>
+
+### State Variables
+
+<PropertyTable
+  properties={[
+    {
+      name: "STORAGE_POSITION",
+      type: "bytes32",
+      description: "Diamond storage slot position for this module (Value: `keccak256(\"erc173.owner\")`)"
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Functions
+
+### getStorage
+
+Returns a pointer to the ERC-173 storage struct. Uses inline assembly to access the storage slot defined by STORAGE_POSITION.
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function getStorage() pure returns (OwnerStorage storage s);`}
+</ExpandableCode>
+
+**Returns:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "s",
+      type: "OwnerStorage",
+      description: "The OwnerStorage struct in storage."
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### owner
+
+Get the address of the owner
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function owner() view returns (address);`}
+</ExpandableCode>
+
+**Returns:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "address",
+      description: "The address of the owner."
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### requireOwner
+
+Reverts if the caller is not the owner.
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function requireOwner() view;`}
+</ExpandableCode>
+
+---
+### setContractOwner
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function setContractOwner(address _initialOwner) ;`}
+</ExpandableCode>
+
+**Parameters:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "_initialOwner",
+      type: "address",
+      description: ""
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Events
+
+<AccordionGroup>
+  <Accordion title="OwnershipTransferred" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      This emits when ownership of a contract changes.
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+{`event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);`}
+      </ExpandableCode>
+    </div>
+
+  </Accordion>
+</AccordionGroup>
+
+## Errors
+
+<AccordionGroup>
+  <Accordion title="OwnerAlreadyRenounced" defaultOpen={false}>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error OwnerAlreadyRenounced();
+      </ExpandableCode>
+    </div>
+  </Accordion>
+  <Accordion title="OwnerUnauthorizedAccount" defaultOpen={false}>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error OwnerUnauthorizedAccount();
+      </ExpandableCode>
+    </div>
+  </Accordion>
+</AccordionGroup>
+
+<!-- Usage Example section commented out for now -->
+<!--
+## Usage Example
+
+<ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
+{`pragma solidity >=0.8.30;
+
+import {OwnerDataMod} from "@compose/access/Owner/Data/OwnerDataMod";
+
+contract OwnerFacet {
+    // OwnerDataMod is expected to be initialized with an owner address.
+    // This example assumes the owner is set via deployment or another facet.
+
+    function transferOwnership(address _newOwner) external {
+        // Ensure the caller is the current owner before allowing transfer.
+        OwnerDataMod.requireOwner();
+
+        // Call the internal function to set the new owner.
+        // Note: setContractOwner() does not take arguments in this definition.
+        // The actual owner address is managed internally by OwnerDataMod.
+        OwnerDataMod.setContractOwner();
+
+        // OwnershipTransferred event is emitted by OwnerDataMod internally.
+    }
+
+    function getCurrentOwner() external view returns (address) {
+        return OwnerDataMod.owner();
+    }
+
+    /**
+     * @notice Retrieves the internal storage pointer.
+     * @dev Useful for debugging or advanced storage inspection.
+     */
+    function getOwnerStorage() external pure returns (OwnerStorage) {
+        return OwnerDataMod.getStorage();
+    }
+}`}
+</ExpandableCode>
+-->
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Call `requireOwner()` before executing sensitive operations to enforce ownership.
+- Ensure `OwnerDataMod` is correctly initialized with the intended owner address during deployment.
+- Handle the `OwnerUnauthorizedAccount` and `OwnerAlreadyRenounced` errors, which may be emitted by internal `OwnerDataMod` functions if called inappropriately.
+</Callout>
+
+## Integration Notes
+
+<Callout type="success" title="Shared Storage">
+This module utilizes the diamond storage pattern, storing ownership data at a specific slot identified by `STORAGE_POSITION` which resolves to `keccak256(\"erc173.owner\")`. The `OwnerStorage` struct contains the `owner` address. All functions in this module directly access and modify this shared storage, making any ownership changes immediately visible to all facets interacting with the diamond's storage.
+</Callout>
+
+<div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
+  <RelatedDocs
+    items={[
+      {
+        title: "OwnerDataFacet",
+        href: "/docs/library/access/Owner/Data/OwnerDataFacet",
+        description: "Facet using OwnerDataMod",
+        icon: "💎"
+      },
+      {
+        title: "AccessControlAdminMod",
+        href: "/docs/library/access/AccessControl/Admin/AccessControlAdminMod",
+        description: "Related module in access",
+        icon: "📦"
+      },
+      {
+        title: "AccessControlGrantBatchMod",
+        href: "/docs/library/access/AccessControl/Batch/Grant/AccessControlGrantBatchMod",
+        description: "Related module in access",
+        icon: "📦"
+      },
+      {
+        title: "AccessControlRevokeBatchMod",
+        href: "/docs/library/access/AccessControl/Batch/Revoke/AccessControlRevokeBatchMod",
+        description: "Related module in access",
+        icon: "📦"
+      }
+    ]}
+  />
+</div>
+
+<div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
+  <WasThisHelpful pageId="OwnerDataMod" />
+</div>
+
+<LastUpdated date="2026-03-12T19:41:29.968Z" />

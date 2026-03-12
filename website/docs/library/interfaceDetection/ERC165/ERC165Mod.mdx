@@ -1,7 +1,7 @@
 ---
 sidebar_position: 1
 title: "ERC165Mod"
-description: "ERC-165 interface detection using diamond storage"
+description: "ERC-165 interface detection support"
 gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/interfaceDetection/ERC165/ERC165Mod.sol"
 ---
 
@@ -21,13 +21,14 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-ERC-165 interface detection using diamond storage
+ERC-165 interface detection support
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Provides internal functions for ERC-165 interface detection.
-- Uses a dedicated diamond storage position (`STORAGE_POSITION`) for interface mappings.
-- No external dependencies or `using` directives, promoting explicitness.
+- Provides internal functions for ERC-165 interface registration.
+- Uses a dedicated diamond storage slot for interface support.
+- Functions are `internal`, promoting composability within facets.
+- No external dependencies, ensuring minimal on-chain footprint.
 </Callout>
 
 <Callout type="info" title="Module Usage">
@@ -36,7 +37,7 @@ This module provides internal functions for use in your custom facets. Import it
 
 ## Overview
 
-This module provides internal functions and storage for ERC-165 interface detection within a diamond. Facets import this module to register supported interfaces during initialization. These registrations are stored in shared diamond storage, making them visible to all facets.
+This module provides internal functions and storage for ERC-165 interface detection. Facets can import this module to register supported interfaces during initialization. All registered interfaces are stored in a shared diamond storage slot, ensuring consistency across the diamond.
 
 ---
 
@@ -60,7 +61,7 @@ This module provides internal functions and storage for ERC-165 interface detect
     {
       name: "STORAGE_POSITION",
       type: "bytes32",
-      description: "Diamond storage slot position for this module (Value: `keccak256(\"compose.erc165\")`)"
+      description: "Diamond storage slot position for this module (Value: `keccak256(\"erc165\")`)"
     }
   ]}
   showRequired={false}
@@ -118,21 +119,28 @@ Register that a contract supports an interface Call this function during initial
 <ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
 {`pragma solidity >=0.8.30;
 
-import { ERC165Mod } from "@compose/interfaceDetection/ERC165/ERC165Mod";
+import {ERC165Mod, ERC165Storage} from "@compose/interfaceDetection/ERC165/ERC165Mod";
 
-contract MyERC721Facet {
-    // Assume ERC165Storage is correctly initialized at STORAGE_POSITION
+contract MyERC165Facet {
+
+    // ERC165Mod.ERC165Storage internal erc165Storage;
 
     function initialize() external {
-        // Register ERC721 interface support
+        // Example: Registering ERC721 interface
         ERC165Mod.registerInterface(type(IERC721).interfaceId);
+
+        // Example: Registering a custom interface
+        // bytes4 customInterfaceId = bytes4(keccak256("MY_CUSTOM_INTERFACE()", ""));
+        // ERC165Mod.registerInterface(customInterfaceId);
     }
 
-    // Other ERC721 functions...
-}
-
-interface IERC721 {
-    function interfaceId() external pure returns (bytes4);
+    // Function to demonstrate interface detection (conceptual, requires ERC165Facet implementation)
+    function supportsInterface(bytes4 interfaceId) external view returns (bool) {
+        // The actual implementation would involve reading from the ERC165Storage
+        // For simplicity, this example only shows registration.
+        // A full ERC165Facet would query the registered interfaces.
+        return false; // Placeholder
+    }
 }`}
 </ExpandableCode>
 -->
@@ -140,19 +148,32 @@ interface IERC721 {
 ## Best Practices
 
 <Callout type="tip" title="Best Practice">
-- Call `registerInterface` during facet initialization to declare supported interfaces.
-- Ensure the `ERC165Storage` is initialized at the correct storage position before calling module functions.
-- Verify that the `STORAGE_POSITION` value is correctly set in the diamond's implementation.
+- Call `ERC165Mod.registerInterface` during facet initialization to declare supported interfaces.
+- Ensure the `ERC165Storage` struct is correctly positioned in the diamond's storage layout.
+- Do not call `ERC165Mod.registerInterface` outside of an initialization context to maintain storage integrity.
 </Callout>
 
 ## Integration Notes
 
 <Callout type="success" title="Shared Storage">
-This module utilizes the diamond storage pattern, storing ERC-165 interface support data at a specific slot identified by `STORAGE_POSITION`. The `ERC165Storage` struct is bound to this slot using inline assembly. Any facet interacting with this module will access and modify the shared storage, ensuring interface support information is consistently available across the diamond.
+This module utilizes the diamond storage pattern, mapping the `ERC165Storage` struct to a specific storage slot identified by `keccak256("erc165")`. All facets that implement ERC-165 should import and use `ERC165Mod` to register their supported interfaces within this shared storage. Changes to registered interfaces are immediately visible to all facets interacting with the diamond's storage.
 </Callout>
+
+<div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
+  <RelatedDocs
+    items={[
+      {
+        title: "ERC165Facet",
+        href: "/docs/library/interfaceDetection/ERC165/ERC165Facet",
+        description: "Facet using ERC165Mod",
+        icon: "💎"
+      }
+    ]}
+  />
+</div>
 
 <div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
   <WasThisHelpful pageId="ERC165Mod" />
 </div>
 
-<LastUpdated date="2025-12-30T20:14:34.032Z" />
+<LastUpdated date="2026-03-12T19:42:37.917Z" />

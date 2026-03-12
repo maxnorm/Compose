@@ -1,0 +1,212 @@
+---
+sidebar_position: 110
+title: "OwnerTransferFacet"
+description: "Manages ownership and provides selector discovery"
+gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/access/Owner/Transfer/OwnerTransferFacet.sol"
+---
+
+import DocSubtitle  from '@site/src/components/docs/DocSubtitle';
+import Badge from '@site/src/components/ui/Badge';
+import Callout from '@site/src/components/ui/Callout';
+import CalloutBox from '@site/src/components/ui/CalloutBox';
+import Accordion, { AccordionGroup } from '@site/src/components/ui/Accordion';
+import PropertyTable from '@site/src/components/api/PropertyTable';
+import ExpandableCode from '@site/src/components/code/ExpandableCode';
+import CodeShowcase from '@site/src/components/code/CodeShowcase';
+import RelatedDocs from '@site/src/components/docs/RelatedDocs';
+import WasThisHelpful from '@site/src/components/docs/WasThisHelpful';
+import LastUpdated from '@site/src/components/docs/LastUpdated';
+import ReadingTime from '@site/src/components/docs/ReadingTime';
+import GradientText from '@site/src/components/ui/GradientText';
+import GradientButton from '@site/src/components/ui/GradientButton';
+
+<DocSubtitle>
+Manages ownership and provides selector discovery
+</DocSubtitle>
+
+<Callout type="info" title="Key Features">
+- Manages diamond ownership via diamond storage.
+- Provides an `exportSelectors` function for dynamic discovery.
+- Follows EIP-2535 Diamond Standard for facet integration.
+</Callout>
+
+## Overview
+
+This facet provides ownership management and selector export for Compose diamonds. It allows for transferring ownership and exposes a function to discover its selectors, facilitating diamond upgrades and integration. Ownership is managed via diamond storage.
+
+---
+
+## Storage
+
+### OwnerStorage
+
+<ExpandableCode language="solidity" maxLines={15} title="Definition">
+{`struct OwnerStorage {
+    address owner;
+}`}
+</ExpandableCode>
+
+### State Variables
+
+<PropertyTable
+  properties={[
+    {
+      name: "STORAGE_POSITION",
+      type: "bytes32",
+      description: "Diamond storage slot position for this module (Value: `keccak256(\"erc173.owner\")`)"
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Functions
+
+### transferOwnership
+
+Set the address of the new owner of the contract. Set _newOwner to address(0) to renounce any ownership.
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function transferOwnership(address _newOwner) external;`}
+</ExpandableCode>
+
+**Parameters:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "_newOwner",
+      type: "address",
+      description: "The address of the new owner of the contract."
+    }
+  ]}
+  showRequired={false}
+/>
+
+---
+### exportSelectors
+
+Exports the function selectors of the OwnerTransferFacet This function is use as a selector discovery mechanism for diamonds
+
+<ExpandableCode language="solidity" maxLines={8}>
+{`function exportSelectors() external pure returns (bytes memory);`}
+</ExpandableCode>
+
+**Returns:**
+
+<PropertyTable
+  properties={[
+    {
+      name: "-",
+      type: "bytes",
+      description: "selectors The exported function selectors of the OwnerTransferFacet"
+    }
+  ]}
+  showRequired={false}
+/>
+
+## Events
+
+<AccordionGroup>
+  <Accordion title="OwnershipTransferred" defaultOpen={false}>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+{`event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);`}
+      </ExpandableCode>
+    </div>
+
+  </Accordion>
+</AccordionGroup>
+
+## Errors
+
+<AccordionGroup>
+  <Accordion title="OwnerUnauthorizedAccount" defaultOpen={false}>
+
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error OwnerUnauthorizedAccount();
+      </ExpandableCode>
+    </div>
+  </Accordion>
+</AccordionGroup>
+
+<!-- Usage Example section commented out for now -->
+<!--
+## Usage Example
+
+<ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
+{`pragma solidity >=0.8.30;
+import {OwnerTransferFacet} from "@compose/access/Owner/Transfer/OwnerTransferFacet";
+import {IDiamond} from "@compose/diamond/contracts/IDiamond.sol";
+
+contract Deployer {
+    address diamondAddress;
+
+    constructor(address _diamondAddress) {
+        diamondAddress = _diamondAddress;
+    }
+
+    function transferDiamondOwnership(address _newOwner) public {
+        IDiamond(diamondAddress).transferOwnership(_newOwner);
+    }
+
+    function getOwnerTransferSelectors() public view returns (bytes memory) {
+        return IDiamond(diamondAddress).exportSelectors();
+    }
+}`}
+</ExpandableCode>
+-->
+
+## Best Practices
+
+<Callout type="tip" title="Best Practice">
+- Initialize ownership during diamond deployment.
+- Use `transferOwnership` to safely change the contract owner.
+- Call `exportSelectors` to discover the facet's selectors for diamond upgrades.
+</Callout>
+
+## Security Considerations
+
+<Callout type="warning" title="Security">
+The `transferOwnership` function is protected by access control, ensuring only the current owner can transfer ownership. Input validation is performed on `_newOwner`. Refer to Compose's access control facets for comprehensive role management.
+</Callout>
+
+<div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
+  <RelatedDocs
+    items={[
+      {
+        title: "AccessControlAdminFacet",
+        href: "/docs/library/access/AccessControl/Admin/AccessControlAdminFacet",
+        description: "Related facet in access",
+        icon: "💎"
+      },
+      {
+        title: "AccessControlGrantBatchFacet",
+        href: "/docs/library/access/AccessControl/Batch/Grant/AccessControlGrantBatchFacet",
+        description: "Related facet in access",
+        icon: "💎"
+      },
+      {
+        title: "AccessControlRevokeBatchFacet",
+        href: "/docs/library/access/AccessControl/Batch/Revoke/AccessControlRevokeBatchFacet",
+        description: "Related facet in access",
+        icon: "💎"
+      },
+      {
+        title: "AccessControlDataFacet",
+        href: "/docs/library/access/AccessControl/Data/AccessControlDataFacet",
+        description: "Related facet in access",
+        icon: "💎"
+      }
+    ]}
+  />
+</div>
+
+<div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
+  <WasThisHelpful pageId="OwnerTransferFacet" />
+</div>
+
+<LastUpdated date="2026-03-12T19:41:40.191Z" />
