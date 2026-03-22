@@ -1,7 +1,7 @@
 # Compose 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) [![Discord](https://img.shields.io/badge/Discord-Join%20Chat-blue.svg)](https://discord.gg/DCBD2UKbxc)
 
-> **⚠️ Early Stage Beta**: Compose is currently in development and only available to contributors and early adopters. It is **NOT production ready**.
+> **⚠️ Beta Version**: Compose is currently in beta and only available to contributors and early adopters. Make sure to audit the code before using it in production.
 
 ## What is Compose?
 
@@ -9,7 +9,7 @@ Compose is a smart contract library that helps developers create smart contract 
 
 **Compose provides:**
 
-- An on-chain standard library of facets (modular smart contracts)
+- An standard library of facets (modular smart contracts) (Soon to be deployed on-chain)
 - Building blocks for diamond-based smart contract systems
 - Patterns and libraries to combine Compose facets with your custom logic
 
@@ -31,7 +31,25 @@ We build high-quality smart contracts by <a href="https://compose.diamonds/docs/
 
 ## Installation
 
-### Foundry
+### Compose CLI
+
+The Compose CLI scaffolds projects with Compose libraries. Install it globally (requires [Node.js](https://nodejs.org/) 20 or later):
+
+```bash
+npm install -g @perfect-abstractions/compose-cli
+```
+
+Start a new project:
+
+```bash
+compose init
+```
+
+Use `compose --help` for options.
+
+### Manual Installation
+
+#### Foundry
 
 
 ```bash
@@ -40,7 +58,7 @@ forge install Perfect-Abstractions/Compose@v0.1.0
 
 Add to a `remappings.txt` file with the following line: ```@perfect-abstractions/compose/=src/```
 
-### Hardhat / npm
+#### Hardhat / npm
 
 ```bash
 npm install @perfect-abstractions/compose

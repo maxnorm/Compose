@@ -6,7 +6,23 @@ sidebar_position: 1
 
 Get up and running with Composein your own project.
 
-## Install with Foundry
+## CLI Installation
+
+```bash
+npm install -g @perfect-abstractions/compose-cli
+```
+
+Start a new project:
+
+```bash
+compose init
+```
+
+Use `compose --help` for options.
+
+## Manual Installation
+
+### Install with Foundry
 
 Before you begin, make sure you have:
 
@@ -24,7 +40,7 @@ Then configure a `remappings.txt` file at your project root with the following l
 @perfect-abstractions/compose/=lib/compose/src/
 ```
 
-## Install with Hardhat (npm)
+### Install with Hardhat (npm)
 
 Before you begin, make sure you have:
 - **[Hardhat](https://hardhat.org/docs/getting-started)**
