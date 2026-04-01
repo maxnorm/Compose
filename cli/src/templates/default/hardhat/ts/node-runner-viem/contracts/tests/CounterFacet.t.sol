@@ -3,8 +3,6 @@ pragma solidity ^0.8.30;
 
 import {CounterFacet} from "../facets/CounterFacet.sol";
 import {Diamond} from "../Diamond.sol";
-import {DiamondInspectFacet} from "@perfect-abstractions/compose/facets/diamond/DiamondInspectFacet.sol";
-import {DiamondUpgradeFacet} from "@perfect-abstractions/compose/facets/diamond/DiamondUpgradeFacet.sol";
 import {Test} from "forge-std/Test.sol";
 
 contract CounterTest is Test {
