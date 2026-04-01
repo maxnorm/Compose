@@ -19,8 +19,9 @@ Releases use [Changesets](https://github.com/changesets/changesets) and GitHub A
 - **Batching:** Multiple PRs can add `.changeset/*.md` files; one **version bump PR** (same PR updated) applies all pending bumps together.
 - **Open/update the version PR:** Run the **Release** workflow manually (**Actions → Release → Run workflow**). It checks out `main`, runs checks, then [changesets/action](https://github.com/changesets/action) creates or updates the PR (branch is usually `changeset-release/main`).
 - **Publish:** Runs automatically when that **version bump PR is merged** into `main` (workflow **Publish**). You can also run **Publish** manually (`workflow_dispatch`) to retry or publish without merging from that branch (e.g. hotfix).
-- **Publish approval:** Jobs that publish to npm use GitHub Environment **`npm-publish`** (required reviewers) and secret **`NPM_TOKEN`**. Approval is requested when those jobs run, including after an automatic trigger.
-- **Provenance:** `NPM_CONFIG_PROVENANCE=true` on publish (OIDC; requires `id-token: write` on publish jobs). Ensure the npm org is configured for trusted publishing from this repo if provenance fails.
+- **Publish approval:** Jobs that publish to npm use GitHub Environment **`npm-publish`** (required reviewers). Approval is requested when those jobs run, including after an automatic trigger.
+- **Authentication:** Publishes use **npm Trusted Publishing (OIDC)**
+- **Provenance:** For public repos, npm generates provenance automatically when publishing via trusted publishing.
 
 ## Contributor flow
 
