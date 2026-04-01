@@ -5,6 +5,8 @@
  * - pr: merged PRs linked to commits in range, filtered by changed files vs releaseNotesPaths
  * - commits: path-filtered git log (escape hatch)
  *
+ * PR lines: title by @author in #N (PR opener). @mentions power GitHub’s release avatar strip.
+ *
  * Usage:
  *   node release-notes.js <fullTag> <tagPrefix> <pathsJson> [mode]
  * Env: GITHUB_REPOSITORY=owner/name, RELEASE_NOTES_MODE, GH_TOKEN or GITHUB_TOKEN
@@ -148,6 +150,11 @@ function renderCommitMode(paths, prev, tag) {
   return `## Changes (paths: ${paths.join(', ')})\n\n${body}\n`;
 }
 
+function formatPrLine(p) {
+  const by = p.author_login ? ` by @${p.author_login}` : '';
+  return `- ${p.title}${by} in [#${p.number}](${p.html_url})`;
+}
+
 async function renderPrMode(tag, tagPrefix, paths) {
   const { owner, repo } = parseRepo();
   const tags = listTagsForPrefix(tagPrefix);
@@ -180,6 +187,10 @@ async function renderPrMode(tag, tagPrefix, paths) {
       continue;
     }
     const detail = await ghApiJson(`repos/${owner}/${repo}/pulls/${num}`);
+    const authorLogin =
+      detail.user && typeof detail.user.login === 'string'
+        ? detail.user.login
+        : null;
     included.push({
       number: num,
       title: detail.title || `PR #${num}`,
@@ -187,6 +198,7 @@ async function renderPrMode(tag, tagPrefix, paths) {
         detail.html_url ||
         `https://github.com/${owner}/${repo}/pull/${num}`,
       merged_at: detail.merged_at || null,
+      author_login: authorLogin,
     });
   }
 
@@ -197,9 +209,7 @@ async function renderPrMode(tag, tagPrefix, paths) {
     return b.number - a.number;
   });
 
-  const lines = included.map(
-    p => `- ${p.title} ([#${p.number}](${p.html_url}))`,
-  );
+  const lines = included.map(formatPrLine);
 
   const orphanLines = [];
   for (let i = 0; i < shas.length; i += 1) {
@@ -223,6 +233,8 @@ async function renderPrMode(tag, tagPrefix, paths) {
   if (orphanLines.length > 0) {
     md += `\n### Other commits (no linked PR)\n\n${orphanLines.join('\n')}\n`;
   }
+
+  md += "### Thank you to all the contributors who helped make this release.\n\n";
 
   return md;
 }
