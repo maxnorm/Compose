@@ -38,6 +38,19 @@ npx hardhat test solidity
 npx hardhat test mocha
 ```
 
+### Launch a local Hardhat node
+
+To start a local Hardhat network node (an in-process Ethereum simulator), run:
+
+```sh
+npx hardhat node
+```
+
+This will launch a JSON-RPC server locally at `http://127.0.0.1:8545` with unlocked test accounts and pre-funded balances. Your contracts can be deployed and tested against this running network by configuring your scripts or commands to use the local endpoint.
+
+In a separate terminal, you can then deploy or test against the local node by specifying the `--network localhost` option if needed:
+
+
 ### Deploy
 
 Deploy to a local chain:
