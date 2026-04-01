@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.0.3
+
+### Patch Changes
+
+- 33519f4: fix: compiler versions & imports
+  docs: add local node command
+
 ## 0.0.2
 
 ### Patch Changes
