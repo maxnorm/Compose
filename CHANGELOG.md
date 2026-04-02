@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.3
+
+### Patch Changes
+
+- 84abb2d: add installation commands to docs & readme
+
 ## 0.0.2
 
 ### Patch Changes
