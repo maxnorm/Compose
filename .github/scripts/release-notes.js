@@ -162,7 +162,7 @@ async function renderPrMode(tag, tagPrefix, paths) {
 
   const shas = gitRevListShas(prev, tag);
   if (shas.length === 0) {
-    return `## Merged pull requests (paths: ${paths.join(', ')})\n\n_No commits in this tag range._\n`;
+    return `## Merged pull requests\n\n_No commits in this tag range._\n`;
   }
 
   const pullsArrays = await mapLimit(shas, 12, async sha =>
@@ -223,7 +223,7 @@ async function renderPrMode(tag, tagPrefix, paths) {
     }
   }
 
-  let md = `## Merged pull requests (paths: ${paths.join(', ')})\n\n`;
+  let md = `## Merged pull requests\n\n`;
   if (lines.length > 0) {
     md += `${lines.join('\n')}\n`;
   } else {
