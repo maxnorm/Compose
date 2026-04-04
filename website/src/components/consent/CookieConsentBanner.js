@@ -79,9 +79,7 @@ export default function CookieConsentBanner() {
       aria-describedby="cookie-consent-desc">
       <div className={styles.inner}>
         <p className={styles.text} id="cookie-consent-desc">
-          We use first-party cookies and similar storage for analytics and session
-          replay to improve the docs. Decline keeps privacy-preserving, cookieless
-          counts only.
+          We use cookies to <b>measure and improve</b> our documentation experience.
         </p>
         <div className={styles.actions}>
           <button
