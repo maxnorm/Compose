@@ -1,20 +1,26 @@
-/* RelatedDocs Component */
+/* RelatedDocs — section + cards match homepage / DocCard language */
+
 .relatedDocs {
   margin: 3rem 0;
   padding: 2rem;
-  background: var(--ifm-background-surface-color);
-  border: 1px solid var(--ifm-color-emphasis-200);
-  border-radius: 0.75rem;
+  border-radius: 1.25rem;
+  background: linear-gradient(155deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid rgba(15, 23, 42, 0.08);
 }
 
 [data-theme='dark'] .relatedDocs {
-  background: #0f0f0f;
-  border-color: #2a2a2a;
+  background: linear-gradient(
+    155deg,
+    rgba(30, 41, 59, 0.5) 0%,
+    rgba(15, 23, 42, 0.65) 100%
+  );
+  border-color: rgba(148, 163, 184, 0.14);
 }
 
 .relatedDocsTitle {
   font-size: 1.5rem;
-  font-weight: 700;
+  font-weight: 750;
+  letter-spacing: -0.02em;
   margin-bottom: 1.5rem;
   color: var(--ifm-heading-color);
 }
@@ -26,82 +32,193 @@
 }
 
 .relatedDocCard {
+  position: relative;
   display: flex;
   align-items: flex-start;
   gap: 1rem;
-  padding: 1.25rem;
-  background: var(--ifm-background-color);
-  border: 1px solid var(--ifm-color-emphasis-200);
-  border-radius: 0.5rem;
+  padding: 1.25rem 1.35rem;
   text-decoration: none;
   color: inherit;
-  transition: all 0.2s ease;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: 1.125rem;
+  background: linear-gradient(155deg, #ffffff 0%, #f1f5f9 55%, #f8fafc 100%);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.7) inset,
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 14px 32px -16px rgba(15, 23, 42, 0.1);
+  transition:
+    border-color var(--motion-duration-normal) var(--motion-ease-standard),
+    box-shadow var(--motion-duration-normal) var(--motion-ease-standard),
+    transform var(--motion-duration-normal) var(--motion-ease-standard);
 }
 
-[data-theme='dark'] .relatedDocCard {
-  background: #0a0a0a;
-  border-color: #2a2a2a;
+.relatedDocCard:focus-visible {
+  outline: 3px solid var(--focus-ring-color);
+  outline-offset: 2px;
+}
+
+.relatedDocCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--compose-primary-500) 22%,
+    #60a5fa 55%,
+    rgba(96, 165, 250, 0.35) 100%
+  );
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.relatedDocCard::after {
+  content: '';
+  position: absolute;
+  inset: -50% -30% auto -30%;
+  height: 90%;
+  background: radial-gradient(closest-side, rgba(59, 130, 246, 0.12), transparent 72%);
+  opacity: 0;
+  transition: opacity var(--motion-duration-normal) var(--motion-ease-standard);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .relatedDocCard:hover {
-  border-color: var(--ifm-color-primary);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
-  transform: translateY(-2px);
+  border-color: rgba(59, 130, 246, 0.28);
+  box-shadow:
+    0 0 0 1px rgba(59, 130, 246, 0.1) inset,
+    0 20px 40px -18px rgba(37, 99, 235, 0.16),
+    0 8px 20px rgba(15, 23, 42, 0.06);
+  transform: translateY(-4px);
   text-decoration: none;
   color: inherit;
 }
 
+.relatedDocCard:hover::before {
+  transform: scaleX(1);
+}
+
+.relatedDocCard:hover::after {
+  opacity: 1;
+}
+
+[data-theme='dark'] .relatedDocCard {
+  background: linear-gradient(
+    155deg,
+    rgba(30, 41, 59, 0.92) 0%,
+    rgba(15, 23, 42, 0.72) 48%,
+    rgba(10, 14, 26, 0.55) 100%
+  );
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-color: rgba(148, 163, 184, 0.14);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.45) inset,
+    0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 20px 44px -22px rgba(0, 0, 0, 0.55);
+}
+
+[data-theme='dark'] .relatedDocCard::after {
+  background: radial-gradient(closest-side, rgba(96, 165, 250, 0.18), transparent 70%);
+}
+
 [data-theme='dark'] .relatedDocCard:hover {
-  border-color: #60a5fa;
-  box-shadow: 0 4px 12px rgba(96, 165, 250, 0.2);
+  border-color: rgba(96, 165, 250, 0.35);
+  box-shadow:
+    0 0 0 1px rgba(59, 130, 246, 0.18) inset,
+    0 1px 0 rgba(255, 255, 255, 0.08) inset,
+    0 0 32px -6px rgba(59, 130, 246, 0.28),
+    0 24px 48px -24px rgba(0, 0, 0, 0.65);
 }
 
 .relatedDocIcon {
-  font-size: 1.5rem;
+  position: relative;
+  z-index: 1;
   flex-shrink: 0;
+  width: 2.75rem;
+  height: 2.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
   line-height: 1;
+  border-radius: 0.625rem;
+  background: linear-gradient(145deg, rgba(59, 130, 246, 0.14), rgba(37, 99, 235, 0.06));
+  border: 1px solid rgba(59, 130, 246, 0.22);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.75) inset;
+}
+
+[data-theme='dark'] .relatedDocIcon {
+  background: linear-gradient(145deg, rgba(59, 130, 246, 0.2), rgba(15, 23, 42, 0.35));
+  border-color: rgba(96, 165, 250, 0.26);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset;
 }
 
 .relatedDocContent {
+  position: relative;
+  z-index: 1;
   flex: 1;
   min-width: 0;
 }
 
 .relatedDocTitle {
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   margin: 0 0 0.5rem 0;
-  color: var(--ifm-heading-color);
-  line-height: 1.4;
+  color: #0f172a;
+  line-height: 1.35;
 }
 
 .relatedDocDescription {
   font-size: 0.875rem;
-  color: var(--ifm-color-emphasis-600);
+  line-height: 1.55;
+  color: #334155;
   margin: 0;
-  line-height: 1.5;
+}
+
+[data-theme='dark'] .relatedDocTitle {
+  color: #ffffff;
 }
 
 [data-theme='dark'] .relatedDocDescription {
-  color: #909090;
+  color: rgba(226, 232, 240, 0.78);
 }
 
 .relatedDocArrow {
+  position: relative;
+  z-index: 1;
   flex-shrink: 0;
-  color: var(--ifm-color-emphasis-400);
-  transition: transform 0.2s ease, color 0.2s ease;
+  color: #1e40af;
+  transition:
+    color var(--motion-duration-normal) var(--motion-ease-standard),
+    transform var(--motion-duration-normal) var(--motion-ease-standard);
+}
+
+[data-theme='dark'] .relatedDocArrow {
+  color: #93c5fd;
+  opacity: 0.5;
 }
 
 .relatedDocCard:hover .relatedDocArrow {
-  transform: translateX(4px);
-  color: var(--ifm-color-primary);
+  transform: translateX(5px);
+  color: #1d4ed8;
 }
 
 [data-theme='dark'] .relatedDocCard:hover .relatedDocArrow {
-  color: #60a5fa;
+  color: #4189f7;
+  opacity: 0.95;
 }
 
-/* Responsive */
 @media (max-width: 996px) {
   .relatedDocsGrid {
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -118,11 +235,26 @@
   }
 
   .relatedDocCard {
-    padding: 1rem;
+    padding: 1.1rem 1.2rem;
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .relatedDocCard {
+    transition:
+      border-color var(--motion-duration-fast) ease,
+      box-shadow var(--motion-duration-fast) ease;
+  }
 
+  .relatedDocCard:hover {
+    transform: none;
+  }
 
+  .relatedDocCard::before {
+    transition: transform 0.01ms;
+  }
 
-
+  .relatedDocCard:hover .relatedDocArrow {
+    transform: none;
+  }
+}

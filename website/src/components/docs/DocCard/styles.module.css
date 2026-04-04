@@ -1,20 +1,36 @@
-/* DocCard - MoneyKit-inspired card component */
+/* DocCard — matches homepage feature cards (featuresSection) */
+
 .docCard {
   display: flex;
   align-items: center;
   gap: 1.25rem;
   padding: 2rem;
-  background: var(--ifm-background-surface-color);
-  border: 1px solid var(--ifm-color-emphasis-200);
-  border-radius: 0.75rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   text-decoration: none;
   color: inherit;
   position: relative;
   overflow: hidden;
+  isolation: isolate;
   cursor: pointer;
+  border-radius: 1.25rem;
+  background: linear-gradient(155deg, #ffffff 0%, #f1f5f9 55%, #f8fafc 100%);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.7) inset,
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 22px 44px -18px rgba(15, 23, 42, 0.12),
+    0 4px 12px rgba(15, 23, 42, 0.04);
+  transition:
+    border-color var(--motion-duration-normal) var(--motion-ease-standard),
+    box-shadow var(--motion-duration-normal) var(--motion-ease-standard),
+    transform var(--motion-duration-normal) var(--motion-ease-standard);
 }
 
+.docCard:focus-visible {
+  outline: 3px solid var(--focus-ring-color);
+  outline-offset: 3px;
+}
+
+/* Facet highlight sweep (top edge) */
 .docCard::before {
   content: '';
   position: absolute;
@@ -22,34 +38,81 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, var(--ifm-color-primary) 0%, var(--ifm-color-accent) 100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--compose-primary-500) 22%,
+    #60a5fa 55%,
+    rgba(96, 165, 250, 0.35) 100%
+  );
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Radial bloom on hover */
+.docCard::after {
+  content: '';
+  position: absolute;
+  inset: -40% -20% auto -20%;
+  height: 85%;
+  background: radial-gradient(closest-side, rgba(59, 130, 246, 0.14), transparent 72%);
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity var(--motion-duration-normal) var(--motion-ease-standard);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .docCard:hover {
-  transform: translateY(-4px);
-  border-color: var(--ifm-color-primary);
-  box-shadow: 0 12px 24px -6px rgba(59, 130, 246, 0.25);
+  border-color: rgba(59, 130, 246, 0.28);
+  box-shadow:
+    0 0 0 1px rgba(59, 130, 246, 0.12) inset,
+    0 28px 56px -20px rgba(37, 99, 235, 0.18),
+    0 12px 28px rgba(15, 23, 42, 0.08);
+  transform: translateY(-5px);
 }
 
 .docCard:hover::before {
+  transform: scaleX(1);
+}
+
+.docCard:hover::after {
   opacity: 1;
 }
 
-/* Dark theme */
 [data-theme='dark'] .docCard {
-  background: #141414;
-  border-color: #2a2a2a;
+  background: linear-gradient(
+    155deg,
+    rgba(30, 41, 59, 0.92) 0%,
+    rgba(15, 23, 42, 0.72) 48%,
+    rgba(10, 14, 26, 0.55) 100%
+  );
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-color: rgba(148, 163, 184, 0.14);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.45) inset,
+    0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 28px 56px -24px rgba(0, 0, 0, 0.65),
+    0 0 0 1px rgba(59, 130, 246, 0.06);
+}
+
+[data-theme='dark'] .docCard::after {
+  background: radial-gradient(closest-side, rgba(96, 165, 250, 0.22), transparent 70%);
 }
 
 [data-theme='dark'] .docCard:hover {
-  background: #1a1a1a;
-  border-color: #60a5fa;
-  box-shadow: 0 12px 24px -6px rgba(96, 165, 250, 0.25);
+  border-color: rgba(96, 165, 250, 0.35);
+  box-shadow:
+    0 0 0 1px rgba(59, 130, 246, 0.2) inset,
+    0 1px 0 rgba(255, 255, 255, 0.09) inset,
+    0 0 40px -8px rgba(59, 130, 246, 0.35),
+    0 32px 64px -28px rgba(0, 0, 0, 0.75);
 }
 
-/* Card Icon */
+/* Card Icon — aligned with code showcase feature icons */
 .docCardIcon {
   flex-shrink: 0;
   display: flex;
@@ -58,16 +121,21 @@
   width: 3.5rem;
   height: 3.5rem;
   border-radius: 0.75rem;
-  background: linear-gradient(135deg, var(--ifm-color-primary-lightest) 0%, var(--ifm-color-primary-lighter) 100%);
-  transition: transform 0.3s ease;
+  position: relative;
+  z-index: 1;
+  color: var(--compose-primary-500);
+  background: linear-gradient(145deg, rgba(59, 130, 246, 0.14), rgba(37, 99, 235, 0.06));
+  border: 1px solid rgba(59, 130, 246, 0.22);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.75) inset;
+  transition:
+    border-color var(--motion-duration-normal) var(--motion-ease-standard),
+    box-shadow var(--motion-duration-normal) var(--motion-ease-standard);
 }
 
 [data-theme='dark'] .docCardIcon {
-  background: linear-gradient(135deg, rgba(96, 165, 250, 0.15) 0%, rgba(59, 130, 246, 0.15) 100%);
-}
-
-.docCard:hover .docCardIcon {
-  transform: scale(1.1);
+  background: linear-gradient(145deg, rgba(59, 130, 246, 0.2), rgba(15, 23, 42, 0.35));
+  border-color: rgba(96, 165, 250, 0.26);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset;
 }
 
 .iconEmoji {
@@ -79,51 +147,86 @@
 .docCardContent {
   flex: 1;
   min-width: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .docCardTitle {
   margin: 0 0 0.5rem 0;
   font-size: 1.125rem;
-  font-weight: 700;
-  color: var(--ifm-heading-color);
-  letter-spacing: -0.01em;
+  font-weight: 750;
+  letter-spacing: -0.025em;
+  line-height: 1.22;
+  color: #0f172a;
 }
 
 .docCardDescription {
   margin: 0;
-  font-size: 0.95rem;
-  line-height: 1.6;
-  color: var(--ifm-color-emphasis-700);
+  font-size: 0.96875rem;
+  line-height: 1.65;
+  color: #334155;
+}
+
+[data-theme='dark'] .docCardTitle {
+  color: #ffffff;
 }
 
 [data-theme='dark'] .docCardDescription {
-  color: #a0a0a0;
+  color: rgba(226, 232, 240, 0.82);
 }
 
-/* Card Arrow */
+/* Arrow — homepage “hint” color logic */
 .docCardArrow {
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--ifm-color-emphasis-500);
-  transition: all 0.3s ease;
+  position: relative;
+  z-index: 1;
+  color: #1e40af;
+  transition:
+    color var(--motion-duration-normal) var(--motion-ease-standard),
+    transform var(--motion-duration-normal) var(--motion-ease-standard);
+}
+
+[data-theme='dark'] .docCardArrow {
+  color: #93c5fd;
+  opacity: 0.5;
 }
 
 .docCard:hover .docCardArrow {
-  color: var(--ifm-color-primary);
-  transform: translateX(4px);
+  color: #1d4ed8;
+  transform: translateX(5px);
 }
 
 [data-theme='dark'] .docCard:hover .docCardArrow {
-  color: #60a5fa;
+  color: #4189f7;
+  opacity: 0.95;
 }
 
-/* Card Variants */
+/* Primary variant */
 .docCard--primary {
-  background: linear-gradient(135deg, var(--ifm-color-primary) 0%, var(--ifm-color-primary-dark) 100%);
-  border-color: var(--ifm-color-primary);
+  background: linear-gradient(135deg, var(--compose-primary-500) 0%, var(--compose-primary-600) 100%);
+  border-color: var(--compose-primary-500);
   color: white;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.12) inset,
+    0 22px 44px -18px rgba(37, 99, 235, 0.45),
+    0 4px 14px rgba(59, 130, 246, 0.35);
+}
+
+.docCard--primary::before {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.85) 35%,
+    rgba(255, 255, 255, 0.45) 70%,
+    transparent 100%
+  );
+}
+
+.docCard--primary::after {
+  background: radial-gradient(closest-side, rgba(255, 255, 255, 0.2), transparent 70%);
 }
 
 .docCard--primary .docCardTitle,
@@ -132,29 +235,58 @@
   color: white;
 }
 
+.docCard--primary .docCardArrow {
+  opacity: 1;
+}
+
 .docCard--primary .docCardIcon {
   background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25) inset;
+  color: white;
 }
 
 .docCard--primary:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 16px 32px -8px rgba(59, 130, 246, 0.4);
+  border-color: rgba(255, 255, 255, 0.45);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.18) inset,
+    0 32px 64px -20px rgba(37, 99, 235, 0.55),
+    0 12px 28px rgba(15, 23, 42, 0.2);
 }
 
+.docCard--primary:hover .docCardArrow {
+  color: #ffffff;
+}
+
+/* Secondary — slightly stronger edge, same family as default */
 .docCard--secondary {
-  border: 2px solid var(--ifm-color-emphasis-300);
+  border-color: rgba(15, 23, 42, 0.14);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.65) inset,
+    0 1px 0 rgba(255, 255, 255, 0.85) inset,
+    0 18px 36px -16px rgba(15, 23, 42, 0.14),
+    0 3px 10px rgba(15, 23, 42, 0.05);
+}
+
+[data-theme='dark'] .docCard--secondary {
+  border-color: rgba(148, 163, 184, 0.22);
+}
+
+.docCard--secondary:hover {
+  border-color: rgba(59, 130, 246, 0.32);
 }
 
 /* Card Sizes */
 .docCard--small {
   padding: 1.25rem 1.5rem;
   gap: 1rem;
+  border-radius: 1.125rem;
 }
 
 .docCard--small .docCardIcon {
   width: 2.5rem;
   height: 2.5rem;
+  border-radius: 0.625rem;
 }
 
 .docCard--small .iconEmoji {
@@ -163,10 +295,11 @@
 
 .docCard--small .docCardTitle {
   font-size: 1rem;
+  font-weight: 700;
 }
 
 .docCard--small .docCardDescription {
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
 }
 
 .docCard--large {
@@ -184,38 +317,35 @@
 }
 
 .docCard--large .docCardTitle {
-  font-size: 1.5rem;
+  font-size: 1.3125rem;
 }
 
-/* DocCardGrid */
+/* DocCardGrid — match homepage features grid rhythm */
 .docCardGrid {
   display: grid;
   grid-template-columns: repeat(var(--grid-columns, 2), 1fr);
-  gap: 1.5rem;
+  gap: 2rem;
   margin: 2rem 0;
 }
 
-/* When sidebar is visible (typical desktop width), adjust for better fit */
 @media (min-width: 997px) and (max-width: 1200px) {
   .docCardGrid {
     grid-template-columns: 1fr;
-    gap: 1.25rem;
+    gap: 1.5rem;
   }
 }
 
-/* Wider screens with sidebar, allow 2 columns if space permits */
 @media (min-width: 1201px) and (max-width: 1400px) {
   .docCardGrid {
     grid-template-columns: repeat(var(--grid-columns, 2), 1fr);
-    gap: 1.25rem;
+    gap: 1.5rem;
   }
 }
 
-/* Very wide screens, allow configured columns */
 @media (min-width: 1401px) {
   .docCardGrid {
     grid-template-columns: repeat(var(--grid-columns, 2), 1fr);
-    gap: 1.5rem;
+    gap: 2rem;
   }
 }
 
@@ -226,13 +356,12 @@
   }
 }
 
-/* Responsive adjustments for cards when sidebar is visible */
 @media (min-width: 997px) and (max-width: 1200px) {
   .docCard {
     padding: 1.75rem;
     gap: 1.125rem;
   }
-  
+
   .docCardIcon {
     width: 3.25rem;
     height: 3.25rem;
@@ -241,16 +370,50 @@
 
 @media (max-width: 768px) {
   .docCard {
-    padding: 1.5rem;
+    padding: 1.75rem 1.5rem 2rem;
     gap: 1rem;
   }
-  
+
   .docCardIcon {
     width: 3rem;
     height: 3rem;
   }
-  
+
   .iconEmoji {
     font-size: 1.75rem;
+  }
+
+  .docCardTitle {
+    font-size: 1.1875rem;
+  }
+
+  .docCardDescription {
+    font-size: 0.9375rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .docCard {
+    transition:
+      border-color var(--motion-duration-fast) ease,
+      box-shadow var(--motion-duration-fast) ease;
+  }
+
+  .docCard:hover {
+    transform: none;
+  }
+
+  .docCard::before {
+    transition: transform 0.01ms;
+  }
+
+  .docCardArrow {
+    transition:
+      color var(--motion-duration-fast) ease,
+      transform 0.01ms;
+  }
+
+  .docCard:hover .docCardArrow {
+    transform: none;
   }
 }

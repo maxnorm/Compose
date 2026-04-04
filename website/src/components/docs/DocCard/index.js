@@ -5,7 +5,7 @@ import Icon from '../../ui/Icon';
 import styles from './styles.module.css';
 
 /**
- * DocCard Component - MoneyKit-inspired documentation card
+ * DocCard
  * 
  * @param {string} title - Card title
  * @param {string} description - Card description
