@@ -139,39 +139,127 @@
   width: 100%;
   max-width: 100%;
   box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.05);
-  transition: all var(--motion-duration-normal) var(--motion-ease-standard);
+  display: flex;
+  flex-direction: column;
 }
-.codeWindow:hover { transform: translateY(-4px); box-shadow: 0 35px 60px -15px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.05); }
+
+[data-theme='light'] .codeWindow {
+  /* One surface with docs code bg — avoids ring + seam next to Prism block */
+  background: #f8fafc;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.07);
+}
+
+[data-theme='light'] .codeWindowHeader {
+  background: #f8fafc;
+  border-bottom: none;
+  /* Subtle separator — no hard 1px line against the code area */
+  box-shadow: inset 0 -1px 0 rgba(148, 163, 184, 0.2);
+}
+
+[data-theme='light'] .codeWindowTitle {
+  color: #475569;
+}
+
+/* Pull embedded CodeBlock flush with header (same bg as global .theme-code-block light) */
+[data-theme='light'] .codeShowcaseBlockRoot :global(.theme-code-block) {
+  background: #f8fafc !important;
+}
+
+[data-theme='light'] .codeShowcaseBlockRoot :global(div[class*='codeBlockContainer']) {
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+}
+
+/* Dark: match light-mode treatment — one slate surface, no hard ring/seam */
+[data-theme='dark'] .codeWindow {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45);
+}
+
+[data-theme='dark'] .codeWindowHeader {
+  border-bottom: none;
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* Docs global code-blocks.css uses #1a1a1a — override so panel matches .codeWindow (#1e293b) */
+[data-theme='dark'] .codeShowcaseBlockRoot :global(.theme-code-block),
+[data-theme='dark'] .codeShowcaseBlockRoot :global(.theme-code-block > div),
+[data-theme='dark'] .codeShowcaseBlockRoot :global(.theme-code-block > div > div) {
+  background: #1e293b !important;
+  background-color: #1e293b !important;
+}
+
+[data-theme='dark'] .codeShowcaseBlockRoot :global(div[class*='codeBlockContainer']),
+[data-theme='dark'] .codeShowcaseBlockRoot :global(div[class*='codeBlockContent']),
+[data-theme='dark'] .codeShowcaseBlockRoot :global(div[class*='codeBlockLines']) {
+  background: #1e293b !important;
+  background-color: #1e293b !important;
+}
+
+[data-theme='dark'] .codeShowcaseBlockRoot :global(pre.codeBlock) {
+  background: #1e293b !important;
+  background-color: #1e293b !important;
+}
+
 .codeWindowHeader { display: flex; align-items: center; padding: 1rem 1.5rem; background: #0f172a; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.codeWindowHeaderPanel { justify-content: space-between; gap: 1rem; }
 .codeWindowDots { display: flex; gap: 0.5rem; margin-right: auto; }
 .codeWindowDots span { width: 12px; height: 12px; border-radius: 50%; background: #334155; }
 .codeWindowDots span:nth-child(1) { background: #ef4444; }
 .codeWindowDots span:nth-child(2) { background: #f59e0b; }
 .codeWindowDots span:nth-child(3) { background: #10b981; }
 .codeWindowTitle { font-family: var(--ifm-font-family-monospace); font-size: 0.875rem; color: #94a3b8; font-weight: 500; }
-.codeWindowContent {
-  padding: 2rem;
-  margin: 0;
+
+/* @theme/CodeBlock embed (Solidity) — see ShowcaseSolidityCode in CodeShowcase.js */
+.codeShowcaseBlockRoot {
   min-width: 0;
-  max-width: 100%;
-  box-sizing: border-box;
-  font-family: var(--ifm-font-family-monospace);
+  width: 100%;
+}
+
+.codeShowcaseBlockRoot :global(.theme-code-block) {
+  margin-bottom: 0 !important;
+  box-shadow: none !important;
+}
+
+.showcaseCode .codeWindow .codeShowcaseBlockRoot :global(.theme-code-block) {
+  border-radius: 0 0 1.25rem 1.25rem;
+}
+
+.codeShowcaseBlockRoot :global(pre.codeBlock) {
+  margin: 0;
   font-size: 0.9375rem;
   line-height: 1.7;
-  color: #e2e8f0;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-x: contain;
-  background: #1e293b;
-  white-space: pre;
   tab-size: 2;
   scrollbar-width: thin;
+}
+
+.codeShowcaseBlockRoot :global(pre.codeBlock)::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+.codeShowcaseBlockRoot :global(pre.codeBlock)::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+}
+
+[data-theme='dark'] .codeShowcaseBlockRoot :global(pre.codeBlock) {
   scrollbar-color: #475569 #1e293b;
 }
-.codeWindowContent::-webkit-scrollbar { height: 8px; }
-.codeWindowContent::-webkit-scrollbar-track { background: #1e293b; }
-.codeWindowContent::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
-.codeWindowContent::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+[data-theme='dark'] .codeShowcaseBlockRoot :global(pre.codeBlock)::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+[data-theme='dark'] .codeShowcaseBlockRoot :global(pre.codeBlock)::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
+[data-theme='dark'] .codeShowcaseBlockRoot :global(pre.codeBlock)::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+[data-theme='light'] .codeShowcaseBlockRoot :global(pre.codeBlock)::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+}
 
 /* Responsive — stack before the two-column layout gets cramped */
 @media screen and (max-width: 1100px) {
@@ -201,7 +289,10 @@
   .showcaseFeature p { font-size: 0.875rem; }
   .showcaseCode { padding: 0 1rem; width: 100%; max-width: 100%; margin: 0 auto; min-width: 0; align-self: stretch; }
   .codeWindow { max-width: 100%; width: 100%; margin: 0 auto; min-width: 0; }
-  .codeWindowContent { padding: 1.5rem; font-size: 0.8125rem; line-height: 1.6; }
+  .codeShowcaseBlockRoot :global(pre.codeBlock) {
+    font-size: 0.8125rem;
+    line-height: 1.6;
+  }
 }
 @media screen and (max-width: 480px) {
   .showcaseSection { padding: 3rem 0; }
@@ -216,10 +307,16 @@
   .showcaseLink { margin-left: auto; margin-right: auto; }
   .showcaseCode { padding: 0 1rem; width: 100%; max-width: 100%; margin: 0 auto; min-width: 0; align-self: stretch; }
   .codeWindow { border-radius: 1rem; width: 100%; max-width: min(100%, calc(100vw - 2rem)); margin: 0 auto; min-width: 0; }
+  .showcaseCode .codeWindow .codeShowcaseBlockRoot :global(.theme-code-block) {
+    border-radius: 0 0 1rem 1rem;
+  }
   .codeWindowHeader { padding: 0.75rem 1rem; }
   .codeWindowTitle { font-size: 0.75rem; }
   .codeWindowDots span { width: 10px; height: 10px; }
-  .codeWindowContent { font-size: 0.75rem; padding: 1rem; line-height: 1.5; }
+  .codeShowcaseBlockRoot :global(pre.codeBlock) {
+    font-size: 0.75rem;
+    line-height: 1.5;
+  }
 }
 
 /* Dark mode */
@@ -270,3 +367,222 @@
 }
 [data-theme='dark'] .showcaseFeature h4 { color: #ffffff; }
 [data-theme='dark'] .showcaseFeature p { color: rgba(255,255,255,0.7); }
+
+/* Narrow viewport: slide-over code panel (see home/CodeShowcase.js) */
+.codeExampleTrigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  margin-bottom: 0;
+  padding: 1rem 1.75rem;
+  width: 100%;
+  max-width: 600px;
+  box-sizing: border-box;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+  color: #fff;
+  background: linear-gradient(135deg, var(--compose-primary-500), var(--compose-primary-600));
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+  transition:
+    transform 160ms cubic-bezier(0.23, 1, 0.32, 1),
+    box-shadow 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.codeExampleTrigger:active {
+  transform: scale(0.97);
+}
+
+.codePanelBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 340;
+  background: rgba(15, 23, 42, 0.48);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 280ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.codePanelBackdropVisible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.codePanel {
+  position: fixed;
+  top: 50%;
+  right: 0;
+  z-index: 350;
+  display: flex;
+  flex-direction: column;
+  width: min(90vw, 520px);
+  max-width: calc(100vw - 24px);
+  /* Fit content height; cap at full viewport */
+  height: fit-content;
+  max-height: 100vh;
+  max-height: 100dvh;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  box-sizing: border-box;
+  overflow: hidden;
+  /* Vertically centered; hidden state slides off to the right */
+  transform: translateY(-50%) translateX(100%);
+  pointer-events: none;
+  transition: transform 280ms cubic-bezier(0.23, 1, 0.32, 1);
+  filter: drop-shadow(-12px 0 24px rgba(0, 0, 0, 0.18));
+}
+
+.codePanelVisible {
+  transform: translateY(-50%) translateX(0);
+  pointer-events: auto;
+}
+
+.codePanelInner {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0.75rem 0 0.75rem 0.75rem;
+}
+
+.codePanelInner .codeWindow {
+  /* Grow only when panel hits max-height so pre can scroll; otherwise hug content */
+  flex: 0 1 auto;
+  min-height: 0;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  border-radius: 1rem 0 0 1rem;
+  overflow: hidden;
+}
+
+.codePanelInner .codeWindow .codeShowcaseBlockRoot :global(.theme-code-block) {
+  border-radius: 0 0 0 1rem;
+}
+
+.codePanelInner .codeShowcaseBlockRoot {
+  flex: 0 1 auto;
+  min-height: 0;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.codePanelInner .codeShowcaseBlockRoot :global(.theme-code-block) {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.codePanelInner .codeShowcaseBlockRoot :global(div[class*='codeBlockContent']) {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.codePanelInner .codeShowcaseBlockRoot :global(pre.codeBlock) {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Match @theme/CodeBlock toolbar buttons (Buttons/styles.module.css) */
+.codePanelClose {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: auto;
+  height: auto;
+  min-width: 2.25rem;
+  min-height: 2.25rem;
+  margin: 0;
+  padding: 0.4rem;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: var(--ifm-global-radius);
+  cursor: pointer;
+  line-height: 0;
+  transition:
+    color 160ms cubic-bezier(0.23, 1, 0.32, 1),
+    background 160ms cubic-bezier(0.23, 1, 0.32, 1),
+    border-color 160ms cubic-bezier(0.23, 1, 0.32, 1),
+    transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+[data-theme='light'] .codePanelClose {
+  background: #ffffff;
+  color: #64748b;
+}
+
+[data-theme='light'] .codePanelClose:hover {
+  color: #334155;
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+/* Dark: same surface + border language as code block copy/wrap controls */
+[data-theme='dark'] .codePanelClose {
+  background: #1e293b;
+  color: #cbd5e1;
+}
+
+[data-theme='dark'] .codePanelClose:hover {
+  color: #f1f5f9;
+  background: #334155;
+  border-color: #64748b;
+}
+
+.codePanelClose:active {
+  transform: scale(0.97);
+}
+
+.codePanelCloseIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+[data-theme='dark'] .codePanelBackdrop {
+  background: rgba(2, 6, 23, 0.65);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .codeExampleTrigger {
+    transition: none;
+  }
+
+  .codeExampleTrigger:active {
+    transform: none;
+  }
+
+  .codePanelBackdrop,
+  .codePanel {
+    transition-duration: 0.01ms;
+  }
+
+  .codePanelClose {
+    transition-duration: 0.01ms;
+  }
+
+  .codePanelClose:active {
+    transform: none;
+  }
+}
+
+@media screen and (max-width: 1100px) {
+  .showcaseFeatures {
+    margin-bottom: 0;
+  }
+}
