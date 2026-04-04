@@ -7,47 +7,19 @@ import {
   captureDocsHelpfulVote,
 } from '@site/src/utils/captureDocsFeedback';
 import styles from './styles.module.css';
-
-/** Same path as static/icons/checkmark-stroke.svg; inline so currentColor matches success text (img ignores it). */
-function FeedbackCheckIcon({ size = 20, className }) {
-  return (
-    <svg
-      className={className}
-      width={size}
-      height={size}
-      viewBox="0 0 20 20"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden
-    >
-      <path
-        d="M16.667 5L7.5 14.167 3.333 10"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
+import { useDocumentationFeedback } from '../../../hooks/useDocumentationFeedback';
 
 /**
- * @param {string} [pageId]
- * @param {string} [permalink]
- * @param {string} [title]
- * @param {'card'|'aside'} [variant]
- * @param {Function} [onSubmit]
- * @param {import('react').ReactNode} [asideEndSlot] — e.g. Report issue; beside Yes/No on mobile; desktop: below buttons, or below textarea+Submit when “No”
+ * WasThisHelpful Component - Feedback widget for documentation pages
+ * 
+ * @param {string} pageId - Unique identifier for the page
+ * @param {Function} onSubmit - Callback function when feedback is submitted
  */
 export default function WasThisHelpful({
   pageId,
-  permalink,
-  title,
-  onSubmit,
-  variant = 'card',
-  asideEndSlot,
+  onSubmit
 }) {
-  const { colorMode } = useColorMode();
+  const { submitFeedback } = useDocumentationFeedback();
   const [feedback, setFeedback] = useState(null);
   const [comment, setComment] = useState('');
   const [submitted, setSubmitted] = useState(false);
@@ -62,46 +34,12 @@ export default function WasThisHelpful({
     captureDocsHelpfulVote({ helpful: value, ...analyticsContext });
   };
 
-  const handleCardSubmit = () => {
+  const handleSubmit = () => {
+    submitFeedback(pageId, feedback, comment.trim() || null);
     if (onSubmit) {
       onSubmit({ pageId, feedback, comment });
     }
-    if (feedback) {
-      captureDocsHelpfulSubmit({
-        helpful: feedback,
-        comment: comment.trim(),
-        ...analyticsContext,
-      });
-    }
-    setSubmitted(true);
-  };
-
-  const handleAsideYes = () => {
-    captureDocsHelpfulSubmit({
-      helpful: 'yes',
-      comment: '',
-      ...analyticsContext,
-    });
-    if (onSubmit) {
-      onSubmit({ pageId, feedback: 'yes', comment: '' });
-    }
-    setSubmitted(true);
-  };
-
-  const handleAsideNo = () => {
-    setFeedback('no');
-    captureDocsHelpfulVote({ helpful: 'no', ...analyticsContext });
-  };
-
-  const handleAsideSubmit = () => {
-    captureDocsHelpfulSubmit({
-      helpful: 'no',
-      comment: comment.trim(),
-      ...analyticsContext,
-    });
-    if (onSubmit) {
-      onSubmit({ pageId, feedback: 'no', comment: comment.trim() });
-    }
+    
     setSubmitted(true);
   };
 
@@ -224,13 +162,13 @@ export default function WasThisHelpful({
             onClick={() => handleCardFeedback('yes')}
             aria-label="Yes, this was helpful"
           >
-            <Icon
-              name={thumbUpName}
-              size={20}
-              className={clsx(
-                styles.thumbIcon,
-                feedback === 'yes' && styles.thumbIconOnPrimary
-              )}
+            <img 
+              src={feedback === 'yes' ? "/icons/thumbs-up-white.svg" : "/icons/thumbs-up.svg"}
+              alt="" 
+              width="20" 
+              height="20"
+              className={styles.feedbackIcon}
+              aria-hidden="true"
             />
             Yes
           </button>
@@ -243,13 +181,13 @@ export default function WasThisHelpful({
             onClick={() => handleCardFeedback('no')}
             aria-label="No, this was not helpful"
           >
-            <Icon
-              name={thumbDownName}
-              size={20}
-              className={clsx(
-                styles.thumbIcon,
-                feedback === 'no' && styles.thumbIconOnPrimary
-              )}
+            <img 
+              src={feedback === 'no' ? "/icons/thumbs-down-white.svg" : "/icons/thumbs-down.svg"}
+              alt="" 
+              width="20" 
+              height="20"
+              className={styles.feedbackIcon}
+              aria-hidden="true"
             />
             No
           </button>
