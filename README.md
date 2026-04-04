@@ -31,22 +31,30 @@ We build high-quality smart contracts by <a href="https://compose.diamonds/docs/
 
 ## Quick Start
 
+## Create a new project with Compose CLI
+
 ```bash
-# Clone the repository
-git clone https://github.com/Perfect-Abstractions/Compose.git
-cd Compose
-
-# Install dependencies
-forge install
-
-# Build the project
-forge build
-
-# Run tests
-forge test
-
-# For test documentation, see test/README.md
+npx @perfect-abstractions/compose-cli init
 ```
+
+## Add Compose to an existing project (Manual Installation)
+
+### Foundry
+
+```bash
+forge install Perfect-Abstractions/Compose@tag=compose@0.0.3
+```
+
+### Hardhat / NPM
+
+```bash
+npm install @perfect-abstractions/compose
+```
+
+Packages: [`@perfect-abstractions/compose`](https://www.npmjs.com/package/@perfect-abstractions/compose) · [`@perfect-abstractions/compose-cli`](https://www.npmjs.com/package/@perfect-abstractions/compose-cli). More detail: [Installation](https://compose.diamonds/docs/getting-started/installation).
+
+
+
 ## Documentation
 
 Please see our [documentation website](https://compose.diamonds/docs/) for full documentation.

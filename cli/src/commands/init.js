@@ -139,7 +139,8 @@ async function runInitCommand(argv) {
 
   logger.plain("");
   logger.info("You're all set. We hope you'll Compose something great!\n");
-  logger.warn(`If this helped you, please give us a star on GitHub:\n${COMPOSE_REPO_URL}\n`);
+  logger.brightYellow(`If this helped you, please give us a star on GitHub:\n✨ ${COMPOSE_REPO_URL} ✨\n`);
+  logger.warn(`Please report any issues or feedback:\n${COMPOSE_REPO_URL}/issues\n`);
 }
 
 module.exports = {

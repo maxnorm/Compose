@@ -10,6 +10,9 @@ const logger = {
   warn(message) {
     console.warn(pc.yellow(message));
   },
+  brightYellow(message) {
+    console.warn(pc.bold(pc.yellowBright(message)));
+  },
   error(message) {
     console.error(pc.red(message));
   },

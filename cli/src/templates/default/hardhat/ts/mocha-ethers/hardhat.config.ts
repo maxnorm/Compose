@@ -4,12 +4,16 @@ import { configVariable, defineConfig } from "hardhat/config";
 export default defineConfig({
   plugins: [hardhatToolboxMochaEthersPlugin],
   solidity: {
+    npmFilesToBuild: [
+      "@perfect-abstractions/compose/diamond/DiamondInspectFacet.sol",
+      "@perfect-abstractions/compose/diamond/DiamondUpgradeFacet.sol",
+    ],
     profiles: {
       default: {
-        version: "0.8.28",
+        version: "0.8.30",
       },
       production: {
-        version: "0.8.28",
+        version: "0.8.30",
         settings: {
           optimizer: {
             enabled: true,

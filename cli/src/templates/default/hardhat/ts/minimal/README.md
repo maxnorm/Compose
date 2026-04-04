@@ -23,10 +23,12 @@ npx hardhat build
 npx hardhat test
 ```
 
-### Node
+### Local node
 ```sh
 npx hardhat node
 ```
+
+This will launch a JSON-RPC server locally at `http://127.0.0.1:8545`
 
 ### Help
 ```sh

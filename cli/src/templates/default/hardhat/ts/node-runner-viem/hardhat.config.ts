@@ -4,6 +4,10 @@ import { configVariable, defineConfig } from "hardhat/config";
 export default defineConfig({
   plugins: [hardhatToolboxViemPlugin],
   solidity: {
+    npmFilesToBuild: [
+      "@perfect-abstractions/compose/diamond/DiamondInspectFacet.sol",
+      "@perfect-abstractions/compose/diamond/DiamondUpgradeFacet.sol",
+    ],
     profiles: {
       default: {
         version: "0.8.30",

@@ -1,15 +1,13 @@
 # Compose CLI
 
-`@perfect-abstractions/compose-cli` scaffolds diamond-based projects using the Compose Library.
-Supports both Foundry and Hardhat.
+Creates new diamond-based projects using the Compose Library.
+Supports both [Foundry](https://book.getfoundry.sh/) and [Hardhat](https://hardhat.org/) frameworks.
 
-## Install (Soon)
+## Create a new project with Compose CLI
 
 ```bash
-npm install -g @perfect-abstractions/compose-cli
+npx @perfect-abstractions/compose-cli init
 ```
-
-Requires Node.js >= 20.
 
 ## Usage
 
@@ -57,11 +55,6 @@ compose init --name my-hardhat-mocha-ethers \
 
 
 `compose templates` prints this information in a friendly format.
-
-## Notes on `@perfect-abstractions/compose`
-
-Hardhat scaffolds inject `@perfect-abstractions/compose` as the dependency name.  The current package isn't published yet.
-
 
 ## Development
 
