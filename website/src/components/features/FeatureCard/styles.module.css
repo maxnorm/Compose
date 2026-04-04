@@ -1,3 +1,5 @@
+/* FeatureCard — same shell as homepage FeaturesSection cards */
+
 .cardWrapper {
   text-decoration: none;
   color: inherit;
@@ -6,14 +8,23 @@
 }
 
 .featureCard {
-  background: var(--ifm-background-surface-color);
-  border-radius: 1rem;
-  padding: 2.5rem;
-  height: 100%;
-  border: 2px solid var(--ifm-color-emphasis-200);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
+  height: 100%;
+  border-radius: 1.25rem;
+  padding: 2.5rem;
   overflow: hidden;
+  isolation: isolate;
+  background: linear-gradient(155deg, #ffffff 0%, #f1f5f9 55%, #f8fafc 100%);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.7) inset,
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 22px 44px -18px rgba(15, 23, 42, 0.12),
+    0 4px 12px rgba(15, 23, 42, 0.04);
+  transition:
+    border-color var(--motion-duration-normal) var(--motion-ease-standard),
+    box-shadow var(--motion-duration-normal) var(--motion-ease-standard),
+    transform var(--motion-duration-normal) var(--motion-ease-standard);
 }
 
 .featureCard::before {
@@ -22,23 +33,53 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #3b82f6 0%, #1e40af 100%);
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--compose-primary-500) 22%,
+    #60a5fa 55%,
+    rgba(96, 165, 250, 0.35) 100%
+  );
   transform: scaleX(0);
-  transition: transform 0.4s ease;
+  transform-origin: left;
+  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.featureCard::after {
+  content: '';
+  position: absolute;
+  inset: -40% -20% auto -20%;
+  height: 85%;
+  background: radial-gradient(closest-side, rgba(59, 130, 246, 0.14), transparent 72%);
+  opacity: 0;
+  transition: opacity var(--motion-duration-normal) var(--motion-ease-standard);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .featureCard:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 25px 50px -12px rgba(59, 130, 246, 0.25);
-  border-color: var(--ifm-color-primary);
+  border-color: rgba(59, 130, 246, 0.28);
+  box-shadow:
+    0 0 0 1px rgba(59, 130, 246, 0.12) inset,
+    0 28px 56px -20px rgba(37, 99, 235, 0.18),
+    0 12px 28px rgba(15, 23, 42, 0.08);
+  transform: translateY(-5px);
 }
 
 .featureCard:hover::before {
   transform: scaleX(1);
 }
 
+.featureCard:hover::after {
+  opacity: 1;
+}
+
 .cardIcon {
+  position: relative;
+  z-index: 1;
   font-size: 3.5rem;
   margin-bottom: 1.5rem;
   background: linear-gradient(135deg, #3b82f6 0%, #0ea5e9 100%);
@@ -51,44 +92,124 @@
 }
 
 .cardTitle {
-  font-size: 1.5rem;
-  font-weight: 700;
+  position: relative;
+  z-index: 1;
+  font-size: 1.3125rem;
+  font-weight: 750;
+  letter-spacing: -0.025em;
+  line-height: 1.22;
   margin-bottom: 1rem;
-  color: var(--ifm-color-emphasis-900);
+  color: #0f172a;
 }
 
 .cardDescription {
-  font-size: 1rem;
-  line-height: 1.7;
-  color: var(--ifm-color-emphasis-700);
+  position: relative;
+  z-index: 1;
+  font-size: 0.96875rem;
+  line-height: 1.65;
+  color: #334155;
   margin-bottom: 0;
 }
 
 .cardLink {
+  position: relative;
+  z-index: 1;
   margin-top: 1.5rem;
-  color: var(--ifm-color-primary);
+  color: #1e40af;
   font-weight: 600;
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  transition: gap 0.3s ease;
+  gap: 0.4rem;
+  transition:
+    color var(--motion-duration-normal) var(--motion-ease-standard),
+    gap var(--motion-duration-normal) var(--motion-ease-standard);
 }
 
 .featureCard:hover .cardLink {
-  gap: 1rem;
+  color: #1d4ed8;
+  gap: 0.65rem;
 }
 
-/* Gradient variations */
+/* Optional gradient accents on top facet only */
 .featureCard.gradientBlue::before {
-  background: linear-gradient(90deg, #60a5fa 0%, #2563eb 100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    #60a5fa 22%,
+    #2563eb 55%,
+    rgba(37, 99, 235, 0.35) 100%
+  );
 }
 
 .featureCard.gradientCyan::before {
-  background: linear-gradient(90deg, #06b6d4 0%, #3b82f6 100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    #22d3ee 22%,
+    #3b82f6 55%,
+    rgba(59, 130, 246, 0.35) 100%
+  );
 }
 
 .featureCard.gradientGreen::before {
-  background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    #34d399 22%,
+    #10b981 55%,
+    rgba(16, 185, 129, 0.35) 100%
+  );
+}
+
+[data-theme='dark'] .featureCard {
+  background: linear-gradient(
+    155deg,
+    rgba(30, 41, 59, 0.92) 0%,
+    rgba(15, 23, 42, 0.72) 48%,
+    rgba(10, 14, 26, 0.55) 100%
+  );
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-color: rgba(148, 163, 184, 0.14);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.45) inset,
+    0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 28px 56px -24px rgba(0, 0, 0, 0.65),
+    0 0 0 1px rgba(59, 130, 246, 0.06);
+}
+
+[data-theme='dark'] .featureCard::after {
+  background: radial-gradient(closest-side, rgba(96, 165, 250, 0.22), transparent 70%);
+}
+
+[data-theme='dark'] .featureCard:hover {
+  border-color: rgba(96, 165, 250, 0.35);
+  box-shadow:
+    0 0 0 1px rgba(59, 130, 246, 0.2) inset,
+    0 1px 0 rgba(255, 255, 255, 0.09) inset,
+    0 0 40px -8px rgba(59, 130, 246, 0.35),
+    0 32px 64px -28px rgba(0, 0, 0, 0.75);
+}
+
+[data-theme='dark'] .cardTitle {
+  color: #ffffff;
+}
+
+[data-theme='dark'] .cardDescription {
+  color: rgba(226, 232, 240, 0.82);
+}
+
+[data-theme='dark'] .cardLink {
+  color: #93c5fd;
+  opacity: 0.5;
+}
+
+[data-theme='dark'] .featureCard:hover .cardLink {
+  color: #4189f7;
+  opacity: 0.95;
 }
 
 @media (max-width: 768px) {
@@ -102,7 +223,26 @@
   }
 
   .cardTitle {
-    font-size: 1.25rem;
+    font-size: 1.1875rem;
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .featureCard {
+    transition:
+      border-color var(--motion-duration-fast) ease,
+      box-shadow var(--motion-duration-fast) ease;
+  }
+
+  .featureCard:hover {
+    transform: none;
+  }
+
+  .featureCard::before {
+    transition: transform 0.01ms;
+  }
+
+  .featureCard:hover .cardLink {
+    gap: 0.4rem;
+  }
+}

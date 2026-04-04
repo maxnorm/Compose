@@ -1,18 +1,27 @@
 /**
  * Card Component Styles
- * Feature cards and general card styling
+ * Feature cards — aligned with homepage FeaturesSection (.featureCard)
  */
 
-/* Feature cards */
+/* Feature cards (global — e.g. HomepageFeatures) */
 .feature-card {
-  background: var(--ifm-background-surface-color);
-  border-radius: 1rem;
-  padding: 2.5rem 2rem;
-  height: 100%;
-  border: 2px solid var(--ifm-color-emphasis-200);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
+  height: 100%;
+  border-radius: 1.25rem;
+  padding: 2.5rem 2rem;
   overflow: hidden;
+  isolation: isolate;
+  background: linear-gradient(155deg, #ffffff 0%, #f1f5f9 55%, #f8fafc 100%);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.7) inset,
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 22px 44px -18px rgba(15, 23, 42, 0.12),
+    0 4px 12px rgba(15, 23, 42, 0.04);
+  transition:
+    border-color var(--motion-duration-normal) var(--motion-ease-standard),
+    box-shadow var(--motion-duration-normal) var(--motion-ease-standard),
+    transform var(--motion-duration-normal) var(--motion-ease-standard);
 }
 
 .feature-card::before {
@@ -21,88 +30,170 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--compose-primary-500) 22%,
+    #60a5fa 55%,
+    rgba(96, 165, 250, 0.35) 100%
+  );
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.feature-card::after {
+  content: '';
+  position: absolute;
+  inset: -40% -20% auto -20%;
+  height: 85%;
+  background: radial-gradient(closest-side, rgba(59, 130, 246, 0.14), transparent 72%);
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity var(--motion-duration-normal) var(--motion-ease-standard);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .feature-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 24px 40px -12px rgba(59, 130, 246, 0.2);
-  border-color: var(--ifm-color-primary);
+  border-color: rgba(59, 130, 246, 0.28);
+  box-shadow:
+    0 0 0 1px rgba(59, 130, 246, 0.12) inset,
+    0 28px 56px -20px rgba(37, 99, 235, 0.18),
+    0 12px 28px rgba(15, 23, 42, 0.08);
+  transform: translateY(-5px);
 }
 
 .feature-card:hover::before {
+  transform: scaleX(1);
+}
+
+.feature-card:hover::after {
   opacity: 1;
 }
 
 .feature-card h3 {
+  position: relative;
+  z-index: 1;
   font-size: 1.25rem;
-  font-weight: 700;
+  font-weight: 750;
+  letter-spacing: -0.025em;
+  line-height: 1.22;
   margin-top: 0.5rem;
   margin-bottom: 1rem;
-  color: var(--ifm-color-emphasis-900);
+  color: #0f172a;
 }
 
 .feature-card p {
-  line-height: 1.7;
-  color: var(--ifm-color-emphasis-700);
+  position: relative;
+  z-index: 1;
+  line-height: 1.65;
+  font-size: 0.96875rem;
+  color: #334155;
   margin: 0;
 }
 
 .feature-icon {
+  position: relative;
+  z-index: 1;
   font-size: 3.5rem;
   line-height: 1;
   display: block;
   margin-bottom: 1rem;
-  transition: transform 0.3s ease;
+  transition: transform var(--motion-duration-normal) var(--motion-ease-standard);
 }
 
 .feature-card:hover .feature-icon {
-  transform: scale(1.1);
+  transform: translateY(-2px);
 }
 
-/* Light mode feature cards */
-.feature-card {
-  background: #ffffff;
-  border: 2px solid #e2e8f0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-.feature-card:hover {
-  border-color: #3b82f6;
-  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.15);
-}
-
-/* Dark mode feature cards */
 [data-theme='dark'] .feature-card {
-  background: #1e293b;
-  border-color: #334155;
+  background: linear-gradient(
+    155deg,
+    rgba(30, 41, 59, 0.92) 0%,
+    rgba(15, 23, 42, 0.72) 48%,
+    rgba(10, 14, 26, 0.55) 100%
+  );
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-color: rgba(148, 163, 184, 0.14);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.45) inset,
+    0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 28px 56px -24px rgba(0, 0, 0, 0.65),
+    0 0 0 1px rgba(59, 130, 246, 0.06);
+}
+
+[data-theme='dark'] .feature-card::after {
+  background: radial-gradient(closest-side, rgba(96, 165, 250, 0.22), transparent 70%);
 }
 
 [data-theme='dark'] .feature-card:hover {
-  background: #334155;
-  border-color: #475569;
-  box-shadow: 0 24px 40px -12px rgba(96, 165, 250, 0.2);
+  border-color: rgba(96, 165, 250, 0.35);
+  box-shadow:
+    0 0 0 1px rgba(59, 130, 246, 0.2) inset,
+    0 1px 0 rgba(255, 255, 255, 0.09) inset,
+    0 0 40px -8px rgba(59, 130, 246, 0.35),
+    0 32px 64px -28px rgba(0, 0, 0, 0.75);
+}
+
+[data-theme='dark'] .feature-card h3 {
+  color: #ffffff;
+}
+
+[data-theme='dark'] .feature-card p {
+  color: rgba(226, 232, 240, 0.82);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feature-card {
+    transition:
+      border-color var(--motion-duration-fast) ease,
+      box-shadow var(--motion-duration-fast) ease;
+  }
+
+  .feature-card:hover {
+    transform: none;
+  }
+
+  .feature-card::before {
+    transition: transform 0.01ms;
+  }
+
+  .feature-card:hover .feature-icon {
+    transform: none;
+  }
 }
 
 /* General cards */
 [data-theme='dark'] .card {
-  background: #1e293b;
-  border: 1px solid #334155;
+  background: linear-gradient(
+    155deg,
+    rgba(30, 41, 59, 0.85) 0%,
+    rgba(15, 23, 42, 0.9) 100%
+  );
+  border: 1px solid rgba(148, 163, 184, 0.14);
 }
 
 [data-theme='dark'] .card:hover {
-  border-color: #475569;
+  border-color: rgba(96, 165, 250, 0.25);
 }
 
 /* Custom utility class */
 .card-hover {
-  transition: all 0.3s ease;
+  transition:
+    border-color var(--motion-duration-normal) var(--motion-ease-standard),
+    box-shadow var(--motion-duration-normal) var(--motion-ease-standard),
+    transform var(--motion-duration-normal) var(--motion-ease-standard);
 }
 
 .card-hover:hover {
   transform: translateY(-4px);
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='dark'] .card-hover:hover {
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.45);
 }

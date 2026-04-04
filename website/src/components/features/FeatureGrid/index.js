@@ -21,13 +21,14 @@ export default function FeatureGrid({ columns = 3, children }) {
 
 /**
  * FeatureGridItem - Individual feature card
- * 
- * @param {string} icon - Icon name for SVG icon or React component
+ *
+ * @param {ReactNode} icon - Optional icon
  * @param {string} title - Feature title
+ * @param {ReactNode} label - Optional small label (e.g. status chip) shown under the title
  * @param {string} description - Feature description
  * @param {string} href - Optional link
  */
-export function FeatureGridItem({ icon, title, description, href, children }) {
+export function FeatureGridItem({ icon, title, label, description, href, children }) {
   const Content = () => (
     <>
       {icon && (
@@ -35,7 +36,12 @@ export function FeatureGridItem({ icon, title, description, href, children }) {
           {icon}
         </div>
       )}
-      <h3 className={styles.featureTitle}>{title}</h3>
+      <div className={styles.featureHead}>
+        <h3 className={styles.featureTitle}>{title}</h3>
+        {label != null && label !== '' && (
+          <span className={styles.featureLabel}>{label}</span>
+        )}
+      </div>
       {description && (
         <p className={styles.featureDescription}>{description}</p>
       )}

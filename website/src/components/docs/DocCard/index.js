@@ -20,7 +20,7 @@ function DocCardArrow() {
 }
 
 /**
- * DocCard Component - MoneyKit-inspired documentation card
+ * DocCard — documentation link card; visual style matches homepage feature cards
  * 
  * @param {string} title - Card title
  * @param {string} description - Card description

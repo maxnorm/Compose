@@ -1113,6 +1113,7 @@ Responsive grid layout for displaying features.
   properties={[
     { name: 'icon', type: 'string/ReactNode', description: 'Icon (emoji or component)' },
     { name: 'title', type: 'string', description: 'Feature title' },
+    { name: 'label', type: 'string/ReactNode', description: 'Optional small label (e.g. status) under the title' },
     { name: 'description', type: 'string', description: 'Feature description' },
     { name: 'href', type: 'string', description: 'Optional link' }
   ]}
@@ -1125,6 +1126,7 @@ Responsive grid layout for displaying features.
   <FeatureGridItem
     icon={<Icon name="lightning" size={28} />}
     title="Fast"
+    label="Coming soon"
     description="Lightning fast performance"
   />
   <FeatureGridItem

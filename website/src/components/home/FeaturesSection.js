@@ -12,7 +12,7 @@ export default function FeaturesSection() {
     {
       kicker: 'ERC-2535',
       title: 'Diamond-Native',
-      description: 'Built specifically for ERC-2535 Diamonds. Deploy facets once, reuse them across multiple diamonds onchain.',
+      description: 'Deploy facets once, reuse them across multiple diamonds on chain.',
       link: '/docs/foundations/diamond-contracts',
     },
     {
@@ -24,12 +24,12 @@ export default function FeaturesSection() {
     {
       kicker: 'SCOP',
       title: 'Intentional Simplicity',
-      description: 'Smart Contract Oriented Programming (SCOP) - designed specifically for smart contracts, not general software.',
+      description: 'Smart Contract Oriented Programming (SCOP) is designed specifically for smart contracts, not general software.',
       link: '/docs/design',
     },
     {
       kicker: 'Roadmap',
-      title: 'On-chain Standard Library',
+      title: 'On chain Standard Library',
       description: '(In the future) Access verified, audited facets deployed on multiple blockchains.',
       link: '/docs/foundations/onchain-contract-library',
     },
@@ -47,17 +47,17 @@ export default function FeaturesSection() {
         <div className={styles.sectionHeader}>
           <span className={styles.sectionBadge}>Why Compose</span>
           <Heading as="h2" className={styles.sectionTitle}>
-            Rethinking Smart Contract Development
+            Contracts designed to be reused
           </Heading>
           <p className={styles.sectionSubtitle}>
             Forget traditional smart contract design patterns. Compose takes a radically
-            different approach with Smart Contract Oriented Programming.
+            different approach with <b>Smart Contract Oriented Programming (SCOP)</b>.
           </p>
           <br />
           <p className={styles.sectionSubtitle}>
-          We focus on building small, independent, and easy-to-understand smart contracts called <b>facets</b>.
-          Each facet is designed to be deployed once, then reused and composed seamlessly with others to form
-          complete smart contract systems.
+          We focus on building <b>small, independent, and easy-to-understand</b> smart contracts called <b>facets</b>.
+          Each one is designed to be deployed once, then reused and composed with others to form
+          a complete smart contract system.
           </p>
         </div>
         <div className={styles.featuresGrid}>
