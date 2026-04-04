@@ -17,7 +17,7 @@ const POLL_MS = 50;
 const POLL_MAX = 200;
 
 /** Silence after this long is treated as decline (cookieless only). */
-const AUTO_DECLINE_MS = 60_000;
+const AUTO_DECLINE_MS = 30_000;
 
 export default function CookieConsentBanner() {
   const [consent, setConsent] = useState(
@@ -98,7 +98,7 @@ export default function CookieConsentBanner() {
       aria-describedby="cookie-consent-desc">
       <div className={styles.inner}>
         <p className={styles.text} id="cookie-consent-desc">
-          We use cookies to <b>measure and improve</b> our documentation experience.
+          We <b>only</b> use cookies to <b>measure and improve</b> our documentation experience.
         </p>
         <div className={styles.actions}>
           <button
