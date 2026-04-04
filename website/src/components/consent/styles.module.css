@@ -87,6 +87,7 @@ html[data-theme='dark'] .text {
 
 .btnPrimary:hover {
   filter: brightness(1.05);
+  border: none;
 }
 
 .btnSecondary {

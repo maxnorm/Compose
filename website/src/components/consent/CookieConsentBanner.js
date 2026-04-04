@@ -4,6 +4,10 @@
  *
  * @see https://posthog.com/docs/tutorials/cookieless-tracking
  * @see https://posthog.com/tutorials/react-cookie-banner
+ *
+ * If consent stays pending (user ignores the banner), PostHog captures nothing until
+ * they choose. After AUTO_DECLINE_MS we call opt_out_capturing() so the banner hides
+ * and cookieless visit counting can run—same as clicking Decline.
  */
 import React, {useEffect, useState} from 'react';
 import ExecutionEnvironment from '@docusaurus/ExecutionEnvironment';
@@ -11,6 +15,9 @@ import styles from './styles.module.css';
 
 const POLL_MS = 50;
 const POLL_MAX = 200;
+
+/** Silence after this long is treated as decline (cookieless only). */
+const AUTO_DECLINE_MS = 60_000;
 
 export default function CookieConsentBanner() {
   const [consent, setConsent] = useState(
@@ -56,6 +63,18 @@ export default function CookieConsentBanner() {
       window.clearInterval(id);
     };
   }, []);
+
+  useEffect(() => {
+    if (!ExecutionEnvironment.canUseDOM) return undefined;
+    if (consent !== 'pending') return undefined;
+
+    const id = window.setTimeout(() => {
+      window.posthog?.opt_out_capturing?.();
+      setConsent('denied');
+    }, AUTO_DECLINE_MS);
+
+    return () => window.clearTimeout(id);
+  }, [consent]);
 
   if (consent !== 'pending') {
     return null;
