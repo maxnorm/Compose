@@ -98,7 +98,7 @@ export default function CookieConsentBanner() {
       aria-describedby="cookie-consent-desc">
       <div className={styles.inner}>
         <p className={styles.text} id="cookie-consent-desc">
-          We <b>only</b> use cookies to <b>measure and improve</b> our documentation experience.
+          We <b>only</b> use cookies to <b>measure & improve</b> our documentation experience.
         </p>
         <div className={styles.actions}>
           <button
