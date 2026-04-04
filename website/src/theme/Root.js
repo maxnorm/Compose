@@ -5,6 +5,8 @@
 import React from 'react';
 import { Toaster } from 'react-hot-toast';
 import NavbarEnhancements from '@site/src/components/navigation/NavbarEnhancements';
+import CookieConsentBanner from '@site/src/components/consent/CookieConsentBanner';
+
 export default function Root({children}) {
   return (
     <>
@@ -77,6 +79,7 @@ export default function Root({children}) {
           },
         }}
       />
+      <CookieConsentBanner />
       {children}
     </>
   );

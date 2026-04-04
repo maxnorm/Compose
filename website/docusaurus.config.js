@@ -326,7 +326,7 @@ const config = {
         },
       },
     ],
-    process.env.POSTHOG_API_KEY && [
+    [
       "posthog-docusaurus",
       {
         apiKey: process.env.POSTHOG_API_KEY,
@@ -334,7 +334,8 @@ const config = {
         uiHost: 'https://us.posthog.com',
         enableInDevelopment: false,
         capturePageLeave: true,
-        cookieless_mode: 'always',
+        defaults: '2026-01-30',
+        cookieless_mode: 'on_reject',
       },
     ],
   ].filter(Boolean),
