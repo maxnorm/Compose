@@ -182,7 +182,9 @@ See [Facet-Based Diamond `EIP-8153`](https://eips.ethereum.org/EIPS/eip-8153) fo
 <AccordionGroup>
   <Accordion title="FacetAdded" defaultOpen={false}>
     <div style={{marginBottom: "1rem"}}>
-      Emitted when a facet is added to a diamond. The function selectors this facet handles can be retrieved by calling `IFacet(_facet).exportSelectors()`
+      Emitted when a facet is added to a diamond. 
+      
+      The function selectors this facet handles can be retrieved by calling `IFacet(_facet).exportSelectors()`
     </div>
 
     <div style={{marginBottom: "1rem"}}>
@@ -206,9 +208,45 @@ See [Facet-Based Diamond `EIP-8153`](https://eips.ethereum.org/EIPS/eip-8153) fo
       />
     </div>
   </Accordion>
+  <Accordion title="FacetRemoved" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Emitted when a facet is removed from a diamond. 
+      
+      The function selectors this facet handles can be retrieved by calling `IFacet(_facet).exportSelectors()`
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+{`event FacetRemoved(address indexed _facet);`}
+      </ExpandableCode>
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Parameters:</strong>
+      <PropertyTable
+        properties={[
+          {
+            name: "_facet",
+            type: "address",
+            description: "The address of the facet that previously handled function calls to the diamond."
+          }
+        ]}
+        showRequired={false}
+      />
+    </div>
+  </Accordion>
   <Accordion title="FacetReplaced" defaultOpen={false}>
     <div style={{marginBottom: "1rem"}}>
-      Emitted when an existing facet is replaced with a new facet. - Selectors that are present in the new facet but not in the old facet are added to the diamond. - Selectors that are present in both the new and old facet are updated to use the new facet. - Selectors that are not present in the new facet but are present in the old facet are removed from the diamond. The function selectors handled by these facets can be retrieved by calling: - `IFacet(_oldFacet).exportSelectors()` - `IFacet(_newFacet).exportSelectors()`
+      Emitted when an existing facet is replaced with a new facet.
+      
+      - Selectors that are present in the new facet but not in the old facet are added to the diamond. 
+      - Selectors that are present in both the new and old facet are updated to use the new facet. 
+      - Selectors that are not present in the new facet but are present in the old facet are removed from the diamond. 
+      
+      The function selectors handled by these facets can be retrieved by calling: 
+      - `IFacet(_oldFacet).exportSelectors()` 
+      - `IFacet(_newFacet).exportSelectors()`
     </div>
 
     <div style={{marginBottom: "1rem"}}>
@@ -237,33 +275,7 @@ See [Facet-Based Diamond `EIP-8153`](https://eips.ethereum.org/EIPS/eip-8153) fo
       />
     </div>
   </Accordion>
-  <Accordion title="FacetRemoved" defaultOpen={false}>
-    <div style={{marginBottom: "1rem"}}>
-      Emitted when a facet is removed from a diamond. The function selectors this facet handles can be retrieved by calling `IFacet(_facet).exportSelectors()`
-    </div>
-
-    <div style={{marginBottom: "1rem"}}>
-      <strong>Signature:</strong>
-      <ExpandableCode language="solidity" maxLines={5}>
-{`event FacetRemoved(address indexed _facet);`}
-      </ExpandableCode>
-    </div>
-
-    <div style={{marginBottom: "1rem"}}>
-      <strong>Parameters:</strong>
-      <PropertyTable
-        properties={[
-          {
-            name: "_facet",
-            type: "address",
-            description: "The address of the facet that previously handled function calls to the diamond."
-          }
-        ]}
-        showRequired={false}
-      />
-    </div>
-  </Accordion>
-  <Accordion title="DiamondDelegateCall" defaultOpen={false}>
+ <Accordion title="DiamondDelegateCall" defaultOpen={false}>
     <div style={{marginBottom: "1rem"}}>
       Emitted when a diamond's constructor function or function from a facet makes a `delegatecall`.
     </div>
@@ -296,7 +308,9 @@ See [Facet-Based Diamond `EIP-8153`](https://eips.ethereum.org/EIPS/eip-8153) fo
   </Accordion>
   <Accordion title="DiamondMetadata" defaultOpen={false}>
     <div style={{marginBottom: "1rem"}}>
-      Emitted to record information about a diamond. This event records any arbitrary metadata. The format of `_tag` and `_data` are not specified by the standard.
+      Emitted to record information about a diamond. This event records any arbitrary metadata. 
+      
+      The format of `_tag` and `_data` are not specified by the standard.
     </div>
 
     <div style={{marginBottom: "1rem"}}>
@@ -331,6 +345,9 @@ See [Facet-Based Diamond `EIP-8153`](https://eips.ethereum.org/EIPS/eip-8153) fo
 
 <AccordionGroup>
   <Accordion title="OwnerUnauthorizedAccount" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Thrown by [<code>upgradeDiamond</code>](#upgradediamond) when <code>msg.sender</code> is not the current diamond owner.
+    </div>
 
     <div>
       <strong>Signature:</strong>
@@ -339,25 +356,10 @@ error OwnerUnauthorizedAccount();
       </ExpandableCode>
     </div>
   </Accordion>
-  <Accordion title="NoSelectorsForFacet" defaultOpen={false}>
-
-    <div>
-      <strong>Signature:</strong>
-      <ExpandableCode language="solidity" maxLines={5}>
-error NoSelectorsForFacet(address _facet);
-      </ExpandableCode>
-    </div>
-  </Accordion>
-  <Accordion title="NoBytecodeAtAddress" defaultOpen={false}>
-
-    <div>
-      <strong>Signature:</strong>
-      <ExpandableCode language="solidity" maxLines={5}>
-error NoBytecodeAtAddress(address _contractAddress);
-      </ExpandableCode>
-    </div>
-  </Accordion>
   <Accordion title="CannotAddFunctionToDiamondThatAlreadyExists" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Thrown by [<code>addFacets</code>](#upgradediamond) when a selector exported by a facet already exists in the diamond.
+    </div>
 
     <div>
       <strong>Signature:</strong>
@@ -367,6 +369,9 @@ error CannotAddFunctionToDiamondThatAlreadyExists(bytes4 _selector);
     </div>
   </Accordion>
   <Accordion title="CannotRemoveFacetThatDoesNotExist" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Thrown by [<code>removeFacets</code>](#upgradediamond) when the facet being removed is not currently part of the diamond.
+    </div>
 
     <div>
       <strong>Signature:</strong>
@@ -376,6 +381,9 @@ error CannotRemoveFacetThatDoesNotExist(address _facet);
     </div>
   </Accordion>
   <Accordion title="CannotReplaceFacetWithSameFacet" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Thrown by [<code>replaceFacets</code>](#upgradediamond) when a replacement pair provides the same address for both <code>oldFacet</code> and <code>newFacet</code>.
+    </div>
 
     <div>
       <strong>Signature:</strong>
@@ -384,8 +392,21 @@ error CannotReplaceFacetWithSameFacet(address _facet);
       </ExpandableCode>
     </div>
   </Accordion>
+  <Accordion title="CannotReplaceFunctionFromNonReplacementFacet" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Thrown by [<code>replaceFacets</code>](#upgradediamond) when a selector in <code>newFacet</code> is already owned by a facet other than the specified <code>oldFacet</code>.
+    </div>
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error CannotReplaceFunctionFromNonReplacementFacet(bytes4 _selector);
+      </ExpandableCode>
+    </div>
+  </Accordion>
   <Accordion title="FacetToReplaceDoesNotExist" defaultOpen={false}>
-
+    <div style={{marginBottom: "1rem"}}>
+      Thrown by [<code>replaceFacets</code>](#upgradediamond) when the provided <code>oldFacet</code> does not match the facet currently registered in the diamond.
+    </div>
     <div>
       <strong>Signature:</strong>
       <ExpandableCode language="solidity" maxLines={5}>
@@ -394,6 +415,9 @@ error FacetToReplaceDoesNotExist(address _oldFacet);
     </div>
   </Accordion>
   <Accordion title="DelegateCallReverted" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Thrown by [<code>upgradeDiamond</code>](#upgradediamond) when the optional post-upgrade <code>delegatecall</code> fails without returning revert data.
+    </div>
 
     <div>
       <strong>Signature:</strong>
@@ -403,7 +427,9 @@ error DelegateCallReverted(address _delegate, bytes _delegateCalldata);
     </div>
   </Accordion>
   <Accordion title="ExportSelectorsCallFailed" defaultOpen={false}>
-
+    <div style={{marginBottom: "1rem"}}>
+      Thrown by [<code>importSelectors</code>](#importselectors) when the staticcall to <code>_facet.exportSelectors()</code> fails.
+    </div>
     <div>
       <strong>Signature:</strong>
       <ExpandableCode language="solidity" maxLines={5}>
@@ -412,7 +438,9 @@ error ExportSelectorsCallFailed(address _facet);
     </div>
   </Accordion>
   <Accordion title="IncorrectSelectorsEncoding" defaultOpen={false}>
-
+    <div style={{marginBottom: "1rem"}}>
+      Thrown by [<code>importSelectors</code>](#importselectors) when the facet returns data that is not valid ABI-encoded <code>bytes</code> (e.g. wrong offset, length not a multiple of 4, or length exceeds payload).
+    </div>
     <div>
       <strong>Signature:</strong>
       <ExpandableCode language="solidity" maxLines={5}>
@@ -420,68 +448,42 @@ error IncorrectSelectorsEncoding(address _facet);
       </ExpandableCode>
     </div>
   </Accordion>
-  <Accordion title="CannotReplaceFunctionFromNonReplacementFacet" defaultOpen={false}>
-
+  <Accordion title="NoBytecodeAtAddress" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Thrown by [<code>importSelectors</code>](#importselectors) when the facet address has no code (e.g. EOA or uninitialized contract).
+    </div>
     <div>
       <strong>Signature:</strong>
       <ExpandableCode language="solidity" maxLines={5}>
-error CannotReplaceFunctionFromNonReplacementFacet(bytes4 _selector);
+error NoBytecodeAtAddress(address _contractAddress);
+      </ExpandableCode>
+    </div>
+  </Accordion>
+  <Accordion title="NoSelectorsForFacet" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Thrown by [<code>importSelectors</code>](#importselectors) when the facet returns fewer than 4 bytes of selectors (i.e. no valid selector).
+    </div>
+    <div>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+error NoSelectorsForFacet(address _facet);
       </ExpandableCode>
     </div>
   </Accordion>
 </AccordionGroup>
 
-<!-- Usage Example section commented out for now -->
-<!--
-## Usage Example
-
-<ExpandableCode language="solidity" maxLines={20} title="Example Implementation">
-{`pragma solidity >=0.8.30;
-
-import {DiamondUpgradeFacet} from "@compose/diamond/DiamondUpgradeFacet";
-import {IDiamond} from "@compose/diamond/IDiamond"; // Assuming IDiamond interface exists
-
-// Example: Upgrading a diamond
-address diamondAddress = address(1);
-IDiamond diamond = IDiamond(diamondAddress);
-
-address[] memory facetsToAdd = new address[](1);
-facetsToAdd[0] = address(0x123); // Address of a new facet logic contract
-
-address[] memory facetsToRemove = new address[](1);
-facetsToRemove[0] = address(0x456); // Address of a facet logic contract to remove
-
-DiamondUpgradeFacet.FacetReplacement[] memory facetsToReplace = new DiamondUpgradeFacet.FacetReplacement[](1);
-facetsToReplace[0] = DiamondUpgradeFacet.FacetReplacement({oldFacet: address(0x789), newFacet: address(0xabc)}); // Replace existing facet
-
-// Call the upgrade function through the diamond proxy
-diamond.upgradeDiamond(
-    facetsToAdd,
-    facetsToReplace,
-    facetsToRemove,
-    address(0), // No delegate call for this example
-    bytes(""),  // No delegate calldata
-    bytes32(0), // No tag
-    bytes("")   // No metadata
-);
-
-// Example: Exporting selectors
-bytes memory selectors = diamond.exportSelectors();`}
-</ExpandableCode>
--->
-
 ## Best Practices
 
-- Ensure all diamond upgrade operations are performed by authorized accounts.
-- Verify facet logic contracts are immutable and trusted before adding or replacing.
+- Ensure all diamond upgrade operations are performed by authorized wallet. This facet is configure to use the unique owner, use the [Upgrade Module](/docs/library/diamond/DiamondUpgradeMod) to wrap around your own access control logic.
+- Always verify facet logic contracts are immutable and trusted before using it inside a diamond.
 - Ensure each facet’s `exportSelectors()` returns a valid packed selector list in deterministic order.
 - Carefully audit any optional post-upgrade `delegatecall` (delegate contract + calldata).
 
 ## Security Considerations
 
-<b>The `upgradeDiamond` function is critical: it mutates the diamond’s selector routing and facet linked list. </b>
+<b>The `upgradeDiamond` function is critical: this function mutates the diamond’s selector routing and facet list. </b>
 <br/><br/>
-It is protected by [Owner](/docs/library/access/Owner/) checks, and it optionally executes an unrestricted `delegatecall` after facet updates. These represent code paths that can modify diamond storage and may introduce complex control flow.
+Although this facet protected by [Owner](/docs/library/access/Owner/) checks, it can optionally execute an unrestricted `delegatecall` after facet updates. Allowing changes to the diamond storage.
 
 <b>That being said, always make sure to provide verified and trusted facet and delegate contract addresses.</b>
 

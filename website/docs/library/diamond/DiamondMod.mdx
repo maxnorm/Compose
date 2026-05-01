@@ -225,68 +225,6 @@ Returns the 4-byte function selector at the given index in a packed `bytes` arra
 ## Events
 
 <AccordionGroup>
-  <Accordion title="DiamondDelegateCall" defaultOpen={false}>
-    <div style={{marginBottom: "1rem"}}>
-      Emitted when a diamond's constructor function or function from a facet makes a `delegatecall`.
-    </div>
-
-    <div style={{marginBottom: "1rem"}}>
-      <strong>Signature:</strong>
-      <ExpandableCode language="solidity" maxLines={5}>
-{`event DiamondDelegateCall(address indexed _delegate, bytes _delegateCalldata);`}
-      </ExpandableCode>
-    </div>
-
-    <div style={{marginBottom: "1rem"}}>
-      <strong>Parameters:</strong>
-      <PropertyTable
-        properties={[
-          {
-            name: "_delegate",
-            type: "address",
-            description: "The contract that was delegatecalled."
-          },
-          {
-            name: "_delegateCalldata",
-            type: "bytes",
-            description: "The function call, including function selector and any arguments."
-          }
-        ]}
-        showRequired={false}
-      />
-    </div>
-  </Accordion>
-  <Accordion title="DiamondMetadata" defaultOpen={false}>
-    <div style={{marginBottom: "1rem"}}>
-      Emitted to record information about a diamond. This event records any arbitrary metadata. The format of `_tag` and `_data` are not specified by the standard.
-    </div>
-
-    <div style={{marginBottom: "1rem"}}>
-      <strong>Signature:</strong>
-      <ExpandableCode language="solidity" maxLines={5}>
-{`event DiamondMetadata(bytes32 indexed _tag, bytes _data);`}
-      </ExpandableCode>
-    </div>
-
-    <div style={{marginBottom: "1rem"}}>
-      <strong>Parameters:</strong>
-      <PropertyTable
-        properties={[
-          {
-            name: "_tag",
-            type: "bytes32",
-            description: "Arbitrary metadata, such as a release version."
-          },
-          {
-            name: "_data",
-            type: "bytes",
-            description: "Arbitrary metadata."
-          }
-        ]}
-        showRequired={false}
-      />
-    </div>
-  </Accordion>
   <Accordion title="FacetAdded" defaultOpen={false}>
     <div style={{marginBottom: "1rem"}}>
       Emitted when a facet is added to a diamond. 
@@ -376,6 +314,70 @@ Returns the 4-byte function selector at the given index in a packed `bytes` arra
             name: "_newFacet",
             type: "address",
             description: "The address of the facet that now handles function calls to the diamond."
+          }
+        ]}
+        showRequired={false}
+      />
+    </div>
+  </Accordion>
+  <Accordion title="DiamondDelegateCall" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Emitted when a diamond's constructor function or function from a facet makes a `delegatecall`.
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+{`event DiamondDelegateCall(address indexed _delegate, bytes _delegateCalldata);`}
+      </ExpandableCode>
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Parameters:</strong>
+      <PropertyTable
+        properties={[
+          {
+            name: "_delegate",
+            type: "address",
+            description: "The contract that was delegatecalled."
+          },
+          {
+            name: "_delegateCalldata",
+            type: "bytes",
+            description: "The function call, including function selector and any arguments."
+          }
+        ]}
+        showRequired={false}
+      />
+    </div>
+  </Accordion>
+  <Accordion title="DiamondMetadata" defaultOpen={false}>
+    <div style={{marginBottom: "1rem"}}>
+      Emitted to record information about a diamond. This event records any arbitrary metadata. 
+      
+      The format of `_tag` and `_data` are not specified by the standard.
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Signature:</strong>
+      <ExpandableCode language="solidity" maxLines={5}>
+{`event DiamondMetadata(bytes32 indexed _tag, bytes _data);`}
+      </ExpandableCode>
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
+      <strong>Parameters:</strong>
+      <PropertyTable
+        properties={[
+          {
+            name: "_tag",
+            type: "bytes32",
+            description: "Arbitrary metadata, such as a release version."
+          },
+          {
+            name: "_data",
+            type: "bytes",
+            description: "Arbitrary metadata."
           }
         ]}
         showRequired={false}
