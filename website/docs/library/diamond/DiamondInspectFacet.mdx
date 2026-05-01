@@ -7,19 +7,10 @@ gitSource: "https://github.com/Perfect-Abstractions/Compose/tree/main/src/diamon
 ---
 
 import DocSubtitle  from '@site/src/components/docs/DocSubtitle';
-import Badge from '@site/src/components/ui/Badge';
 import Callout from '@site/src/components/ui/Callout';
-import CalloutBox from '@site/src/components/ui/CalloutBox';
-import Accordion, { AccordionGroup } from '@site/src/components/ui/Accordion';
 import PropertyTable from '@site/src/components/api/PropertyTable';
 import ExpandableCode from '@site/src/components/code/ExpandableCode';
-import CodeShowcase from '@site/src/components/code/CodeShowcase';
-import RelatedDocs from '@site/src/components/docs/RelatedDocs';
-import WasThisHelpful from '@site/src/components/docs/WasThisHelpful';
 import LastUpdated from '@site/src/components/docs/LastUpdated';
-import ReadingTime from '@site/src/components/docs/ReadingTime';
-import GradientText from '@site/src/components/ui/GradientText';
-import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
 It lets you inspect the diamond’s routing table and retrieve the registered facet list.
@@ -86,7 +77,7 @@ Used as a return type for the [`facets`](#facets) function.
 
 ### facetAddress
 
-Gets the facet address that handles the given selector. If facet is not found return `address(0)`.
+Gets the facet address that handles the given selector. If facet is not found, return `address(0)`.
 
 <ExpandableCode language="solidity" maxLines={8}>
 {`function facetAddress(bytes4 _functionSelector) external view returns (address facet);`}
@@ -99,7 +90,7 @@ Gets the facet address that handles the given selector. If facet is not found re
     {
       name: "_functionSelector",
       type: "bytes4",
-      description: "The function selector."
+      description: "The function selector to lookup"
     }
   ]}
   showRequired={false}
@@ -123,7 +114,8 @@ Gets the facet address that handles the given selector. If facet is not found re
 
 Gets the function selectors exported by the given facet and returns them as `bytes4[]`.
 
-If the diamond is not currently routing the facet for the facet’s first exported selector, this function returns an empty array. If `_facet` does not implement `exportSelectors()` with the expected packing, the call will revert.
+- If the diamond is not routing the facet's first exported selector, this function returns an empty array.
+- If `_facet` does not implement `exportSelectors()` with the expected packing, the call will revert.
 
 <ExpandableCode language="solidity" maxLines={8}>
 {`function facetFunctionSelectors(address _facet) external view returns (bytes4[] memory facetSelectors);`}
@@ -136,7 +128,7 @@ If the diamond is not currently routing the facet for the facet’s first export
     {
       name: "_facet",
       type: "address",
-      description: "Facet contract address. Must implement `exportSelectors()` (packed `bytes4` selectors)."
+      description: "Facet contract address. Must implement `exportSelectors()`</b> (packed `bytes4` selectors)."
     }
   ]}
   showRequired={false}
@@ -158,7 +150,9 @@ If the diamond is not currently routing the facet for the facet’s first export
 ---
 ### facetAddresses
 
-Gets the facet addresses used by the diamond. If `facetList.facetCount` is `0`, this returns an empty array.
+Gets the facet addresses used by the diamond. 
+
+If no facets are registered, this returns an empty array.
 
 <ExpandableCode language="solidity" maxLines={8}>
 {`function facetAddresses() external view returns (address[] memory allFacets);`}
@@ -193,7 +187,11 @@ Returns the facet address and function selectors of all facets in the diamond.
     {
       name: "facetsAndSelectors",
       type: "Facet[]",
-      description: "An array of Facet structs containing each facet address and its function selectors."
+      descriptionElement: (
+        <>
+          An array of <a href="#facet"><code>Facet</code></a> structs containing each facet address and its function selectors.
+        </>
+      )
     }
   ]}
   showRequired={false}
@@ -235,20 +233,18 @@ console.log({ facet, allFacets, selectorsForFacet });`}
 
 ## Best Practices
 
-- Integrate this facet to enable external inspection of diamond facet mappings (Useful for tooling and indexing).
+- Integrate this facet to enable external inspection of diamond facet mappings (<b>Useful for tooling and indexing</b>).
 - Use `facetAddress` to determine which facet handles a specific function selector.
-- Utilize `facets` and `facetFunctionSelectors` for comprehensive diamond structure analysis.
+- Use `facets` and `facetFunctionSelectors` for comprehensive diamond structure analysis.
 
 ## Security Considerations
 
 Most functions are `view`/`pure` and do not mutate state.
 
-However, `facetFunctionSelectors()` and `facets()` perform external calls to `IFacet(facet).exportSelectors()`. If the provided address is not a valid `IFacet` implementation (or if `exportSelectors()` reverts / returns unexpected data), these calls can revert.
+However, `facetFunctionSelectors()` and `facets()` perform external calls to `IFacet(facet).exportSelectors()`. 
 
-From on-chain code, avoid passing untrusted facet addresses.
+If the provided address is not a valid `IFacet` implementation (or if `exportSelectors()` reverts / returns unexpected data), these calls can revert. 
 
-<div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
-  <WasThisHelpful pageId="Diamond Inspect Facet" />
-</div>
+<b>That being said, always make sure to provide verified and trusted facet addresses.</b>
 
-<LastUpdated date="2026-03-13T01:49:46.480Z" />
+<LastUpdated date="2026-05-01T12:49:46.480Z" />

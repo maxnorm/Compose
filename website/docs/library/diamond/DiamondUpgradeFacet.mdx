@@ -11,19 +11,17 @@ import Callout from '@site/src/components/ui/Callout';
 import Accordion, { AccordionGroup } from '@site/src/components/ui/Accordion';
 import PropertyTable from '@site/src/components/api/PropertyTable';
 import ExpandableCode from '@site/src/components/code/ExpandableCode';
-import WasThisHelpful from '@site/src/components/docs/WasThisHelpful';
 import LastUpdated from '@site/src/components/docs/LastUpdated';
+import StepIndicator from '@site/src/components/docs/StepIndicator';
 
 <DocSubtitle>
 Orchestrates upgrade functionality, enabling the addition, replacement, and removal of facets.
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Manages facet lifecycle (add, replace, remove) within a diamond.
 - Owner-gated upgrade entrypoint (ERC-173 `owner`).
 - Optional `delegatecall` for post-upgrade initialization/state migration.
 - Updates selector routing so subsequent calls dispatch to the new facet.
-- Emits events for all facet changes and delegate calls.
 </Callout>
 
 ## Storage
@@ -33,14 +31,14 @@ Orchestrates upgrade functionality, enabling the addition, replacement, and remo
 <PropertyTable
   properties={[
     {
-      name: "OWNER_STORAGE_POSITION",
-      type: "bytes32",
-      description: "Diamond storage slot position for this module (Value: `keccak256(\"erc173.owner\")`)"
-    },
-    {
       name: "DIAMOND_STORAGE_POSITION",
       type: "bytes32",
-      description: "Diamond storage slot position for this module (Value: `keccak256(\"erc8153.diamond\")`)"
+      description: "Diamond storage slot position in the proxy (Value: `keccak256(\"erc8153.diamond\")`)"
+    },
+    {
+      name: "OWNER_STORAGE_POSITION",
+      type: "bytes32",
+      description: "Owner storage slot position in the proxy (Value: `keccak256(\"erc173.owner\")`)"
     }
   ]}
   showRequired={false}
@@ -96,7 +94,17 @@ struct OwnerStorage {
 
 Upgrade the diamond by adding, replacing, and/or removing facets.
 
-Execution order is always: `addFacets`, `replaceFacets`, `removeFacets`
+<b>Execution order:</b>
+
+<StepIndicator
+  currentStep={-1}
+  orientation="vertical"
+  steps={[
+    { title: 'Add Facets', description: 'Attach new facet contracts and register their function selectors.' },
+    { title: 'Replace Facets', description: 'Swap existing selectors to point to updated facet implementations.' },
+    { title: 'Remove Facets', description: 'Unregister selectors that are no longer needed in the diamond.' },
+  ]}
+/>
 
 Then, if `_delegate != address(0)`, the diamond performs a `delegatecall` with `_delegateCalldata` and emits `DiamondDelegateCall`.
 
@@ -158,7 +166,7 @@ Then, if `_delegate != address(0)`, the diamond performs a `delegatecall` with `
 
 <Callout type="important" title="Facet Requirement">
 Facets must implement `exportSelectors()` in order to make their selectors discoverable by diamonds.
-Only the exported selectors will be added to the diamond.
+<b>Only the exported selectors will be added to the diamond.</b>
 
 ```solidity
 interface IFacet {
@@ -471,12 +479,10 @@ bytes memory selectors = diamond.exportSelectors();`}
 
 ## Security Considerations
 
-The `upgradeDiamond` function is critical: it mutates the diamond’s selector routing and facet linked list.
+<b>The `upgradeDiamond` function is critical: it mutates the diamond’s selector routing and facet linked list. </b>
+<br/><br/>
+It is protected by [Owner](/docs/library/access/Owner/) checks, and it optionally executes an unrestricted `delegatecall` after facet updates. These represent code paths that can modify diamond storage and may introduce complex control flow.
 
-It is protected by [Owner](/docs/library/access/Owner/) checks, and it optionally executes an unrestricted `delegatecall` after facet updates. Treat `_delegate` and `_delegateCalldata` as fully trusted: that code can modify diamond storage and may introduce complex control flow.
+<b>That being said, always make sure to provide verified and trusted facet and delegate contract addresses.</b>
 
-<div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
-  <WasThisHelpful pageId="Diamond Upgrade Facet" />
-</div>
-
-<LastUpdated date="2026-03-13T01:49:50.563Z" />
+<LastUpdated date="2026-05-01T12:49:50.563Z" />
