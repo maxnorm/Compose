@@ -483,7 +483,7 @@ error NoSelectorsForFacet(address _facet);
 
 <b>The `upgradeDiamond` function is critical: this function mutates the diamond’s selector routing and facet list. </b>
 <br/><br/>
-Although this facet protected by [Owner](/docs/library/access/Owner/) checks, it can optionally execute an unrestricted `delegatecall` after facet updates. Allowing changes to the diamond storage.
+Although this facet protected by [Owner](https://github.com/Perfect-Abstractions/Compose/tree/main/src/access/Owner) checks, it can optionally execute an unrestricted `delegatecall` after facet updates. Allowing changes to the diamond storage.
 
 That being said, <b>make sure to provide verified and trusted contract addresses to avoid any unwanted changes or vulnerabilities</b>
 <LastUpdated date="2026-05-01T12:49:50.563Z" />

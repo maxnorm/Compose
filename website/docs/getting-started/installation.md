@@ -70,7 +70,7 @@ import {DiamondMod} from "@perfect-abstractions/compose/diamond/DiamondMod.sol";
 Now that you have Compose installed, let's understand the core concepts:
 
 - **[Core Concepts](/docs/foundations)** - Learn about facets, libraries, and shared storage
-- **[Explore Available Contracts](https://github.com/Perfect-Abstractions/Compose/tree/main/src)** - See what else you can add
+- **[Explore Available Contracts](/docs/library)** - See what else you can add
 
 ## Getting Help
 

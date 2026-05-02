@@ -1,25 +1,19 @@
 ---
 title: "Library"
-description: "API reference for all Compose modules and facets."
+description: "Contract references for Compose modules and facets—interfaces, storage layout, and upgrade wiring."
 sidebar_class_name: "hidden"
 ---
 
 import DocCard, { DocCardGrid } from '@site/src/components/docs/DocCard';
 import DocSubtitle from '@site/src/components/docs/DocSubtitle';
 import Icon from '@site/src/components/ui/Icon';
+import Callout from '@site/src/components/ui/Callout';
 
 <DocSubtitle>
-  API reference for all Compose modules and facets.
+  Contract-level docs for each **Compose** module and facet. What to call on-chain, how state is organized, and how upgrades work.
 </DocSubtitle>
 
 <DocCardGrid columns={2}>
-  <DocCard
-    title="Access Control"
-    description={"Access control patterns for permission management in Compose diamonds."}
-    href="/docs/library/access"
-    icon={<Icon name="package" size={28} />}
-    size="medium"
-  />
   <DocCard
     title="Diamond Core"
     description={"Core diamond proxy functionality for ERC-2535 diamonds."}
@@ -27,25 +21,10 @@ import Icon from '@site/src/components/ui/Icon';
     icon={<Icon name="package" size={28} />}
     size="medium"
   />
-  <DocCard
-    title="Interface Detection"
-    description={"ERC-165 interface detection support."}
-    href="/docs/library/interfaceDetection"
-    icon={<Icon name="package" size={28} />}
-    size="medium"
-  />
-  <DocCard
-    title="Token Standards"
-    description={"Token standard implementations for Compose diamonds."}
-    href="/docs/library/token"
-    icon={<Icon name="package" size={28} />}
-    size="medium"
-  />
-  <DocCard
-    title="Utilities"
-    description={"Utility libraries and helpers for diamond development."}
-    href="/docs/library/utils"
-    icon={<Icon name="package" size={28} />}
-    size="medium"
-  />
 </DocCardGrid>
+
+<Callout type="warning" title="Early Development">
+This library documentation is still in progress. Some facets and modules are not documented yet while we actively expand coverage. Until a specific page is available, [browse the contract source](https://github.com/Perfect-Abstractions/Compose/tree/main/src).
+
+<b>We are open to contributions to help grow these docs.</b> We still have documentation gaps today, and we welcome any related issues in the [repository](https://github.com/Perfect-Abstractions/Compose).
+</Callout>
