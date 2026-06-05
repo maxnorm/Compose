@@ -2,9 +2,5 @@
   "label": "Data",
   "position": 99,
   "collapsible": true,
-  "collapsed": true,
-  "link": {
-    "type": "doc",
-    "id": "library/access/Owner/Data/index"
-  }
+  "collapsed": true
 }

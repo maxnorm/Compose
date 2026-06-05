@@ -2,9 +2,5 @@
   "label": "Grant",
   "position": 99,
   "collapsible": true,
-  "collapsed": true,
-  "link": {
-    "type": "doc",
-    "id": "library/access/AccessControl/Grant/index"
-  }
+  "collapsed": true
 }

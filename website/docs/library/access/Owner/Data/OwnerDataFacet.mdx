@@ -22,13 +22,13 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Read-only ERC-173 owner data access for diamonds
+Read-only Owner data access for diamonds
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Exposes the contract owner via external `owner()` (ERC-173).
-- Shares `OwnerStorage` at `erc8042:erc173.owner` with `OwnerDataMod` and other owner facets.
-- No state-changing functions; initialization and ownership changes use other facets or the module.
+- Exposes the contract owner via external `owner()`.
+- Shares `OwnerStorage` at `erc8042:erc173.owner` with `OwnerDataMod` and other Ownership facets.
+- Read-Only facet
 </Callout>
 
 ## Storage
@@ -60,7 +60,7 @@ struct OwnerStorage {
 
 ### owner
 
-Returns the address stored in `OwnerStorage.owner`.
+Returns the address of the diamond owner
 
 <ExpandableCode language="solidity" maxLines={8}>
 {`function owner() external view returns (address);`}
@@ -83,14 +83,9 @@ Returns the address stored in `OwnerStorage.owner`.
 
 ## Best Practices
 
-- Initialize or transfer ownership with a facet that uses `OwnerDataMod` (for example `OwnerTransferFacet`) so `owner()` reflects the real owner before relying on this facet in production.
-- Register this facet with the diamond using `exportSelectors()` so `owner()` is routed correctly after cuts or upgrades.
-- Avoid defining a second facet that writes to a different owner slot; keep all owner state at `erc173.owner`.
+- Transfer ownership with a facet that uses `OwnerDataMod` (for example `OwnerTransferFacet`) so `owner()` always reflects the real owner.
+- Avoid defining a second facet that writes to a different owner slot; keep all -owner state at `erc173.owner`
+- Use [`setContractOwner()`](/docs/library/access/Owner/Data/OwnerDataMod#setcontractowner) in `OwnerDataMod` to initialize the owner when constructing your diamond.
 
 
-
-<div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
-  <WasThisHelpful pageId="Owner Data Facet" />
-</div>
-
-<LastUpdated date="2026-03-24T12:00:00.000Z" />
+<LastUpdated date="2026-06-05T12:00:00.000Z" />

@@ -22,20 +22,17 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-ERC-173 ownership storage and helpers for diamond facets
+Helper functions for owner storage, reads, and owner check based on ERC-173
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- Helper functions for owner storage, reads, and owner checks.
-- `requireOwner()` guards by requiring `msg.sender` is the stored owner; `setContractOwner` has no access checks (trusted initialization only).
+- `requireOwner()` guards by requiring `msg.sender` is the stored owner.
+- `setContractOwner` has no access control validation (Trusted initialization only).
 - Emits `OwnershipTransferred` from `setContractOwner` with `previousOwner == address(0)`.
 </Callout>
 
 <Callout type="important" title="Module Usage">
-Import this module into facets or shared setup code. 
-Its functions are internal (including Solidity file-level helpers). Use them through your facet’s external entrypoints. 
-
-Storage follows the diamond slot layout in this file; any code using the same `STORAGE_POSITION` or related positions reads and writes shared state.
+You can use modules to wrap around you own project logic while using the default Compose building blocks. Modules provides all the necessary internal helpers for maximum integration.
 
 See <a href="/docs/foundations/facets-and-modules">Facets &amp; Modules</a> for more information.
 </Callout>
@@ -69,9 +66,7 @@ struct OwnerStorage {
 
 ### getStorage
 
-Returns a pointer to the ERC-173 storage struct. 
-
-Uses inline assembly to access the storage slot defined by `STORAGE_POSITION`.
+Returns a pointer to the storage struct: `OwnerStorage`. 
 
 <ExpandableCode language="solidity" maxLines={8}>
 {`function getStorage() pure returns (OwnerStorage storage s);`}
@@ -115,7 +110,7 @@ Get the address of the owner
 ---
 ### requireOwner
 
-Reverts with `OwnerUnauthorizedAccount` unless `msg.sender` equals the current owner.
+Verify if the message sender is the current diamond owner. Useful for gating specify logic inside your own facets.
 
 <ExpandableCode language="solidity" maxLines={8}>
 {`function requireOwner() view;`}
@@ -163,7 +158,7 @@ There is **no** `msg.sender` or role check performed. Use only from trusted init
 <AccordionGroup>
   <Accordion title="OwnershipTransferred" defaultOpen={false}>
     <div style={{marginBottom: "1rem"}}>
-      Emitted when the stored owner changes. `setContractOwner` always uses `previousOwner == address(0)`; transfer facets typically emit with the real previous owner.
+      Emitted when the ownership changes. `setContractOwner` always uses `previousOwner == address(0)`. Transfer facets typically emit with the real previous owner.
     </div>
 
     <div style={{marginBottom: "1rem"}}>
@@ -181,7 +176,7 @@ There is **no** `msg.sender` or role check performed. Use only from trusted init
 <AccordionGroup>
   <Accordion title="OwnerUnauthorizedAccount" defaultOpen={false}>
     <div style={{marginBottom: "1rem"}}>
-      Thrown by `requireOwner` when `msg.sender` is not the stored owner. Other owner facets may also revert with this error.
+      Thrown by `requireOwner` when `msg.sender` is not the curent owner. Other owner facets may also revert with this error.
     </div>
     <div>
       <strong>Signature:</strong>
@@ -214,8 +209,4 @@ error OwnerAlreadyRenounced();
 
 All Compose Owner contracts use that slot, so `owner()` and transfer logic observe the same address.
 
-<div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
-  <WasThisHelpful pageId="Owner Data Module" />
-</div>
-
-<LastUpdated date="2026-03-24T12:00:00.000Z" />
+<LastUpdated date="2026-06-05T12:00:00.000Z" />

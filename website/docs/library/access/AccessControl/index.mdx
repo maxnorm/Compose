@@ -13,59 +13,157 @@ import Icon from '@site/src/components/ui/Icon';
 
 <DocCardGrid columns={2}>
   <DocCard
-    title="Admin"
-    description={"Admin components for Compose diamonds."}
-    href="/docs/library/access/AccessControl/Admin"
-    icon={<Icon name="package" size={28} />}
+    title="Access Control Admin Facet"
+    description={"Manages roles and their administrative roles"}
+    href="/docs/library/access/AccessControl/Admin/AccessControlAdminFacet"
+    icon={<Icon name="showcase-facet" size={28} />}
     size="medium"
   />
   <DocCard
-    title="Batch"
-    description={"Batch components for Compose diamonds."}
-    href="/docs/library/access/AccessControl/Batch"
-    icon={<Icon name="package" size={28} />}
+    title="Access Control Admin Module"
+    description={"Manage role administrators using diamond storage"}
+    href="/docs/library/access/AccessControl/Admin/AccessControlAdminMod"
+    icon={<Icon name="box-detailed" size={28} />}
     size="medium"
   />
   <DocCard
-    title="Data"
-    description={"Data components for Compose diamonds."}
-    href="/docs/library/access/AccessControl/Data"
-    icon={<Icon name="package" size={28} />}
+    title="Access Control Data Facet"
+    description={"Manages roles and permissions within a diamond"}
+    href="/docs/library/access/AccessControl/Data/AccessControlDataFacet"
+    icon={<Icon name="showcase-facet" size={28} />}
     size="medium"
   />
   <DocCard
-    title="Grant"
-    description={"Grant components for Compose diamonds."}
-    href="/docs/library/access/AccessControl/Grant"
-    icon={<Icon name="package" size={28} />}
+    title="Access Control Data Module"
+    description={"Manage access control roles and accounts"}
+    href="/docs/library/access/AccessControl/Data/AccessControlDataMod"
+    icon={<Icon name="box-detailed" size={28} />}
     size="medium"
   />
   <DocCard
-    title="Pausable"
-    description={"Pausable components for Compose diamonds."}
-    href="/docs/library/access/AccessControl/Pausable"
-    icon={<Icon name="package" size={28} />}
+    title="Access Control Grant Facet"
+    description={"Grants roles to accounts within a diamond"}
+    href="/docs/library/access/AccessControl/Grant/AccessControlGrantFacet"
+    icon={<Icon name="showcase-facet" size={28} />}
     size="medium"
   />
   <DocCard
-    title="Renounce"
-    description={"Renounce components for Compose diamonds."}
-    href="/docs/library/access/AccessControl/Renounce"
-    icon={<Icon name="package" size={28} />}
+    title="Access Control Grant Module"
+    description={"Grant roles to accounts within a diamond"}
+    href="/docs/library/access/AccessControl/Grant/AccessControlGrantMod"
+    icon={<Icon name="box-detailed" size={28} />}
     size="medium"
   />
   <DocCard
-    title="Revoke"
-    description={"Revoke components for Compose diamonds."}
-    href="/docs/library/access/AccessControl/Revoke"
-    icon={<Icon name="package" size={28} />}
+    title="Access Control Pausable Facet"
+    description={"Manage role pausing and unpausing within a diamond"}
+    href="/docs/library/access/AccessControl/Pausable/AccessControlPausableFacet"
+    icon={<Icon name="showcase-facet" size={28} />}
     size="medium"
   />
   <DocCard
-    title="Temporal"
-    description={"Temporal components for Compose diamonds."}
-    href="/docs/library/access/AccessControl/Temporal"
-    icon={<Icon name="package" size={28} />}
+    title="Access Control Pausable Module"
+    description={"Manages role pausing and checks within a diamond"}
+    href="/docs/library/access/AccessControl/Pausable/AccessControlPausableMod"
+    icon={<Icon name="box-detailed" size={28} />}
+    size="medium"
+  />
+  <DocCard
+    title="Access Control Renounce Facet"
+    description={"Renounces roles for accounts within a diamond."}
+    href="/docs/library/access/AccessControl/Renounce/AccessControlRenounceFacet"
+    icon={<Icon name="showcase-facet" size={28} />}
+    size="medium"
+  />
+  <DocCard
+    title="Access Control Renounce Module"
+    description={"Renounce roles for accounts within a diamond"}
+    href="/docs/library/access/AccessControl/Renounce/AccessControlRenounceMod"
+    icon={<Icon name="box-detailed" size={28} />}
+    size="medium"
+  />
+  <DocCard
+    title="Access Control Revoke Facet"
+    description={"Revokes roles from accounts within a diamond"}
+    href="/docs/library/access/AccessControl/Revoke/AccessControlRevokeFacet"
+    icon={<Icon name="showcase-facet" size={28} />}
+    size="medium"
+  />
+  <DocCard
+    title="Access Control Revoke Module"
+    description={"Revoke roles from accounts using diamond storage"}
+    href="/docs/library/access/AccessControl/Revoke/AccessControlRevokeMod"
+    icon={<Icon name="box-detailed" size={28} />}
+    size="medium"
+  />
+  <DocCard
+    title="Access Control Grant Batch Facet"
+    description={"Grants roles to multiple accounts in batch"}
+    href="/docs/library/access/AccessControl/Batch/Grant/AccessControlGrantBatchFacet"
+    icon={<Icon name="showcase-facet" size={28} />}
+    size="medium"
+  />
+  <DocCard
+    title="Access Control Grant Batch Module"
+    description={"Grant roles to multiple accounts efficiently"}
+    href="/docs/library/access/AccessControl/Batch/Grant/AccessControlGrantBatchMod"
+    icon={<Icon name="box-detailed" size={28} />}
+    size="medium"
+  />
+  <DocCard
+    title="Access Control Revoke Batch Facet"
+    description={"Revoke roles from multiple accounts efficiently"}
+    href="/docs/library/access/AccessControl/Batch/Revoke/AccessControlRevokeBatchFacet"
+    icon={<Icon name="showcase-facet" size={28} />}
+    size="medium"
+  />
+  <DocCard
+    title="Access Control Revoke Batch Module"
+    description={"Revoke roles from multiple accounts efficiently"}
+    href="/docs/library/access/AccessControl/Batch/Revoke/AccessControlRevokeBatchMod"
+    icon={<Icon name="box-detailed" size={28} />}
+    size="medium"
+  />
+  <DocCard
+    title="Access Control Temporal Data Facet"
+    description={"Manages time-bound role assignments and checks for expired roles"}
+    href="/docs/library/access/AccessControl/Temporal/Data/AccessControlTemporalDataFacet"
+    icon={<Icon name="showcase-facet" size={28} />}
+    size="medium"
+  />
+  <DocCard
+    title="Access Control Temporal Data Module"
+    description={"Manages temporal role assignments and their expiry"}
+    href="/docs/library/access/AccessControl/Temporal/Data/AccessControlTemporalDataMod"
+    icon={<Icon name="box-detailed" size={28} />}
+    size="medium"
+  />
+  <DocCard
+    title="Access Control Temporal Grant Facet"
+    description={"Grants roles with time-based expiry"}
+    href="/docs/library/access/AccessControl/Temporal/Grant/AccessControlTemporalGrantFacet"
+    icon={<Icon name="showcase-facet" size={28} />}
+    size="medium"
+  />
+  <DocCard
+    title="Access Control Temporal Grant Module"
+    description={"Grant roles with expiry using diamond storage"}
+    href="/docs/library/access/AccessControl/Temporal/Grant/AccessControlTemporalGrantMod"
+    icon={<Icon name="box-detailed" size={28} />}
+    size="medium"
+  />
+  <DocCard
+    title="Access Control Temporal Revoke Facet"
+    description={"Revokes temporal roles from accounts within a diamond"}
+    href="/docs/library/access/AccessControl/Temporal/Revoke/AccessControlTemporalRevokeFacet"
+    icon={<Icon name="showcase-facet" size={28} />}
+    size="medium"
+  />
+  <DocCard
+    title="Access Control Temporal Revoke Module"
+    description={"Revoke temporal roles with admin authorization"}
+    href="/docs/library/access/AccessControl/Temporal/Revoke/AccessControlTemporalRevokeMod"
+    icon={<Icon name="box-detailed" size={28} />}
     size="medium"
   />
 </DocCardGrid>
