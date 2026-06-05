@@ -15,7 +15,7 @@ import WasThisHelpful from '@site/src/components/docs/WasThisHelpful';
 import LastUpdated from '@site/src/components/docs/LastUpdated';
 
 <DocSubtitle>
-Two-step ERC-173 ownership transfer for Compose diamonds
+Two-step ownership transfer for your diamond
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
@@ -65,7 +65,7 @@ struct PendingOwnerStorage {
 
 ### transferOwnership
 
-Callable only when `msg.sender` is the current owner; otherwise reverts `OwnerUnauthorizedAccount`. Sets `pendingOwner` to `_newOwner` and emits `OwnershipTransferStarted(owner, _newOwner)`. The on-chain owner does not change until `acceptOwnership`.
+Callable only when `msg.sender` is the current owner. Sets `pendingOwner` to `_newOwner` and emits `OwnershipTransferStarted(owner, _newOwner)`. The on-chain owner does not change until `acceptOwnership` is call.
 
 <ExpandableCode language="solidity" maxLines={8}>
 {`function transferOwnership(address _newOwner) external;`}
@@ -78,7 +78,7 @@ Callable only when `msg.sender` is the current owner; otherwise reverts `OwnerUn
     {
       name: "_newOwner",
       type: "address",
-      description: "Address that will become owner after a successful `acceptOwnership` from that address."
+      description: "Address that will become the new owner"
     }
   ]}
   showRequired={false}
@@ -88,7 +88,7 @@ Callable only when `msg.sender` is the current owner; otherwise reverts `OwnerUn
 
 ### acceptOwnership
 
-Callable only when `msg.sender` is the pending owner; otherwise reverts `OwnerUnauthorizedAccount`. Assigns `owner` to the pending address, sets `pendingOwner` to `address(0)`, and emits `OwnershipTransferred(previousOwner, newOwner)`.
+Callable only when `msg.sender` is the pending owner. Assigns `owner` to the pending address, sets `pendingOwner` to `address(0)`, and emits `OwnershipTransferred(previousOwner, newOwner)`.
 
 <ExpandableCode language="solidity" maxLines={8}>
 {`function acceptOwnership() external;`}
@@ -133,7 +133,7 @@ Callable only when `msg.sender` is the pending owner; otherwise reverts `OwnerUn
   <Accordion title="OwnerUnauthorizedAccount" defaultOpen={false}>
 
     <div style={{marginBottom: "1rem"}}>
-      Thrown when `transferOwnership` is called by anyone other than the current owner, or when `acceptOwnership` is called by anyone other than the pending owner.
+      Thrown when `transferOwnership` is called by anyone other than the current owner or the pending owner.
     </div>
 
     <div>
@@ -147,11 +147,7 @@ Callable only when `msg.sender` is the pending owner; otherwise reverts `OwnerUn
 
 ## Best Practices
 
-- Initialize `OwnerStorage.owner` during deployment before relying on owner-only behavior elsewhere.
+- Initialize `OwnerStorage.owner` during deployment before relying on owner behavior elsewhere.
 - After `transferOwnership`, ensure the nominated `_newOwner` can and will call `acceptOwnership`; until then, the previous owner remains owner.
 
-<div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
-  <WasThisHelpful pageId="Owner Two Step Transfer Facet" />
-</div>
-
-<LastUpdated date="2026-03-24T12:00:00.000Z" />
+<LastUpdated date="2026-06-05T12:00:00.000Z" />

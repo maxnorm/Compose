@@ -22,13 +22,12 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Renounce ownership and clear pending owner for two-step ERC-173 diamonds
+Renounce the two step ownership of your diamonds
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
 - `renounceOwnership()` clears owner and pending owner in one call.
 - Owner-only function; otherwise reverts `OwnerUnauthorizedAccount`.
-- Emits `OwnershipTransferred` to `address(0)`.
 </Callout>
 
 ## Storage
@@ -73,7 +72,7 @@ struct PendingOwnerStorage {
 
 ### renounceOwnership
 
-Requires `msg.sender` to equal the stored owner; otherwise reverts `OwnerUnauthorizedAccount`. Sets `owner` to `address(0)`, sets `pendingOwner` to `address(0)`, and emits `OwnershipTransferred(previousOwner, address(0))`. After success, owner-only checks that read this storage should no longer authorize any account.
+Renounce the diamond ownership while clearing any pending owner. Requires `msg.sender` to equal the current owner; otherwise reverts `OwnerUnauthorizedAccount`.
 
 <ExpandableCode language="solidity" maxLines={8}>
 {`function renounceOwnership() external;`}
@@ -120,10 +119,6 @@ Requires `msg.sender` to equal the stored owner; otherwise reverts `OwnerUnautho
 
 ## Security Considerations
 
-Renouncing is **immediate** and **irreversible** on-chain: the owner becomes `address(0)` in the same transaction.
+Renouncing is an **immediate** and **irreversible** on-chain action: you will lose access to all owner gated functionality inside your diamond.
 
-<div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
-  <WasThisHelpful pageId="Owner Two Step Renounce Facet" />
-</div>
-
-<LastUpdated date="2026-03-24T12:00:00.000Z" />
+<LastUpdated date="2026-06-05T12:00:00.000Z" />

@@ -22,12 +22,12 @@ import GradientText from '@site/src/components/ui/GradientText';
 import GradientButton from '@site/src/components/ui/GradientButton';
 
 <DocSubtitle>
-Read-only pending-owner data for ERC-173 two-step transfers in diamonds
+Read-only pending-owner data extension for the Owner facets.
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
 - Exposes the pending owner via external `pendingOwner()` (read-only).
-- Shares `PendingOwnerStorage` at `erc8042:erc173.owner.pending` with `OwnerTwoStepTransferFacet` and other two-step owner contracts.
+- Shares `PendingOwnerStorage` at `erc8042:erc173.owner.pending` with `OwnerTwoStepTransferFacet` and other contracts.
 </Callout>
 
 ## Storage
@@ -58,7 +58,7 @@ struct PendingOwnerStorage {
 
 ### pendingOwner
 
-Returns the address stored in `PendingOwnerStorage.pendingOwner`.
+Returns the pedding owner address registered`.
 
 <ExpandableCode language="solidity" maxLines={8}>
 {`function pendingOwner() external view returns (address);`}
@@ -80,10 +80,6 @@ Returns the address stored in `PendingOwnerStorage.pendingOwner`.
 ## Best Practices
 
 - Avoid defining another facet that reads or writes a different slot for pending owner; keep pending-owner state at `erc173.owner.pending`.
-- The current owner in the Two-Step Ownership is stored in the same `OwnerStorage` as the single-step ownership. Reuse the storage struct to ensure composability.
+- The current owner in the Two-Step Ownership is stored in the same `OwnerStorage` as the single-step ownership. Reuse the storage struct to ensure full composability.
 
-<div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
-  <WasThisHelpful pageId="Owner Two Step Data Facet" />
-</div>
-
-<LastUpdated date="2026-03-24T12:00:00.000Z" />
+<LastUpdated date="2026-06-05T12:00:00.000Z" />

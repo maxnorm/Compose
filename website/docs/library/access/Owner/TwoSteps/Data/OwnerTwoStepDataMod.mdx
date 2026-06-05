@@ -14,13 +14,13 @@ import WasThisHelpful from '@site/src/components/docs/WasThisHelpful';
 import LastUpdated from '@site/src/components/docs/LastUpdated';
 
 <DocSubtitle>
-Diamond storage and read helpers for ERC-173 pending owner (two-step)
+Heper functions for two step ownership access
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
 - Single slot `erc8042:erc173.owner.pending` (`keccak256("erc173.owner.pending")`), shared with [Owner Two Step Transfer Module](/docs/library/access/Owner/TwoSteps/Transfer/OwnerTwoStepTransferMod), renounce/two-step flows, and [Owner Two Step Data Facet](/docs/library/access/Owner/TwoSteps/Data/OwnerTwoStepDataFacet).
 - File-level `getStorage()` returns a `PendingOwnerStorage` pointer; `pendingOwner()` reads `pendingOwner` (or `address(0)` when unset).
-- Read-only from this module’s perspective—facets or modules that perform two-step transfer/renounce write `pendingOwner`.
+- Read-only from this module `.
 </Callout>
 
 <Callout type="important" title="Module Usage">

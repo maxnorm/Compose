@@ -15,13 +15,13 @@ import WasThisHelpful from '@site/src/components/docs/WasThisHelpful';
 import LastUpdated from '@site/src/components/docs/LastUpdated';
 
 <DocSubtitle>
-ERC-173 ownership transfer for Compose diamonds
+Transfer your diamonds ownership 
 </DocSubtitle>
 
 <Callout type="info" title="Key Features">
-- `transferOwnership` writes into the `OwnerStorage` at `erc8042:erc173.owner` (shared with other owner facets).
+- `transferOwnership` writes into the `OwnerStorage` at `erc8042:erc173.owner`.
 - `_newOwner` may be `address(0)` to clear ownership. (Similar to `renounceOwnership`)
-- Non-owners revert `OwnerUnauthorizedAccount`; successful transfers emit `OwnershipTransferred`.
+- Transfers require the caller to be the curent owner
 </Callout>
 
 ## Storage
@@ -52,7 +52,9 @@ struct OwnerStorage {
 
 ### transferOwnership
 
-Updates `OwnerStorage.owner` to `_newOwner` when `msg.sender` is the current owner; otherwise reverts `OwnerUnauthorizedAccount`. Emits `OwnershipTransferred(previousOwner, _newOwner)`. Use `_newOwner == address(0)` to clear the owner (irreversible unless another facet or upgrade restores it).
+Change the contract ownership to the `_newOwner` address. 
+
+You can replicate the renouncement by setting the new owner to `address(0)`. This action is irreversible.
 
 <ExpandableCode language="solidity" maxLines={8}>
 {`function transferOwnership(address _newOwner) external;`}
@@ -95,7 +97,11 @@ Updates `OwnerStorage.owner` to `_newOwner` when `msg.sender` is the current own
 <AccordionGroup>
   <Accordion title="OwnerUnauthorizedAccount" defaultOpen={false}>
 
-    <div>
+    <div style={{marginBottom: "1rem"}}>
+      Ownership transfers require that the `msg.sender` is the current owner
+    </div>
+
+    <div style={{marginBottom: "1rem"}}>
       <strong>Signature:</strong>
       <ExpandableCode language="solidity" maxLines={5}>
 {`error OwnerUnauthorizedAccount();`}
@@ -108,18 +114,14 @@ Updates `OwnerStorage.owner` to `_newOwner` when `msg.sender` is the current own
 ## Best Practices
 
 - Initialize `OwnerStorage.owner` during deployment (or via a one-time setup) before relying on owner-only features elsewhere.
-- Confirm `_newOwner` is the intended address; transfers are immediate and cannot be undone.
-- Keep owner state in a single slot: do not add another facet that writes a second “owner” elsewhere.
-- If you need two-step acceptance or pending-owner flows, consider the [Two Steps](/docs/library/access/Owner/TwoSteps) ownership utilities in addition to this facet.
+- Confirm `_newOwner` is the intended address; transfers are immediate and cannot be reverse.
+- Keep owner state in a single slot: do not add another facet that writes a second “owner” elsewhere. Except id dual ownership is intend.
+- If you need two-step acceptance or pending-owner flows, consider the Two Steps ownership utilities in addition to this facet.
 
 ## Security Considerations
 
 `transferOwnership` is restricted to the address currently stored as owner (`msg.sender == s.owner`). The facet does not implement any additional role system. View [Access Control](/docs/library/access/AccessControl) for granular role-based access.
 
-The main risks are social and operational: transferring to the wrong address, or setting `_newOwner` to `address(0)` when you did not intend to remove all owner control.
+The main risks are **social** and **operational**: transferring to the wrong address, or setting `_newOwner` to `address(0)` when you did not intend to remove all owner control.
 
-<div style={{marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--ifm-color-emphasis-200)"}}>
-  <WasThisHelpful pageId="Owner Transfer Facet" />
-</div>
-
-<LastUpdated date="2026-03-24T12:00:00.000Z" />
+<LastUpdated date="2026-06-05T12:00:00.000Z" />
