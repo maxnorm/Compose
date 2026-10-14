@@ -1,0 +1,46 @@
+---
+title: "ERC-4626 — Tokenized Vault Standard"
+sidebar_label: "ERC-4626"
+description: "Composable synchronous ERC-4626 vault features for Compose diamonds."
+---
+
+import DocSubtitle from '@site/src/components/docs/DocSubtitle';
+
+# ERC-4626: Tokenized Vaults
+
+<DocSubtitle>
+  Synchronous tokenized vault operations, split into composable features
+</DocSubtitle>
+
+Compose's ERC-4626 implementation is divided into six feature facets. Install the ERC-20 share-token facets you need alongside them (at minimum, data, metadata, approve, and transfer functionality for a complete share token).
+
+## Facets and modules
+
+Each feature has a standalone `Facet.sol` and a matching Solidity `Mod.sol`. Facets contain the complete selectors for their feature and do not import other files. Modules are reusable free functions for custom facets.
+
+| Feature | Facet selectors | Source |
+| --- | --- | --- |
+| Asset | `asset`, `totalAssets` | [Facet](https://github.com/Perfect-Abstractions/Compose/blob/main/src/token/ERC20/Vault/Asset/ERC4626AssetFacet.sol) · [Mod](https://github.com/Perfect-Abstractions/Compose/blob/main/src/token/ERC20/Vault/Asset/ERC4626AssetMod.sol) |
+| Convert | `convertToShares`, `convertToAssets` | [Facet](https://github.com/Perfect-Abstractions/Compose/blob/main/src/token/ERC20/Vault/Convert/ERC4626ConvertFacet.sol) · [Mod](https://github.com/Perfect-Abstractions/Compose/blob/main/src/token/ERC20/Vault/Convert/ERC4626ConvertMod.sol) |
+| Deposit | `maxDeposit`, `previewDeposit`, `deposit` | [Facet](https://github.com/Perfect-Abstractions/Compose/blob/main/src/token/ERC20/Vault/Deposit/ERC4626DepositFacet.sol) · [Mod](https://github.com/Perfect-Abstractions/Compose/blob/main/src/token/ERC20/Vault/Deposit/ERC4626DepositMod.sol) |
+| Mint | `maxMint`, `previewMint`, `mint` | [Facet](https://github.com/Perfect-Abstractions/Compose/blob/main/src/token/ERC20/Vault/Mint/ERC4626MintFacet.sol) · [Mod](https://github.com/Perfect-Abstractions/Compose/blob/main/src/token/ERC20/Vault/Mint/ERC4626MintMod.sol) |
+| Withdraw | `maxWithdraw`, `previewWithdraw`, `withdraw` | [Facet](https://github.com/Perfect-Abstractions/Compose/blob/main/src/token/ERC20/Vault/Withdraw/ERC4626WithdrawFacet.sol) · [Mod](https://github.com/Perfect-Abstractions/Compose/blob/main/src/token/ERC20/Vault/Withdraw/ERC4626WithdrawMod.sol) |
+| Redeem | `maxRedeem`, `previewRedeem`, `redeem` | [Facet](https://github.com/Perfect-Abstractions/Compose/blob/main/src/token/ERC20/Vault/Redeem/ERC4626RedeemFacet.sol) · [Mod](https://github.com/Perfect-Abstractions/Compose/blob/main/src/token/ERC20/Vault/Redeem/ERC4626RedeemMod.sol) |
+
+## Initialization and share token
+
+Configure the asset once during diamond construction or another protected initialization flow by calling `ERC4626AssetMod.setAsset(_asset)`. This is a module function, not an externally exposed facet selector. Do not expose an unprotected asset setter.
+
+ERC-4626 shares use Compose's existing `erc20` storage for balances, allowances, and total supply, and the `erc20.metadata` storage for name, symbol, and decimals. Initialize metadata through the corresponding ERC-20 metadata module. This implementation uses one virtual asset and ten virtual shares (a one-decimal offset) in conversion math; initialize the share decimals as the asset decimals plus one, checking that the value fits in `uint8`.
+
+## Accounting and customization
+
+The supplied `ERC4626AssetFacet.totalAssets()` counts assets held directly by the diamond. It does not include strategy positions or pending rewards. A strategy vault should provide its own `totalAssets()` and use the conversion module functions with its strategy-aware total. The Deposit and Mint modules take the pre-operation total assets; Withdraw and Redeem modules take total assets and currently available liquidity. Measure those values before invoking the operation module.
+
+Virtual values affect conversions only. They are not included in `totalAssets()` or ERC-20 `totalSupply()`. Conversion and preview rounding follows ERC-4626: deposit/redeem round down; mint/withdraw round up.
+
+## Supported assets and scope
+
+The transfer helpers accept ERC-20s that return `true` and tokens that return no data, including the no-return behavior discussed for USDT. Reverted calls, explicit `false`, malformed return values, and addresses without contract code fail. Fee-on-transfer and rebasing assets are not supported by this initial implementation; use an exact-transfer asset.
+
+This feature set implements synchronous ERC-4626 only. ERC-7540 request/claim flows and strategy management are separate concerns and are not included.
