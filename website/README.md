@@ -29,6 +29,25 @@ npm run build
 
 This command generates static content into the `build` directory and can be served using any static contents hosting service.
 
+## Markdown for Agents
+
+Netlify's Edge Function negotiates a generated `.md` variant for page requests
+that include `Accept: text/markdown`. Browser requests continue to receive HTML,
+and both variants include `Vary: Accept` so caches keep them separate. Markdown
+is available for the homepage, documentation pages, blog posts, and standalone
+MDX pages with generated source files; pages without a Markdown source continue
+to return HTML.
+
+```bash
+curl -i -H 'Accept: text/markdown' https://compose.diamonds/docs/design/
+curl -i -H 'Accept: text/markdown' https://compose.diamonds/blog
+curl -i -H 'Accept: text/markdown' https://compose.diamonds/blog/introducing-erc-8109-diamonds
+curl -i -H 'Accept: text/markdown' https://compose.diamonds/blog/tags/architecture
+curl -i -H 'Accept: text/html' https://compose.diamonds/docs/design/
+```
+
+Run the negotiation tests with `npm run markdown:test`.
+
 ## Generate Facets & Modules Documentation
 
 ```bash

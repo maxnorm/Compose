@@ -5,6 +5,14 @@
 import { createRequire } from 'module';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import {
+  convertMdxComponentsToMarkdown,
+  transformOutsideFencedCode,
+} from './mdx-components-to-markdown.mjs';
+import {
+  createBlogIndexMarkdownPages,
+  createBlogPost,
+} from './blog-markdown.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);
@@ -68,24 +76,16 @@ function convertDocCardGridToMarkdown(content) {
   );
 }
 
-/**
- * Remove JSX tags (including nested ones) by repeatedly stripping the
- * outermost component until no match. Avoids leaving fragments like " />" or "}".
- */
-function stripJsxComponents(content) {
-  const componentTag = /<([A-Z][a-zA-Z]*)(?:\s[^>]*?)?(?:\/>|>[\s\S]*?<\/\1>)/g;
-  let prev;
-  do {
-    prev = content;
-    content = content.replace(componentTag, '');
-  } while (content !== prev);
-  return content;
-}
-
-function cleanMarkdownForDisplay(content, filepath) {
+function cleanMarkdownForDisplay(content, filepath, imageBaseUrl = '/docs/') {
   const fileDir = filepath.replace(/[^/]*$/, '');
+  const frontMatter = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n/);
+  const gitSourceMatch = frontMatter?.[1].match(
+    /^gitSource:\s*(?:"([^"]*)"|'([^']*)'|([^\r\n]+))\s*$/m,
+  );
+  const gitSource = gitSourceMatch?.[1] ?? gitSourceMatch?.[2] ?? gitSourceMatch?.[3];
   content = content.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '');
   content = content.replace(/^import\s+.*?from\s+['"].*?['"];?\s*$/gm, '');
+  content = content.replace(/\{\/\*\s*truncate\s*\*\/\}/g, '');
   content = content.replace(
     /<p align="center">\s*\n?\s*<img src=\{require\(['"]([^'"]+)['"]\)\.default\} alt="([^"]*)"(?:\s+width="[^"]*")?\s*\/>\s*\n?\s*<\/p>/g,
     (match, imagePath, alt) => {
@@ -110,13 +110,15 @@ function cleanMarkdownForDisplay(content, filepath) {
     const alt = (altMatch && altMatch[1]) || 'Diagram';
     return src ? `![${alt}](${src})\n\n` : '';
   });
-  content = convertTabsToMarkdown(content);
-  content = convertDetailsToMarkdown(content);
-  content = convertDocCardGridToMarkdown(content);
-  content = stripJsxComponents(content);
+  content = transformOutsideFencedCode(content, (markdown) => {
+    markdown = convertTabsToMarkdown(markdown);
+    markdown = convertDetailsToMarkdown(markdown);
+    markdown = convertDocCardGridToMarkdown(markdown);
+    return convertMdxComponentsToMarkdown(markdown, { gitSource });
+  });
   content = content.replace(
     /!\[([^\]]*)\]\((\.\/)?img\/([^)]+)\)/g,
-    (match, alt, relPrefix, filename) => `![${alt}](/docs/${fileDir}img/${filename})`
+    (match, alt, relPrefix, filename) => `![${alt}](${imageBaseUrl}${fileDir}img/${filename})`
   );
   content = content.replace(/^\s*\n/, '');
   return content;
@@ -247,6 +249,63 @@ export default function markdownSourceDocsPlugin(context, options) {
           console.log(`  ✓ Processed: ${mdxFile} → ${path.basename(destPath)}`);
         } catch (error) {
           console.error(`  ✗ Failed to process ${mdxFile}:`, error.message);
+        }
+      }
+
+      const blogDir = path.join(context.siteDir, 'blog');
+      const blogFiles = findDocFiles(blogDir);
+      const blogPosts = [];
+      for (const blogFile of blogFiles) {
+        const sourcePath = path.join(blogDir, blogFile);
+        try {
+          const content = await fs.readFile(sourcePath, 'utf8');
+          const blogPost = createBlogPost(blogFile, content);
+          if (!blogPost) {
+            console.warn(`[markdown-source-plugin] Skipping blog Markdown with invalid slug: ${blogFile}`);
+            continue;
+          }
+
+          blogPost.excerpt = cleanMarkdownForDisplay(
+            blogPost.excerpt,
+            blogFile,
+            '/blog/',
+          );
+          blogPosts.push(blogPost);
+
+          const markdownPath = blogPost.markdownPath;
+          const destPath = path.join(outDir, markdownPath.slice(1));
+          await fs.ensureDir(path.dirname(destPath));
+          const cleanedContent = cleanMarkdownForDisplay(content, blogFile, '/blog/');
+          await fs.writeFile(destPath, cleanedContent, 'utf8');
+          copiedCount++;
+          console.log(`  ✓ Processed blog: ${blogFile} → ${markdownPath}`);
+        } catch (error) {
+          console.error(`  ✗ Failed to process blog ${blogFile}:`, error.message);
+        }
+      }
+
+      const authorsPath = path.join(blogDir, 'authors.yml');
+      const tagsPath = path.join(blogDir, 'tags.yml');
+      const authorsYaml = fs.existsSync(authorsPath)
+        ? await fs.readFile(authorsPath, 'utf8')
+        : '';
+      const tagsYaml = fs.existsSync(tagsPath)
+        ? await fs.readFile(tagsPath, 'utf8')
+        : '';
+      const blogIndexPages = createBlogIndexMarkdownPages(
+        blogPosts,
+        authorsYaml,
+        tagsYaml,
+      );
+      for (const [markdownPath, content] of Object.entries(blogIndexPages)) {
+        try {
+          const destPath = path.join(outDir, markdownPath.slice(1));
+          await fs.ensureDir(path.dirname(destPath));
+          await fs.writeFile(destPath, content, 'utf8');
+          copiedCount++;
+          console.log(`  ✓ Generated blog index: ${markdownPath}`);
+        } catch (error) {
+          console.error(`  ✗ Failed to generate ${markdownPath}:`, error.message);
         }
       }
 

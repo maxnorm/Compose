@@ -35,6 +35,9 @@ jobs:
       - name: Check docs rebuild rules
         run: node --test .github/scripts/netlify-ignore.test.mjs
 
+      - name: Test Markdown content negotiation
+        run: npm --workspace website run markdown:test
+
       - name: Install dependencies
         run: npm ci
 
@@ -46,4 +49,3 @@ jobs:
           ALGOLIA_API_KEY: ${{ secrets.ALGOLIA_API_KEY || 'dummy' }}
           ALGOLIA_INDEX_NAME: ${{ secrets.ALGOLIA_INDEX_NAME || 'compose' }}
           POSTHOG_API_KEY: ${{ secrets.POSTHOG_API_KEY || 'dummy' }}
-

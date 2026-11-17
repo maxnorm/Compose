@@ -8,6 +8,7 @@
     "catalog:check": "node scripts/generate-library-catalog.mjs --check",
     "catalog:test": "node --test scripts/generate-library-catalog.test.mjs",
     "graph:test": "node --test scripts/library-graph.test.mjs",
+    "markdown:test": "node --test scripts/markdown-*.test.mjs",
     "prestart": "npm run catalog:generate",
     "start": "docusaurus start",
     "prebuild": "npm run catalog:generate",
